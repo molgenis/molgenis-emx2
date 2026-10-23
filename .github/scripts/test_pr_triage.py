@@ -815,12 +815,13 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         ]
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "879449e7")
 
-    def test_transition_with_no_existing_item_adds_it(self):
-        calls, _ = self._run_board_update("ready_for_review", is_draft=False, item_exists=False)
+    def test_transition_with_no_existing_item_adds_nothing(self):
+        for action, is_draft in (("ready_for_review", False), ("converted_to_draft", True), ("reopened", True)):
+            with self.subTest(action=action):
+                calls, _ = self._run_board_update(action, is_draft=is_draft, item_exists=False)
 
-        add_item_calls = [call for call in calls if "addProjectV2ItemById" in self._query_of(call)]
-        self.assertEqual(len(add_item_calls), 1)
-        self.assertEqual(add_item_calls[0]["token"], "board-token")
+                self.assertFalse(any("addProjectV2ItemById" in self._query_of(call) for call in calls))
+                self.assertEqual(self._field_writes(calls), [])
 
     def test_transition_never_touches_a_non_managed_status(self):
         calls, _ = self._run_board_update(
@@ -834,230 +835,26 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         ]
         self.assertEqual(status_writes, [])
 
-    # --- Team and Sprint fill only, never overwrite -- true for every action
-    # in BOARD_UPDATE_ACTIONS, not just the transitions exercised here ---
-
-    def test_transition_fills_team_when_empty(self):
+    def test_transition_writes_status_only_even_when_team_and_sprint_are_blank(self):
         calls, _ = self._run_board_update(
-            "ready_for_review",
-            is_draft=False,
-            item_exists=True,
-            current_status="🛠️ Working",
-            current_team=None,
-            mapping={"mswertz": "Delivery"},
+            "ready_for_review", is_draft=False, item_exists=True, current_status="🛠️ Working", current_team=None, current_sprint=None
         )
 
-        team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
-        ]
-        self.assertEqual(len(team_writes), 1)
-        self.assertEqual(team_writes[0]["body"]["variables"]["optionId"], "TEAM_DELIVERY_OPT")
+        written_field_ids = [call["body"]["variables"]["fieldId"] for call in self._field_writes(calls)]
+        self.assertEqual(written_field_ids, [pr_triage_github.STATUS_FIELD_ID])
 
-    def test_transition_never_overwrites_a_non_empty_team(self):
-        calls, _ = self._run_board_update(
-            "ready_for_review",
-            is_draft=False,
-            item_exists=True,
-            current_status="🛠️ Working",
-            current_team="Dev",
-            mapping={"mswertz": "Delivery"},
-        )
+    def test_synchronize_makes_no_call_at_all(self):
+        calls, summary_text = self._run_board_update("synchronize", is_draft=False, item_exists=False)
 
-        team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
-        ]
-        self.assertEqual(team_writes, [])
-
-    def test_transition_fills_sprint_when_empty(self):
-        calls, _ = self._run_board_update(
-            "converted_to_draft",
-            is_draft=True,
-            item_exists=True,
-            current_status="🔍 Review",
-            current_team="Dev",
-            current_sprint=None,
-        )
-
-        sprint_writes = [
-            call
-            for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
-        ]
-        self.assertEqual(len(sprint_writes), 1)
-        self.assertEqual(sprint_writes[0]["body"]["variables"]["iterationId"], "bd551114")
-
-    def test_transition_never_overwrites_a_non_empty_sprint(self):
-        calls, _ = self._run_board_update(
-            "converted_to_draft",
-            is_draft=True,
-            item_exists=True,
-            current_status="🔍 Review",
-            current_team="Dev",
-            current_sprint="Sprint 259",
-        )
-
-        sprint_writes = [
-            call
-            for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
-        ]
-        self.assertEqual(sprint_writes, [])
-
-    # --- synchronize obeys the identical rule as the transitions: Status can
-    # still flip (it is managed, not fill-only), Team and Sprint are fill-only ---
-
-    def test_synchronize_item_already_exists_with_everything_set_writes_nothing(self):
-        calls, summary_text = self._run_board_update(
-            "synchronize",
-            is_draft=False,
-            item_exists=True,
-            current_status="📋 Epic",
-            current_team="Dev",
-            current_sprint="Sprint 260",
-        )
-
-        self._assert_never_touches_assignee_or_draft(calls)
-        self.assertEqual(self._field_writes(calls), [])
-        self.assertFalse(any("addProjectV2ItemById" in self._query_of(call) for call in calls))
-        self.assertIn("### PR triage", summary_text)
-
-    def test_synchronize_fills_status_only_when_empty(self):
-        calls, _ = self._run_board_update(
-            "synchronize", is_draft=True, item_exists=True, current_status=None, current_team="Dev", current_sprint="Sprint 260"
-        )
-
-        status_writes = [
-            call
-            for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
-        ]
-        self.assertEqual(len(status_writes), 1)
-        self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
-
-    def test_synchronize_flips_a_managed_status_to_match_current_draft_state(self):
-        calls, _ = self._run_board_update(
-            "synchronize",
-            is_draft=True,
-            item_exists=True,
-            current_status="🔍 Review",
-            current_team="Dev",
-            current_sprint="Sprint 260",
-        )
-
-        status_writes = [
-            call
-            for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
-        ]
-        self.assertEqual(len(status_writes), 1)
-        self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
-
-    def test_synchronize_never_touches_a_non_managed_status(self):
-        calls, _ = self._run_board_update(
-            "synchronize",
-            is_draft=True,
-            item_exists=True,
-            current_status="📋 Epic",
-            current_team="Dev",
-            current_sprint="Sprint 260",
-        )
-
-        status_writes = [
-            call
-            for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
-        ]
-        self.assertEqual(status_writes, [])
-
-    def test_synchronize_fills_team_when_empty(self):
-        calls, _ = self._run_board_update(
-            "synchronize",
-            is_draft=False,
-            item_exists=True,
-            current_status="🔍 Review",
-            current_team=None,
-            current_sprint="Sprint 260",
-            mapping={"mswertz": "Delivery"},
-        )
-
-        team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
-        ]
-        self.assertEqual(len(team_writes), 1)
-        self.assertEqual(team_writes[0]["body"]["variables"]["optionId"], "TEAM_DELIVERY_OPT")
-
-    def test_synchronize_never_overwrites_a_non_empty_team(self):
-        calls, _ = self._run_board_update(
-            "synchronize",
-            is_draft=False,
-            item_exists=True,
-            current_status="🔍 Review",
-            current_team="Dev",
-            current_sprint="Sprint 260",
-            mapping={"mswertz": "Delivery"},
-        )
-
-        team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
-        ]
-        self.assertEqual(team_writes, [])
-
-    def test_synchronize_fills_sprint_when_empty(self):
-        calls, _ = self._run_board_update(
-            "synchronize",
-            is_draft=False,
-            item_exists=True,
-            current_status="🔍 Review",
-            current_team="Dev",
-            current_sprint=None,
-        )
-
-        sprint_writes = [
-            call
-            for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
-        ]
-        self.assertEqual(len(sprint_writes), 1)
-        self.assertEqual(sprint_writes[0]["body"]["variables"]["iterationId"], "bd551114")
-
-    def test_synchronize_never_overwrites_a_non_empty_sprint(self):
-        calls, _ = self._run_board_update(
-            "synchronize",
-            is_draft=False,
-            item_exists=True,
-            current_status="🔍 Review",
-            current_team="Dev",
-            current_sprint="Sprint 259",
-        )
-
-        sprint_writes = [
-            call
-            for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
-        ]
-        self.assertEqual(sprint_writes, [])
-
-    def test_synchronize_with_no_existing_item_adds_it_and_fills_all_three(self):
-        calls, _ = self._run_board_update(
-            "synchronize", is_draft=True, item_exists=False, mapping={"mswertz": "Delivery"}
-        )
-
-        add_item_calls = [call for call in calls if "addProjectV2ItemById" in self._query_of(call)]
-        self.assertEqual(len(add_item_calls), 1)
-        self.assertEqual(add_item_calls[0]["token"], "board-token")
-
-        field_writes = self._field_writes(calls)
-        written_field_ids = {call["body"]["variables"]["fieldId"] for call in field_writes}
-        self.assertEqual(
-            written_field_ids, {pr_triage_github.STATUS_FIELD_ID, pr_triage_github.TEAM_FIELD_ID, pr_triage_github.SPRINT_FIELD_ID}
-        )
-        for call in field_writes:
-            self.assertEqual(call["body"]["variables"]["itemId"], "NEW_ITEM")
-            self.assertEqual(call["token"], "board-token")
+        self.assertEqual(calls, [])
+        self.assertIn("no action taken", summary_text)
 
 
-def _pr_event(action, is_draft, author="mswertz", number=1, node_id="PR_node"):
-    return {
+BODY_CHANGED = {"body": {"from": "old body"}}
+
+
+def _pr_event(action, is_draft, author="mswertz", number=1, node_id="PR_node", changes=None):
+    event = {
         "action": action,
         "pull_request": {
             "user": {"login": author},
@@ -1068,6 +865,9 @@ def _pr_event(action, is_draft, author="mswertz", number=1, node_id="PR_node"):
         },
         "repository": {"full_name": "molgenis/molgenis-emx2"},
     }
+    if changes is not None:
+        event["changes"] = changes
+    return event
 
 
 class MainWiringClosingIssueTest(unittest.TestCase):
@@ -1181,7 +981,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         self.assertFalse(any("convertPullRequestToDraft" in query_of(call) for call in calls))
         self.assertEqual(self._add_calls(calls)[0]["body"]["variables"]["contentId"], "ISSUE_B")
 
-    # --- the three transitions: Status only on an existing linked issue card ---
+    # --- the three transitions: the story card follows the draft state ---
 
     def test_ready_for_review_moves_the_linked_issues_card_to_review(self):
         calls = []
@@ -1217,58 +1017,21 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")  # Working
 
-    # --- F10: removal on `opened` and each transition, asserted individually.
-    # A subTest loop over the three actions never varies `action` inside the
-    # fake/assertions, so it cannot catch a mutant that only removes on one
-    # specific action -- that is exactly the shape of the hole this closes. ---
+    def test_transitions_leave_the_prs_card_alone(self):
+        for action, is_draft in (("ready_for_review", False), ("converted_to_draft", True), ("reopened", True)):
+            with self.subTest(action=action):
+                calls = []
+                fake = make_fake_http_request_for_redirect(
+                    calls,
+                    pr_item={"id": "PR_ITEM_PUT_BACK", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
+                    closing_issues=[{"id": "ISSUE_A", "number": 10}],
+                    issue_items={"ISSUE_A": {"id": "ISSUE_ITEM", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 260"}},
+                )
 
-    def test_ready_for_review_removes_the_prs_existing_card(self):
-        calls = []
-        existing_issue_item = {"id": "ISSUE_ITEM", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 260"}
-        fake = make_fake_http_request_for_redirect(
-            calls,
-            pr_item={"id": "PR_ITEM_RFR", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
-            closing_issues=[{"id": "ISSUE_A", "number": 10}],
-            issue_items={"ISSUE_A": existing_issue_item},
-        )
+                run_main(_pr_event(action, is_draft=is_draft), http_request=fake, current_date=datetime.date(2026, 8, 8))
 
-        run_main(_pr_event("ready_for_review", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
-
-        remove_calls = self._remove_calls(calls)
-        self.assertEqual(len(remove_calls), 1)
-        self.assertEqual(remove_calls[0]["body"]["variables"]["itemId"], "PR_ITEM_RFR")
-
-    def test_converted_to_draft_removes_the_prs_existing_card(self):
-        calls = []
-        existing_issue_item = {"id": "ISSUE_ITEM", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"}
-        fake = make_fake_http_request_for_redirect(
-            calls,
-            pr_item={"id": "PR_ITEM_CTD", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
-            closing_issues=[{"id": "ISSUE_A", "number": 10}],
-            issue_items={"ISSUE_A": existing_issue_item},
-        )
-
-        run_main(_pr_event("converted_to_draft", is_draft=True), http_request=fake, current_date=datetime.date(2026, 8, 8))
-
-        remove_calls = self._remove_calls(calls)
-        self.assertEqual(len(remove_calls), 1)
-        self.assertEqual(remove_calls[0]["body"]["variables"]["itemId"], "PR_ITEM_CTD")
-
-    def test_reopened_removes_the_prs_existing_card(self):
-        calls = []
-        existing_issue_item = {"id": "ISSUE_ITEM", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 260"}
-        fake = make_fake_http_request_for_redirect(
-            calls,
-            pr_item={"id": "PR_ITEM_REOPENED", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
-            closing_issues=[{"id": "ISSUE_A", "number": 10}],
-            issue_items={"ISSUE_A": existing_issue_item},
-        )
-
-        run_main(_pr_event("reopened", is_draft=True), http_request=fake, current_date=datetime.date(2026, 8, 8))
-
-        remove_calls = self._remove_calls(calls)
-        self.assertEqual(len(remove_calls), 1)
-        self.assertEqual(remove_calls[0]["body"]["variables"]["itemId"], "PR_ITEM_REOPENED")
+                self.assertEqual(self._remove_calls(calls), [])
+                self.assertEqual(self._field_writes(calls, "PR_ITEM_PUT_BACK"), [])
 
     def test_a_parked_linked_issue_is_not_moved(self):
         calls = []
@@ -1326,10 +1089,8 @@ class MainWiringClosingIssueTest(unittest.TestCase):
             self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
             self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "879449e7")  # Review
 
-    # --- owner ruling: the PR's own card is removed LAST, only after every
-    # linked issue's card has been written -- if an issue write fails
-    # partway, the PR's card must survive (a transient duplicate is the
-    # spec's explicitly preferred outcome over zero cards) ---
+    # --- the PR's own card is removed LAST, after every linked issue's card
+    # has been written, so a failed issue write leaves the PR's card ---
 
     def test_removal_happens_after_all_issue_writes_complete(self):
         """Pins the ORDER, not just the outcome: a mutant that removes the
@@ -1345,7 +1106,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
             add_item_ids={"ISSUE_A": "NEW_ISSUE_ITEM"},
         )
 
-        run_main(_pr_event("ready_for_review", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+        run_main(_pr_event("edited", is_draft=False, changes=BODY_CHANGED), http_request=fake, current_date=datetime.date(2026, 8, 8))
 
         remove_index = next(i for i, c in enumerate(calls) if "deleteProjectV2Item" in query_of(c))
         issue_write_indices = [
@@ -1378,61 +1139,16 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         )
 
         with self.assertRaises(ValueError):
-            run_main(_pr_event("ready_for_review", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+            run_main(_pr_event("edited", is_draft=False, changes=BODY_CHANGED), http_request=fake, current_date=datetime.date(2026, 8, 8))
 
         self.assertEqual(self._remove_calls(calls), [], "the PR's card must survive an issue write that failed")
 
-    # --- synchronize on a closing PR: writes NOTHING anywhere -- not the PR's
-    # card (not even removal), not any issue's [owner ruling, fixes review
-    # finding F1: a push must never leave zero cards for the same work] ---
-
-    def test_synchronize_on_a_closing_pr_makes_no_write_and_no_removal_anywhere(self):
-        calls = []
-        pr_item = {"id": "PR_ITEM", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"}
-        fake = make_fake_http_request_for_redirect(
-            calls,
-            pr_item=pr_item,
-            closing_issues=[{"id": "ISSUE_A", "number": 10}],
-            issue_items={"ISSUE_A": {"id": "ISSUE_ITEM", "status": None, "team": None, "sprint": None}},
-        )
-
-        run_main(_pr_event("synchronize", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
-
-        self.assertFalse(
-            any(call["body"]["variables"].get("contentId") == "ISSUE_A" for call in calls if call["body"]),
-            "synchronize must never even look up a linked issue's item",
-        )
-        self.assertEqual(self._field_writes(calls, "ISSUE_ITEM"), [])
-        self.assertEqual(self._field_writes(calls, "PR_ITEM"), [])
-        self.assertEqual(self._add_calls(calls), [])
-        self.assertEqual(self._remove_calls(calls), [], "a push must never remove the PR's own card")
-
-    def test_synchronize_f1_a_closing_pr_with_a_card_against_an_unboarded_issue_keeps_its_card(self):
-        """Review finding F1: removing the PR's card on a push while never
-        adding the issue's would leave zero cards for the same work. This is
-        the exact scenario the fix (excluding synchronize from
-        PR_CARD_REMOVAL_ACTIONS) closes."""
-        calls = []
-        pr_item = {"id": "PR_ITEM", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"}
-        fake = make_fake_http_request_for_redirect(
-            calls,
-            pr_item=pr_item,
-            closing_issues=[{"id": "ISSUE_A", "number": 10}],
-            issue_items={"ISSUE_A": None},
-            add_item_ids={"ISSUE_A": "NEW_ISSUE_ITEM"},
-        )
-
-        run_main(_pr_event("synchronize", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
-
-        self.assertEqual(self._remove_calls(calls), [], "the PR's own card must survive a synchronize")
-        self.assertEqual(self._add_calls(calls), [], "the unboarded issue must not be added by synchronize either")
-
     # --- edited: link appears (remove the PR's card, never an issue's) ---
 
-    def test_edited_link_appears_removes_the_prs_card_and_only_it(self):
+    def test_edited_link_appears_removes_the_prs_card_and_moves_the_issues_status(self):
         calls = []
         pr_item = {"id": "PR_ITEM_OLD", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"}
-        existing_issue_item = {"id": "ISSUE_ITEM", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 260"}
+        existing_issue_item = {"id": "ISSUE_ITEM", "status": "🛠️ Working", "team": "Analysis", "sprint": "Sprint 259"}
         fake = make_fake_http_request_for_redirect(
             calls,
             pr_item=pr_item,
@@ -1440,12 +1156,16 @@ class MainWiringClosingIssueTest(unittest.TestCase):
             issue_items={"ISSUE_A": existing_issue_item},
         )
 
-        summary_text, _ = run_main(_pr_event("edited", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+        summary_text, _ = run_main(
+            _pr_event("edited", is_draft=False, changes=BODY_CHANGED), http_request=fake, current_date=datetime.date(2026, 8, 8)
+        )
 
         remove_calls = self._remove_calls(calls)
         self.assertEqual(len(remove_calls), 1)
         self.assertEqual(remove_calls[0]["body"]["variables"]["itemId"], "PR_ITEM_OLD")
-        self.assertEqual(self._field_writes(calls, "ISSUE_ITEM"), [], "edited never touches an existing issue card")
+        issue_writes = self._field_writes(calls, "ISSUE_ITEM")
+        self.assertEqual([c["body"]["variables"]["fieldId"] for c in issue_writes], [pr_triage_github.STATUS_FIELD_ID])
+        self.assertEqual(issue_writes[0]["body"]["variables"]["optionId"], "879449e7")  # Review
 
         self.assertIn("PR card removed", summary_text)
         self.assertIn("PR_ITEM_OLD", summary_text)
@@ -1453,7 +1173,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         self.assertIn("Dev", summary_text)
         self.assertIn("Sprint 260", summary_text)
 
-    def test_edited_adds_and_fills_a_missing_issue_card_but_leaves_status_unwritten(self):
+    def test_edited_adds_a_missing_issue_card_with_all_three_fields(self):
         calls = []
         fake = make_fake_http_request_for_redirect(
             calls,
@@ -1463,29 +1183,10 @@ class MainWiringClosingIssueTest(unittest.TestCase):
             add_item_ids={"ISSUE_B": "NEW_ISSUE"},
         )
 
-        run_main(_pr_event("edited", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+        run_main(_pr_event("edited", is_draft=True, changes=BODY_CHANGED), http_request=fake, current_date=datetime.date(2026, 8, 8))
 
         self.assertEqual(self._add_calls(calls)[0]["body"]["variables"]["contentId"], "ISSUE_B")
         field_writes = self._field_writes(calls, "NEW_ISSUE")
-        written_field_ids = {call["body"]["variables"]["fieldId"] for call in field_writes}
-        self.assertEqual(written_field_ids, {pr_triage_github.TEAM_FIELD_ID, pr_triage_github.SPRINT_FIELD_ID})
-
-    # --- edited: link disappears (the PR is boarded exactly like any other) ---
-
-    def test_edited_link_disappears_reboards_the_pr_normally(self):
-        calls = []
-        fake = make_fake_http_request_for_redirect(calls, pr_item=None, closing_issues=[], add_item_ids={"PR_node": "NEW_PR_ITEM"})
-
-        run_main(_pr_event("edited", is_draft=True), http_request=fake, current_date=datetime.date(2026, 8, 8))
-
-        add_calls = self._add_calls(calls)
-        self.assertEqual(len(add_calls), 1)
-        self.assertEqual(add_calls[0]["body"]["variables"]["contentId"], "PR_node")
-        self.assertEqual(self._remove_calls(calls), [])
-
-        # Review gap: the re-add was asserted, but not that it is FILLED --
-        # a mutant that adds an empty card survived without this.
-        field_writes = self._field_writes(calls, "NEW_PR_ITEM")
         written_field_ids = {call["body"]["variables"]["fieldId"] for call in field_writes}
         self.assertEqual(
             written_field_ids, {pr_triage_github.STATUS_FIELD_ID, pr_triage_github.TEAM_FIELD_ID, pr_triage_github.SPRINT_FIELD_ID}
@@ -1493,46 +1194,39 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         status_write = next(c for c in field_writes if c["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(status_write["body"]["variables"]["optionId"], "47fc9ee4")  # Working, is_draft=True
 
-    def test_add_remove_add_cycle_is_stable_not_one_shot(self):
-        """The ticket calls this out explicitly: adding closes #N removes the
-        PR's card, removing it re-boards and fills the PR, adding it again
-        removes the NEW card too. Three independent edited events, each
-        reflecting the board state the previous one would have left."""
-        # Step 1: closes present, PR already has a card -> removed.
-        calls_1 = []
-        fake_1 = make_fake_http_request_for_redirect(
-            calls_1,
-            pr_item={"id": "PR_ITEM_1", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
-            closing_issues=[{"id": "ISSUE_A", "number": 10}],
-            issue_items={"ISSUE_A": {"id": "ISSUE_ITEM_A", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 260"}},
-        )
-        run_main(_pr_event("edited", is_draft=False), http_request=fake_1, current_date=datetime.date(2026, 8, 8))
-        self.assertEqual(len(self._remove_calls(calls_1)), 1)
-        self.assertEqual(self._remove_calls(calls_1)[0]["body"]["variables"]["itemId"], "PR_ITEM_1")
+    def test_edited_without_a_closing_link_adds_and_writes_nothing(self):
+        for pr_item in (None, {"id": "PR_ITEM", "status": "🔍 Review", "team": None, "sprint": None}):
+            with self.subTest(pr_item=pr_item):
+                calls = []
+                fake = make_fake_http_request_for_redirect(
+                    calls, pr_item=pr_item, closing_issues=[], add_item_ids={"PR_node": "NEW_PR_ITEM"}
+                )
 
-        # Step 2: closes removed, PR has no card -> re-added and filled.
-        calls_2 = []
-        fake_2 = make_fake_http_request_for_redirect(
-            calls_2, pr_item=None, closing_issues=[], add_item_ids={"PR_node": "PR_ITEM_2"}
-        )
-        run_main(_pr_event("edited", is_draft=False), http_request=fake_2, current_date=datetime.date(2026, 8, 8))
-        add_calls_2 = self._add_calls(calls_2)
-        self.assertEqual(len(add_calls_2), 1)
-        self.assertEqual(add_calls_2[0]["body"]["variables"]["contentId"], "PR_node")
-        self.assertEqual(self._remove_calls(calls_2), [])
+                run_main(
+                    _pr_event("edited", is_draft=True, changes=BODY_CHANGED), http_request=fake, current_date=datetime.date(2026, 8, 8)
+                )
 
-        # Step 3: closes added again, PR now has the card step 2 created -> removed again.
-        calls_3 = []
-        fake_3 = make_fake_http_request_for_redirect(
-            calls_3,
-            pr_item={"id": "PR_ITEM_2", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
-            closing_issues=[{"id": "ISSUE_A", "number": 10}],
-            issue_items={"ISSUE_A": {"id": "ISSUE_ITEM_A", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 260"}},
-        )
-        run_main(_pr_event("edited", is_draft=False), http_request=fake_3, current_date=datetime.date(2026, 8, 8))
-        remove_calls_3 = self._remove_calls(calls_3)
-        self.assertEqual(len(remove_calls_3), 1)
-        self.assertEqual(remove_calls_3[0]["body"]["variables"]["itemId"], "PR_ITEM_2")
+                self.assertEqual(self._add_calls(calls), [])
+                self.assertEqual(self._remove_calls(calls), [])
+                self.assertFalse(any("updateProjectV2ItemFieldValue" in query_of(call) for call in calls))
+
+    def test_edited_without_a_body_change_makes_no_call_at_all(self):
+        for changes in ({"title": {"from": "old title"}}, {"base": {"ref": {"from": "feat/x"}}}):
+            with self.subTest(changes=changes):
+                calls = []
+                fake = make_fake_http_request_for_redirect(
+                    calls,
+                    pr_item={"id": "PR_ITEM", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
+                    closing_issues=[{"id": "ISSUE_A", "number": 10}],
+                    issue_items={"ISSUE_A": None},
+                )
+
+                summary_text, _ = run_main(
+                    _pr_event("edited", is_draft=False, changes=changes), http_request=fake, current_date=datetime.date(2026, 8, 8)
+                )
+
+                self.assertEqual(calls, [])
+                self.assertIn("body unchanged", summary_text)
 
     # --- the mutant this ticket names explicitly: the removal call must
     # carry the PR's item id, never an issue's ---
@@ -1548,7 +1242,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
             issue_items={"ISSUE_A": issue_item},
         )
 
-        run_main(_pr_event("edited", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+        run_main(_pr_event("edited", is_draft=False, changes=BODY_CHANGED), http_request=fake, current_date=datetime.date(2026, 8, 8))
 
         remove_calls = self._remove_calls(calls)
         self.assertEqual(len(remove_calls), 1)
@@ -1567,7 +1261,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
             add_item_ids={"PR_node": "NEW_PR_ITEM"},
         )
 
-        run_main(_pr_event("ready_for_review", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+        run_main(_pr_event("opened", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
 
         add_calls = self._add_calls(calls)
         self.assertEqual(len(add_calls), 1)
@@ -1636,7 +1330,7 @@ class BoardUpdateWritesStepSummaryOnFailureTest(unittest.TestCase):
     def test_step_summary_is_still_written_when_the_teams_mapping_fails_to_load(self):
         """Review finding: handle_board_update used to load the teams mapping
         OUTSIDE its try/finally, so a mapping-read failure on a
-        transition/synchronize/edited event wrote no step summary at all --
+        transition or edited event wrote no step summary at all --
         unlike the opened path (MainWritesStepSummaryOnFailureTest), which
         already handled this gracefully and had a test for it."""
         event = {
@@ -1676,126 +1370,6 @@ class BoardUpdateWritesStepSummaryOnFailureTest(unittest.TestCase):
         self.assertIn("### PR triage", summary_text)
         self.assertIn("Failure", summary_text)
         self.assertIn("no such file", summary_text)
-
-
-class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
-    def test_fields_are_resolved_before_a_missing_item_is_added(self):
-
-        event = {
-            "action": "ready_for_review",
-            "pull_request": {
-                "user": {"login": "mswertz"},
-                "head": {"ref": "feature/x"},
-                "number": 1,
-                "node_id": "PR_node",
-                "draft": False,
-            },
-            "repository": {"full_name": "molgenis/molgenis-emx2"},
-        }
-
-        call_kinds = []
-
-        def fake_http_request(url, token, method="GET", body=None):
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
-            if "projectItems" in query:
-                call_kinds.append("find_item")
-                return {"data": {"node": {"projectItems": {"nodes": []}}}}
-            if "addProjectV2ItemById" in query:
-                call_kinds.append("add_item")
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "NEW_ITEM"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                call_kinds.append("set_field")
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "NEW_ITEM"}}}}
-            if "options { id name }" in query:
-                call_kinds.append("fetch_options")
-                if variables["fieldId"] == pr_triage_github.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": LIVE_STATUS_OPTIONS}}}
-                return {"data": {"node": {"options": [{"id": "TEAM_DEV_OPT", "name": "Dev"}]}}}
-            if "configuration" in query:
-                call_kinds.append("fetch_iterations")
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
-
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
-
-            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage_github, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "load_teams_mapping", return_value={"mswertz": "Dev"}), mock.patch.object(
-                pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
-            ):
-                pr_triage.main()
-
-        add_item_index = call_kinds.index("add_item")
-        self.assertLess(call_kinds.index("fetch_options"), add_item_index)
-
-    def test_a_status_resolution_failure_never_adds_a_board_item(self):
-
-        event = {
-            "action": "ready_for_review",
-            "pull_request": {
-                "user": {"login": "mswertz"},
-                "head": {"ref": "feature/x"},
-                "number": 1,
-                "node_id": "PR_node",
-                "draft": False,
-            },
-            "repository": {"full_name": "molgenis/molgenis-emx2"},
-        }
-
-        def fake_http_request(url, token, method="GET", body=None):
-            query = (body or {}).get("query", "")
-            if "projectItems" in query:
-                return {"data": {"node": {"projectItems": {"nodes": []}}}}
-            if "addProjectV2ItemById" in query:
-                raise AssertionError("must not add a board item when Status resolution fails")
-            if "options { id name }" in query:
-                return {"data": {"node": {"options": [{"id": "SOME_OPT", "name": "NoMatchingOptionHere"}]}}}
-            if "configuration" in query:
-                return {"data": {"node": {"configuration": {"iterations": []}}}}
-            raise AssertionError(f"unexpected call: {url} {query}")
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
-
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
-
-            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage_github, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "load_teams_mapping", return_value={"mswertz": "Dev"}), mock.patch.object(
-                pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
-            ):
-                with self.assertRaises(ValueError):
-                    pr_triage.main()
 
 
 class MainWiringUnknownAuthorTest(unittest.TestCase):
@@ -2458,11 +2032,8 @@ class ValidateMainRunsOfflineWithoutBoardTokenTest(unittest.TestCase):
         self.assertNotEqual(context.exception.code, 0)
 
 
-class WorkflowIncludesEditedInPullRequestTypesTest(unittest.TestCase):
-    """Ticket 05: the link can appear or disappear after open, so `edited`
-    must be seen the moment it happens, not at the next push."""
-
-    def test_edited_is_a_triggering_type_and_reaches_the_board_update_handler(self):
+class WorkflowTriggersTest(unittest.TestCase):
+    def test_edited_and_synchronize_trigger_the_workflow_but_synchronize_skips_the_triage_job(self):
         repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
         with open(workflow_path, encoding="utf-8") as handle:
@@ -2470,8 +2041,10 @@ class WorkflowIncludesEditedInPullRequestTypesTest(unittest.TestCase):
 
         types_line = next(line for line in workflow_text.splitlines() if "types:" in line)
         self.assertIn("edited", types_line)
+        self.assertIn("synchronize", types_line)
 
-        self.assertIn("edited", pr_triage_decide.BOARD_UPDATE_ACTIONS)
+        triage_job = workflow_text[workflow_text.index("  triage:") :]
+        self.assertIn("github.event.action != 'synchronize'", triage_job[: triage_job.index("runs-on:")])
 
 
 class WorkflowHasAPerPrConcurrencyGroupTest(unittest.TestCase):
