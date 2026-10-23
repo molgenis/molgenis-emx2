@@ -44,7 +44,7 @@ async function fetchSchemaTheme(
         (settings?.value?.[SCHEMA_UI_THEME] as string) || "";
     } catch (error) {
       console.error("Error fetching SCHEMA_UI_THEME setting", error);
-      cache.value[schema] = "";
+      return "";
     }
   }
   return cache.value[schema] as string;
