@@ -1,11 +1,15 @@
 package org.molgenis.emx2.rdf.generators.query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
+import static org.molgenis.emx2.rdf.query.SparqlQueryTestUtils.*;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.resultio.text.csv.SPARQLResultsCSVWriter;
@@ -13,8 +17,6 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -73,11 +75,30 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-                  SELECT ?_subject_ ?name
-                  WHERE { ?_subject_ ?anyPredicate ?anyObject .
-                  ?_subject_ xsd:name ?name . }
-                  GROUP BY ?_subject_ ?name
-                  """,
+        SELECT ?_subject_ ?name
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        ?_subject_ xsd:name ?name . }
+        GROUP BY ?_subject_ ?name
+        """,
+        removePrefixesFromQuery(query));
+  }
+
+  @Test
+  void shouldTableSemanticsNull_thenAnchorRootVariable() {
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table("Person", Column.column("name").setSemantics("foaf:firstName"))
+                    .setSemantics((Semantic[]) null));
+
+    String query = new TableQueryGenerator().generate(table);
+    assertEquals(
+        """
+        SELECT ?_subject_ ?name
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ foaf:firstName ?name . } }
+        GROUP BY ?_subject_ ?name
+        """,
         removePrefixesFromQuery(query));
   }
 
@@ -124,11 +145,11 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-            SELECT ?_subject_ ?name
-            WHERE { ?_subject_ a xsd:foo .
-            ?_subject_ xsd:name ?name . }
-            GROUP BY ?_subject_ ?name
-            """,
+        SELECT ?_subject_ ?name
+        WHERE { ?_subject_ a xsd:foo .
+        ?_subject_ xsd:name ?name . }
+        GROUP BY ?_subject_ ?name
+        """,
         removePrefixesFromQuery(query));
   }
 
@@ -175,11 +196,11 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-      SELECT ?_subject_ ?name
-      WHERE { ?_subject_ ?anyPredicate ?anyObject .
-      ?_subject_ xsd:name ?name . }
-      GROUP BY ?_subject_ ?name
-      """,
+        SELECT ?_subject_ ?name
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        ?_subject_ xsd:name ?name . }
+        GROUP BY ?_subject_ ?name
+        """,
         removePrefixesFromQuery(query));
   }
 
@@ -194,11 +215,11 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-          SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = '|' ) AS ?names )
-          WHERE { ?_subject_ ?anyPredicate ?anyObject .
-          OPTIONAL { ?_subject_ xsd:name ?names_single . } }
-          GROUP BY ?_subject_
-          """,
+        SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = '|' ) AS ?names )
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ xsd:name ?names_single . } }
+        GROUP BY ?_subject_
+        """,
         removePrefixesFromQuery(query));
   }
 
@@ -218,19 +239,36 @@ class TableQueryGeneratorTest {
         removePrefixesFromQuery(query));
   }
 
-  private String removePrefixesFromQuery(String query) {
-    return query.replaceAll("PREFIX .*\n", "");
-  }
-
   @Test
-  void shouldSetUpPrefixes() {
-    SelectQuery select = Queries.SELECT();
-    order.getSchema().getSemanticPrefixes().getAllNamespaces().forEach(select::prefix);
+  void shouldAnchorSubjects() {
+    String iri1 = "https://example.com/pet1";
+    String iri2 = "https://example.com/pet2";
+    SailRepository repository =
+        repository(
+            statement(iri1, FOAF.FIRST_NAME, "Pip"), statement(iri2, DCTERMS.TITLE, "the Legend"));
 
-    String prefixes = select.getQueryString().replace("SELECT * \n" + "WHERE {}", "").trim();
-    TableQueryGenerator generator = new TableQueryGenerator();
-    String actualQuery = generator.generate(order);
-    assertTrue(actualQuery.startsWith(prefixes));
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "example",
+                    Column.column("name").setType(ColumnType.STRING).setSemantics("foaf:firstName"),
+                    Column.column("title")
+                        .setType(ColumnType.STRING)
+                        .setSemantics("dcterms:title")));
+
+    assertQueryAndResults(
+        table,
+        repository,
+        """
+        SELECT ?_subject_ ?name ?title
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ foaf:firstName ?name . }
+        OPTIONAL { ?_subject_ dcterms:title ?title . } }
+        GROUP BY ?_subject_ ?name ?title
+        """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Pip"),
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "title", "the Legend"));
   }
 
   @Test
@@ -259,6 +297,10 @@ class TableQueryGeneratorTest {
     List<String> expectedLines = new String(fileBytes).lines().toList();
     List<String> actualLines = writer.toString().lines().toList();
     assertEquals(expectedLines, actualLines);
+  }
+
+  private String removePrefixesFromQuery(String query) {
+    return query.replaceAll("PREFIX .*\n", "");
   }
 
   private SailRepository setupRepositoryFromFile(String fileName) {
@@ -322,12 +364,12 @@ class TableQueryGeneratorTest {
       String query = new TableQueryGenerator().generate(petSchema(false).getTableMetadata("Pet"));
       assertEquals(
           """
-        SELECT ?_subject_ ?name ( GROUP_CONCAT( DISTINCT STR( ?_subject_owner_single ) ; SEPARATOR = '|' ) AS ?_subject_owner )
-        WHERE { ?_subject_ ?anyPredicate ?anyObject .
-        ?_subject_ foaf:pet_name ?name .
-        OPTIONAL { ?_subject_ ^foaf:pet ?_subject_owner_single . } }
-        GROUP BY ?_subject_ ?name
-        """,
+          SELECT ?_subject_ ?name ( GROUP_CONCAT( DISTINCT STR( ?_subject_owner_single ) ; SEPARATOR = '|' ) AS ?_subject_owner )
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          ?_subject_ foaf:pet_name ?name .
+          OPTIONAL { ?_subject_ ^foaf:pet ?_subject_owner_single . } }
+          GROUP BY ?_subject_ ?name
+          """,
           removePrefixesFromQuery(query));
     }
 
@@ -336,13 +378,31 @@ class TableQueryGeneratorTest {
       String query = new TableQueryGenerator().generate(petSchema(true).getTableMetadata("Pet"));
       assertEquals(
           """
-            SELECT ?_subject_ ?name ( GROUP_CONCAT( DISTINCT STR( ?_subject_owner_single ) ; SEPARATOR = '|' ) AS ?_subject_owner )
-            WHERE { ?_subject_ ?anyPredicate ?anyObject .
-            ?_subject_ foaf:pet_name ?name .
-            ?_subject_ ^foaf:pet ?_subject_owner_single . }
-            GROUP BY ?_subject_ ?name
-            """,
+          SELECT ?_subject_ ?name ( GROUP_CONCAT( DISTINCT STR( ?_subject_owner_single ) ; SEPARATOR = '|' ) AS ?_subject_owner )
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          ?_subject_ foaf:pet_name ?name .
+          ?_subject_ ^foaf:pet ?_subject_owner_single . }
+          GROUP BY ?_subject_ ?name
+          """,
           removePrefixesFromQuery(query));
+    }
+
+    @Test
+    void givenSchema_whenCustomPrefixes_thenUseInQueryPrefixes() {
+      TableMetadata table =
+          new SchemaMetadata("testPrefixes")
+              .setSetting(SETTING_SEMANTIC_PREFIXES, "foo,http://www.example.org/bar#")
+              .create(new TableMetadata("test"));
+
+      String actual = new TableQueryGenerator().generate(table);
+      assertEquals(
+          """
+          PREFIX foo: <http://www.example.org/bar#>
+          SELECT ?_subject_
+          WHERE { ?_subject_ ?anyPredicate ?anyObject . }
+          GROUP BY ?_subject_
+          """,
+          actual);
     }
   }
 }
