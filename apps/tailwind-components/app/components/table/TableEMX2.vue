@@ -296,6 +296,71 @@
     </div>
   </div>
 
+  <TableInteractive
+    v-if="data?.tableMetadata && rows"
+    :features="{
+      showSearch: !props.hideSearch,
+      showFilters: enableFilters && !!filters,
+      showStickyHeader: !!props.useStickyHeader,
+    }"
+    :filters="filters"
+    :rights="{
+      canUpdate: canUpdate,
+      canDelete: canDelete,
+      canModifySelection: selectionIsModifiable,
+      isRowLevel: props.isRowLevel,
+    }"
+    :rows="rows"
+    :rowCount="data.count"
+    :settings="settings"
+    :selectedRows="selectedRows"
+    :sortedVisibleColumns="sortedVisibleColumns"
+    :tableMetadata="data.tableMetadata"
+    @update:settings="handleUpdateSettings"
+    @rowAction="handleRowAction"
+  >
+    <template #buttons>
+      <div class="flex gap-[10px]">
+        <Button
+          v-if="canInsert && data?.tableMetadata"
+          type="primary"
+          size="medium"
+          icon="add-circle"
+          @click="onAddRowClicked"
+        >
+          Add {{ tableId }}
+        </Button>
+
+        <TableControlColumns
+          :columns="sortedColumns"
+          @update:columns="handleColumnsUpdate"
+        />
+
+        <DownloadButton
+          v-if="schemaId && tableId"
+          :schemaId="schemaId"
+          :tableId="tableId"
+        />
+
+        <Truncate
+          v-if="canDelete && data?.tableMetadata"
+          v-slot="{ showConfirmationModal }"
+          :metadata="data.tableMetadata"
+          @update:truncated="afterRowDeleted"
+        >
+          <Button
+            type="outline"
+            size="medium"
+            @click="showConfirmationModal"
+            :disabled="!rows.length"
+          >
+            Truncate
+          </Button>
+        </Truncate>
+      </div>
+    </template>
+  </TableInteractive>
+
   <CellDetailModal
     v-if="cellDetailPayload"
     :payload="cellDetailPayload"
@@ -373,10 +438,10 @@ import type {
   columnValue,
   IColumn,
   IRow,
+  TableRow,
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
-  ITablePermission,
   ITableSettings,
   sortDirection,
 } from "../../../types/types";
@@ -405,6 +470,7 @@ import { useSession } from "../../composables/useSession";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
+import EditModalHeader from "../form/EditModalHeader.vue";
 import Checkbox from "../input/Checkbox.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
@@ -416,7 +482,6 @@ import DownloadButton from "./control/DownloadButton.vue";
 import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
-import EditModalHeader from "../form/EditModalHeader.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -466,9 +531,9 @@ const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
 const isCopy = ref(false);
+const sidebarCollapsed = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
-const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
 const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
 
@@ -490,47 +555,6 @@ const settings = defineModel<ITableSettings>("settings", {
 });
 
 const { showRolesForTable } = await useSession(props.schemaId);
-
-const filters: UseFilters | null = props.enableFilters
-  ? useFilters(
-      computed(() => columns.value),
-      {
-        urlSync: true,
-        schemaId: props.schemaId,
-        tableId: props.tableId,
-      }
-    )
-  : null;
-
-const sidebarCollapsed = ref(false);
-
-if (filters) {
-  watch(
-    () => filters.searchValue.value,
-    (value) => {
-      settings.value.search = value ?? "";
-      settings.value.page = 1;
-    }
-  );
-}
-
-const searchValue = computed({
-  get: () =>
-    props.enableFilters && filters
-      ? filters.searchValue.value
-      : settings.value.search,
-  set: (val: string) => {
-    if (props.enableFilters && filters) {
-      filters.setSearch(val);
-    } else {
-      handleSearchRequest(val);
-    }
-  },
-});
-
-const effectiveFilter = computed(() =>
-  filters ? filters.gqlFilter.value : props.filter
-);
 
 const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
@@ -574,6 +598,54 @@ const { data, refresh } = useAsyncData(
       count: tableData.count,
     };
   }
+);
+
+const columns = computed<IColumn[]>(
+  () =>
+    data.value?.tableMetadata?.columns.filter(
+      (column: IColumn) =>
+        !column.id.startsWith("mg") &&
+        !["HEADING", "SECTION"].includes(column.columnType)
+    ) ?? []
+);
+
+const filters: UseFilters | null = props.enableFilters
+  ? useFilters(
+      computed(() => columns.value),
+      {
+        urlSync: true,
+        schemaId: props.schemaId,
+        tableId: props.tableId,
+      }
+    )
+  : null;
+
+if (filters) {
+  watch(
+    () => filters.searchValue.value,
+    (value) => {
+      settings.value.search = value ?? "";
+      settings.value.page = 1;
+    }
+  );
+}
+
+const searchValue = computed({
+  get: () =>
+    props.enableFilters && filters
+      ? filters.searchValue.value
+      : settings.value.search,
+  set: (val: string) => {
+    if (props.enableFilters && filters) {
+      filters.setSearch(val);
+    } else {
+      handleSearchRequest(val);
+    }
+  },
+});
+
+const effectiveFilter = computed(() =>
+  filters ? filters.gqlFilter.value : props.filter
 );
 
 onMounted(async () => {
@@ -689,49 +761,27 @@ watch(
   { deep: true }
 );
 
-watch(
-  () => data.value?.tableMetadata,
-  (newMetadata) => {
-    if (newMetadata) {
-      columns.value = newMetadata.columns.filter(
-        (c: IColumn) =>
-          !c.id.startsWith("mg") &&
-          !["HEADING", "SECTION"].includes(c.columnType)
-      );
-    }
-  },
-  { immediate: true }
-);
-
-const sortedColumns = computed(() => {
-  // sort from backend
-  let sortedColumns = sortColumns([...(columns.value ?? [])]);
+const sortedColumns = computed<IColumn[]>(() => {
+  const backEndSortedColumns = sortColumns(columns.value);
 
   if (settings.value.orderedColumnsIds?.length) {
-    // override visibility with user settings
-    sortedColumns = sortedColumns.map((col) => {
-      return {
-        ...col,
-        // use string instead of boolean for compatibility backend
-        visible: settings.value.orderedColumnsIds.includes(col.id)
-          ? "true"
-          : "false",
-      };
-    });
     // order by user settings
-    sortedColumns.sort((a, b) => {
+    return backEndSortedColumns.sort((a, b) => {
       const indexA = settings.value.orderedColumnsIds?.indexOf(a.id) ?? -1;
       const indexB = settings.value.orderedColumnsIds?.indexOf(b.id) ?? -1;
       return indexA - indexB;
     });
   }
 
-  return sortedColumns;
+  return backEndSortedColumns;
 });
 
-const sortedVisibleColumns = computed(() =>
-  sortedColumns.value.filter((col) => col.visible !== "false")
-);
+const sortedVisibleColumns = computed<IColumn[]>(() => {
+  console.log(sortedColumns.value);
+  return sortedColumns.value.filter(
+    (col) => col.visible !== "false" && col.visible
+  );
+});
 
 const numberOfSelectedRows = computed(() => selectedRows.value.size);
 
@@ -876,9 +926,9 @@ async function afterRowDeleted() {
   await refresh();
 }
 
-type TableRow = {
-  _rowId: Record<string, columnValue>;
-  _rowIdString: string;
-  mg_roles?: string[];
-} & Record<string, columnValue>;
+function handleUpdateSettings(newSettings: ITableSettings) {
+  settings.value = newSettings;
+  searchValue.value = newSettings.search || "";
+  refresh();
+}
 </script>
