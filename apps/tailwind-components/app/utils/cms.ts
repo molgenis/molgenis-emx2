@@ -913,3 +913,19 @@ export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
 }
+
+export async function updateCMSfield(
+  schema: string,
+  typeName: "Paragraphs" | "Headings",
+  id: string,
+  text: string
+) {
+  const updateQuery = `mutation update($value:[${typeName}Input]) {
+      update(${typeName}:$value) {
+        message
+      }
+    }`;
+
+  const updateVars = { value: [{ id, text }] };
+  await cmsFetch(schema, updateQuery, updateVars);
+}
