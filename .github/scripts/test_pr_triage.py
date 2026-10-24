@@ -2054,9 +2054,22 @@ class WorkflowHasAPerPrConcurrencyGroupTest(unittest.TestCase):
         with open(workflow_path, encoding="utf-8") as handle:
             workflow_text = handle.read()
 
-        self.assertIn("concurrency:", workflow_text)
-        self.assertIn("github.event.pull_request.number", workflow_text)
+        group_line = next(line for line in workflow_text.splitlines() if line.strip().startswith("group:"))
+        self.assertIn("github.event.pull_request.number", group_line)
         self.assertNotIn("cancel-in-progress: true", workflow_text)
+
+    def test_push_and_non_body_edit_runs_get_their_own_group_so_they_cannot_cancel_a_pending_triage(self):
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
+        with open(workflow_path, encoding="utf-8") as handle:
+            workflow_text = handle.read()
+
+        group_line = next(line for line in workflow_text.splitlines() if line.strip().startswith("group:"))
+        self.assertIn(
+            "(github.event.action == 'synchronize' || (github.event.action == 'edited' && !github.event.changes.body))"
+            " && format('noop-{0}', github.run_id) || github.event.pull_request.number",
+            group_line,
+        )
 
 
 class WorkflowGithubTokenPermissionsTest(unittest.TestCase):
