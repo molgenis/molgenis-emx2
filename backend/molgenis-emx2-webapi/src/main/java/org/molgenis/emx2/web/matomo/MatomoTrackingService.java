@@ -11,8 +11,12 @@ import org.matomo.java.tracking.MatomoRequest;
 import org.matomo.java.tracking.MatomoTracker;
 import org.matomo.java.tracking.TrackerConfiguration;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MatomoTrackingService implements TrackingService {
+
+  private static final Logger logger = LoggerFactory.getLogger(MatomoTrackingService.class);
 
   private static final String DEFAULT_MATOMO_URL = "http://localhost:8081/";
   private static final int DEFAULT_MATOMO_SITE_ID = 1;
@@ -45,14 +49,18 @@ public class MatomoTrackingService implements TrackingService {
 
   @Override
   public void track(Context ctx) {
-    if (RequestClassifier.isAiChatBotRequest(ctx)) {
-      tracker.sendRequestAsync(
-          MatomoRequest.request()
-              .actionUrl(ctx.fullUrl())
-              .headerUserAgent(ctx.userAgent())
-              // Only bot tracking is performed. Non-bot requests are discarded.
-              .botRecordingMode(1)
-              .build());
+    try {
+      if (RequestClassifier.isAiChatBotRequest(ctx)) {
+        tracker.sendRequestAsync(
+            MatomoRequest.request()
+                .actionUrl(ctx.fullUrl())
+                .headerUserAgent(ctx.userAgent())
+                // Only bot tracking is performed. Non-bot requests are discarded.
+                .botRecordingMode(1)
+                .build());
+      }
+    } catch (Exception e) {
+      logger.warn("Unable to send tracking request tot Matomo", e);
     }
   }
 }
