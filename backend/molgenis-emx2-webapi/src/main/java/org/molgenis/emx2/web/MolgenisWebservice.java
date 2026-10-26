@@ -209,9 +209,9 @@ public class MolgenisWebservice {
   }
 
   private void addMatomoHandlerIfEnabled() {
-    boolean matomoEnabled =
-        (boolean) EnvironmentProperty.getParameter(MATOMO_ENABLED_ENV, false, ColumnType.BOOL);
-    if (matomoEnabled) {
+    String matomoUrl =
+        (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, null, ColumnType.STRING);
+    if (matomoUrl != null) {
       app.before(MatomoTrackingService.fromEnvironment()::track);
     }
   }

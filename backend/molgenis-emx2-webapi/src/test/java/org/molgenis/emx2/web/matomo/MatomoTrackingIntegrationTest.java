@@ -4,7 +4,6 @@ import static io.javalin.http.Header.USER_AGENT;
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.Constants.MATOMO_ENABLED_ENV;
 import static org.molgenis.emx2.Constants.MATOMO_URL_ENV;
 
 import io.restassured.http.ContentType;
@@ -32,7 +31,8 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
   private static final Network NETWORK = Network.newNetwork();
 
   @SystemStub
-  static EnvironmentVariables matomoEnv = new EnvironmentVariables(MATOMO_ENABLED_ENV, "true");
+  static EnvironmentVariables matomoEnv =
+      new EnvironmentVariables(MATOMO_URL_ENV, "this-url-is-not-used");
 
   static MariaDBContainer db =
       new MariaDBContainer("mariadb:11.4")

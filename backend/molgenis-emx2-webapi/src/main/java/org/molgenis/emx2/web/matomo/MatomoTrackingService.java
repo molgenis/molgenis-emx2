@@ -18,7 +18,6 @@ public class MatomoTrackingService implements TrackingService {
 
   private static final Logger logger = LoggerFactory.getLogger(MatomoTrackingService.class);
 
-  private static final String DEFAULT_MATOMO_URL = "http://localhost:8081/";
   private static final int DEFAULT_MATOMO_SITE_ID = 1;
 
   private final MatomoTracker tracker;
@@ -40,8 +39,7 @@ public class MatomoTrackingService implements TrackingService {
   }
 
   public static TrackingService fromEnvironment() {
-    String url =
-        (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, DEFAULT_MATOMO_URL, STRING);
+    String url = (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, null, STRING);
     int siteId =
         (Integer) EnvironmentProperty.getParameter(MATOMO_SITE_ID_ENV, DEFAULT_MATOMO_SITE_ID, INT);
     return new MatomoTrackingService(url, siteId);
