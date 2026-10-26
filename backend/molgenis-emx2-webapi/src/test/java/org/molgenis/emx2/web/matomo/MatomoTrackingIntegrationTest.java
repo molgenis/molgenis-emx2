@@ -96,7 +96,10 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
   void shouldTrackMatomo() {
     int nrAiRequests = getNrAiChatbotRequests();
     requestWithUserAgent("non-ai-useragent");
-    assertTrackingNrRequests(nrAiRequests);
+    await()
+        .during(Duration.ofSeconds(3))
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(() -> assertTrackingNrRequests(nrAiRequests));
 
     for (int i = 0; i < RequestClassifier.AI_CHATBOT_UA.size(); i++) {
       requestWithUserAgent(RequestClassifier.AI_CHATBOT_UA.get(i));

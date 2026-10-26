@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ class MatomoTrackingServiceTest {
   private static final String REQUEST_URL = "http://localhost:8080";
 
   private static final List<URI> requests = Collections.synchronizedList(new ArrayList<>());
+  private static final AtomicBoolean requested = new AtomicBoolean(false);
 
   private static HttpServer matomoServer;
 
@@ -36,6 +38,7 @@ class MatomoTrackingServiceTest {
         "/matomo.php",
         exchange -> {
           requests.add(exchange.getRequestURI());
+          requested.set(true);
           exchange.sendResponseHeaders(204, -1);
           exchange.close();
         });
@@ -52,6 +55,7 @@ class MatomoTrackingServiceTest {
   @BeforeEach
   void clearRequests() {
     requests.clear();
+    requested.set(false);
   }
 
   @ParameterizedTest
@@ -85,7 +89,7 @@ class MatomoTrackingServiceTest {
     service.track(
         requestWithUserAgent(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:157.0) Gecko/20100101 Firefox/157.0"));
-    await().atMost(Duration.ofSeconds(3)).until(requests::isEmpty);
+    await().during(Duration.ofSeconds(1)).atMost(Duration.ofSeconds(3)).until(requests::isEmpty);
   }
 
   private static Context requestWithUserAgent(String userAgent) {
