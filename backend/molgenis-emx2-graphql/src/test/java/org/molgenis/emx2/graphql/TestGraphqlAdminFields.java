@@ -171,7 +171,7 @@ class TestGraphqlAdminFields {
 
           assertTrue(
               tdb.getSchema(SCHEMA_NAME).getRoleInfos().stream()
-                  .noneMatch(role -> role.name().equals("PatientViewer")));
+                  .noneMatch(role -> "PatientViewer".equals(role.name())));
         });
   }
 

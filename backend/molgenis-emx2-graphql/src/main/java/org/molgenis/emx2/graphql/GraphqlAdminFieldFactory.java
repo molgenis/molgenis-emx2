@@ -119,7 +119,7 @@ public final class GraphqlAdminFieldFactory {
                 if (selectedField.getName().equals(userCount)) {
                   result.put(userCount, db.countUsers());
                 }
-                if (selectedField.getName().equals(CUSTOM_ROLES)) {
+                if (CUSTOM_ROLES.equals(selectedField.getName())) {
                   result.put(CUSTOM_ROLES, getCustomRoles(db));
                 }
               }

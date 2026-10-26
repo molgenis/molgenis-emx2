@@ -172,7 +172,8 @@ public final class Emx2 {
           }
           if (row.notEmpty(ALLOWED_VALUES)) {
             column.setAllowedValues(row.getStringArray(ALLOWED_VALUES));
-          } if (row.notEmpty(PROFILES)) {
+          }
+          if (row.notEmpty(PROFILES)) {
             column.setProfiles(row.getStringArray(PROFILES));
           }
           if (row.notEmpty(REF_JS_TEMPLATE)) {

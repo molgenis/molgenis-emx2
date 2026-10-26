@@ -32,11 +32,12 @@ class TestGraphqlMutationTransaction {
   private static Table author;
   private static Table book;
   private static GraphqlExecutor graphqlExecutor;
+  private static Schema schema;
 
   @BeforeAll
   static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
+    schema = database.dropCreateSchema(SCHEMA_NAME);
     schema.create(
         table("Author", column("name").setPkey(), column("country")),
         table("Book", column("title").setPkey(), column("author", REF).setRefTable("Author")));

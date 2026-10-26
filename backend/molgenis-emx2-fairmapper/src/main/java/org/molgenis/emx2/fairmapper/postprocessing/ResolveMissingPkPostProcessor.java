@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * later. {@link #process} therefore repeats over all tables until nothing changes anymore, or until
  * {@code MAX_NR_ITERATIONS} passes are done.
  */
-public class ResolveMissingPkPostProcessor implements PostProcessor {
+public final class ResolveMissingPkPostProcessor implements PostProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(ResolveMissingPkPostProcessor.class);
   private static final int MAX_NR_ITERATIONS = 10;
