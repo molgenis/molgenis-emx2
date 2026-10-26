@@ -97,6 +97,12 @@ def test_terminate_biobanks(pid_manager, pid_service):
         mock.call("pid2", Status.TERMINATED),
     ]
 
+def test_withdraw_biobanks(pid_manager, pid_service):
+    pid_manager.withdraw_biobanks(["pid1", "pid2"])
+    assert pid_service.set_status.mock_calls == [
+        mock.call("pid1", Status.WITHDRAWN),
+        mock.call("pid2", Status.WITHDRAWN),
+    ]
 
 def test_noop_pid_manager():
     noop = NoOpPidManager()
