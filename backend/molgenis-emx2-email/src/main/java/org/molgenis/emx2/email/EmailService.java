@@ -6,8 +6,8 @@ import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EmailService {
 
@@ -16,7 +16,7 @@ public class EmailService {
 
   private final Properties props = new Properties();
 
-  private static final Logger logger = LogManager.getLogger(EmailService.class);
+  private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
   public EmailService() {
     this(new EmailSettings.EmailSettingsBuilder().build());
@@ -77,7 +77,7 @@ public class EmailService {
 
     } catch (Exception e) {
       logger.error("Error in sending email.");
-      logger.error(e::getLocalizedMessage);
+      logger.error(e.getLocalizedMessage());
       return false;
     }
   }

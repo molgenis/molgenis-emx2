@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
@@ -17,9 +15,11 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SqlRawQueryForSchema {
-  private static final Logger logger = LogManager.getLogger(SqlRawQueryForSchema.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlRawQueryForSchema.class);
   SqlSchema schema;
 
   public SqlRawQueryForSchema(SqlSchema schema) {
@@ -53,16 +53,12 @@ public class SqlRawQueryForSchema {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           jooq.execute("SET search_path TO {0}", name(schema.getName()));
           try {
-            logger.info(
-                "{} tries to execute{}",
-                () -> schema.getDatabase().getActiveUser(),
-                () -> finalSql);
+            logger.info(schema.getDatabase().getActiveUser() + " tries to execute" + finalSql);
             Result<Record> fetch = jooq.fetch(finalSql, bindings.toArray());
             for (Record r : fetch) {
               result.add(new SqlRow(r));
             }
-            logger.info(
-                "{} completed{}", () -> schema.getDatabase().getActiveUser(), () -> finalSql);
+            logger.info(schema.getDatabase().getActiveUser() + " completed" + finalSql);
           } catch (SQLException sqle) {
             throw new SqlMolgenisException("query failed", sqle);
           }

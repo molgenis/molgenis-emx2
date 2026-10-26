@@ -5,8 +5,6 @@ import static org.eclipse.rdf4j.rio.helpers.BasicWriterSettings.INLINE_BLANK_NOD
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.rdf4j.common.exception.ValidationException;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -22,9 +20,11 @@ import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ShaclResultWriter extends RdfOutputStreamWriter {
-  private static final Logger logger = LogManager.getLogger(ShaclResultWriter.class);
+  private static final Logger logger = LoggerFactory.getLogger(ShaclResultWriter.class);
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
   private static final Model succeedModel;
   private static final WriterConfig succeedWriterConfig = new WriterConfig();
@@ -58,7 +58,7 @@ public class ShaclResultWriter extends RdfOutputStreamWriter {
   }
 
   private void addRules(ShaclSet shaclSet) throws IOException {
-    logger.debug("Adding SHACL validation files: {}", () -> String.join(", ", shaclSet.files()));
+    logger.debug("Adding SHACL validation files: " + String.join(", ", shaclSet.files()));
     for (int i = 0; i < shaclSet.files().length; i++) {
       try (InputStream inputStream = shaclSet.getInputStream(i)) {
         connection.begin();

@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * For documenting processes that consist of multiple steps and elements. For example. batch
@@ -25,7 +25,7 @@ public class Task implements Runnable, Iterable<Task> {
   private static final ObjectMapper mapper =
       new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
-  @JsonIgnore private final Logger logger = LogManager.getLogger(getClass().getSimpleName());
+  @JsonIgnore private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
   // human readable description
   private String description;
   // status of the tas
@@ -165,13 +165,13 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task start() {
     this.setStatus(RUNNING);
-    this.logger.info("{}: started", this::getDescription);
+    this.logger.info(getDescription() + ": started");
     return this;
   }
 
   public Task complete() {
     this.setStatus(COMPLETED);
-    this.logger.info(this::getDescription);
+    this.logger.info(getDescription());
     return this;
   }
 

@@ -9,12 +9,12 @@ import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
 import java.net.MalformedURLException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CatalogueSiteMap {
-  private static final Logger logger = LogManager.getLogger(CatalogueSiteMap.class);
+  private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
   private static final String RESOURCE = "resource";
 
@@ -65,10 +65,10 @@ public class CatalogueSiteMap {
                   } catch (MalformedURLException e) {
                     logger.error(
                         "Failed to generate sitemap url (schema: {} , path: {} , id: {})",
-                        schema::getName,
-                        () -> resourcePath.value,
-                        () -> collectionId,
-                        () -> e);
+                        schema.getName(),
+                        resourcePath.value,
+                        collectionId,
+                        e);
                   }
                 }
               });
@@ -98,10 +98,10 @@ public class CatalogueSiteMap {
                   } catch (MalformedURLException e) {
                     logger.error(
                         "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
-                        schema::getName,
-                        () -> "variables",
-                        () -> variable.getString("name"),
-                        () -> e);
+                        schema.getName(),
+                        "variables",
+                        variable.getString("name"),
+                        e);
                   }
                 });
       }

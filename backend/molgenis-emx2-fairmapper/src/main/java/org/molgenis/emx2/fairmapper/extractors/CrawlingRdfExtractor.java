@@ -4,8 +4,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
@@ -13,6 +11,8 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.molgenis.emx2.MolgenisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extracts RDF from a FAIR Data Point by walking its levels one at a time.
@@ -23,7 +23,7 @@ import org.molgenis.emx2.MolgenisException;
  */
 public class CrawlingRdfExtractor implements RdfExtractor {
 
-  private static final Logger logger = LogManager.getLogger(CrawlingRdfExtractor.class);
+  private static final Logger logger = LoggerFactory.getLogger(CrawlingRdfExtractor.class);
 
   private final List<CrawlStep> crawlSteps;
   private final boolean strict;
@@ -63,13 +63,14 @@ public class CrawlingRdfExtractor implements RdfExtractor {
   private Set<IRI> executeStep(Repository repository, Set<IRI> subjects, CrawlStep step) {
     Set<IRI> results = objectsOf(repository, subjects, step.predicate());
 
-    logger.info("Found {} {}(s): {}", results::size, step::name, () -> results);
+    logger.info("Found {} {}(s): {}", results.size(), step.name(), results);
     if (results.isEmpty()) {
       logger.warn(
-          "Crawl step '{}' results nothing for {} subject(s); check the step order and whether the source uses {}",
-          step::name,
-          subjects::size,
-          step::predicate);
+          "Crawl step '{}' results nothing for {} subject(s); check the step order and whether the"
+              + " source uses {}",
+          step.name(),
+          subjects.size(),
+          step.predicate());
     }
 
     results.stream()

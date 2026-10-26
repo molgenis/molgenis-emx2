@@ -22,6 +22,7 @@
         <exclude name="ReturnEmptyCollectionRatherThanNull" />
         <exclude name="NonExhaustiveSwitch" />
         <exclude name="CompareObjectsWithEquals" />
+        <exclude name="GuardLogStatement" />
     </rule>
 
     <!-- Overrides for quickstart.xml -->

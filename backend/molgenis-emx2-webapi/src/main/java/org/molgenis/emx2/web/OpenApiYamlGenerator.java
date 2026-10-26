@@ -32,7 +32,6 @@ public final class OpenApiYamlGenerator {
     // hide public constructor
   }
 
-  @SuppressWarnings("PMD.GuardLogStatement") // api.info() is not a log call
   public static OpenAPI createOpenApi(SchemaMetadata schema) {
 
     Paths paths = new Paths();

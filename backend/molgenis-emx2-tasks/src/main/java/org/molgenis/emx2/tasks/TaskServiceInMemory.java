@@ -57,7 +57,7 @@ public class TaskServiceInMemory implements TaskService {
     task.setStatus(TaskStatus.CANCELLED);
     task.stop();
 
-    logger.info("Cancelled task {}", taskId);
+    logger.info("Cancelled task " + taskId);
     return task;
   }
 
@@ -112,14 +112,14 @@ public class TaskServiceInMemory implements TaskService {
     Task task = getTask(id);
 
     if (task == null) {
-      logger.info("skipped delete task {}because not found", id);
+      logger.info("skipped delete task " + id + "because not found");
       throw new MolgenisException("Task with id '" + id + "' not found");
     }
     if (task.getStatus().equals(RUNNING)) {
-      logger.info("skipped delete task {}because still running", id);
+      logger.info("skipped delete task " + id + "because still running");
       throw new MolgenisException("Cannot yet cancel running tasks");
     }
-    logger.info("deleted task {}", id);
+    logger.info("deleted task " + id);
 
     this.tasks.remove(id);
   }

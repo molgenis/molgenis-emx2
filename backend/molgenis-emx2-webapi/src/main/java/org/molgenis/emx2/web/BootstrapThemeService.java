@@ -109,7 +109,7 @@ public final class BootstrapThemeService {
         return sassCompiler.compileScssString(cssPlusScss.toString()).getCss();
       }
     } catch (Exception e) {
-      logger.error("SASS compilation failed, input was:\n{}", input);
+      logger.error(String.format("SASS compilation failed, input was:%n%s", input));
       throw new MolgenisException("SASS compilation failed", e);
     }
   }
