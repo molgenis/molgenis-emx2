@@ -170,9 +170,9 @@ public final class Emx2 {
           if (row.notEmpty(SEMANTICS)) {
             column.setSemantics(row.getStringArray(SEMANTICS));
           }
-          if (row.notEmpty(ALLOWED_VALUES))
+          if (row.notEmpty(ALLOWED_VALUES)) {
             column.setAllowedValues(row.getStringArray(ALLOWED_VALUES));
-          if (row.notEmpty(PROFILES)) {
+          } if (row.notEmpty(PROFILES)) {
             column.setProfiles(row.getStringArray(PROFILES));
           }
           if (row.notEmpty(REF_JS_TEMPLATE)) {
@@ -405,7 +405,9 @@ public final class Emx2 {
         if (column.getSemantics() != null) {
           row.set(SEMANTICS, column.getSemantics());
         }
-        if (column.getAllowedValues() != null) row.set(ALLOWED_VALUES, column.getAllowedValues());
+        if (column.getAllowedValues() != null) {
+          row.set(ALLOWED_VALUES, column.getAllowedValues());
+        }
         if (column.getProfiles() != null) {
           row.set(PROFILES, column.getProfiles());
         }
