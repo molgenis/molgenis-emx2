@@ -18,7 +18,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["edit", "delete", "move"]);
+const emit = defineEmits(["edit", "delete", "move", "updateText"]);
 const showMenu = ref<boolean>(false);
 </script>
 
@@ -51,6 +51,8 @@ const showMenu = ref<boolean>(false);
           underline: showMenu,
           'sr-only': headingIsHidden,
         }"
+        :contenteditable="props.isEditable"
+        @input="props.isEditable && emit('updateText', $el.textContent)"
       />
     </div>
   </VMenu>

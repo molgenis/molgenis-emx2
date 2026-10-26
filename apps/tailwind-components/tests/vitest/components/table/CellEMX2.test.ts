@@ -86,3 +86,22 @@ describe("table/CellEMX2.vue", () => {
     expect(wrapper.text().trim()).toBe("");
   });
 });
+
+describe("table/CellEMX2.vue with enum columns", () => {
+  it.each([
+    ["ENUM", "open", ["open"]],
+    ["ENUM_ARRAY", ["research", "rare"], ["research", "rare"]],
+  ] as const)("shows the value of an %s cell", (columnType, data, expected) => {
+    const wrapper = mount(CellEMX2, {
+      props: {
+        metadata: { id: "col", label: "Col", columnType },
+        data: data as columnValue,
+      },
+    });
+
+    for (const text of expected) {
+      expect(wrapper.text()).toContain(text);
+    }
+    expect(wrapper.text()).not.toContain("ENUM");
+  });
+});

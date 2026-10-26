@@ -9,6 +9,7 @@ import type { CountedOption } from "../../utils/fetchCounts";
 import type { IFilterValue } from "../../../types/filters";
 import {
   isCountableType,
+  isEnumColumnType,
   isRangeType,
   treeSelectionToFilterValue,
 } from "../../utils/filterUtils";
@@ -29,7 +30,11 @@ const emit = defineEmits<{
   "update:modelValue": [value: IFilterValue | undefined];
 }>();
 
-const isCountable = computed(() => isCountableType(props.column.columnType));
+const showsTree = computed(
+  () =>
+    isCountableType(props.column.columnType) ||
+    isEnumColumnType(props.column.columnType)
+);
 const isRange = computed(() => isRangeType(props.column.columnType));
 const rangeInputType = computed(
   () => props.column.columnType.replace(/_ARRAY$/, "") as CellValueType
@@ -65,7 +70,7 @@ function onTreeChange(val: IFilterValue | string[] | undefined) {
 <template>
   <div>
     <FilterTree
-      v-if="isCountable"
+      v-if="showsTree"
       :column="column"
       :options="options"
       :model-value="modelValue"
