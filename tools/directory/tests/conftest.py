@@ -145,7 +145,7 @@ def printer() -> MagicMock:
 def state() -> MagicMock:
     state = MagicMock()
     state.existing_data.table_by_type = {table_type: MagicMock() for table_type in TableType}
-    state.existing_data.table_by_type[TableType.BIOBANKS].rows_by_id = {'bbmri-eric:ID:XX_Biobank': {}}
+    state.existing_data.table_by_type[TableType.BIOBANKS].rows = [{'id': 'bbmri-eric:ID:NL_Biobank', 'national_node': 'NL'}]
     state.deleted_ids = {table_type: set() for table_type in TableType}
     return state
 

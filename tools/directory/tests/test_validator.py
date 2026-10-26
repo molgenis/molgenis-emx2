@@ -58,7 +58,7 @@ def test_validate_id(node_data, state):
             "www.invalid@url.nl"
         ),        
         DirectoryWarning(
-            message=" Biobank bbmri-eric:ID:XX_Biobank was deleted instead of withdrawn"
+            message=" Biobank bbmri-eric:ID:NL_Biobank was deleted instead of withdrawn"
         ),
         DirectoryWarning(
             message="bbmri-eric:NL_invalid:serviceID in entity: "
@@ -118,7 +118,7 @@ def test_validate_id(node_data, state):
         ),
     ]
     assert state.deleted_ids[TableType.PERSONS] == set()
-    assert state.deleted_ids[TableType.BIOBANKS] == {'bbmri-eric:ID:XX_Biobank'}
+    assert state.deleted_ids[TableType.BIOBANKS] == {'bbmri-eric:ID:NL_Biobank'}
 
 @pytest.mark.parametrize(
     "collection,expected",
