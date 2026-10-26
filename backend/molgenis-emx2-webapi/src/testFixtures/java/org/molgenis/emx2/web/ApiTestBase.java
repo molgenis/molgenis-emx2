@@ -73,9 +73,9 @@ public abstract class ApiTestBase {
     ApplicationCachePerUser.getInstance().clearAllCaches();
   }
 
-  static MolgenisWebservice startWebservice() throws Exception {
+  static MolgenisWebservice startWebservice() {
     MolgenisWebservice startedService = new MolgenisWebservice();
-    env.execute(() -> startedService.start(OS_ASSIGNED_PORT));
+    startedService.start(OS_ASSIGNED_PORT);
     return startedService;
   }
 
