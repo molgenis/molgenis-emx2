@@ -86,19 +86,14 @@ class Validator:
 
         if low == 0 and high == 0:
             self._warn(
-                f"Collection {collection['id']} has invalid ages: age_low = 0 and "
-                f"age_high = 0"
+                f"Collection {collection['id']} has invalid ages: age_low = 0 and " f"age_high = 0"
             )
 
         if (low is not None or high is not None) and not unit:
-            self._warn(
-                f"Collection {collection['id']} has age_low/age_high without age_unit"
-            )
+            self._warn(f"Collection {collection['id']} has age_low/age_high without age_unit")
 
         if low is not None and high is not None and (low > high):
-            self._warn(
-                f"Collection {collection['id']} has invalid ages: age_low > age_high"
-            )
+            self._warn(f"Collection {collection['id']} has invalid ages: age_low > age_high")
 
     def _validate_xref(self, row: dict, ref_attr: str):
         if ref_attr in row:
@@ -129,9 +124,7 @@ class Validator:
                 self.invalid_ids.add(id_)
         else:
             if not id_.startswith(prefix):
-                self._warn(
-                    f"{id_} in entity: {table.full_name} does not start with {prefix}"
-                )
+                self._warn(f"{id_} in entity: {table.full_name} does not start with {prefix}")
                 self.invalid_ids.add(id_)
 
     def _validate_id_chars(self, id_: str, table: Table):
@@ -153,12 +146,9 @@ class Validator:
         deleted_ids = production_ids.difference(staging_ids)
         self.state.deleted_ids[table.type].update(deleted_ids)
         # Show warning for every entry that should not have been deleted but withdrawn instead
-        if 'withdrawn' in table.meta.attributes:
+        if "withdrawn" in table.meta.attributes:
             for deleted_id in deleted_ids:
-                self._warn(
-                    f" {table.full_name[:-1]} {deleted_id} was deleted instead of withdrawn"
-                )
-
+                self._warn(f" {table.full_name[:-1]} {deleted_id} was deleted instead of withdrawn")
 
     def _warn(self, message: str):
         warning = DirectoryWarning(message)
