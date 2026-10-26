@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.6.1
+
+- Fix bug which caused false deletion warnings to be displayed
+
 ## Version 1.6.0
 
 - Ensure deletions of Collections, Biobanks and Networks are not published, but turned into withdrawals
