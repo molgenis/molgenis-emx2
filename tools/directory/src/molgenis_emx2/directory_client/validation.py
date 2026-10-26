@@ -145,7 +145,11 @@ class Validator:
     def _identify_deleted_ids(self, table: Table):
         # Compare the ids from staging and production to see what was deleted
         staging_ids = table.rows_by_id.keys()
-        production_ids = set(self.state.existing_data.table_by_type[table.type].rows_by_id.keys())
+        production_rows = self.state.existing_data.table_by_type[table.type].rows
+        # Filter by national node
+        production_ids = {
+            row["id"] for row in production_rows if row["national_node"] == self.node_data.node.code
+        }
         deleted_ids = production_ids.difference(staging_ids)
         self.state.deleted_ids[table.type].update(deleted_ids)
         # Show warning for every entry that should not have been deleted but withdrawn instead
