@@ -26,6 +26,8 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 
 class MatomoTrackingIntegrationTest extends ApiTestBase {
 
+  // This token is used to authenticate to the test Matomo test container and is not used outside of
+  // this test
   private static final String AUTH_TOKEN = "a29df8564db55bcdfcc696d783db5732";
   private static final Network NETWORK = Network.newNetwork();
 
@@ -33,7 +35,7 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
   static EnvironmentVariables matomoEnv = new EnvironmentVariables(MATOMO_ENABLED_ENV, "true");
 
   static MariaDBContainer db =
-      new MariaDBContainer("mariadb:11")
+      new MariaDBContainer("mariadb:11.4")
           .withNetwork(NETWORK)
           .withNetworkAliases("db")
           .withDatabaseName("matomo")
