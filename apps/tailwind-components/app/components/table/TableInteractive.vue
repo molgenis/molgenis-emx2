@@ -311,50 +311,6 @@ function handlePageSizeChange(pageSize: string) {
                       class="absolute left-full top-0 bottom-px flex flex-row text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none items-center justify-start flex-nowrap gap-1"
                     >
                       <slot name="row-action" :row="row" />
-
-                      <!-- <Button
-                        v-if="canDeleteRow(row)"
-                        :id="`delete-button-${row._rowIdString}`"
-                        :icon-only="true"
-                        type="inline"
-                        icon="trash"
-                        label="delete"
-                        @click="onShowDeleteModal(row)"
-                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                        aria-haspopup="dialog"
-                        :aria-expanded="showDeleteModal"
-                      >
-                        {{ row._rowIdString }}
-                      </Button>
-                      <Button
-                        v-if="canEditRow(row)"
-                        :id="`edit-button-${row._rowIdString}`"
-                        :icon-only="true"
-                        type="inline"
-                        icon="edit"
-                        label="edit"
-                        @click="onShowEditModal(row)"
-                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                        aria-haspopup="dialog"
-                        :aria-expanded="showEditModal"
-                      >
-                        {{ row._rowIdString }}
-                      </Button>
-                      <Button
-                        v-if="canCloneRow(row)"
-                        :id="`copy-button-${row._rowIdString}`"
-                        :icon-only="true"
-                        type="inline"
-                        icon="copy"
-                        label="copy"
-                        @click="onShowEditModal(row, true)"
-                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
-                        aria-haspopup="dialog"
-                        :aria-expanded="showEditModal"
-                      >
-                        {{ row._rowIdString }}
-                      </Button>
-                      <slot name="additional-row-actions" :row="row" /> -->
                     </div>
                   </td>
 
