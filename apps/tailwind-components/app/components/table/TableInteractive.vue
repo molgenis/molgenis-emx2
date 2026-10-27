@@ -34,7 +34,7 @@ const props = withDefaults(
       showRolesColumn?: boolean;
     };
     filters?: UseFilters | null;
-    rights: {
+    permissions: {
       canUpdate: boolean;
       canInsert: boolean;
       canDelete: boolean;
@@ -181,9 +181,9 @@ function handlePageSizeChange(pageSize: string) {
         :allRowsSelected="
           numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
         "
-        :canUpdate="rights.canUpdate"
-        :canDelete="rights.canDelete"
-        :canModifySelection="rights.canModifySelection"
+        :canUpdate="permissions.canUpdate"
+        :canDelete="permissions.canDelete"
+        :canModifySelection="permissions.canModifySelection"
         @rowAction="handleRowAction"
       />
 
@@ -293,7 +293,9 @@ function handlePageSizeChange(pageSize: string) {
                   class="group h-13"
                   :class="{
                     'hover:cursor-pointer':
-                      rights.canInsert || rights.canUpdate || rights.canDelete,
+                      permissions.canInsert ||
+                      permissions.canUpdate ||
+                      permissions.canDelete,
                   }"
                 >
                   <td

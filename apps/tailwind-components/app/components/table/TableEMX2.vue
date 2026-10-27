@@ -9,7 +9,7 @@
       showRolesColumn: showRolesColumn,
     }"
     :filters="filters"
-    :rights="{
+    :permissions="{
       canUpdate: canUpdate,
       canDelete: canDelete,
       canInsert: canInsert,
