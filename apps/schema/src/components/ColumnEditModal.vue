@@ -110,6 +110,15 @@
                   description="When checked, deleting a row in the referenced table will also delete all rows in this table that refer to it. When unchecked, deleting a row in the referenced table will be blocked if there are rows in this table that refer to it."
                 />
               </div>
+              <div class="col-4" v-if="showValuesInput">
+                <ArrayInput
+                  id="column_values"
+                  columnType="STRING_ARRAY"
+                  v-model="column.allowedValues"
+                  label="allowed values"
+                  description="The allowed values of this column, one per entry. Their order is kept."
+                />
+              </div>
               <div class="col-4" v-if="column.columnType === 'REFBACK'">
                 <InputSelect
                   id="column_refBack"
@@ -500,6 +509,9 @@ export default {
     },
     isDisabled() {
       return this.operation !== "add" && this.nameInvalid;
+    },
+    showValuesInput() {
+      return ["ENUM", "ENUM_ARRAY"].includes(this.column.columnType);
     },
   },
   methods: {
