@@ -14,7 +14,7 @@
       </div>
       <div v-else class="pb-3">
         <h4>Upload</h4>
-        <MessageWarning v-if="!session?.roles?.includes('Editor')">
+        <MessageWarning v-if="!canUpload">
           You don't have permission to upload data. Might you need to login?
         </MessageWarning>
         <div v-else>
@@ -147,11 +147,27 @@ export default {
     };
   },
   computed: {
+    canUpload() {
+      return (
+        this.session?.roles?.includes("Editor") ||
+        this.session?.tablePermissions?.some(
+          (permission) =>
+            permission.canInsert || permission.canUpdate || permission.canDelete
+        ) ||
+        false
+      );
+    },
     visibleTables() {
       if (this.session?.roles?.includes("Viewer")) {
         return this.tables;
       } else {
-        return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
+        return this.tables.filter(
+          (table) =>
+            table.tableType === "ONTOLOGIES" ||
+            this.session?.tablePermissions?.some(
+              (permission) => permission.id === table.id && permission.canView
+            )
+        );
       }
     },
     isManagerOrOwner() {
