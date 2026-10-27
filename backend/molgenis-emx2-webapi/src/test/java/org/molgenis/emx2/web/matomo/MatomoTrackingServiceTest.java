@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web.matomo;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -22,7 +23,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class MatomoTrackingServiceTest {
 
-  private static final String REQUEST_URL = "http://localhost:8080";
+  private static final String SERVICE_URL = "http://localhost:8080";
 
   private static final List<URI> requests = Collections.synchronizedList(new ArrayList<>());
   private static final AtomicBoolean requested = new AtomicBoolean(false);
@@ -43,8 +44,7 @@ class MatomoTrackingServiceTest {
           exchange.close();
         });
     matomoServer.start();
-    service =
-        new MatomoTrackingService("http://localhost:" + matomoServer.getAddress().getPort(), 1);
+    service = new MatomoTrackingService(matomoUrl(), 1, SERVICE_URL);
   }
 
   @AfterAll
@@ -80,7 +80,7 @@ class MatomoTrackingServiceTest {
 
     await().atMost(Duration.ofSeconds(8)).until(() -> requests.size() == 1);
     String query = requests.getFirst().getQuery();
-    assertTrue(query.contains("url=" + REQUEST_URL));
+    assertTrue(query.contains("url=" + SERVICE_URL + "/some-action"));
     assertTrue(query.contains("recMode=1"));
   }
 
@@ -92,10 +92,33 @@ class MatomoTrackingServiceTest {
     await().during(Duration.ofSeconds(1)).atMost(Duration.ofSeconds(3)).until(requests::isEmpty);
   }
 
+  @Test
+  void shouldUseServiceUrlInsteadOfRequestHost() {
+    MatomoTrackingService proxied =
+        new MatomoTrackingService(matomoUrl(), 1, "https://example.org/");
+    Context ctx = requestWithUserAgent("ChatGPT-User");
+    doReturn("a=1&b=2").when(ctx).queryString();
+
+    assertEquals("https://example.org/some-action?a=1&b=2", proxied.getRequestUrl(ctx));
+  }
+
+  @Test
+  void shouldLeaveOutEmptyQueryString() {
+    MatomoTrackingService proxied =
+        new MatomoTrackingService(matomoUrl(), 1, "https://example.org");
+    Context ctx = requestWithUserAgent("ChatGPT-User");
+
+    assertEquals("https://example.org/some-action", proxied.getRequestUrl(ctx));
+  }
+
+  private static String matomoUrl() {
+    return "http://localhost:" + matomoServer.getAddress().getPort();
+  }
+
   private static Context requestWithUserAgent(String userAgent) {
     Context ctx = mock(Context.class);
     doReturn(userAgent).when(ctx).userAgent();
-    doReturn(REQUEST_URL).when(ctx).fullUrl();
+    doReturn("/some-action").when(ctx).path();
     return ctx;
   }
 }

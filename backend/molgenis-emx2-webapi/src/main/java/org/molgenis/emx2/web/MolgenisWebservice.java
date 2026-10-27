@@ -68,7 +68,6 @@ public class MolgenisWebservice {
                   );
             });
 
-    addMatomoHandlerIfEnabled();
     hostUrlFromEnvironment = setServiceUrl();
   }
 
@@ -82,6 +81,8 @@ public class MolgenisWebservice {
         // should we handle this?
       }
     }
+
+    addMatomoHandlerIfEnabled();
 
     if (MetricsController.METRICS_ENABLED) {
       logger.info("Enabling metrics endpoint /{}", MetricsController.METRICS_PATH);
@@ -212,7 +213,7 @@ public class MolgenisWebservice {
     String matomoUrl =
         (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, null, ColumnType.STRING);
     if (matomoUrl != null) {
-      app.before(MatomoTrackingService.fromEnvironment()::track);
+      app.before(MatomoTrackingService.fromEnvironment(hostUrl.toString())::track);
     }
   }
 

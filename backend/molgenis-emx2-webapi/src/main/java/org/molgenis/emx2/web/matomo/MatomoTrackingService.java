@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web.matomo;
 
-import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.MATOMO_SITE_ID_ENV;
 import static org.molgenis.emx2.Constants.MATOMO_URL_ENV;
 
@@ -21,10 +20,17 @@ public class MatomoTrackingService implements TrackingService {
   private static final int DEFAULT_MATOMO_SITE_ID = 1;
 
   private final MatomoTracker tracker;
+  private final String serviceUrl;
 
-  public MatomoTrackingService(String matomoUrl, int siteId) {
+  public MatomoTrackingService(String matomoUrl, int siteId, String serviceUrl) {
     TrackerConfiguration configuration = buildConfig(matomoUrl, siteId);
     this.tracker = new MatomoTracker(configuration);
+
+    if (serviceUrl.endsWith("/")) {
+      this.serviceUrl = serviceUrl.substring(0, serviceUrl.length() - 1);
+    } else {
+      this.serviceUrl = serviceUrl;
+    }
   }
 
   private static TrackerConfiguration buildConfig(String matomoUrl, int siteId) {
@@ -38,11 +44,11 @@ public class MatomoTrackingService implements TrackingService {
     return URI.create(matomoUrl.endsWith("/") ? matomoUrl : matomoUrl + "/").resolve("matomo.php");
   }
 
-  public static TrackingService fromEnvironment() {
+  public static TrackingService fromEnvironment(String serviceUrl) {
     String url = (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, null, STRING);
     int siteId =
         (Integer) EnvironmentProperty.getParameter(MATOMO_SITE_ID_ENV, DEFAULT_MATOMO_SITE_ID, INT);
-    return new MatomoTrackingService(url, siteId);
+    return new MatomoTrackingService(url, siteId, serviceUrl);
   }
 
   @Override
@@ -51,7 +57,7 @@ public class MatomoTrackingService implements TrackingService {
       if (RequestClassifier.isAiChatBotRequest(ctx)) {
         tracker.sendRequestAsync(
             MatomoRequest.request()
-                .actionUrl(ctx.fullUrl())
+                .actionUrl(getRequestUrl(ctx))
                 .headerUserAgent(ctx.userAgent())
                 // Only bot tracking is performed. Non-bot requests are discarded.
                 .botRecordingMode(1)
@@ -60,5 +66,13 @@ public class MatomoTrackingService implements TrackingService {
     } catch (Exception e) {
       logger.warn("Unable to send tracking request tot Matomo", e);
     }
+  }
+
+  String getRequestUrl(Context ctx) {
+    String url = serviceUrl + ctx.path();
+    if (ctx.queryString() != null) {
+      url += "?" + ctx.queryString();
+    }
+    return url;
   }
 }
