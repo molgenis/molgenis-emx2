@@ -15,7 +15,7 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-const emit = defineEmits(["edit", "delete", "move"]);
+const emit = defineEmits(["edit", "delete", "move", "updateText"]);
 const showMenu = ref<boolean>(false);
 </script>
 
@@ -40,7 +40,11 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <Paragraph v-bind="props" />
+    <Paragraph
+      v-bind="props"
+      :contenteditable="props.isEditable"
+      @input="props.isEditable && emit('updateText', $el.innerHTML)"
+    />
   </VMenu>
   <Paragraph v-else v-bind="props" />
 </template>
