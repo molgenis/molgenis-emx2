@@ -259,16 +259,6 @@ const props = withDefaults(
   }
 );
 
-const STICKY_SELECT_COLUMN_WIDTH = 48;
-
-const selectColumnStyle = {
-  width: `${STICKY_SELECT_COLUMN_WIDTH}px`,
-};
-
-const canEdit = computed(
-  () => props.canInsert || props.canUpdate || props.canDelete
-);
-
 const emit = defineEmits<{
   (e: "view-details", payload: TableRow): void;
 }>();
@@ -280,17 +270,9 @@ const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
 const isCopy = ref(false);
-const sidebarCollapsed = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
-const showStickyHeader = ref(false);
 const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
-
-const tableContainer = ref<HTMLElement | null>(null);
-const tableHeaderFixed = ref<HTMLElement | null>(null);
-const tableHead = ref<HTMLElement | null>(null);
-const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
-  useColumnResize(tableContainer);
 
 const tableMetadata = computed<ITableMetaData | null>(
   () => data.value?.tableMetadata ?? null
@@ -388,23 +370,6 @@ const effectiveFilter = computed(() =>
   filters ? filters.gqlFilter.value : props.filter
 );
 
-onMounted(async () => {
-  sidebarCollapsed.value = window.matchMedia("(max-width: 1023px)").matches;
-  if (props.useStickyHeader) {
-    window.addEventListener("resize", updateStickyHeaderWidth);
-    window.addEventListener("scroll", handleStickyHeaderScroll);
-  }
-});
-
-onUnmounted(async () => {
-  window.removeEventListener("scroll", handleStickyHeaderScroll);
-  window.removeEventListener("resize", updateStickyHeaderWidth);
-});
-
-const countMessage = computed(() =>
-  getCountMessage(settings.value.page, settings.value.pageSize, count.value)
-);
-
 async function addIdentifiersToRows(rows: IRow[]): Promise<TableRow[]> {
   return await Promise.all(
     rows.map(async (row) => {
@@ -420,34 +385,6 @@ async function addIdentifiersToRows(rows: IRow[]): Promise<TableRow[]> {
       };
     })
   );
-}
-
-function handleStickyHeaderScroll(event: Event) {
-  const rect = tableContainer?.value?.getBoundingClientRect();
-  const top = rect?.top ?? 0;
-  showStickyHeader.value = top <= 0;
-  updateStickyHeaderWidth();
-  const tableHeadHeight = tableHead.value?.getBoundingClientRect().height ?? 0;
-  if (rect?.bottom && rect?.bottom <= tableHeadHeight) {
-    showStickyHeader.value = false;
-  }
-}
-
-function handleStickyHeaderOffset(event: Event) {
-  const target = event.target as HTMLElement;
-  const { scrollLeft } = target;
-  if (tableHeaderFixed.value) {
-    tableHeaderFixed.value.style.transform = `translateX(-${scrollLeft}px)`;
-  }
-  updateStickyHeaderWidth();
-}
-
-function updateStickyHeaderWidth() {
-  const tableFixedContainer = tableHeaderFixed.value?.parentElement;
-  if (tableFixedContainer) {
-    tableFixedContainer.style.width =
-      tableFixedContainer.parentElement?.clientWidth + "px";
-  }
 }
 
 function mayModifyRow(row: IRow): boolean {
@@ -466,33 +403,7 @@ function canDeleteRow(row: IRow): boolean {
   return props.canDelete && mayModifyRow(row);
 }
 
-let widthsInitialized = false;
-watch(
-  () => columns.value,
-  (newColumns) => {
-    if (
-      !widthsInitialized &&
-      Array.isArray(newColumns) &&
-      newColumns.length > 0
-    ) {
-      setInitialWidths(newColumns);
-      widthsInitialized = true;
-    }
-  },
-  { immediate: true, deep: true }
-);
-
 const rows = computed((): TableRow[] => data.value?.rows ?? []);
-
-const hasFiltersOrSearch = computed(
-  () =>
-    (filters?.activeFilters.value.length ?? 0) ||
-    (filters?.searchValue.value ?? "").length
-);
-
-const emptyRowsLabel = computed(() =>
-  hasFiltersOrSearch.value ? "No data matched the filters" : "No records found"
-);
 
 const showDraftColumn = computed(() =>
   rows.value.some((row: TableRow) => row?.mg_draft === true)
@@ -504,8 +415,6 @@ const showRolesColumn = computed(() => {
     rows.value.some((row: TableRow) => row.mg_roles?.length)
   );
 });
-
-const count = computed(() => data.value?.count ?? 0);
 
 watch(
   () => effectiveFilter.value,
@@ -534,8 +443,6 @@ const sortedColumns = computed<IColumn[]>(() => {
 const sortedVisibleColumns = computed<IColumn[]>(() => {
   return sortedColumns.value.filter((col) => col.visible !== "false");
 });
-
-const numberOfSelectedRows = computed(() => selectedRows.value.size);
 
 const selectionIsModifiable = computed(
   () =>
@@ -602,39 +509,8 @@ function handleRowAction(payload: { action: string }) {
   }
 }
 
-function handleSortRequest(columnId: string) {
-  const direction: sortDirection = getDirection(columnId);
-  settings.value.orderby.column = columnId;
-  settings.value.orderby.direction = direction;
-  settings.value.page = 1;
-  refresh();
-}
-
-function getDirection(columnId: string): sortDirection {
-  if (settings.value.orderby.column === columnId) {
-    return settings.value.orderby.direction === "ASC" ? "DESC" : "ASC";
-  } else {
-    return "ASC";
-  }
-}
-
 function handleSearchRequest(search: string) {
   settings.value.search = search;
-  settings.value.page = 1;
-  refresh();
-}
-
-const smallestPageSize = computed(() =>
-  Math.min(...constants.PAGE_SIZE_OPTIONS)
-);
-
-function handlePagingRequest(page: number) {
-  settings.value.page = page;
-  refresh();
-}
-
-function handlePageSizeChange(pageSize: string) {
-  settings.value.pageSize = Number.parseInt(pageSize);
   settings.value.page = 1;
   refresh();
 }

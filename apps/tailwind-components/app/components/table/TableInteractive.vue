@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useDebounceFn } from "@vueuse/core";
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import { getCountMessage } from "~/utils/getCountMessage";
 import type {
   columnValue,
   IColumn,
@@ -9,21 +10,17 @@ import type {
 } from "../../../../metadata-utils/src/types.ts";
 import type { UseFilters } from "../../../types/filters.ts";
 import type { cellPayload, ITableSettings } from "../../../types/types.ts";
+import { useColumnResize } from "../../composables/useColumnResize";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import ActiveFilters from "../filter/ActiveFilters.vue";
 import FilterSidebarContent from "../filter/SidebarContent.vue";
 import Checkbox from "../input/Checkbox.vue";
 import InputSearch from "../input/Search.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import Sidebar from "../Sidebar.vue";
-import Table from "../Table.vue";
 import TableCellEMX2 from "./CellEMX2.vue";
 import RowControls from "./control/RowControls.vue";
-import TableHeadCell from "./TableHeadCell.vue";
-import TableHeaderAction from "./TableHeaderAction.vue";
-import { useColumnResize } from "../../composables/useColumnResize";
-import { getCountMessage } from "~/utils/getCountMessage";
-import DraftLabel from "../label/DraftLabel.vue";
 
 const STICKY_SELECT_COLUMN_WIDTH = 48;
 
@@ -99,6 +96,7 @@ const totalPages = computed(() =>
 );
 
 onMounted(async () => {
+  setInitialWidths(columns.value);
   sidebarCollapsed.value = window.matchMedia("(max-width: 1023px)").matches;
   if (props.features.showStickyHeader) {
     window.addEventListener("resize", updateStickyHeaderWidth);
