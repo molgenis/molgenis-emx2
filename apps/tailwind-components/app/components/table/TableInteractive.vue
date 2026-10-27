@@ -179,14 +179,14 @@ function handlePageSizeChange(pageSize: string) {
   <div>
     <div class="flex mb-[30px] justify-between h-50px">
       <RowControls
-        :number-of-selected-rows="numberOfSelectedRows"
-        :all-rows-selected="
+        :numberOfSelectedRows="numberOfSelectedRows"
+        :allRowsSelected="
           numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
         "
         :canUpdate="rights.canUpdate"
         :canDelete="rights.canDelete"
         :canModifySelection="rights.canModifySelection"
-        @row-action="handleRowAction"
+        @rowAction="handleRowAction"
       />
 
       <InputSearch
@@ -228,10 +228,10 @@ function handlePageSizeChange(pageSize: string) {
         <ActiveFilters
           v-if="features.showFilters && filters"
           :filters="filters.activeFilters.value"
-          :search-value="filters.searchValue.value"
+          :searchValue="filters.searchValue.value"
           @remove="filters.removeFilter"
-          @clear-all="filters.clearFilters"
-          @clear-search="filters.setSearch('')"
+          @clearAll="filters.clearFilters"
+          @clearSearch="filters.setSearch('')"
         />
         <slot v-else name="active-filters" />
 
