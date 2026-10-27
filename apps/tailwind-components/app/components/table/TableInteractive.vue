@@ -10,6 +10,7 @@ import type {
 import type { UseFilters } from "../../../types/filters.ts";
 import type { ITableSettings } from "../../../types/types.ts";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
+import ActiveFilters from "../filter/ActiveFilters.vue";
 import FilterSidebarContent from "../filter/SidebarContent.vue";
 import Checkbox from "../input/Checkbox.vue";
 import InputSearch from "../input/Search.vue";
@@ -195,6 +196,16 @@ function updateStickyHeaderWidth() {
     </Sidebar>
 
     <div class="flex-1 min-w-0">
+      <ActiveFilters
+        v-if="features.showFilters && filters"
+        :filters="filters.activeFilters.value"
+        :searchValue="filters.searchValue.value"
+        @remove="filters.removeFilter"
+        @clearAll="filters.clearFilters"
+        @clearSearch="filters.setSearch('')"
+      />
+      <slot v-else name="active-filters" />
+
       <Table>
         <template #head>
           <TableHeadRow>

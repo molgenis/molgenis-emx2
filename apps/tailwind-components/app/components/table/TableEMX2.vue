@@ -438,6 +438,7 @@ import type {
   columnValue,
   IColumn,
   IRow,
+  ITableMetaData,
   TableRow,
 } from "../../../../metadata-utils/src/types";
 import type {
@@ -543,6 +544,8 @@ const tableHead = ref<HTMLElement | null>(null);
 const { columnWidths, guideX, startResize, setInitialWidths, isResizing } =
   useColumnResize(tableContainer);
 
+const tableMetadata = ref<ITableMetaData | null>(null);
+
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
   default: () => ({
@@ -559,7 +562,7 @@ const { showRolesForTable } = await useSession(props.schemaId);
 const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
-    const tableMetadata = await fetchTableMetadata(
+    tableMetadata.value = await fetchTableMetadata(
       props.schemaId,
       props.tableId
     );
@@ -593,7 +596,7 @@ const { data, refresh } = useAsyncData(
       : [];
 
     return {
-      tableMetadata,
+      tableMetadata: tableMetadata.value,
       rows,
       count: tableData.count,
     };
@@ -602,7 +605,7 @@ const { data, refresh } = useAsyncData(
 
 const columns = computed<IColumn[]>(
   () =>
-    data.value?.tableMetadata?.columns.filter(
+    tableMetadata.value?.columns.filter(
       (column: IColumn) =>
         !column.id.startsWith("mg") &&
         !["HEADING", "SECTION"].includes(column.columnType)
@@ -610,17 +613,14 @@ const columns = computed<IColumn[]>(
 );
 
 const filters: UseFilters | null = props.enableFilters
-  ? useFilters(
-      computed(() => columns.value),
-      {
-        urlSync: true,
-        schemaId: props.schemaId,
-        tableId: props.tableId,
-      }
-    )
+  ? useFilters(columns, {
+      urlSync: true,
+      schemaId: props.schemaId,
+      tableId: props.tableId,
+    })
   : null;
 
-if (filters) {
+if (props.enableFilters && filters) {
   watch(
     () => filters.searchValue.value,
     (value) => {
@@ -777,7 +777,6 @@ const sortedColumns = computed<IColumn[]>(() => {
 });
 
 const sortedVisibleColumns = computed<IColumn[]>(() => {
-  console.log(sortedColumns.value);
   return sortedColumns.value.filter(
     (col) => col.visible !== "false" && col.visible
   );
