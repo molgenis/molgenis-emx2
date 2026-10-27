@@ -1,11 +1,11 @@
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
-import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../metadata-utils/src/types";
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
 import fetchMetadata from "./fetchMetadata";
 
 export interface ITableDataResponse {
-  rows: Record<string, columnValue>[];
+  rows: IRow[];
   count: number;
 }
 
