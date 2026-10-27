@@ -167,8 +167,8 @@ export default {
         return false;
       }
     },
-    hasTablePermission(predicate) {
-      return this.session?.tablePermissions?.some(predicate) ?? false;
+    hasTablePermission(permissionFunction) {
+      return this.session?.tablePermissions?.some(permissionFunction) ?? false;
     },
   },
 };
