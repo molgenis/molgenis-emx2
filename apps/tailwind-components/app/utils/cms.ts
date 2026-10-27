@@ -26,6 +26,9 @@ import {
   AddButton,
 } from "./cms/add";
 
+export const actionsToolbarShowDelay = 200;
+export const actionsToolbarHideDelay = 300;
+
 import { deleteChartData } from "./cms/delete";
 
 export function randomId(): string {
@@ -909,4 +912,20 @@ export function parsePageText(value?: string): string {
 export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
+}
+
+export async function updateCMSfield(
+  schema: string,
+  typeName: "Paragraphs" | "Headings",
+  id: string,
+  text: string
+) {
+  const updateQuery = `mutation update($value:[${typeName}Input]) {
+      update(${typeName}:$value) {
+        message
+      }
+    }`;
+
+  const updateVars = { value: [{ id, text }] };
+  await cmsFetch(schema, updateQuery, updateVars);
 }

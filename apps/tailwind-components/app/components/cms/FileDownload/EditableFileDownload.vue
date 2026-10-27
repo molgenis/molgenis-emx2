@@ -7,6 +7,10 @@ import ComponentActions from "../ComponentActions.vue";
 import FileDownload from "./FileDownload.vue";
 import Button from "../../Button.vue";
 import { useForm } from "#imports";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 import type {
   ColumnType,
   ITableMetaData,
@@ -125,7 +129,7 @@ async function addNewLink() {
       showGroup="component-menu"
       :triggers="['hover', 'focus']"
       :popperTriggers="['hover', 'focus']"
-      :delay="{ show: 100, hide: 50 }"
+      :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
       :placement="'bottom-start'"
       noAutoFocus
     >

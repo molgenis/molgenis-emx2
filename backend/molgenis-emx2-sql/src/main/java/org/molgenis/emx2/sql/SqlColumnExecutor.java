@@ -13,6 +13,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -375,6 +376,32 @@ public class SqlColumnExecutor {
             table.getRootTable().getTableName()));
   }
 
+  private static void validateAllowedValues(Column c) {
+    String[] values = c.getAllowedValues();
+    boolean hasValues = values != null && values.length > 0;
+    if (!c.getColumnType().isEnum()) {
+      if (hasValues) {
+        throw new MolgenisException(
+            "allowedValues can only be set on ENUM or ENUM_ARRAY, not on " + c.getColumnType());
+      }
+      c.setAllowedValues((String[]) null);
+      return;
+    }
+    if (!hasValues) {
+      throw new MolgenisException(
+          c.getColumnType() + " requires at least one value in 'allowedValues'");
+    }
+    if (Arrays.stream(values).anyMatch(v -> v == null || v.isBlank())) {
+      throw new MolgenisException("'allowedValues' cannot contain a blank value");
+    }
+    String[] trimmed = Arrays.stream(values).map(String::trim).toArray(String[]::new);
+    if (Arrays.stream(trimmed).distinct().count() != trimmed.length) {
+      throw new MolgenisException(
+          "'allowedValues' cannot contain duplicates: '" + String.join("', '", trimmed) + "'");
+    }
+    c.setAllowedValues(trimmed);
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -462,6 +489,7 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
+      validateAllowedValues(c);
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
         c.setRequired(true);

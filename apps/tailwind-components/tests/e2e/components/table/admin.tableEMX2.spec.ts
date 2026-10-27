@@ -22,7 +22,9 @@ const SCHEMA = `tableEMX2 test ${RUN_ID}`;
 const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 
 test.beforeAll(async () => {
-  api = await apiRequest.newContext();
+  api = await apiRequest.newContext({
+    storageState: { cookies: [], origins: [] },
+  });
   await signinAdmin(api, route);
   await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
 });
