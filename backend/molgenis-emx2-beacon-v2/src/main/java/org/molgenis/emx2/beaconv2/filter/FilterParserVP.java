@@ -81,7 +81,7 @@ public class FilterParserVP implements FilterParser {
     switch (searchConcept) {
       case SEX:
         filter.setValues(NCITToGSSOSexMapping.toGSSO(filter.getValues()));
-        break;
+      // fallthrough
       case CAUSAL_GENE, BIOSAMPLE_TYPE:
         filter.setFilterType(FilterType.ALPHANUMERICAL);
         graphQlFilters.add(filter);
