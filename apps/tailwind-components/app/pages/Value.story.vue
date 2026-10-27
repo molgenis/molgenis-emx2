@@ -221,6 +221,8 @@ const byType = computed<Record<ColumnType, Case>>(() => {
       },
     },
     ONTOLOGY_ARRAY: { column: ontologyTable, data: terms },
+    ENUM: { data: "unknown" },
+    ENUM_ARRAY: { data: grow(["research", "clinical", "rare"]) },
     HEADING: { data: "Contact details" },
     SECTION: { data: "Clinical" },
   };

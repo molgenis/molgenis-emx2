@@ -48,6 +48,7 @@ public class Column {
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
   private String[] profiles = null;
+  private String[] allowedValues = null;
 
   private boolean inherited = false;
 
@@ -118,6 +119,7 @@ public class Column {
         column.getSemantics() == null
             ? null
             : stream(column.getSemantics()).map(Semantic::toString).toArray(String[]::new);
+    this.allowedValues = column.getAllowedValues();
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();
@@ -152,6 +154,7 @@ public class Column {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
+    c.setAllowedValues(allowedValues);
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
@@ -256,6 +259,14 @@ public class Column {
 
   public void setSemantics(String[] semantics) {
     this.semantics = semantics;
+  }
+
+  public String[] getAllowedValues() {
+    return allowedValues;
+  }
+
+  public void setAllowedValues(String[] allowedValues) {
+    this.allowedValues = allowedValues;
   }
 
   public String getRefLinkId() {
@@ -488,7 +499,8 @@ public class Column {
         && Objects.equals(descriptions, column.descriptions)
         && columnType == column.columnType
         && Objects.deepEquals(semantics, column.semantics)
-        && Objects.deepEquals(profiles, column.profiles);
+        && Objects.deepEquals(profiles, column.profiles)
+        && Objects.deepEquals(allowedValues, column.allowedValues);
   }
 
   @Override
@@ -528,6 +540,7 @@ public class Column {
         columnType,
         Arrays.hashCode(semantics),
         Arrays.hashCode(profiles),
+        Arrays.hashCode(allowedValues),
         inherited);
   }
 
@@ -626,6 +639,8 @@ public class Column {
         + Arrays.toString(semantics)
         + ", profiles="
         + Arrays.toString(profiles)
+        + ", allowedValues="
+        + Arrays.toString(allowedValues)
         + ", inherited="
         + inherited
         + '}';

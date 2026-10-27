@@ -62,7 +62,7 @@ def test_prepare(preparer, session):
     preparer.prepare(nl, state)
 
     session.get_staging_node_data.assert_called_with(nl)
-    validate_func.assert_called_with(node_data, report)
+    validate_func.assert_called_with(node_data, state)
     model_fitter_func.assert_called_with(node_data, report)
     transform_func.assert_called_with(node_data, state)
     manage_pids_func.assert_called_with(node_data, state)
@@ -72,11 +72,11 @@ def test_validate(preparer: PublicationPreparer, validator_init, printer):
     validator = MagicMock()
     validator_init.return_value = validator
     node_data = MagicMock()
-    report = MagicMock()
+    state = MagicMock()
 
-    preparer._validate_node(node_data, report)
+    preparer._validate_node(node_data, state)
 
-    validator_init.assert_called_with(node_data, printer)
+    validator_init.assert_called_with(node_data, state, printer)
     assert validator.validate.called
 
 
@@ -88,11 +88,12 @@ def test_validate_warnings(preparer: PublicationPreparer, validator_init, printe
     node_data = MagicMock()
     nl = Node.of("NL")
     node_data.node = nl
-    report: ErrorReport = ErrorReport([nl])
+    state = MagicMock()
+    state.report = ErrorReport([nl])
 
-    preparer._validate_node(node_data, report)
+    preparer._validate_node(node_data, state)
 
-    assert report.node_warnings[nl] == [warning]
+    assert state.report.node_warnings[nl] == [warning]
 
 
 def test_model_fitting(preparer: PublicationPreparer, model_fitter_init):
