@@ -90,7 +90,8 @@ public class SparqlQueryTestUtils {
    * Asserts that the generated query matches the expected query, ignoring the {@code PREFIX}
    * declarations at the top of the generated query.
    */
-  static void assertQueryEquals(String expectedQueryWithoutPrefixes, String actualGeneratedQuery) {
+  public static void assertQueryEquals(
+      String expectedQueryWithoutPrefixes, String actualGeneratedQuery) {
     PrefixDeclarations declarations = new PrefixDeclarations();
     DefaultNamespace.streamAll()
         .sorted(Comparator.comparing(Namespace::getPrefix))
