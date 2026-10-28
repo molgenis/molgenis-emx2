@@ -39,7 +39,11 @@ Headings,,level,int,,,,,,,,"if (level && (level < 1 || level > 6)) ""Level must 
 Headings,,heading is centered,bool,,,,,,,,,,FALSE,,"If true, the heading will be center aligned",pages
 Headings,,heading is hidden,bool,,,,,,,,,,FALSE,ncit:C45671,"If true, the heading will be visually hidden. To undo this setting, you must navigate to the CMS schema",pages
 Paragraphs,Text elements,,,,,,,,,,,,,sio:000110,<p> elements,pages
-Paragraphs,,paragraph is centered,bool,,,,,,,,,,FALSE,,"If true, the paragraph will be centered aligned ",pages
+Paragraphs,,paragraph is centered,bool,,,,,,,,,,FALSE,,"If true, the paragraph will be centered aligned",pages
+Custom components,Components,,,,,,,,,,,,,,Customizable component,pages
+Custom components,,html,text,,,,,,,,,,"<div class='border rounded-base custom-component'>Custom Component</div>",,"HTML",pages
+Custom components,,css,text,,,,,,,,,,".custom-component { padding:2rem;display: inline-block; }",,"CSS",pages
+Custom components,,js,text,,,,,,,,,,"console.log('Custom Component')",,"JavaScript",pages
 Images,Components,,,,,,,,,,,,,sio:000081,<img> elements,pages
 Images,,display name,string,,,,,,,,,,,sio:000116,An optional name to display in place of the filename,pages
 Images,,image,file,,,,,,,,,,,SIO:000179,Select an image file,pages

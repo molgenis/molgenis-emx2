@@ -24,6 +24,7 @@ import {
   AddFile,
   AddFileList,
   AddButton,
+  AddCustomComponent,
 } from "./cms/add";
 
 export const actionsToolbarShowDelay = 200;
@@ -508,6 +509,10 @@ export async function addComponent(
 
   if (componentType === "Buttons") {
     await AddButton(schema, id);
+  }
+
+  if (componentType === "CustomComponents") {
+    await AddCustomComponent(schema, id);
   }
 
   await AddOrder(schema, id, order, parentBlock);
