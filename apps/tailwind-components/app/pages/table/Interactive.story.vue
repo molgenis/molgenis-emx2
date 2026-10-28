@@ -45,7 +45,7 @@ const settings = ref<ITableSettings>({
     column: "name",
     direction: "ASC",
   },
-  orderedColumnsIds: [],
+  orderedVisibleColumnsIds: [],
 });
 
 const appliedRows = computed(() => {

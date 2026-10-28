@@ -191,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -199,11 +199,7 @@ import type {
   ITableMetaData,
   TableRow,
 } from "../../../../metadata-utils/src/types";
-import type {
-  cellPayload,
-  ITableSettings,
-  sortDirection,
-} from "../../../types/types";
+import type { cellPayload, ITableSettings } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
 import fetchTableData, {
@@ -220,10 +216,8 @@ import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 
 import { useAsyncData } from "nuxt/app";
-import { useColumnResize } from "../../composables/useColumnResize";
 import { useSession } from "../../composables/useSession";
 import constants from "../../utils/constants";
-import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
 import EditModalHeader from "../form/EditModalHeader.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
@@ -285,7 +279,8 @@ const settings = defineModel<ITableSettings>("settings", {
     pageSize: constants.PAGE_SIZE_DEFAULT,
     orderby: { column: "", direction: "ASC" },
     search: "",
-    orderedColumnsIds: [],
+    orderedVisibleColumnsIds: [],
+    hiddenColumnsIds: [],
   }),
 });
 
@@ -428,11 +423,12 @@ watch(
 const sortedColumns = computed<IColumn[]>(() => {
   const backEndSortedColumns = sortColumns(columns.value);
 
-  if (settings.value.orderedColumnsIds?.length) {
-    // order by user settings
+  if (settings.value.orderedVisibleColumnsIds?.length) {
     return backEndSortedColumns.sort((a, b) => {
-      const indexA = settings.value.orderedColumnsIds?.indexOf(a.id) ?? -1;
-      const indexB = settings.value.orderedColumnsIds?.indexOf(b.id) ?? -1;
+      const indexA =
+        settings.value.orderedVisibleColumnsIds?.indexOf(a.id) ?? -1;
+      const indexB =
+        settings.value.orderedVisibleColumnsIds?.indexOf(b.id) ?? -1;
       return indexA - indexB;
     });
   }
@@ -441,7 +437,9 @@ const sortedColumns = computed<IColumn[]>(() => {
 });
 
 const sortedVisibleColumns = computed<IColumn[]>(() => {
-  return sortedColumns.value.filter((col) => col.visible !== "false");
+  return sortedColumns.value.filter(
+    (col) => settings.value.orderedVisibleColumnsIds?.indexOf(col.id) !== -1
+  );
 });
 
 const selectionIsModifiable = computed(
@@ -453,7 +451,7 @@ const selectionIsModifiable = computed(
 );
 
 function handleColumnsUpdate(newColumns: IColumn[]) {
-  settings.value.orderedColumnsIds = newColumns.map((col) => col.id);
+  settings.value.orderedVisibleColumnsIds = newColumns.map((col) => col.id);
 }
 
 function handleToggleRowSelection(row: TableRow) {
