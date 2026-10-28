@@ -212,6 +212,7 @@ public class Reference {
   public Column toPrimitiveColumn() {
     return new Column(this.column.getTable(), this.getColumnName(), true)
         .setType(this.getPrimitiveType())
-        .setRequired(this.column.isRequired());
+        .setRequired(this.column.isRequired())
+        .setOrigin(this.column);
   }
 }

@@ -4,6 +4,7 @@ import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
@@ -235,23 +236,19 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
         new LinkedHashMap<>(); // overlapping references can lead to duplicates
     for (Column c : columns) {
       if (c.isFile()) {
-        result.put(c.getName(), new Column(c.getTable(), c.getName()));
+        result.put(c.getName(), fileAttribute(c.getTable(), c, ""));
         result.put(
-            c.getName() + "_contents",
-            new Column(c.getTable(), c.getName() + "_contents").setType(FILE));
-        result.put(c.getName() + "_mimetype", new Column(c.getTable(), c.getName() + "_mimetype"));
-        result.put(c.getName() + "_filename", new Column(c.getTable(), c.getName() + "_filename"));
-        result.put(
-            c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
-        result.put(
-            c.getName() + "_size", new Column(c.getTable(), c.getName() + "_size").setType(INT));
+            c.getName() + "_contents", fileAttribute(c.getTable(), c, "_contents").setType(FILE));
+        result.put(c.getName() + "_mimetype", fileAttribute(c.getTable(), c, "_mimetype"));
+        result.put(c.getName() + "_filename", fileAttribute(c.getTable(), c, "_filename"));
+        result.put(c.getName() + "_extension", fileAttribute(c.getTable(), c, "_extension"));
+        result.put(c.getName() + "_size", fileAttribute(c.getTable(), c, "_size").setType(INT));
       } else
       // expand composite keys if necessary
       if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
           if (!ref.isOverlapping()) { // only add overlapping once
-            // use old name to find original column
-            result.put(ref.getColumnName(), ref.toPrimitiveColumn().setOldName(c.getName()));
+            result.put(ref.getColumnName(), ref.toPrimitiveColumn());
           }
         }
       } else {
@@ -259,6 +256,50 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       }
     }
     return new ArrayList<>(result.values());
+  }
+
+  private static Column fileAttribute(TableMetadata table, Column file, String suffix) {
+    return new Column(table, file.getName() + suffix).setOrigin(file);
+  }
+
+  /**
+   * Resolves a name used in a query: a real column (including subclass columns), else a derived
+   * column carrying its origin. The text search column has no origin.
+   */
+  public Column getQueryColumn(String name) {
+    if (TEXT_SEARCH_COLUMN_NAME.equals(name)) {
+      return new Column(this, getTableName() + TEXT_SEARCH_COLUMN_NAME);
+    }
+    Column column = getColumnByNameIncludingSubclasses(name);
+    if (column != null) {
+      return column;
+    }
+    List<Column> all = getColumnsIncludingSubclasses();
+    for (Column c : all) {
+      if (c.isReference()) {
+        for (Reference ref : c.getReferences()) {
+          if (ref.getColumnName().equals(name)) {
+            return ref.toPrimitiveColumn();
+          }
+        }
+      }
+    }
+    for (Column c : all) {
+      if (c.isFile() && name.startsWith(c.getName()) && isFileAttribute(c, name)) {
+        return fileAttribute(this, c, name.substring(c.getName().length()));
+      }
+    }
+    throw new MolgenisException(
+        "Query failed: Column '" + name + "' is unknown in table " + getTableName());
+  }
+
+  private static boolean isFileAttribute(Column file, String name) {
+    return name.equals(file.getName())
+        || name.endsWith("_mimetype")
+        || name.endsWith("_filename")
+        || name.endsWith("_extension")
+        || name.endsWith("_size")
+        || name.endsWith("_contents");
   }
 
   public List<Column> getNonInheritedColumns() {

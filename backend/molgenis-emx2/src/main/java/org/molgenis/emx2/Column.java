@@ -26,6 +26,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
 
   // transient for enabling migrations
   @DiffIgnore private String oldName; // use this when wanting to change name
+  @DiffIgnore private Column origin; // real column this derived column was computed from
   @DiffIgnore private boolean drop; // use this for migrations, i.e. explicit CREATE, ALTER, DROP
 
   // relationships
@@ -143,6 +144,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     labels = column.labels;
     formLabel = column.formLabel;
     oldName = column.oldName;
+    origin = column.origin;
     drop = column.drop;
     columnType = column.columnType;
     position = column.position;
@@ -662,6 +664,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
 
   public Column setVisible(String visible) {
     this.visible = visible;
+    return this;
+  }
+
+  public Column getOrigin() {
+    return origin;
+  }
+
+  public Column setOrigin(Column origin) {
+    this.origin = origin;
     return this;
   }
 
