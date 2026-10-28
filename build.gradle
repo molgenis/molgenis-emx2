@@ -263,7 +263,7 @@ jar {
     }
 }
 
-tasks.register('checkDependencyVersionFormat') {
+tasks.register('checkBuildFilesVersionFormat') {
     doLast {
         def dependenciesRegex = /(?s)dependencies\s*\{(.*?)\}/
         def pluginsRegex = /(?s)plugins\s*\{(.*?)\}/
@@ -311,7 +311,7 @@ tasks.register('checkDependencyVersionFormat') {
 }
 
 tasks.named('check') {
-    dependsOn 'checkDependencyVersionFormat'
+    dependsOn 'checkBuildFilesVersionFormat'
 }
 
 
