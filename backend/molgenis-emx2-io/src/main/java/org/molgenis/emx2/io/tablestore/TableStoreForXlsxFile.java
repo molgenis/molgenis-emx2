@@ -21,8 +21,8 @@ import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
-  public static final int ROW_ACCESS_WINDOW_SIZE = 100;
-  public static final int MAX_CELL_TEXT_LENGTH = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
+  private static final int ROW_ACCESS_WINDOW_SIZE = 100;
+  private static final int MAX_CELL_TEXT_LENGTH = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
   private final Path excelFilePath;
   private List<String> sheetNames;
 
