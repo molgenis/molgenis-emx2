@@ -3,7 +3,30 @@
   "extends": [
     "config:base"
   ],
-  "packageRules": [ 
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^apps/build\\.gradle$/"],
+      "matchStrings": ["node\\s*\\{[^}]*?version = '(?<currentValue>[\\d.]+)'"],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version",
+      "versioningTemplate": "node"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^ci-build-images/Dockerfile$/"],
+      "matchStrings": ["ENV NODE_VERSION=(?<currentValue>[\\d.]+)"],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version",
+      "versioningTemplate": "node"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": ["node"],
+      "prPriority": 50,
+      "prConcurrentLimit": 0
+    },
     {
       "matchUpdateTypes": ["security"],
       "prPriority": 100,
