@@ -28,7 +28,6 @@
   "packageRules": [
     {
       "matchDepNames": ["node"],
-      "addLabels": ["priority"],
       "prPriority": 50,
       "prConcurrentLimit": 0
     },
