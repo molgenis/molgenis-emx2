@@ -134,7 +134,7 @@ public class CsvApi {
       if (ctx.queryParam("async") != null) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
         tableStore.setCsvString(table.getName(), ctx.body());
-        Task task = new ImportTableTask(tableStore, table, false);
+        Task task = new ImportTableTask(tableStore, table, false, UpdateMode.UPDATE);
         String parentTaskId = ctx.queryParam("parentJob");
         String id = TaskApi.submit(task, parentTaskId);
         ctx.result(new TaskReference(id, table.getSchema()).toString());
@@ -289,7 +289,7 @@ public class CsvApi {
 
     String modeParam = ctx.queryParam(MODE_PARAM);
 
-    UpdateMode updateMode = UpdateMode.DEFAULT_MODE;
+    UpdateMode updateMode = UpdateMode.UPDATE;
 
     try {
       if (modeParam != null) {
