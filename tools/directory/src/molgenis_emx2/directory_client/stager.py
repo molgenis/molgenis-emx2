@@ -1,4 +1,5 @@
 """Defines the Stager class, which implements all staging-related functionality"""
+
 import csv
 import os
 from typing import List
@@ -24,6 +25,7 @@ from .model import (
     TableType,
 )
 from .printer import Printer
+from .utils import apply_mapping, data_categories_mapping
 
 
 class Stager:
@@ -48,6 +50,7 @@ class Stager:
             source_data = self._get_external_server_data(node)
         else:
             source_data = self._ingest_files(node)
+        source_data = self._transform_external_data(source_data)
         self._clear_staging_area(node)
         await self._import_node(source_data)
 
@@ -78,7 +81,7 @@ class Stager:
             file = self._download_file(node, table_type)
             if not file or os.path.getsize(file) == 0:
                 # No file or empty file? Create dummy Table
-                dummy_meta = [Column(name='id', key=1, table=table_type.base_id)]
+                dummy_meta = [Column(name="id", key=1, table=table_type.base_id)]
                 table = Table.of_empty(
                     table_type,
                     TableMeta(meta=dummy_meta, table_name=table_type.base_id),
@@ -87,9 +90,7 @@ class Stager:
                 table = self._file_to_table(file, table_type)
             tables[table_type.value] = table
 
-        return NodeData.from_dict(
-            node=node, source=Source.EXTERNAL_SERVER, tables=tables
-        )
+        return NodeData.from_dict(node=node, source=Source.EXTERNAL_SERVER, tables=tables)
 
     @staticmethod
     def _check_permissions(session: ExternalServerSession):
@@ -146,14 +147,14 @@ class Stager:
         Get csv file, transform into Table object
         """
         rows = []
-        with open(filename, 'r', newline='', encoding='utf-8') as file:
+        with open(filename, "r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
             for row in reader:
                 rows.append(row)
         # Create table metadata
         metadata = []
         for column in rows[0]:
-            if column == 'id':
+            if column == "id":
                 column_meta = Column(name=column, key=1, table=table_type.base_id)
             else:
                 column_meta = Column(name=column, key=None, table=table_type.base_id)
@@ -173,10 +174,9 @@ class Stager:
             filename, headers = urlretrieve(file_path)
         except (URLError, HTTPError, ContentTooShortError) as e:
             raise DirectoryError(f"Failed at retrieving {file_path}") from e
-        if headers['Content-Type'] != 'text/csv; charset=utf-8':
+        if headers["Content-Type"] != "text/csv; charset=utf-8":
             warning = DirectoryWarning(
-                f"Node {node.code} has no file at {file_path} "
-                f"for table {table_type.base_id}"
+                f"Node {node.code} has no file at {file_path} " f"for table {table_type.base_id}"
             )
             self.printer.print_warning(warning, indent=1)
             self.warnings.append(warning)
@@ -187,11 +187,41 @@ class Stager:
         """
         Imports an external node's data to its staging area.
         """
-        self.printer.print(
-            f"💾 Saving data to the staging area of {source_data.node.code}"
-        )
+        self.printer.print(f"💾 Saving data to the staging area of {source_data.node.code}")
 
         await self.session.upload_data(
             schema=source_data.node.get_schema_id(),
             data=source_data.convert_to_staging(),
         )
+
+    def _transform_external_data(self, source_data):
+        """
+        Transform external data to make it compatible with the BBMRI-ERIC server,
+        e.g. in case of data model or ontology changes not yet implemented externally
+
+        1. Map old DataCategories values to new ones
+        """
+        # TODO better message
+        self.printer.print("⚙️ Transform data to match BBMRI-ERIC data model")
+
+        source_data = self._map_data_categories(source_data)
+
+        return source_data
+
+    def _map_data_categories(self, source_data):
+        """
+        Map values of old DataCategories ontology to new ones
+        """
+        for _, table in source_data.table_by_type.items():
+            relevant_columns = []
+            for column in table.meta.meta:
+                if (
+                    column.columnType in ["ONTOLOGY", "ONTOLOGY_ARRAY"]
+                    and column.refSchemaId == "DirectoryOntologies"
+                    and column.refTableId == "DataCategories"
+                ):
+                    relevant_columns.append(column.name)
+            for row in table.rows:
+                for column in relevant_columns:
+                    row[column] = apply_mapping(data_categories_mapping, row[column])
+        return source_data
