@@ -39,7 +39,6 @@ sitemapgen4j = "1.1.2"
 swagger-parser = "2.1.48"
 system-lambda = "1.2.1"
 system-stubs-jupiter = "2.1.8"
-testcontainers = "2.0.5"
 zip4j = "2.11.6"
 
 [libraries]
@@ -75,7 +74,6 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
 javax-mail = { module = "javax.mail:mail", version.ref = "javax-mail" }
-mariadb-driver = { module = "org.mariadb.jdbc:mariadb-java-client", version = "3.5.10" }
 matomo = { module = "org.piwik.java.tracking:matomo-java-tracker", version.ref = "matomo" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito-core" }
 nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbus-jose-jwt" }
@@ -114,9 +112,6 @@ sitemapgen4j = { module = "com.github.dfabulich:sitemapgen4j", version.ref = "si
 swagger-parser = { module = "io.swagger.parser.v3:swagger-parser", version.ref = "swagger-parser" }
 system-lambda = { module = "com.github.stefanbirkner:system-lambda", version.ref = "system-lambda" }
 system-stubs-jupiter = { module = "uk.org.webcompere:system-stubs-jupiter", version.ref = "system-stubs-jupiter" }
-testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
-testcontainers-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
-testcontainers-mariadb = { module = "org.testcontainers:testcontainers-mariadb", version.ref = "testcontainers" }
 zip4j = { module = "net.lingala.zip4j:zip4j", version.ref = "zip4j" }
 
 [bundles]
@@ -129,9 +124,6 @@ pac4j = ["pac4j-core", "pac4j-http", "pac4j-oidc"]
 poi = ["poi", "poi-ooxml"]
 prometheus = ["prometheus-metrics-core", "prometheus-metrics-exporter-httpserver", "prometheus-metrics-exporter-servlet-jakarta", "prometheus-metrics-instrumentation-jvm"]
 rdf4j-rio = ["rdf4j-rio-api", "rdf4j-rio-jsonld", "rdf4j-rio-n3", "rdf4j-rio-nquads", "rdf4j-rio-ntriples", "rdf4j-rio-rdfxml", "rdf4j-rio-trig", "rdf4j-rio-turtle"]
-testcontainers = ["testcontainers", "testcontainers-jupiter"]
-testcontainers-matomo = ["testcontainers", "testcontainers-jupiter", "testcontainers-mariadb"]
-testcontainers-mariadb = ["testcontainers-mariadb", "mariadb-driver"]
 
 [plugins]
 diffplug-spotless = { id = "com.diffplug.spotless", version = "8.10.4" }

@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:11.4
+    image: mariadb:latest
     environment:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_DATABASE: matomo
@@ -8,7 +8,7 @@ services:
       MARIADB_PASSWORD: secret
 
   matomo:
-    image: matomo:5.14-apache
+    image: matomo:latest
     depends_on:
       - db
     ports:
