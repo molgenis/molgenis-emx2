@@ -329,6 +329,32 @@ const columns = computed<IColumn[]>(
     ) ?? []
 );
 
+const sortedColumns = computed<IColumn[]>(() => {
+  const backEndSortedColumns = sortColumns(columns.value);
+
+  if (settings.value.orderedVisibleColumnsIds?.length) {
+    return backEndSortedColumns.sort((a, b) => {
+      const indexA =
+        settings.value.orderedVisibleColumnsIds?.indexOf(a.id) ?? -1;
+      const indexB =
+        settings.value.orderedVisibleColumnsIds?.indexOf(b.id) ?? -1;
+      return indexA - indexB;
+    });
+  }
+
+  return backEndSortedColumns;
+});
+
+const sortedVisibleColumns = computed<IColumn[]>(() => {
+  if (!settings.value.orderedVisibleColumnsIds) {
+    return sortedColumns.value;
+  } else {
+    return sortedColumns.value.filter(
+      (col) => settings.value.orderedVisibleColumnsIds?.indexOf(col.id) !== -1
+    );
+  }
+});
+
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(columns, {
       urlSync: true,
@@ -419,28 +445,6 @@ watch(
   },
   { deep: true }
 );
-
-const sortedColumns = computed<IColumn[]>(() => {
-  const backEndSortedColumns = sortColumns(columns.value);
-
-  if (settings.value.orderedVisibleColumnsIds?.length) {
-    return backEndSortedColumns.sort((a, b) => {
-      const indexA =
-        settings.value.orderedVisibleColumnsIds?.indexOf(a.id) ?? -1;
-      const indexB =
-        settings.value.orderedVisibleColumnsIds?.indexOf(b.id) ?? -1;
-      return indexA - indexB;
-    });
-  }
-
-  return backEndSortedColumns;
-});
-
-const sortedVisibleColumns = computed<IColumn[]>(() => {
-  return sortedColumns.value.filter(
-    (col) => settings.value.orderedVisibleColumnsIds?.indexOf(col.id) !== -1
-  );
-});
 
 const selectionIsModifiable = computed(
   () =>

@@ -329,12 +329,12 @@ function handlePageSizeChange(pageSize: string) {
                   </TableCellEMX2>
 
                   <TableCellEMX2
-                    v-for="column in sortedVisibleColumns"
+                    v-for="column in columns"
                     :style="{ width: columnWidths[column.id] + 'px' }"
                     class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                     :class="{
-                      'w-60 lg:w-full': sortedVisibleColumns?.length || 0 <= 5,
-                      'w-60': sortedVisibleColumns?.length || 0 > 5,
+                      'w-60 lg:w-full': columns.length <= 5,
+                      'w-60': columns.length > 5,
                     }"
                     :scope="column.key === 1 ? 'row' : null"
                     :metadata="column"
