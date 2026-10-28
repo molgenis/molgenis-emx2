@@ -3,6 +3,10 @@
   "extends": [
     "config:base"
   ],
+  "labels": ["dependencies"],
+  "vulnerabilityAlerts": {
+    "addLabels": ["security", "priority"]
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -24,6 +28,7 @@
   "packageRules": [
     {
       "matchDepNames": ["node"],
+      "addLabels": ["priority"],
       "prPriority": 50,
       "prConcurrentLimit": 0
     },
