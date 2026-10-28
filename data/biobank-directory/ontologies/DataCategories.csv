@@ -1,6 +1,7 @@
 order,name,label,parent,codesystem,code,ontologyTermURI,definition
 ,Antibodies,Antibodies titer (IgM and IgG),,,,,
 ,Biochemical dataset,Biochemical dataset,,MIABIS,,,Dataset on the chemical substances and vital processes occurring in living organisms.
+,Biological samples,Biological samples,,,,,"Collection containing biological samples."
 ,Blood,Blood count and other lab results,,,,,"Blood count and other lab results, especially at the moment of hospital admission."
 ,Body image,Body (Radiological) image,,MIABIS,,,Dataset containing images produced with the use of X-ray and other forms of radiant energy.
 ,Clinical dataset,Clinical dataset,,MIABIS,,,Data obtained through patient examination or treatment.
