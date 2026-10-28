@@ -342,6 +342,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.ALLOWED_VALUES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
   private static final GraphQLObjectType outputTableType =
       new GraphQLObjectType.Builder()
@@ -504,6 +508,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SEMANTICS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.ALLOWED_VALUES)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isArrayLikeDetail } from "../src/fieldHelpers";
+import { fieldTypes, isArrayLikeDetail } from "../src/fieldHelpers";
 import type { IColumn } from "../src/types";
 
 const createColumn = (columnType?: string) =>
@@ -16,5 +16,13 @@ describe("isArrayLikeDetail", () => {
   it("returns false for non array-like column types", () => {
     expect(isArrayLikeDetail(createColumn("REF"))).toBe(false);
     expect(isArrayLikeDetail(createColumn(undefined))).toBe(false);
+  });
+});
+
+describe("enum column types", () => {
+  it("lists both enum types as field types", () => {
+    expect(fieldTypes()).toEqual(
+      expect.arrayContaining(["ENUM", "ENUM_ARRAY"])
+    );
   });
 });
