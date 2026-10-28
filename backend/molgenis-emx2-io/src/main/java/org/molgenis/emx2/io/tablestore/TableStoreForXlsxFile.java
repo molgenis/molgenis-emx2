@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -20,7 +21,8 @@ import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
-  public static final int ROW_ACCESS_WINDOW_SIZE = 100;
+  private static final int ROW_ACCESS_WINDOW_SIZE = 100;
+  private static final int MAX_CELL_TEXT_LENGTH = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
   private final Path excelFilePath;
   private List<String> sheetNames;
 
@@ -108,19 +110,23 @@ public class TableStoreForXlsxFile implements TableStore {
           int currentRow = rowNum.getAndIncrement();
           org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(currentRow);
           for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
+            String cellLocation =
+                "table '" + name + "', column '" + entry.getKey() + "', at row " + currentRow;
+            String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
+            if (cellValue != null && cellValue.length() > MAX_CELL_TEXT_LENGTH) {
+              throw new MolgenisException(
+                  "Cannot export "
+                      + cellLocation
+                      + " to Excel: value has "
+                      + cellValue.length()
+                      + " characters, while Excel allows at most "
+                      + MAX_CELL_TEXT_LENGTH
+                      + " characters per cell. Please use CSV export instead.");
+            }
             try {
-              String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
               excelRow.createCell(entry.getValue()).setCellValue(cellValue);
             } catch (IllegalArgumentException e) {
-              throw new MolgenisException(
-                  "Error writing table '"
-                      + name
-                      + "', column '"
-                      + entry.getKey()
-                      + "', at row "
-                      + currentRow
-                      + ": "
-                      + e.getMessage());
+              throw new MolgenisException("Error writing " + cellLocation + ": " + e.getMessage());
             }
           }
         });
