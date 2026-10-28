@@ -263,6 +263,58 @@ jar {
     }
 }
 
+tasks.register('checkDependencyVersionFormat') {
+    doLast {
+        def dependenciesRegex = /(?s)dependencies\s*\{(.*?)\}/
+        def pluginsRegex = /(?s)plugins\s*\{(.*?)\}/
+        def buildFiles = fileTree(rootDir) { // Specific to increase task speed
+            include 'build.gradle'
+            include 'apps/build.gradle'
+            include 'apps/*/build.gradle'
+            include 'backend/build.gradle'
+            include 'backend/*/build.gradle'
+        }
+
+        buildFiles.each { file ->
+            def content = file.text
+            def relativePath = file.toString().replace(rootDir.toString() + '/', '')
+
+            (content =~ pluginsRegex).find { block ->
+                 block[1].toString().readLines().eachWithIndex{ line, index ->
+                     def plugin = line.trim()
+                     if(plugin &&
+                             !plugin.startsWith('//') &&
+                             plugin.contains("version")) {
+                         throw new GradleException(
+                                 "[${relativePath} L${index+1}] Found plugin with an explicit version that is not handled through libs.versions.toml: ${plugin}"
+                         )
+                     }
+                }
+            }
+
+            (content =~ dependenciesRegex).each { block ->
+                block[1].toString().readLines().eachWithIndex { line, index ->
+                    def dependency = line.trim()
+
+                    if (dependency &&
+                            !dependency.startsWith('//') &&
+                            !dependency.contains(' libs.') && // do not remove space!
+                            !dependency.contains('project(')) {
+                        throw new GradleException(
+                                "[${relativePath} L${index+1}] Found dependency that does not use libs.versions.toml and is not a project dependency either: ${dependency}"
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn 'checkDependencyVersionFormat'
+}
+
+
 //task to install pre-commit hook that applies formatting
 tasks.register('installPreCommitGitFormatApplyHook', Copy) {
     from new File(rootProject.rootDir, 'pre-commit-format-apply')
