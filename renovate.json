@@ -6,7 +6,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^apps/build\\.gradle$/"],
+      "fileMatch": ["^apps/build\\.gradle$"],
       "matchStrings": ["node\\s*\\{[^}]*?version = '(?<currentValue>[\\d.]+)'"],
       "depNameTemplate": "node",
       "datasourceTemplate": "node-version",
@@ -14,7 +14,7 @@
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^ci-build-images/Dockerfile$/"],
+      "fileMatch": ["^ci-build-images/Dockerfile$"],
       "matchStrings": ["ENV NODE_VERSION=(?<currentValue>[\\d.]+)"],
       "depNameTemplate": "node",
       "datasourceTemplate": "node-version",
