@@ -34,7 +34,9 @@ public class Info {
     if (schema == null) {
       throw new MolgenisException("Informational endpoint is only available on schema level");
     }
-    if (schema.getTable(ENDPOINT_TABLE) == null) return null;
+    if (schema.getTable(ENDPOINT_TABLE) == null) {
+      return null;
+    }
 
     List<Row> infoRows =
         database
@@ -43,7 +45,9 @@ public class Info {
             .where(f("id", EQUALS, TABLE_ID))
             .retrieveRows();
 
-    if (infoRows.isEmpty()) return null;
+    if (infoRows.isEmpty()) {
+      return null;
+    }
 
     Row infoRow = infoRows.getFirst();
 

@@ -20,45 +20,55 @@ import org.molgenis.emx2.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Migrations {
+public final class Migrations {
   // version the current software needs to work
   private static final int SOFTWARE_DATABASE_VERSION = 37;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
+  private Migrations() {
+    // no instances
+  }
+
   public static synchronized void initOrMigrate(SqlDatabase db) {
     db.tx(
         // transaction ensures migration succeeds completely or is rolled back completely
         tdb -> {
-          int version = MetadataUtils.getVersion(db.getJooq());
+          int version = getVersion(db.getJooq());
 
           // -1 getVersion indicates schema does not exist
-          if (version < 0) MetadataUtils.init(((SqlDatabase) tdb).getJooq());
+          if (version < 0) {
+            init(((SqlDatabase) tdb).getJooq());
+          }
 
           // migration steps to update from a previous version to SOFTWARE_DATABASE_VERSION
           // idea is that all steps need to be run when initializing empty server
           // this ensures 'new' and 'updated' servers are equal and same logic is not specified 2x
           // (one for 'new' and one for 'migration')
-          if (version < 1)
+          if (version < 1) {
             executeMigrationFile(
                 tdb,
                 "migration1.sql",
                 "database migration: MOLGENIS.version_metadata tracks int database version number checks against code instead of string version number from released jar");
-          if (version < 2)
+          }
+          if (version < 2) {
             executeMigrationFile(
                 tdb,
                 "migration2.sql",
                 "database migration: role names are made case-sensitive matching schema names, to fix issue where roles where conflicting between schemas with same uppercase(name)");
-          if (version < 3)
+          }
+          if (version < 3) {
             executeMigrationFile(
                 tdb,
                 "migration3.sql",
                 "database migration: add description column to MOLGENIS.schema_metadata to store schema description");
-          if (version < 4)
+          }
+          if (version < 4) {
             executeMigrationFile(
                 tdb,
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
+          }
 
           if (version < 5) {
             migration5addMgTableclassUpdateTrigger((SqlDatabase) tdb);
@@ -66,34 +76,44 @@ public class Migrations {
                 "Updated all tables to have mg_tableclass trigger to prevent accidental overwrite of subclass records with same primary key value");
           }
 
-          if (version < 6)
+          if (version < 6) {
             executeMigrationFile(
                 tdb, "migration5.sql", "database migration: add MOLGENIS.column_metadata.readonly");
+          }
 
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.
-          if (version < 7)
+          if (version < 7) {
             executeMigration7(
                 (SqlDatabase) tdb,
                 "refactor settings, rename molgenis_version table to database_metadata");
+          }
 
-          if (version < 8) executeMigrationFile(tdb, "migration8.sql", "add labels column");
+          if (version < 8) {
+            executeMigrationFile(tdb, "migration8.sql", "add labels column");
+          }
 
-          if (version < 9)
+          if (version < 9) {
             executeMigrationFile(
                 tdb, "migration9.sql", "update row level policy for schema metadata");
+          }
 
-          if (version < 10)
+          if (version < 10) {
             executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
+          }
 
-          if (version < 11) executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
+          if (version < 11) {
+            executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
+          }
 
-          if (version < 12)
+          if (version < 12) {
             executeMigrationFile(tdb, "migration12.sql", "add defaultValue in metadata schema");
+          }
 
-          if (version < 13)
+          if (version < 13) {
             executeMigrationFile(
                 tdb, "migration13.sql", "remove default value for mg_tableclass columns");
+          }
 
           if (version < 14) {
             executeMigrationFile(tdb, "migration14.sql", "cleanup column_metadata ref column");
@@ -124,9 +144,10 @@ public class Migrations {
             executeMigrationFile(tdb, "migration20.sql", "function to convert interval to period");
           }
 
-          if (version < 21)
+          if (version < 21) {
             executeMigrationFile(
                 tdb, "migration21.sql", "add exist and range role to schemas and metadata");
+          }
 
           if (version < 22) {
             executeMigrationFile(
@@ -245,27 +266,25 @@ public class Migrations {
         jooq.selectFrom(table(name(MOLGENIS, "settings_metadata"))).fetch();
 
     // t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-    final org.jooq.Field SETTINGS_NAME =
-        field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
-    final org.jooq.Field SETTINGS_TABLE_NAME =
+    final Field settingsName = field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
+    final Field settingsTableName =
         field(
             name(TABLE_NAME.getName()),
             VARCHAR.nullable(true)); // note table might be null in case of schema
-    final org.jooq.Field SETTINGS_VALUE =
-        field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
+    final Field settingsValue = field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
 
     for (Record record : previousSettings) {
       String schemaName = record.get(TABLE_SCHEMA, String.class);
-      String tableName = record.get(SETTINGS_TABLE_NAME, String.class);
-      String key = record.get(SETTINGS_NAME, String.class);
-      String value = record.get(SETTINGS_VALUE, String.class);
+      String tableName = record.get(settingsTableName, String.class);
+      String key = record.get(settingsName, String.class);
+      String value = record.get(settingsValue, String.class);
       logger.info("migrating setting " + schemaName + "." + tableName + "." + key + "=xxxxx");
-      if (schemaName == null || schemaName.equals(NOT_PROVIDED)) {
+      if (schemaName == null || NOT_PROVIDED.equals(schemaName)) {
         // database level setting
         tdb.setSetting(key, value);
       } else {
         Schema schema = tdb.getSchema(schemaName);
-        if (tableName == null || tableName.equals(NOT_PROVIDED)) {
+        if (tableName == null || NOT_PROVIDED.equals(tableName)) {
           // schema level setting
           schema.getMetadata().setSetting(key, value);
         } else {
@@ -296,7 +315,7 @@ public class Migrations {
   }
 
   private static void updateDatabaseVersion(SqlDatabase db, int newVersion) {
-    MetadataUtils.setVersion(db.getJooq(), newVersion);
+    setVersion(db.getJooq(), newVersion);
   }
 
   static void migration5addMgTableclassUpdateTrigger(SqlDatabase db) {
@@ -305,16 +324,14 @@ public class Migrations {
     // all schemas, except MOLGENIS
     for (org.jooq.Table table : jooq.meta().getTables()) {
       for (Field field : table.fields()) {
-        if (field.getName().equals(MG_TABLECLASS)) {
+        if (MG_TABLECLASS.equals(field.getName())) {
           // rewrite of createMgTableClassCannotUpdateCheck
           // such that it doesn't use the metadata schema because that gives errors if migration is
           // not yet executed, savvy?
           String functionName = table.getName() + MG_TABLECLASS_UPDATE;
           List<TableField> keyFields = ((UniqueKey) table.getKeys().get(0)).getFields();
           String keyColumns =
-              keyFields.stream()
-                  .map(keyField -> keyField.getName())
-                  .collect(Collectors.joining(","));
+              keyFields.stream().map(Field::getName).collect(Collectors.joining(","));
           String keyValues =
               keyFields.stream()
                   .map(keyField -> "OLD." + name(keyField.getName()))

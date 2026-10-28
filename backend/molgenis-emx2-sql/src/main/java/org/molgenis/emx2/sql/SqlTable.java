@@ -113,12 +113,12 @@ public class SqlTable implements Table {
           database
               .getSchema(rootTableMetadata.getSchemaName())
               .getTable(rootTableMetadata.getTableName());
-      String mg_table = t.getMgTableClass(t.getMetadata());
+      String mgTable = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
           .getJooqWithExtendedTimeout()
           .deleteFrom(rootTable.getJooqTable())
-          .where(field(MG_TABLECLASS).equal(mg_table))
+          .where(field(MG_TABLECLASS).equal(mgTable))
           .execute();
     }
     // else in normal table simply call delete
@@ -149,11 +149,12 @@ public class SqlTable implements Table {
     String tableClass = getMgTableClass(table.getMetadata());
 
     // validate
-    if (table.getMetadata().getPrimaryKeys().isEmpty())
+    if (table.getMetadata().getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
           "Transaction failed: Table "
               + table.getName()
               + " cannot process row insert/update/delete requests because no primary key is defined");
+    }
 
     db.tx(
         db2 -> {
@@ -452,7 +453,7 @@ public class SqlTable implements Table {
 
     MgDefaults mgDefaults = inherit ? null : MgDefaults.of(this);
 
-    InsertValuesStepN<org.jooq.Record> step = createInsertStep(columns);
+    InsertValuesStepN<Record> step = createInsertStep(columns);
     addRowsToInsertStep(step, rows, columns, mgDefaults);
     if (updateOnConflict) {
       addUpdateOnConflictClause(step, rows, columns, mgDefaults);
@@ -476,16 +477,14 @@ public class SqlTable implements Table {
     }
   }
 
-  private InsertValuesStepN<org.jooq.Record> createInsertStep(List<Column> columns) {
+  private InsertValuesStepN<Record> createInsertStep(List<Column> columns) {
     List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
     return getJooq().insertInto(getJooqTable(), insertFields.toArray(new Field[0]));
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   private void addRowsToInsertStep(
-      InsertValuesStepN<org.jooq.Record> step,
-      List<Row> rows,
-      List<Column> columns,
-      MgDefaults mgDefaults) {
+      InsertValuesStepN<Record> step, List<Row> rows, List<Column> columns, MgDefaults mgDefaults) {
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (mgDefaults != null) {
@@ -495,12 +494,10 @@ public class SqlTable implements Table {
     }
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   private void addUpdateOnConflictClause(
-      InsertValuesStepN<org.jooq.Record> step,
-      List<Row> rows,
-      List<Column> columns,
-      MgDefaults mgDefaults) {
-    InsertOnDuplicateSetStep<org.jooq.Record> onConflict =
+      InsertValuesStepN<Record> step, List<Row> rows, List<Column> columns, MgDefaults mgDefaults) {
+    InsertOnDuplicateSetStep<Record> onConflict =
         step.onConflict(getMetadata().getPrimaryKeyFields().toArray(new Field[0])).doUpdate();
 
     for (Column column : getColumnsToOverwriteOnConflict(columns)) {
@@ -511,8 +508,9 @@ public class SqlTable implements Table {
     }
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   private static void setMgValuesOnConflict(
-      InsertOnDuplicateSetStep<org.jooq.Record> onConflict,
+      InsertOnDuplicateSetStep<Record> onConflict,
       List<Row> rows,
       List<Column> columns,
       MgDefaults mgDefaults) {
@@ -589,7 +587,9 @@ public class SqlTable implements Table {
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) return count;
+    if (columns.isEmpty()) {
+      return count;
+    }
     List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
 
     // create batch of updates
@@ -637,13 +637,12 @@ public class SqlTable implements Table {
   }
 
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {
-    List<String> updateColumnNames = updateColumns.stream().map(c -> c.getName()).toList();
+    List<String> updateColumnNames = updateColumns.stream().map(Column::getName).toList();
     List<Column> storedColumns =
         table.getMetadata().getStoredColumns().stream()
             .filter(c -> updateColumnNames.contains(c.getName()))
             .toList();
-    List<Column> expandedColumns = table.getMetadata().getExpandedColumns(storedColumns);
-    return expandedColumns;
+    return table.getMetadata().getExpandedColumns(storedColumns);
   }
 
   private Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
@@ -751,11 +750,13 @@ public class SqlTable implements Table {
     return groupBy().select(columns);
   }
 
+  @Override
   public Query where(Filter... filters) {
     return query().where(filters);
   }
 
   // @Override
+  @Override
   public Query search(String terms) {
     return query().search(terms);
   }
@@ -853,9 +854,7 @@ public class SqlTable implements Table {
                           r.get(ref.getColumnName(), ref.getPrimitiveType()), ref.getJooqField())));
         }
       }
-    } else if (key.isRefback()) {
-      // do nothing
-    } else {
+    } else if (!key.isRefback()) { // refbacks are skipped
       columnCondition.add(
           key.getJooqField()
               .eq(cast(r.get(key.getName(), key.getColumnType()), key.getJooqField())));
@@ -895,7 +894,7 @@ public class SqlTable implements Table {
     return getMetadata().getIdentifier();
   }
 
-  protected org.jooq.Table<org.jooq.Record> getJooqTable() {
+  protected org.jooq.Table<Record> getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 
@@ -914,7 +913,9 @@ public class SqlTable implements Table {
 
   private static void log(
       String user, String table, long start, AtomicInteger count, String message) {
-    if (user == null) user = "molgenis";
+    if (user == null) {
+      user = "molgenis";
+    }
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} rows into table {} in {}ms",
@@ -922,7 +923,7 @@ public class SqlTable implements Table {
           message,
           count.get(),
           table,
-          (System.currentTimeMillis() - start));
+          System.currentTimeMillis() - start);
     }
   }
 }

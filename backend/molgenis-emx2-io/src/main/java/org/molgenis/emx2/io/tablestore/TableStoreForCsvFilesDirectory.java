@@ -22,8 +22,9 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
 
   public TableStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
     this.directoryPath = directoryPath;
-    if (!directoryPath.toFile().exists())
+    if (!directoryPath.toFile().exists()) {
       throw new MolgenisException("Import failed: Directory " + directoryPath + " doesn't exist");
+    }
     this.separator = separator;
   }
 
@@ -34,20 +35,19 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
-    try {
-      Writer writer = Files.newBufferedWriter(relativePath);
+    try (Writer writer = Files.newBufferedWriter(relativePath)) {
       if (rows.iterator().hasNext()) {
         CsvTableWriter.write(rows, columnNames, writer, separator);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
       }
-      writer.close();
     } catch (IOException ioe) {
       throw new MolgenisException("Export failed", ioe);
     }
   }
 
+  @Override
   public void writeFile(String filePath, byte[] contents) {
     if (contents != null && contents.length > 0) {
       try {

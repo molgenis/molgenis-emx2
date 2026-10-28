@@ -15,7 +15,7 @@ public class ImportSchemaTask extends Task {
     METADATA_ONLY,
     DATA_ONLY,
     ALL
-  };
+  }
 
   public ImportSchemaTask(
       String description,

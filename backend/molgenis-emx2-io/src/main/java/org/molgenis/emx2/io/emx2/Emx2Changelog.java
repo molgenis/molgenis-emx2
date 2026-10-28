@@ -6,7 +6,7 @@ import java.util.List;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-public class Emx2Changelog {
+public final class Emx2Changelog {
 
   private Emx2Changelog() {
     // Hide constructor

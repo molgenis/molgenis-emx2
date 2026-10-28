@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
@@ -33,8 +33,8 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     StopWatch.print("testTypes started");
 
-    String SCHEMA_NAME = "testTypes";
-    Schema schema = db.dropCreateSchema(SCHEMA_NAME);
+    String schemaName = "testTypes";
+    Schema schema = db.dropCreateSchema(schemaName);
 
     // generate TypeTest table, with columns for each type
 
@@ -44,7 +44,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     db.clearCache();
 
-    Table t2 = db.getSchema(SCHEMA_NAME).getTable(SimpleTypeTestExample.TYPE_TEST);
+    Table t2 = db.getSchema(schemaName).getTable(SimpleTypeTestExample.TYPE_TEST);
 
     StopWatch.print("created TypeTest table");
 
@@ -64,40 +64,34 @@ public class TestCreateBasicDataColumnTypeColumns {
     t2.insert(row);
 
     // check not null expects exception
-    row = new Row();
-    row.setString("id", "test2");
-    row.setUuid("Test uuid nillable", java.util.UUID.randomUUID());
-    row.setString("Test string nillable", "test");
-    row.setBool("Test bool nillable", true);
-    row.setInt("Test int nillable", 1);
-    row.setDecimal("Test decimal nillable", 1.1);
-    row.setText("Test text nillable", "testtext");
-    row.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
-    row.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
-    row.setPeriod("Test period nillable", Period.of(23, 2, 14));
-    try {
-      // should fail on all non  nillable columns
-      t2.insert(row);
-      fail("Should not be able to insert null in not-null columns"); // should not reach this one
-      // because all not null are null
-    } catch (MolgenisException e) {
-
-    }
+    Row nullableOnlyRow = new Row();
+    nullableOnlyRow.setString("id", "test2");
+    nullableOnlyRow.setUuid("Test uuid nillable", java.util.UUID.randomUUID());
+    nullableOnlyRow.setString("Test string nillable", "test");
+    nullableOnlyRow.setBool("Test bool nillable", true);
+    nullableOnlyRow.setInt("Test int nillable", 1);
+    nullableOnlyRow.setDecimal("Test decimal nillable", 1.1);
+    nullableOnlyRow.setText("Test text nillable", "testtext");
+    nullableOnlyRow.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
+    nullableOnlyRow.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
+    nullableOnlyRow.setPeriod("Test period nillable", Period.of(23, 2, 14));
+    // should fail on all non nillable columns, because all not null are null
+    assertThrows(MolgenisException.class, () -> t2.insert(nullableOnlyRow));
 
     StopWatch.print("inserted rows");
 
     // check queryOld and test getters
     List<Row> result = schema.getTable("TypeTest").retrieveRows();
     for (Row res : result) {
-      assert (res.getDate("Test date") instanceof LocalDate);
-      assert (res.getDateTime("Test datetime") instanceof LocalDateTime);
-      assert (res.getString("Test string") instanceof String);
-      assert (res.getInteger("Test int") instanceof Integer);
-      assert (res.getDecimal("Test decimal") instanceof Double);
-      assert (res.getText("Test text") instanceof String);
-      assert (res.getBoolean("Test bool") instanceof Boolean);
-      assert (res.getUuid("Test uuid") instanceof java.util.UUID);
-      assert (res.getPeriod("Test period") instanceof Period);
+      assert res.getDate("Test date") instanceof LocalDate;
+      assert res.getDateTime("Test datetime") instanceof LocalDateTime;
+      assert res.getString("Test string") instanceof String;
+      assert res.getInteger("Test int") instanceof Integer;
+      assert res.getDecimal("Test decimal") instanceof Double;
+      assert res.getText("Test text") instanceof String;
+      assert res.getBoolean("Test bool") instanceof Boolean;
+      assert res.getUuid("Test uuid") instanceof java.util.UUID;
+      assert res.getPeriod("Test period") instanceof Period;
     }
 
     StopWatch.print("checked getters");

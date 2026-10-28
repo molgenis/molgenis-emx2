@@ -30,7 +30,7 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.tasks.Task;
 
-public class ZipApi {
+public final class ZipApi {
   private ZipApi() {
     // hide constructor
   }
@@ -123,7 +123,9 @@ public class ZipApi {
   static void getZipTable(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     boolean includeSystemColumns = includeSystemColumns(ctx);
-    if (table == null) throw new MolgenisException("Table " + ctx.pathParam(TABLE) + " unknown");
+    if (table == null) {
+      throw new MolgenisException("Table " + ctx.pathParam(TABLE) + " unknown");
+    }
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
@@ -179,7 +181,7 @@ public class ZipApi {
     Map<String, ?> parameters = getReportParameters(ctx);
     for (String reportId : reports.split(",")) {
       List<Row> rows = getReportAsRows(reportId, schema, parameters);
-      if (rows.size() > 0) {
+      if (!rows.isEmpty()) {
         store.writeTable(reportId, new ArrayList<>(rows.get(0).getColumnNames()), rows);
       } else {
         store.writeTable(reportId, new ArrayList<>(), rows);

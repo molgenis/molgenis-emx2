@@ -47,7 +47,7 @@ class SqlTableMetadata extends TableMetadata {
         if (tm.getInheritName() != null
             && tm.getInheritedTable().getColumn(c.getName()) != null
             // this column is replicated in all subclass tables
-            && !c.getName().equals(MG_TABLECLASS)) {
+            && !MG_TABLECLASS.equals(c.getName())) {
           throw new MolgenisException(
               "Cannot add column "
                   + tm.getTableName()
@@ -62,7 +62,8 @@ class SqlTableMetadata extends TableMetadata {
           validateColumn(newColumn);
           if (newColumn.getPosition() == null) {
             // positions are asumed to number up in a schema
-            newColumn.setPosition(position++);
+            newColumn.setPosition(position);
+            position++;
           }
           executeCreateColumn(tm.getJooq(), newColumn);
           tm.columns.put(c.getName(), newColumn);
@@ -87,7 +88,7 @@ class SqlTableMetadata extends TableMetadata {
   private static void validateColumnIdentifierIsUnique(
       SqlTableMetadata existingTableMetadata, Column column) {
     for (Column existingColumn : existingTableMetadata.getColumns()) {
-      if (!column.getName().equals(MG_TABLECLASS)
+      if (!MG_TABLECLASS.equals(column.getName())
           && !column.getName().equals(existingColumn.getName())
           && existingColumn.getIdentifier().equals(column.getIdentifier())) {
         throw new MolgenisException(
@@ -132,7 +133,7 @@ class SqlTableMetadata extends TableMetadata {
 
     // drop triggers for this table
     for (Column column : tm.getStoredColumns()) {
-      SqlColumnExecutor.executeRemoveRefConstraints(tm.getJooq(), column);
+      executeRemoveRefConstraints(tm.getJooq(), column);
     }
 
     // get references pointing to 'me'
@@ -157,7 +158,7 @@ class SqlTableMetadata extends TableMetadata {
     refColumns.forEach(
         ref -> {
           ref.setRefTable(newName);
-          MetadataUtils.saveColumnMetadata(tm.getJooq(), ref);
+          saveColumnMetadata(tm.getJooq(), ref);
           db.getListener().schemaChanged(ref.getSchemaName());
         });
 
@@ -165,13 +166,13 @@ class SqlTableMetadata extends TableMetadata {
     refbackColumns.forEach(
         refBack -> {
           refBack.setRefTable(newName);
-          MetadataUtils.saveColumnMetadata(tm.getJooq(), refBack);
+          saveColumnMetadata(tm.getJooq(), refBack);
           db.getListener().schemaChanged(refBack.getSchemaName());
         });
 
     // recreate triggers for this table
     for (Column column : tm.getStoredColumns()) {
-      SqlColumnExecutor.executeCreateRefConstraints(tm.getJooq(), column);
+      executeCreateRefConstraints(tm.getJooq(), column);
     }
 
     return tm;
@@ -180,7 +181,9 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata alterColumn(String columnName, Column column) {
     // ignore mg_ columns
-    if (column.isSystemColumn()) return this;
+    if (column.isSystemColumn()) {
+      return this;
+    }
 
     Column oldColumn = getColumn(columnName);
 
@@ -317,7 +320,9 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     // delete old column if name changed, then save any other metadata changes
-    if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(tm.getJooq(), oldColumn);
+    if (!oldColumn.getName().equals(newColumn.getName())) {
+      deleteColumn(tm.getJooq(), oldColumn);
+    }
     saveColumnMetadata(tm.getJooq(), newColumn);
 
     return tm;
@@ -342,9 +347,9 @@ class SqlTableMetadata extends TableMetadata {
         (SqlTableMetadata) db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
     DSLContext jooq = ((SqlDatabase) db).getJooq();
 
-    SqlColumnExecutor.executeRemoveColumn(jooq, column);
+    executeRemoveColumn(jooq, column);
     tm.columns.remove(column.getName());
-    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, tm, tableName);
+    updateSearchIndexTriggerFunction(jooq, tm, tableName);
     return tm;
   }
 
@@ -415,11 +420,13 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
+  @SuppressWarnings("PMD.SimplifyBooleanReturns") // easier to read
   public boolean exists() {
     // first look at already loaded metadata, in case of no columns, check the underlying table
     if (!getColumns().isEmpty()) {
       return true;
     }
+
     // jooq doesn't have operator for this, so by hand. Might be slow
     return 0
         < getJooq()
@@ -438,23 +445,27 @@ class SqlTableMetadata extends TableMetadata {
 
   private static void log(SqlTableMetadata tableMetadata, long start, String message) {
     String user = tableMetadata.getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
+    if (user == null) {
+      user = "molgenis";
+    }
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms",
           user,
           message,
           tableMetadata.getJooqTable(),
-          (System.currentTimeMillis() - start));
+          System.currentTimeMillis() - start);
     }
   }
 
   private void log(long start, String message) {
     String user = getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
+    if (user == null) {
+      user = "molgenis";
+    }
     if (logger.isInfoEnabled()) {
       logger.info(
-          "{} {} {} in {}ms", user, message, getJooqTable(), (System.currentTimeMillis() - start));
+          "{} {} {} in {}ms", user, message, getJooqTable(), System.currentTimeMillis() - start);
     }
   }
 

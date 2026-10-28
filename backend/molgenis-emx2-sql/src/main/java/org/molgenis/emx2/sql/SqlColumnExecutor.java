@@ -22,7 +22,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
 
-public class SqlColumnExecutor {
+public final class SqlColumnExecutor {
   private SqlColumnExecutor() {
     // hide
   }
@@ -507,13 +507,11 @@ public class SqlColumnExecutor {
   }
 
   static void executeCreateRefConstraints(DSLContext jooq, Column column) {
-    // set constraints
+    // set constraints, refbacks need no triggers
     if (column.isRef()) {
       createRefConstraints(jooq, column);
     } else if (column.isRefArray()) {
       createRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 
@@ -528,7 +526,7 @@ public class SqlColumnExecutor {
     } else if (column.isRef() || column.isRefArray()) {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
-        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
+        executeRemoveColumn(jooq, column.getReferenceRefback());
         ((SqlSchemaMetadata) column.getTable().getSchema())
             .getDatabase()
             .getListener()
@@ -546,7 +544,7 @@ public class SqlColumnExecutor {
           .dropColumnIfExists(field(name(column.getName())))
           .execute();
     }
-    MetadataUtils.deleteColumn(jooq, column);
+    deleteColumn(jooq, column);
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {

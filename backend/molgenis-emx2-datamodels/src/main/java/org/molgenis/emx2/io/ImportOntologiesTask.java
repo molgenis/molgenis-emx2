@@ -2,6 +2,7 @@ package org.molgenis.emx2.io;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -82,14 +83,17 @@ public class ImportOntologiesTask extends Task {
         tablesToUpdate.add(tableMetadata.getTableName());
       }
     }
-    InputStreamReader reader =
-        new InputStreamReader(
-            Objects.requireNonNull(getClass().getResourceAsStream(semanticsLocation)));
     List<Row> keepRows = new ArrayList<>();
-    for (Row row : CsvTableReader.read(reader)) {
-      if (tablesToUpdate.contains(row.getString("tableName"))) {
-        keepRows.add(row);
+    try (InputStreamReader reader =
+        new InputStreamReader(
+            Objects.requireNonNull(getClass().getResourceAsStream(semanticsLocation)))) {
+      for (Row row : CsvTableReader.read(reader)) {
+        if (tablesToUpdate.contains(row.getString("tableName"))) {
+          keepRows.add(row);
+        }
       }
+    } catch (java.io.IOException e) {
+      throw new MolgenisException("Import failed: " + e.getMessage(), e);
     }
     schema.migrate(Emx2.fromRowList(keepRows));
   }
@@ -103,10 +107,9 @@ public class ImportOntologiesTask extends Task {
           throw new MolgenisException(
               "Checksum failed: resource " + resourcePath + " not found on classpath");
         }
-        DigestInputStream dis = new DigestInputStream(is, digest);
-        byte[] buffer = new byte[8192];
-        while (dis.read(buffer) != -1) {
+        try (DigestInputStream dis = new DigestInputStream(is, digest)) {
           // reading through to compute digest
+          dis.transferTo(OutputStream.nullOutputStream());
         }
       }
       return HexFormat.of().formatHex(digest.digest());

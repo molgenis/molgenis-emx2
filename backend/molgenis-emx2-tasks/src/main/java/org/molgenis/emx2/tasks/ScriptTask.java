@@ -31,7 +31,7 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
-  private HashMap<String, Object> extraFile;
+  private Map<String, Object> extraFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
@@ -186,7 +186,7 @@ public class ScriptTask extends Task {
       try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
         fos.write(extraFileContent);
       }
-      if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
+      if (extraFileExtension != null && "zip".equalsIgnoreCase(extraFileExtension.toString())) {
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(extraFilePath.toFile()))) {
           byte[] buffer = new byte[1024];
           ZipEntry entry;

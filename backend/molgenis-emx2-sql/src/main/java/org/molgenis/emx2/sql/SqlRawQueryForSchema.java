@@ -27,7 +27,7 @@ public class SqlRawQueryForSchema {
   }
 
   public List<Row> executeSql(String sql, Map<String, ?> parameters) {
-    if (sql == null || sql.trim().equals("")) {
+    if (sql == null || "".equals(sql.trim())) {
       return List.of();
     }
     List<Row> result = new ArrayList<>();
@@ -55,7 +55,7 @@ public class SqlRawQueryForSchema {
           try {
             logger.info(schema.getDatabase().getActiveUser() + " tries to execute" + finalSql);
             Result<Record> fetch = jooq.fetch(finalSql, bindings.toArray());
-            for (org.jooq.Record r : fetch) {
+            for (Record r : fetch) {
               result.add(new SqlRow(r));
             }
             logger.info(schema.getDatabase().getActiveUser() + " completed" + finalSql);

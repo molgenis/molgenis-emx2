@@ -18,22 +18,21 @@ public class TestTokenBasedAccess {
     // user environment variable
 
     // temp token
-    JWTgenerator gen = new JWTgenerator();
-    String result = gen.createTemporaryToken(db, "tokentest1");
+    String result = JWTgenerator.createTemporaryToken(db, "tokentest1");
     System.out.println(result);
     assertNotEquals(result, "tokentest1");
-    String user = gen.getUserFromToken(db, result);
+    String user = JWTgenerator.getUserFromToken(db, result);
     assertEquals(user, "tokentest1");
 
     // named token
-    result = gen.createNamedTokenForUser(db, "tokentest2", "mytoken");
-    user = gen.getUserFromToken(db, result);
+    result = JWTgenerator.createNamedTokenForUser(db, "tokentest2", "mytoken");
+    user = JWTgenerator.getUserFromToken(db, result);
     assertEquals(user, "tokentest2");
 
     // check cannot make token for user if not authorized
     db.setActiveUser("tokentest1");
     try {
-      result = gen.createNamedTokenForUser(db, "tokentest2", "mytoken");
+      result = JWTgenerator.createNamedTokenForUser(db, "tokentest2", "mytoken");
       fail("should not be able to make token for other user, unless admin");
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("Cannot"));

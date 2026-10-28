@@ -31,11 +31,10 @@ public class SchemaFromProfile {
     if (!yamlFileLocation.endsWith(".yaml")) {
       throw new MolgenisException("Input YAML file name must end in '.yaml'");
     }
-    InputStreamReader yaml =
-        new InputStreamReader(
-            Objects.requireNonNull(
-                ImportDataModelTask.class.getClassLoader().getResourceAsStream(yamlFileLocation)));
-    try {
+    InputStream yamlStream =
+        Objects.requireNonNull(
+            ImportDataModelTask.class.getClassLoader().getResourceAsStream(yamlFileLocation));
+    try (InputStreamReader yaml = new InputStreamReader(yamlStream)) {
       this.profiles = new ObjectMapper(new YAMLFactory()).readValue(yaml, Profiles.class);
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage(), e);
@@ -99,7 +98,7 @@ public class SchemaFromProfile {
                       SchemaFromProfile.class.getResourceAsStream(directory + "/" + schemaLoc))));
 
       for (Row row : rowIterable) {
-        if (profilesSelected.size() == 0) {
+        if (profilesSelected.isEmpty()) {
           keepRows.add(row);
         } else {
           List<String> profiles = csvStringToList(row.getString("profiles"));

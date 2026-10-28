@@ -14,9 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.json.JsonUtil;
 
-public class JsonYamlApi {
+public final class JsonYamlApi {
 
   public static final String MESSAGE = "message";
   public static final String WARNING = "warning";
@@ -50,7 +49,7 @@ public class JsonYamlApi {
     SchemaMetadata otherSchema = yamlToSchema(ctx.body());
     schema.discard(otherSchema);
 
-    HashMap<String, String> response = new HashMap<>();
+    Map<String, String> response = new HashMap<>();
     response.put(MESSAGE, "remove metadata success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
       response.put(WARNING, MISMATCH_MESSAGE);
@@ -69,7 +68,7 @@ public class JsonYamlApi {
     SchemaMetadata otherSchema = yamlToSchema(ctx.body());
     schema.migrate(otherSchema);
 
-    HashMap<String, String> response = new HashMap<>();
+    Map<String, String> response = new HashMap<>();
     response.put(MESSAGE, "add/update metadata success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
       response.put(WARNING, MISMATCH_MESSAGE);
@@ -104,7 +103,7 @@ public class JsonYamlApi {
     SchemaMetadata otherSchema = jsonToSchema(ctx.body());
     schema.discard(otherSchema);
 
-    HashMap<String, String> response = new HashMap<>();
+    Map<String, String> response = new HashMap<>();
     response.put(MESSAGE, "removed metadata items success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
       response.put(WARNING, MISMATCH_MESSAGE);
@@ -139,7 +138,7 @@ public class JsonYamlApi {
       throw new MolgenisException("Schema not found or insufficient access");
     }
 
-    String json = JsonUtil.schemaToJson(schema.getMetadata(), true);
+    String json = schemaToJson(schema.getMetadata(), true);
     ctx.status(200);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     ctx.header(

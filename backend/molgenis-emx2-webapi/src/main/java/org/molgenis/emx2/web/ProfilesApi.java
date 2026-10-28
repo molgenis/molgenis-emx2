@@ -10,7 +10,7 @@ import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.json.JsonUtil;
 
-public class ProfilesApi {
+public final class ProfilesApi {
   private ProfilesApi() {
     // hide constructor
   }
@@ -23,6 +23,11 @@ public class ProfilesApi {
   }
 
   private static void getProfiles(Context ctx) throws IOException, URISyntaxException {
+    ctx.header("Content-Disposition", "attachment; filename=profiles.json");
+    ctx.json(getProfilesJson());
+  }
+
+  private static synchronized String getProfilesJson() throws IOException, URISyntaxException {
     if (profilesJson == null) {
       List<Row> rows =
           new SchemaFromProfile()
@@ -30,7 +35,6 @@ public class ProfilesApi {
       SchemaMetadata schema = Emx2.fromRowList(rows);
       profilesJson = JsonUtil.schemaToJson(schema);
     }
-    ctx.header("Content-Disposition", "attachment; filename=profiles.json");
-    ctx.json(profilesJson);
+    return profilesJson;
   }
 }

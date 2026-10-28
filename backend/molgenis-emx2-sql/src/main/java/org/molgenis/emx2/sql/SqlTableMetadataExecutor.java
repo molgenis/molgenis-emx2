@@ -16,10 +16,9 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
-class SqlTableMetadataExecutor {
+final class SqlTableMetadataExecutor {
 
   public static final String MG_TABLECLASS_UPDATE = "_MG_TABLECLASS_UPDATE";
 
@@ -82,7 +81,7 @@ class SqlTableMetadataExecutor {
     // then create (composite) foreign keys
     for (Column column : table.getStoredColumns()) {
       if (!column.isInherited() && column.isReference()) {
-        SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
+        executeCreateRefConstraints(jooq, column);
       }
     }
 
@@ -149,7 +148,7 @@ class SqlTableMetadataExecutor {
     }
 
     // remove meta, we use super class meta
-    executeRemoveMetaColumns(jooq, table);
+    executeRemoveMetaColumns(table);
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInheritName(other.getTableName());
@@ -238,12 +237,12 @@ class SqlTableMetadataExecutor {
     for (String string : strings) {
       names.add(name(string));
     }
-    return names.toArray(new Name[names.size()]);
+    return names.toArray(new Name[0]);
   }
 
   // helper methods
-  static org.jooq.Table getJooqTable(TableMetadata table) {
-    return DSL.table(name(table.getSchema().getName(), table.getTableName()));
+  static Table getJooqTable(TableMetadata table) {
+    return table(name(table.getSchema().getName(), table.getTableName()));
   }
 
   static void createOrReplaceKey(
@@ -264,13 +263,11 @@ class SqlTableMetadataExecutor {
     //    } else {
     if (index == 1) {
       jooq.alterTable(getJooqTable(table))
-          .add(
-              constraint(name(uniqueName))
-                  .primaryKey(keyFields.toArray(new Field[keyFields.size()])))
+          .add(constraint(name(uniqueName)).primaryKey(keyFields.toArray(new Field[0])))
           .execute();
     } else {
       jooq.alterTable(getJooqTable(table))
-          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
+          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[0])))
           .execute();
     }
   }
@@ -332,10 +329,9 @@ class SqlTableMetadataExecutor {
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getStoredColumns()) {
-      if (!c.isSystemColumn()) {
-        if (c.isFile()) {
-          // do nothing for now
-        } else if (c.isReference()) {
+      // files are skipped for now
+      if (!c.isSystemColumn() && !c.isFile()) {
+        if (c.isReference()) {
           for (Reference r : c.getReferences()) {
             mgSearchVector.append(
                 String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getColumnName()));
@@ -403,13 +399,23 @@ class SqlTableMetadataExecutor {
     table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(-1));
   }
 
-  private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {
+  private static void executeRemoveMetaColumns(TableMetadata table) {
     // don't delete superclass columns so check local colum
-    if (table.getLocalColumn(MG_DRAFT) != null) table.dropColumn(MG_DRAFT);
-    if (table.getLocalColumn(MG_INSERTEDBY) != null) table.dropColumn(MG_INSERTEDBY);
-    if (table.getLocalColumn(MG_INSERTEDON) != null) table.dropColumn(MG_INSERTEDON);
-    if (table.getLocalColumn(MG_UPDATEDBY) != null) table.dropColumn(MG_UPDATEDBY);
-    if (table.getLocalColumn(MG_UPDATEDON) != null) table.dropColumn(MG_UPDATEDON);
+    if (table.getLocalColumn(MG_DRAFT) != null) {
+      table.dropColumn(MG_DRAFT);
+    }
+    if (table.getLocalColumn(MG_INSERTEDBY) != null) {
+      table.dropColumn(MG_INSERTEDBY);
+    }
+    if (table.getLocalColumn(MG_INSERTEDON) != null) {
+      table.dropColumn(MG_INSERTEDON);
+    }
+    if (table.getLocalColumn(MG_UPDATEDBY) != null) {
+      table.dropColumn(MG_UPDATEDBY);
+    }
+    if (table.getLocalColumn(MG_UPDATEDON) != null) {
+      table.dropColumn(MG_UPDATEDON);
+    }
   }
 
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {

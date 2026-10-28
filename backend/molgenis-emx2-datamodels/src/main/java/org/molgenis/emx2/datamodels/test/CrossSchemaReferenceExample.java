@@ -9,9 +9,13 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
-public class CrossSchemaReferenceExample {
+public final class CrossSchemaReferenceExample {
 
   public static final String PARENT = "Parent";
+
+  private CrossSchemaReferenceExample() {
+    // no instances
+  }
 
   public static void create(Schema schema1, Schema schema2) {
     Table parent = schema1.create(table(PARENT, column("name").setPkey(), column("hobby")));

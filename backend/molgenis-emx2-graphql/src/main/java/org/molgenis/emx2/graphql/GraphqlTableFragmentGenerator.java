@@ -9,7 +9,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
 
-public class GraphqlTableFragmentGenerator {
+public final class GraphqlTableFragmentGenerator {
   private final Schema schema;
 
   private GraphqlTableFragmentGenerator(Schema schema) {

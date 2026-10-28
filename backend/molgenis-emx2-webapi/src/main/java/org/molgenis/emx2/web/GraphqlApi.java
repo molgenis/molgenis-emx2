@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
  */
-public class GraphqlApi {
+public final class GraphqlApi {
 
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
@@ -107,8 +107,9 @@ public class GraphqlApi {
             : graphqlApi.execute(query, variables, sessionManager);
     String result = GraphqlExecutor.convertExecutionResultToJson(executionResult);
 
-    if (logger.isInfoEnabled())
+    if (logger.isInfoEnabled()) {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
+    }
     return result;
   }
 
@@ -116,7 +117,7 @@ public class GraphqlApi {
     String query;
     if (HandlerType.POST.equals(ctx.method())) {
       if (ctx.header("Content-Type").startsWith("multipart/form-data")) {
-        File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
+        File tempFile = File.createTempFile(TEMPFILES_DELETE_ON_EXIT, ".tmp");
         tempFile.deleteOnExit();
         ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
@@ -147,7 +148,7 @@ public class GraphqlApi {
           putPartsIntoMap(
               variables,
               ctx.req().getParts().stream()
-                  .filter(p -> !p.getName().equals(VARIABLES) && !p.getName().equals(QUERY))
+                  .filter(p -> !VARIABLES.equals(p.getName()) && !QUERY.equals(p.getName()))
                   .collect(Collectors.toList()));
           //
           return variables;
@@ -175,11 +176,11 @@ public class GraphqlApi {
           }
         }
       } else if (entry.getValue() instanceof Map) {
-        putPartsIntoMap((java.util.Map<String, Object>) entry.getValue(), parts);
+        putPartsIntoMap((Map<String, Object>) entry.getValue(), parts);
       } else if (entry.getValue() instanceof List) {
         for (Object element : (List) entry.getValue()) {
           if (element instanceof Map) {
-            putPartsIntoMap((java.util.Map<String, Object>) element, parts);
+            putPartsIntoMap((Map<String, Object>) element, parts);
           }
         }
       }

@@ -15,12 +15,11 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.DataModels;
 
 public class TestSqlQueryContainsOperator {
-  private static Database db;
   private static Schema schema;
 
   @BeforeAll
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    Database db = TestDatabaseFactory.getTestDatabase();
     String schemaName = TestSqlQueryContainsOperator.class.getSimpleName();
     db.dropSchemaIfExists(schemaName);
     DataModels.Profile.PET_STORE.getImportTask(db, schemaName, "", true).run();

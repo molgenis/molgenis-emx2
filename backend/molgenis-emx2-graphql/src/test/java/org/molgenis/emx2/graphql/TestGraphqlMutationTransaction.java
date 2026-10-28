@@ -29,10 +29,10 @@ class TestGraphqlMutationTransaction {
 
   private static final String SCHEMA_NAME = TestGraphqlMutationTransaction.class.getSimpleName();
 
-  private static Schema schema;
   private static Table author;
   private static Table book;
   private static GraphqlExecutor graphqlExecutor;
+  private static Schema schema;
 
   @BeforeAll
   static void setup() {

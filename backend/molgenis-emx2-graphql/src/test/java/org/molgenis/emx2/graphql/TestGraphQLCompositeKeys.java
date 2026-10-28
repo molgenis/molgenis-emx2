@@ -134,15 +134,15 @@ public class TestGraphQLCompositeKeys {
     assertEquals("Katrien", result.at("/RefTable/0/ref/1/firstName").asText());
     assertEquals("Mouse", result.at("/RefTable/0/ref/1/lastName").asText());
 
-    String filter_agg =
+    String filterAgg =
         "filter:{equals:[{firstName:\"Donald\",lastName:\"Duck\"},{firstName:\"Katrien\",lastName:\"Mouse\"}]}";
-    filter = "orderby:{firstName:ASC}" + filter_agg;
+    filter = "orderby:{firstName:ASC}" + filterAgg;
     result =
         execute(
             "{TargetTable("
                 + filter
                 + "){firstName,lastName},TargetTable_agg("
-                + filter_agg
+                + filterAgg
                 + "){count}}");
     System.out.println(result.toPrettyString());
     assertEquals("Donald", result.at("/TargetTable/0/firstName").asText());

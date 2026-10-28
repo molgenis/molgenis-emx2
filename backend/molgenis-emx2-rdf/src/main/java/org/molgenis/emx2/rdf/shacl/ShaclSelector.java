@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.molgenis.emx2.MolgenisException;
@@ -13,7 +14,7 @@ public abstract class ShaclSelector {
   private static final String SETS_YAML_PATH = "_shacl/sets.yaml";
 
   private static final ClassLoader classLoader = ShaclSelector.class.getClassLoader();
-  private static final LinkedHashMap<String, ShaclSet> shaclSetMap = new LinkedHashMap<>();
+  private static final Map<String, ShaclSet> shaclSetMap = new LinkedHashMap<>();
 
   static {
     update();
@@ -22,16 +23,16 @@ public abstract class ShaclSelector {
   public static void update() {
     shaclSetMap.clear();
 
-    ShaclSet[] ShaclSetArray;
+    ShaclSet[] shaclSetArray;
     try (InputStream inputStream = classLoader.getResourceAsStream(SETS_YAML_PATH)) {
       String yaml = new String(Objects.requireNonNull(inputStream).readAllBytes());
-      ShaclSetArray =
+      shaclSetArray =
           JsonMapper.builder(new YAMLFactory()).build().readValue(yaml, ShaclSet[].class);
     } catch (IOException e) {
       throw new MolgenisException("An error occured while loading the shacl sets: " + e);
     }
 
-    for (ShaclSet shaclSet : ShaclSetArray) {
+    for (ShaclSet shaclSet : shaclSetArray) {
       shaclSetMap.put(shaclSet.id(), shaclSet);
     }
   }

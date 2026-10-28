@@ -41,7 +41,7 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.tasks.Task;
 
-public class CsvApi {
+public final class CsvApi {
 
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
@@ -264,7 +264,7 @@ public class CsvApi {
     boolean includeSystem = includeSystemColumns(ctx);
     return table.getMetadata().getDownloadColumnNames().stream()
         .map(Column::getName)
-        .filter(name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystem)
+        .filter(name -> MG_DRAFT.equals(name) || !name.startsWith("mg_") || includeSystem)
         .toList();
   }
 
@@ -294,7 +294,9 @@ public class CsvApi {
     try {
       if (modeParam != null) {
         String normalizedMode = modeParam.trim().toUpperCase(java.util.Locale.ROOT);
-        if ("OVERRIDE".equals(normalizedMode)) normalizedMode = UpdateMode.OVERWRITE.name();
+        if ("OVERRIDE".equals(normalizedMode)) {
+          normalizedMode = UpdateMode.OVERWRITE.name();
+        }
         updateMode = UpdateMode.valueOf(normalizedMode);
       }
     } catch (IllegalArgumentException e) {

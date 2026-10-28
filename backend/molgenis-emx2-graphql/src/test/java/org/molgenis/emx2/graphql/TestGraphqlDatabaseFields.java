@@ -151,7 +151,9 @@ class TestGraphqlDatabaseFields {
 
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
-    if (database.hasUser("pietje")) database.removeUser("pietje");
+    if (database.hasUser("pietje")) {
+      database.removeUser("pietje");
+    }
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     assertTrue(database.hasUser("pietje"));
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
@@ -181,7 +183,9 @@ class TestGraphqlDatabaseFields {
   void testLoginWithWrongPassword() throws IOException {
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
-    if (database.hasUser("jantje")) database.removeUser("jantje");
+    if (database.hasUser("jantje")) {
+      database.removeUser("jantje");
+    }
     execute("mutation{signup(email:\"jantje\",password:\"blaat123\"){message}}");
 
     assertTrue(

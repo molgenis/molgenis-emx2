@@ -156,7 +156,7 @@ public class GraphqlExecutor {
         logger.error(err.getMessage());
       }
     }
-    if (executionResult.getErrors().size() > 0) {
+    if (!executionResult.getErrors().isEmpty()) {
       List<GraphQLError> errors = executionResult.getErrors();
       MolgenisException exception = new MolgenisException(errors.get(0).getMessage());
       for (GraphQLError remainingError : errors.subList(1, errors.size())) {
@@ -165,18 +165,23 @@ public class GraphqlExecutor {
       throw exception;
     }
 
-    if (logger.isInfoEnabled())
+    if (logger.isInfoEnabled()) {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
+    }
 
     return executionResult;
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
     @Override
-    public void createSession(String username) {}
+    public void createSession(String username) {
+      // no-op
+    }
 
     @Override
-    public void destroySession() {}
+    public void destroySession() {
+      // no-op
+    }
 
     @Override
     public String getCurrentUser() {

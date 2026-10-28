@@ -8,20 +8,17 @@ import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class CompareTools {
+public final class CompareTools {
 
-  private static Javers javers;
+  private static final Javers javers =
+      JaversBuilder.javers()
+          .registerIgnoredClass(DSLContext.class)
+          .registerIgnoredClass(Database.class)
+          .registerIgnoredClass(Schema.class)
+          .registerIgnoredClass(SchemaMetadata.class)
+          .build();
 
   public static Javers getJavers() {
-    if (javers == null) {
-      javers =
-          JaversBuilder.javers()
-              .registerIgnoredClass(DSLContext.class)
-              .registerIgnoredClass(Database.class)
-              .registerIgnoredClass(Schema.class)
-              .registerIgnoredClass(SchemaMetadata.class)
-              .build();
-    }
     return javers;
   }
 
@@ -82,7 +79,9 @@ public class CompareTools {
   }
 
   public static void assertEquals(List<Row> list1, List<Row> list2) {
-    if (list1.size() != list2.size()) fail("List<Row> have different length ");
+    if (list1.size() != list2.size()) {
+      fail("List<Row> have different length ");
+    }
 
     for (int i = 0; i < list1.size(); i++) {
       assertEquals(list1.get(i), list2.get(i));
@@ -93,12 +92,16 @@ public class CompareTools {
     Collection<String> tableNames1 = schema1.getTableNames();
     Collection<String> tableNames2 = schema2.getTableNames();
 
-    for (Object tableName : tableNames1)
-      if (!tableNames2.contains(tableName))
+    for (Object tableName : tableNames1) {
+      if (!tableNames2.contains(tableName)) {
         fail("Schema's have different tables: schema2 doesn't contain '" + tableName + "'");
-    for (Object tableName : tableNames2)
-      if (!tableNames1.contains(tableName))
+      }
+    }
+    for (Object tableName : tableNames2) {
+      if (!tableNames1.contains(tableName)) {
         fail("Schema's have different tables: schema1 doesn't contain '" + tableName + "'");
+      }
+    }
 
     for (String tableName : tableNames1) {
       Diff diff =

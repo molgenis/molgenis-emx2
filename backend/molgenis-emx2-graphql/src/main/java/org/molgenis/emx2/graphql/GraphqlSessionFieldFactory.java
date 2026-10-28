@@ -50,14 +50,10 @@ public class GraphqlSessionFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .build();
 
-  public GraphqlSessionFieldFactory() {
-    // no instance
-  }
-
   public GraphQLFieldDefinition signoutField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signout")
-        .type(GraphqlApiMutationResult.typeForMutationResult)
+        .type(typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
               GraphqlSessionHandlerInterface sessionHandler =
@@ -76,7 +72,7 @@ public class GraphqlSessionFieldFactory {
   public GraphQLFieldDefinition signupField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signup")
-        .type(GraphqlApiMutationResult.typeForMutationResult)
+        .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(

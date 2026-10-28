@@ -139,11 +139,7 @@ class MolgenisWebserviceTest extends ApiTestBase {
                       org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING))
           .thenReturn("\"http://example.com/foo bar\""); // contains a spave in the host name
 
-      Assertions.assertThrows(
-          MolgenisException.class,
-          () -> {
-            URL url = new MolgenisWebservice().hostUrl;
-          });
+      Assertions.assertThrows(MolgenisException.class, MolgenisWebservice::new);
     }
   }
 

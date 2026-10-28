@@ -9,5 +9,48 @@
         Custom ruleset for EMX2
     </description>
 
+    <!-- Rulesets to apply -->
+    <rule ref="rulesets/java/quickstart.xml">
+        <exclude name="AvoidStringBufferField" />
+        <exclude name="ControlStatementBraces" />
+        <exclude name="MethodNamingConventions" />
+        <exclude name="EmptyCatchBlock" />
+        <exclude name="UseLocaleWithCaseConversions" />
+        <exclude name="SingularField" />
+        <exclude name="SimplifyBooleanReturns" />
+        <exclude name="PreserveStackTrace" />
+        <exclude name="ReturnEmptyCollectionRatherThanNull" />
+        <exclude name="NonExhaustiveSwitch" />
+        <exclude name="CompareObjectsWithEquals" />
+        <exclude name="GuardLogStatement" />
+    </rule>
+
+    <!-- Overrides for quickstart.xml -->
+    <rule ref="category/java/codestyle.xml/ControlStatementBraces">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="./ancestor-or-self::MethodDeclaration[@Name = 'equals']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/SimplifyBooleanReturns">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="./ancestor-or-self::MethodDeclaration[@Name = 'equals']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+        <properties>
+            <property name="junitJupiterTestPattern" value="[a-z][a-zA-Z0-9_]*" />
+        </properties>
+    </rule>
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="true" />
+        </properties>
+    </rule>
+
+    <rule ref="category/java/bestpractices.xml/UseTryWithResources" />
+
+    <!-- Individual rules we want to ensure are always tested (in case rulesets change) -->
     <rule ref="category/java/codestyle.xml/UseExplicitTypes" />
 </ruleset>

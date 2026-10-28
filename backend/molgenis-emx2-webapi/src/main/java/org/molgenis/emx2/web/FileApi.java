@@ -10,9 +10,13 @@ import io.javalin.http.Context;
 import java.util.List;
 import org.molgenis.emx2.*;
 
-public class FileApi {
+public final class FileApi {
 
   private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+
+  private FileApi() {
+    // no instances
+  }
 
   public static void create(Javalin app) {
     app.get("/{schema}/api/file/{table}/{column}/{id}", FileApi::serveFile);

@@ -54,13 +54,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private boolean inTx;
   private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
-      (String)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+      (String) EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
 
   private static String postgresUser =
-      (String)
-          EnvironmentProperty.getParameter(
-              org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, "molgenis", STRING);
+      (String) EnvironmentProperty.getParameter(MOLGENIS_POSTGRES_USER, "molgenis", STRING);
 
   private DatabaseListener listener =
       new DatabaseListener() {
@@ -86,7 +83,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
     this.connectionProvider.setAdmin(copy.connectionProvider.isAdmin());
     this.jooq = jooq;
-    databaseVersion = MetadataUtils.getVersion(jooq);
+    databaseVersion = getVersion(jooq);
 
     this.listener = copy.listener;
     // copy all schemas
@@ -125,7 +122,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       loadSettings();
     }
     // get database version if exists
-    databaseVersion = MetadataUtils.getVersion(jooq);
+    databaseVersion = getVersion(jooq);
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -138,23 +135,20 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
-  private static void initDataSource() {
+  private static synchronized void initDataSource() {
     if (source == null) {
       String url =
           (String)
               EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI,
-                  "jdbc:postgresql:molgenis",
-                  STRING);
+                  MOLGENIS_POSTGRES_URI, "jdbc:postgresql:molgenis", STRING);
       String pass =
-          (String)
-              EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
-      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI, url);
-      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, postgresUser);
-      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "<HIDDEN>");
+          (String) EnvironmentProperty.getParameter(MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
+      logger.info(WITH, MOLGENIS_POSTGRES_URI, url);
+      logger.info(WITH, MOLGENIS_POSTGRES_USER, postgresUser);
+      logger.info(WITH, MOLGENIS_POSTGRES_PASS, "<HIDDEN>");
 
       // create data source
+      @SuppressWarnings("PMD.CloseResource") // stays open while the database is used
       HikariDataSource dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
       dataSource.setUsername(postgresUser);
@@ -195,33 +189,35 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // get the settings
       clearCache();
 
-      if (!this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)) {
+      if (!this.getSettings().containsKey(IS_OIDC_ENABLED)) {
         this.setSetting(
-            Constants.IS_OIDC_ENABLED,
+            IS_OIDC_ENABLED,
             (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_ID, "false", STRING));
       }
 
-      String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
+      String instanceId = getSetting(MOLGENIS_INSTANCE_ID);
       if (instanceId == null) {
         instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
-        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
+        this.setSetting(MOLGENIS_INSTANCE_ID, instanceId);
       }
-      if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
-
-      if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
-        this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
+      if (!SnowflakeIdGenerator.hasInstance()) {
+        SnowflakeIdGenerator.init(instanceId);
       }
 
-      if (getSetting(Constants.PRIVACY_POLICY_LEVEL) == null) {
-        this.setSetting(Constants.PRIVACY_POLICY_LEVEL, Constants.PRIVACY_POLICY_LEVEL_DEFAULT);
+      if (getSetting(IS_PRIVACY_POLICY_ENABLED) == null) {
+        this.setSetting(IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
       }
 
-      if (getSetting(Constants.PRIVACY_POLICY_TEXT) == null) {
-        this.setSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
+      if (getSetting(PRIVACY_POLICY_LEVEL) == null) {
+        this.setSetting(PRIVACY_POLICY_LEVEL, PRIVACY_POLICY_LEVEL_DEFAULT);
       }
 
-      if (getSetting(Constants.LOCALES) == null) {
-        this.setSetting(Constants.LOCALES, Constants.LOCALES_DEFAULT);
+      if (getSetting(PRIVACY_POLICY_TEXT) == null) {
+        this.setSetting(PRIVACY_POLICY_TEXT, PRIVACY_POLICY_TEXT_DEFAULT);
+      }
+
+      if (getSetting(LOCALES) == null) {
+        this.setSetting(LOCALES, LOCALES_DEFAULT);
       }
 
       resolveJwtSharedSecret();
@@ -237,12 +233,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public String resolveJwtSharedSecret() {
-    String secret = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+    String secret = getSetting(MOLGENIS_JWT_SHARED_SECRET);
 
     if (secret == null) {
-      secret =
-          (String)
-              EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+      secret = (String) EnvironmentProperty.getParameter(MOLGENIS_JWT_SHARED_SECRET, null, STRING);
     }
 
     if (secret == null || secret.getBytes().length < 32) {
@@ -250,7 +244,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       String activeUser = getActiveUser();
       try {
         becomeAdmin();
-        setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, secret);
+        setSetting(MOLGENIS_JWT_SHARED_SECRET, secret);
       } finally {
         setActiveUser(activeUser);
       }
@@ -308,7 +302,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   private void log(long start, String message) {
     if (logger.isInfoEnabled()) {
-      logger.info("{} in {}ms", message, (System.currentTimeMillis() - start));
+      logger.info("{} in {}ms", message, System.currentTimeMillis() - start);
     }
   }
 
@@ -328,7 +322,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
           // make current user a manager
-          if (db.getActiveUser() != null && !db.getActiveUser().equals(ADMIN_USER)) {
+          if (db.getActiveUser() != null && !ADMIN_USER.equals(db.getActiveUser())) {
             schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
           // refresh
@@ -357,7 +351,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.tx(
         db -> {
           SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          MetadataUtils.saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
+          saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
 
           // refresh
           db.clearCache();
@@ -369,7 +363,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public SqlSchema getSchema(String name) {
-    if (name == null) throw new MolgenisException("Schema name was null or empty");
+    if (name == null) {
+      throw new MolgenisException("Schema name was null or empty");
+    }
     if (schemaCache.containsKey(name)) {
       return new SqlSchema(this, schemaCache.get(name));
     } else {
@@ -441,7 +437,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public Collection<String> getSchemaNames() {
     if (this.schemaNames.isEmpty()) {
-      this.schemaNames = MetadataUtils.loadSchemaNames(this);
+      this.schemaNames = loadSchemaNames(this);
     }
     return List.copyOf(this.schemaNames);
   }
@@ -449,7 +445,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public Collection<SchemaInfo> getSchemaInfos() {
     if (this.schemaInfos.isEmpty()) {
-      this.schemaInfos = MetadataUtils.loadSchemaInfos(this);
+      this.schemaInfos = loadSchemaInfos(this);
     }
     return List.copyOf(this.schemaInfos);
   }
@@ -472,7 +468,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
     super.setSettings(settings);
-    MetadataUtils.saveDatabaseSettings(jooq, getSettings());
+    saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
     this.listener.onSchemaChange();
     return this;
@@ -540,19 +536,26 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (getActiveUser() != null && !isAdmin()) {
       throw new MolgenisException("getUsers denied");
     }
-    return MetadataUtils.loadUsers(this, limit, offset);
+    return loadUsers(this, limit, offset);
   }
 
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You can't remove admin");
-    if (user.equals("anonymous")) throw new MolgenisException("You can't remove anonymous");
-    if (user.equals("user")) throw new MolgenisException("You can't remove user");
+    if ("admin".equals(user)) {
+      throw new MolgenisException("You can't remove admin");
+    }
+    if ("anonymous".equals(user)) {
+      throw new MolgenisException("You can't remove anonymous");
+    }
+    if ("user".equals(user)) {
+      throw new MolgenisException("You can't remove user");
+    }
 
-    if (!hasUser(user))
+    if (!hasUser(user)) {
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
+    }
     tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
     log(start, "removed user " + user);
 
@@ -566,17 +569,22 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, "removed metadata from user " + user);
   }
 
+  @Override
   public void setEnabledUser(String user, boolean enabled) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
-    if (user.equals("anonymous"))
+    if ("admin".equals(user)) {
+      throw new MolgenisException("You cant enable or disable admin");
+    }
+    if ("anonymous".equals(user)) {
       throw new MolgenisException("You cant enable or disable anonymous");
-    if (!hasUser(user))
+    }
+    if (!hasUser(user)) {
       throw new MolgenisException(
           (enabled ? "Enabling" : "Disabling")
               + " user failed: User with name '"
               + user
               + "' doesn't exist");
+    }
     tx(
         db ->
             ((SqlDatabase) db)
@@ -588,20 +596,25 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
+  @Override
   public void setAdminUser(String user, boolean admin) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin") && !admin)
+    if ("admin".equals(user) && !admin) {
       throw new MolgenisException("Cannot revoke admin rights of admin user");
-    if (user.equals("anonymous"))
+    }
+    if ("anonymous".equals(user)) {
       throw new MolgenisException("Anonymous user cannot have admin rights");
-    if (!ADMIN_USER.equals(this.getActiveUser()))
+    }
+    if (!ADMIN_USER.equals(this.getActiveUser())) {
       throw new MolgenisException("Only root admin user may grant admin permission");
-    if (!hasUser(user))
+    }
+    if (!hasUser(user)) {
       throw new MolgenisException(
           (admin ? "Granting" : "Revoking")
               + " admin privileges to user failed: User with name '"
               + user
               + "' doesn't exist");
+    }
     tx(
         db ->
             ((SqlDatabase) db)
@@ -635,7 +648,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     User user = getUser(username);
     if (inTx) {
       try {
-        if (username.equals(ADMIN_USER) || user.isAdmin()) {
+        if (ADMIN_USER.equals(username) || user.isAdmin()) {
           // admin user is session user, so remove role
           jooq.execute("RESET ROLE;");
         } else {
@@ -764,8 +777,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   /** (Re)loads the database-level settings from the database into memory, reading them as admin. */
   private void loadSettings() {
-    getJooqAsAdmin(
-        adminJooq -> this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(adminJooq)));
+    getJooqAsAdmin(adminJooq -> this.setSettingsWithoutReload(loadDatabaseSettings(adminJooq)));
   }
 
   public DSLContext getJooq() {
@@ -821,9 +833,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isAdmin() {
-    if (ADMIN_USER.equals(getActiveUser())) return true;
+    if (ADMIN_USER.equals(getActiveUser())) {
+      return true;
+    }
     User user = getUser(getActiveUser());
-    return (user != null && user.isAdmin());
+    return user != null && user.isAdmin();
   }
 
   @Override
@@ -838,8 +852,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isOidcEnabled() {
-    return this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)
-        && Boolean.parseBoolean(this.getSettings().get(Constants.IS_OIDC_ENABLED));
+    return this.getSettings().containsKey(IS_OIDC_ENABLED)
+        && Boolean.parseBoolean(this.getSettings().get(IS_OIDC_ENABLED));
   }
 
   @Override
@@ -852,19 +866,20 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!isAdmin() && !user.getUsername().equals(getActiveUser())) {
       throw new MolgenisException("Cannot save changes for user " + user + ": permission denied");
     }
-    MetadataUtils.saveUserMetadata(getJooq(), user);
+    saveUserMetadata(getJooq(), user);
   }
 
   @Override
   public User getUser(String userName) {
     if (hasUser(userName)) {
-      User user = MetadataUtils.loadUserMetadata(this, userName);
+      User user = loadUserMetadata(this, userName);
       // might not yet have any metadata saved
       return user != null ? user : new User(this, userName);
     }
     return null;
   }
 
+  @Override
   public Database setBindings(Map<String, Supplier<Object>> bindings) {
     this.javaScriptBindings = bindings;
     return this;
@@ -898,10 +913,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return ChangeLogExecutor.executeLastUpdates(jooq);
   }
 
+  @Override
   public List<Member> loadUserRoles() {
     List<Member> members = new ArrayList<>();
-    String roleFilter = Constants.MG_ROLE_PREFIX;
-    String userFilter = Constants.MG_USER_PREFIX;
+    String roleFilter = MG_ROLE_PREFIX;
+    String userFilter = MG_USER_PREFIX;
     List<Record> allRoles =
         jooq.fetch(
             "select distinct m.rolname as member, r.rolname as role"
@@ -920,15 +936,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return members;
   }
 
+  @Override
   public void revokeRoles(String userName, List<Map<String, String>> members) {
     try {
       members.forEach(
           member -> {
-            String prefixedRole =
-                Constants.MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
+            String prefixedRole = MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
             jooq.execute(
-                "REVOKE {0} FROM {1}",
-                name(prefixedRole), name(Constants.MG_USER_PREFIX + userName));
+                "REVOKE {0} FROM {1}", name(prefixedRole), name(MG_USER_PREFIX + userName));
           });
       listener.onSchemaChange();
     } catch (DataAccessException dae) {
@@ -940,6 +955,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return new SqlRoleManager(this);
   }
 
+  @Override
   public void updateRoles(String userName, List<Map<String, String>> members) {
     try {
       members.forEach(

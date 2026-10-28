@@ -6,7 +6,7 @@ import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class SqlTypeUtils extends TypeUtils {
+public final class SqlTypeUtils extends TypeUtils {
 
   private SqlTypeUtils() {
     // to hide the public constructor

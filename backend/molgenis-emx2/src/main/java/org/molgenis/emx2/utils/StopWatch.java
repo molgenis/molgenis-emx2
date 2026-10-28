@@ -1,6 +1,6 @@
 package org.molgenis.emx2.utils;
 
-public class StopWatch {
+public final class StopWatch {
 
   private StopWatch() { // hides public constructor
   }
@@ -20,8 +20,10 @@ public class StopWatch {
 
   public static void print(String message, int count) {
     long endTime = System.currentTimeMillis();
-    long total = (endTime - time);
-    if (total == 0) total = 1;
+    long total = endTime - time;
+    if (total == 0) {
+      total = 1;
+    }
     System.out.println( // NOSONAR
         total
             + "ms: "

@@ -15,9 +15,13 @@ import org.molgenis.emx2.beaconv2.filter.FilterConceptVP;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
 
-public class QueryRecord {
+public final class QueryRecord {
 
   private static final String TABLE_ID = EntryType.INDIVIDUALS.getId();
+
+  private QueryRecord() {
+    // no instances
+  }
 
   public static RecordResponse post(Schema schema, String json) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
@@ -65,7 +69,7 @@ public class QueryRecord {
   }
 
   public static RecordIndexResponse getRecordIndex(Database database, Schema schema) {
-    RecordResponse records = QueryRecord.post(schema, new CafeVariomeQuery());
+    RecordResponse records = post(schema, new CafeVariomeQuery());
     RecordIndexResponse.EavIndex eavIndex =
         mapEavIndex(database, schema, EntryType.INDIVIDUALS.getId());
     return new RecordIndexResponse(records.recordCount(), eavIndex);
@@ -82,7 +86,7 @@ public class QueryRecord {
             .getFilteringTermsFromTables(List.of(tableId), schema.getName());
 
     for (FilteringTerm filteringTerm : filteringTermsSet) {
-      if (filteringTerm.getType().equals("ontology")) {
+      if ("ontology".equals(filteringTerm.getType())) {
         String filteringTermName = filteringTerm.getColumn().getName();
         attributes.put(filteringTermName, filteringTermName);
         values.put(filteringTerm.getId(), filteringTerm.getLabel());
@@ -94,7 +98,7 @@ public class QueryRecord {
           terms.add(filteringTerm.getId());
           mappings.put(filteringTermName, terms);
         }
-      } else if (filteringTerm.getType().equals("alphanumeric")) {
+      } else if ("alphanumeric".equals(filteringTerm.getType())) {
         attributes.put(filteringTerm.getId(), filteringTerm.getId());
       }
     }

@@ -42,7 +42,7 @@ public class InMemoryRDFHandler implements RDFHandler {
   private static final DatatypeFactory datatypeFactory;
   private static final XMLGregorianCalendar REPLACEMENT_DATE;
 
-  private boolean fixValuesForComparison = true;
+  private boolean fixValuesForComparison;
   private final Map<Value, Value> fileIriMappings = new HashMap<>();
 
   public Map<Resource, Map<IRI, Set<Value>>> resources = new HashMap<>();
@@ -60,7 +60,9 @@ public class InMemoryRDFHandler implements RDFHandler {
             2021, 2, 8, 12, 15, 0, FIELD_UNDEFINED, FIELD_UNDEFINED);
   }
 
-  public InMemoryRDFHandler() {}
+  public InMemoryRDFHandler() {
+    this(true);
+  }
 
   public InMemoryRDFHandler(boolean fixValuesForComparison) {
     this.fixValuesForComparison = fixValuesForComparison;
@@ -79,8 +81,12 @@ public class InMemoryRDFHandler implements RDFHandler {
 
     if (fixValuesForComparison) {
       // Blank node conversion to allow for comparison (order of BNodes matter!!!)
-      if (subject.isBNode()) subject = getConversionNode((BNode) subject);
-      if (object.isBNode()) object = getConversionNode((BNode) object);
+      if (subject.isBNode()) {
+        subject = getConversionNode((BNode) subject);
+      }
+      if (object.isBNode()) {
+        object = getConversionNode((BNode) object);
+      }
       // Replace creation/modified date to prevent failing tests.
       if (predicate.equals(DCTERMS.CREATED)
           || predicate.equals(DCTERMS.MODIFIED)
@@ -112,7 +118,9 @@ public class InMemoryRDFHandler implements RDFHandler {
   }
 
   @Override
-  public void startRDF() throws RDFHandlerException {}
+  public void startRDF() throws RDFHandlerException {
+    // no-op
+  }
 
   @Override
   public void endRDF() throws RDFHandlerException {
@@ -171,5 +179,7 @@ public class InMemoryRDFHandler implements RDFHandler {
   }
 
   @Override
-  public void handleComment(String comment) throws RDFHandlerException {}
+  public void handleComment(String comment) throws RDFHandlerException {
+    // Comments are ignored
+  }
 }

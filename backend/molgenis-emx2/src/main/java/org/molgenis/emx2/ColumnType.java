@@ -88,7 +88,9 @@ public enum ColumnType {
   }
 
   ColumnType(ColumnType baseType, Operator... operators) {
-    if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
+    if (this.baseType != null) {
+      throw new RuntimeException("Cannot extend an extended type");
+    }
     this.baseType = baseType; // use to extend a base type
     this.operators =
         Stream.concat(Arrays.stream(baseType.operators), Arrays.stream(operators))
@@ -96,7 +98,9 @@ public enum ColumnType {
   }
 
   ColumnType(ColumnType baseType, String validationRegexp) {
-    if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
+    if (this.baseType != null) {
+      throw new RuntimeException("Cannot extend an extended type");
+    }
     this.baseType = baseType; // use to extend a base type
     this.operators = this.baseType.operators;
     this.validationRegexp = Pattern.compile(validationRegexp);
@@ -120,7 +124,9 @@ public enum ColumnType {
 
   /** throws exception when invalid */
   public void validate(Object value) {
-    if (validationRegexp == null) return;
+    if (validationRegexp == null) {
+      return;
+    }
     if (value != null) {
       if (isArray()) {
         validate((Object[]) value);

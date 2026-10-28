@@ -33,7 +33,7 @@ import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
 
-public class RDFApi {
+public final class RDFApi {
   private static final String TMP_FILENAME = "download.tmp";
   private static final String QUERY_STRING_SHACLS = "shacls";
   private static final String QUERY_STRING_VALIDATE = "validate";
@@ -61,6 +61,10 @@ public class RDFApi {
       mediaTypeRdfFormatMap.put(mediaType, format);
       acceptedMediaTypes.add(mediaType);
     }
+  }
+
+  private RDFApi() {
+    // no instances
   }
 
   public static void create(Javalin app) {
@@ -155,7 +159,7 @@ public class RDFApi {
       schemaNames = availableSchemas;
     }
 
-    String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
+    String[] schemaNamesArr = schemaNames.toArray(new String[0]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
     String baseUrl = extractBaseURL(ctx);
@@ -165,7 +169,7 @@ public class RDFApi {
           db.tx(
               database -> {
                 for (int i = 0; i < schemas.length; i++) {
-                  schemas[i] = (db.getSchema(schemaNamesArr[i]));
+                  schemas[i] = db.getSchema(schemaNamesArr[i]);
                 }
                 service.getGenerator().generate(List.of(schemas));
               });
@@ -245,7 +249,9 @@ public class RDFApi {
   }
 
   private static RDFFormat setFormat(Context ctx, RDFFormat format) {
-    if (format == null) format = selectFormat(ctx);
+    if (format == null) {
+      format = selectFormat(ctx);
+    }
     ctx.contentType(format.getDefaultMIMEType());
     return format;
   }

@@ -3,9 +3,9 @@ package org.molgenis.emx2.typescript;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -50,16 +50,12 @@ public class Generator {
                     }
                     """;
 
-  public Generator() {}
-
   public void generate(Schema schema, String fileLocation) {
-    PrintWriter writer = null;
-    try {
-      writer = new PrintWriter(fileLocation, "UTF-8");
-    } catch (FileNotFoundException | UnsupportedEncodingException e) {
+    try (PrintWriter writer = new PrintWriter(fileLocation, StandardCharsets.UTF_8)) {
+      generate(schema, writer, true);
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    generate(schema, writer, true);
   }
 
   public void generate(Schema schema, PrintWriter writer, boolean includeHeader) {
@@ -97,7 +93,9 @@ public class Generator {
       Set<String> seenColumns = new LinkedHashSet<>();
       for (Column column : table.getColumnsIncludingSubclasses()) {
         String columnName = convertToCamelCase(column.getName());
-        if (shouldSkipColumn(column, seenColumns, columnName)) continue;
+        if (shouldSkipColumn(column, seenColumns, columnName)) {
+          continue;
+        }
         String fieldValue = toTypeScriptInterfaceFieldValue(schema, column);
         String optional = column.isRequired() ? "" : "?";
         writer.println(String.format("    %s%s: %s;", columnName, optional, fieldValue));

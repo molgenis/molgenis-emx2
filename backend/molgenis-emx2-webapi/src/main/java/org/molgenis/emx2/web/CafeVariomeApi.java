@@ -27,7 +27,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CafeVariomeApi {
+public final class CafeVariomeApi {
   private static final Logger logger = LoggerFactory.getLogger(CafeVariomeApi.class);
 
   private static final String CV_CLIENT_SECRET =
@@ -43,6 +43,10 @@ public class CafeVariomeApi {
   public static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
 
+  private CafeVariomeApi() {
+    // no instances
+  }
+
   public static void create(Javalin app) {
     app.before("/{schema}/api/cafevariome/record", CafeVariomeApi::checkAuth);
     app.post("/{schema}/api/cafevariome/record", CafeVariomeApi::postRecord);
@@ -55,7 +59,9 @@ public class CafeVariomeApi {
     if (!database.isAnonymous()) {
       return;
     }
-    if (!hasKeycloakConfiguration()) return;
+    if (!hasKeycloakConfiguration()) {
+      return;
+    }
     HttpResponse<String> response;
     try (HttpClient client = HttpClient.newHttpClient()) {
 

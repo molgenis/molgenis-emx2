@@ -3,6 +3,7 @@ package org.molgenis.emx2.email;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.time.Duration;
 import java.util.Collections;
@@ -54,7 +55,7 @@ class EmailServiceTest {
     try (ServerSocket silentServer = new ServerSocket(0)) {
       EmailSettings settings =
           new EmailSettings.EmailSettingsBuilder()
-              .host("127.0.0.1")
+              .host(InetAddress.getLoopbackAddress().getHostAddress())
               .port(String.valueOf(silentServer.getLocalPort()))
               .connectionTimeout("200")
               .readTimeout("200")
