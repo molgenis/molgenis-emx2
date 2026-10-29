@@ -3,22 +3,39 @@ import { useIntersectionObserver } from "@vueuse/core";
 import { computed, ref, type ComponentPublicInstance } from "vue";
 import type { cellPayload } from "../../../types/types";
 import type { RecordLayout, RecordSection } from "../../../types/record";
+import type { RecordList } from "../../../types/recordLists";
 import ContentBlock from "../content/ContentBlock.vue";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
 import ValueEMX2 from "../value/EMX2.vue";
+import DisplayRecords from "./Records.vue";
 
 const props = withDefaults(
   defineProps<{
     section: RecordSection;
     layout?: RecordLayout;
     trackInView?: boolean;
+    lists?: Record<string, RecordList>;
   }>(),
   {
     layout: "CARDS",
     trackInView: false,
+    lists: () => ({}),
   }
+);
+
+const ordinaryFields = computed(() =>
+  props.section.fields.filter((field) => !props.lists[field.id])
+);
+const listFields = computed(() =>
+  props.section.fields.flatMap((field) => {
+    const list = props.lists[field.id];
+    return list ? [{ field, list }] : [];
+  })
+);
+const isSingleListSection = computed(
+  () => props.section.fields.length === 1 && listFields.value.length === 1
 );
 
 const wrapper = computed(() =>
@@ -62,8 +79,8 @@ useIntersectionObserver(
       {{ section.label }}
     </h3>
 
-    <DefinitionList v-if="section.fields.length" :compact="false">
-      <template v-for="field in section.fields" :key="field.id">
+    <DefinitionList v-if="ordinaryFields.length" :compact="false">
+      <template v-for="field in ordinaryFields" :key="field.id">
         <DefinitionListTerm>{{ field.label }}</DefinitionListTerm>
         <DefinitionListDefinition>
           <slot name="value" :field="field">
@@ -76,5 +93,21 @@ useIntersectionObserver(
         </DefinitionListDefinition>
       </template>
     </DefinitionList>
+
+    <div
+      v-for="{ field, list } in listFields"
+      :key="field.id"
+      class="mt-5 first:mt-0"
+    >
+      <h4 v-if="!isSingleListSection" class="mb-2.5 text-record-heading">
+        {{ field.label }}
+      </h4>
+      <DisplayRecords
+        :schemaId="list.schemaId"
+        :tableId="list.tableId"
+        :filter="list.filter"
+        :displayConfig="list.displayConfig"
+      />
+    </div>
   </component>
 </template>

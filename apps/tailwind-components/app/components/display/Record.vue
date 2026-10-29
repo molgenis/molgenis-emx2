@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type {
-  IColumn,
-  IRow,
-  LegendHeading,
-  LegendSection,
+import {
+  isColumnValueObject,
+  isFileValue,
+  type columnValue,
+  type IColumn,
+  type IRow,
+  type LegendHeading,
+  type LegendSection,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
+import type { RecordListConfig, RecordList } from "../../../types/recordLists";
 import type {
   RecordHeading,
   RecordLayout,
@@ -26,6 +30,7 @@ const props = withDefaults(
     showTableOfContents?: boolean;
     layout?: RecordLayout;
     titleTemplate?: string;
+    lists?: RecordListConfig;
   }>(),
   {
     showTableOfContents: true,
@@ -37,7 +42,70 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
-const sections = computed(() => groupRecordSections(props.columns, props.row));
+const visibleColumns = computed(() =>
+  props.columns.filter(
+    (column) =>
+      !(props.lists?.[column.id] && hasNoNestedRows(props.row, column.id))
+  )
+);
+
+function hasNoNestedRows(row: IRow, columnId: string): boolean {
+  const aggregate = row[`${columnId}_agg`];
+  return (
+    isColumnValueObject(aggregate) &&
+    !isFileValue(aggregate) &&
+    aggregate.count === 0
+  );
+}
+
+const sections = computed(() =>
+  groupRecordSections(visibleColumns.value, props.row)
+);
+
+const lists = computed(() => {
+  const resolved: Record<string, RecordList> = {};
+  for (const column of visibleColumns.value) {
+    const entry = props.lists?.[column.id];
+    if (entry && column.refTableId && column.refSchemaId) {
+      resolved[column.id] = {
+        displayConfig: entry,
+        schemaId: column.refSchemaId,
+        tableId: column.refTableId,
+        filter: nestedFilter(column),
+      };
+    }
+  }
+  return resolved;
+});
+
+function nestedFilter(column: IColumn): Record<string, unknown> {
+  if (column.columnType === "REFBACK" && column.refBackId) {
+    const key = Object.fromEntries(
+      props.columns
+        .filter((candidate) => candidate.key === 1)
+        .map((candidate) => [candidate.id, props.row[candidate.id]])
+    );
+    return { [column.refBackId]: { equals: [key] } };
+  }
+  const value = props.row[column.id];
+  const values: columnValue[] = Array.isArray(value)
+    ? value
+    : value == null
+    ? []
+    : [value];
+  return { _or: values.map(equalsFilter) };
+}
+
+function equalsFilter(value: columnValue): unknown {
+  return isColumnValueObject(value)
+    ? Object.fromEntries(
+        Object.entries(value).map(([key, nested]) => [
+          key,
+          equalsFilter(nested),
+        ])
+      )
+    : { equals: value };
+}
 
 const recordSections = computed<RecordSection[]>(() =>
   sections.value.flatMap((section) => [
@@ -174,6 +242,7 @@ const title = computed(() =>
           :section="recordSection"
           :layout="layout"
           :trackInView="hasTableOfContents"
+          :lists="lists"
           @valueClick="$emit('valueClick', $event)"
           @inView="reportedSectionId = recordSection.id"
         >
