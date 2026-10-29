@@ -9,14 +9,10 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 class TestMgColumns {
-  private static final String EDITOR_USER = "mgcolumns_editor";
+  private static final Username EDITOR_USER = new Username("mgcolumns_editor");
 
   private static final LocalDateTime IN_2001 = LocalDateTime.of(2001, 1, 1, 10, 0, 0);
   private static final LocalDateTime IN_2002 = LocalDateTime.of(2002, 2, 2, 10, 0, 0);
@@ -34,7 +30,7 @@ class TestMgColumns {
     database.becomeAdmin();
     schema = database.dropCreateSchema(TestMgColumns.class.getSimpleName());
     if (!database.hasUser(EDITOR_USER)) database.addUser(EDITOR_USER);
-    schema.addMember(EDITOR_USER, Privileges.EDITOR.toString());
+    schema.addMember(EDITOR_USER.getValue(), Privileges.EDITOR.toString());
   }
 
   /** Reads back the single row these tests keep in a table. */
@@ -206,7 +202,7 @@ class TestMgColumns {
     providedMgTable.update(row("id", 1, "value", "somevalue4"));
 
     Row fallback = onlyRow(providedMgTable);
-    assertEquals(schema.getDatabase().getActiveUser(), fallback.getString(MG_UPDATEDBY));
+    assertEquals(schema.getDatabase().getActiveUser().getValue(), fallback.getString(MG_UPDATEDBY));
     assertTrue(fallback.getDateTime(MG_UPDATEDON).isAfter(IN_2004));
     assertInsertedMetadata(fallback, "importer4b", IN_2006);
   }
@@ -227,8 +223,8 @@ class TestMgColumns {
               .set(MG_UPDATEDON, IN_2001));
 
       Row inserted = onlyRow(editorTable);
-      assertEquals(EDITOR_USER, inserted.getString(MG_INSERTEDBY));
-      assertEquals(EDITOR_USER, inserted.getString(MG_UPDATEDBY));
+      assertEquals(EDITOR_USER.getValue(), inserted.getString(MG_INSERTEDBY));
+      assertEquals(EDITOR_USER.getValue(), inserted.getString(MG_UPDATEDBY));
       assertTrue(inserted.getDateTime(MG_INSERTEDON).isAfter(IN_2001));
       assertTrue(inserted.getDateTime(MG_UPDATEDON).isAfter(IN_2001));
 
@@ -240,8 +236,8 @@ class TestMgColumns {
 
       Row updated = onlyRow(editorTable);
       assertEquals("somevalue2", updated.getString("value"));
-      assertEquals(EDITOR_USER, updated.getString(MG_INSERTEDBY));
-      assertEquals(EDITOR_USER, updated.getString(MG_UPDATEDBY));
+      assertEquals(EDITOR_USER.getValue(), updated.getString(MG_INSERTEDBY));
+      assertEquals(EDITOR_USER.getValue(), updated.getString(MG_UPDATEDBY));
 
       editorTable.save(
           row("id", 1, "value", "somevalue3")
@@ -250,7 +246,7 @@ class TestMgColumns {
 
       Row saved = onlyRow(editorTable);
       assertEquals("somevalue3", saved.getString("value"));
-      assertEquals(EDITOR_USER, saved.getString(MG_INSERTEDBY));
+      assertEquals(EDITOR_USER.getValue(), saved.getString(MG_INSERTEDBY));
       assertTrue(saved.getDateTime(MG_INSERTEDON).isAfter(IN_2001));
     } finally {
       database.becomeAdmin();

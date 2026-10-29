@@ -97,7 +97,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public String getRoleForActiveUser() {
-    return getRoleForUser(db.getActiveUser());
+    return getRoleForUser(db.getActiveUser().getValue());
   }
 
   @Override

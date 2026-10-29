@@ -9,40 +9,44 @@ import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.User;
+import org.molgenis.emx2.Username;
 
 class SqlDatabaseExecutor {
   private SqlDatabaseExecutor() {
     // hide
   }
 
-  static void executeCreateUser(SqlDatabase db, String user) {
-    if (user == null || user.isEmpty()) {
+  static void executeCreateUser(SqlDatabase db, Username user) {
+    if (user == null) {
       throw new MolgenisException("Can not create user with empty user name");
     }
     try {
       DSLContext jooq = db.getJooq();
-      String userName = MG_USER_PREFIX + user;
+      String userName = MG_USER_PREFIX + user.getValue();
       executeCreateRole(jooq, userName);
       if (!ADMIN_USER.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
         // non-system users get role 'user' as way to identify all users
-        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER), name(userName));
+        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER.getValue()), name(userName));
         // all users can see what anonymous can see
-        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS), name(userName));
+        jooq.execute(
+            "GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS.getValue()), name(userName));
       }
       // session_user has all roles, needed for 'set role'
-      jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user));
+      jooq.execute(
+          "GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user.getValue()));
       // save metadata
-      MetadataUtils.saveUserMetadata(jooq, new User(db, user));
+      MetadataUtils.saveUserMetadata(jooq, new User(db, user.getValue()));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add user failed", dae);
     }
   }
 
-  static void executeGrantCreateSchema(DSLContext jooq, String user) {
+  static void executeGrantCreateSchema(DSLContext jooq, Username user) {
     try {
       String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
       jooq.execute(
-          "GRANT CREATE ON DATABASE {0} TO {1}", name(databaseName), name(MG_USER_PREFIX + user));
+          "GRANT CREATE ON DATABASE {0} TO {1}",
+          name(databaseName), name(MG_USER_PREFIX + user.getValue()));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(dae);
     }

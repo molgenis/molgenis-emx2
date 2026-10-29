@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestSettings {
+
+  public static final Username ADMIN = new Username("admin");
   private static Database database;
 
   @BeforeAll
@@ -29,10 +31,13 @@ public class TestSettings {
           // set roles
           // viewer should only be able to see, not change
           // manager should be able to set values
-          schema.addMember("testsettingseditor", EDITOR.toString());
-          schema.addMember("testsettingsmanager", MANAGER.toString());
+          Username testsettingseditor = new Username("testsettingseditor");
+          Username testsettingsmanager = new Username("testsettingsmanager");
 
-          db.setActiveUser("testsettingseditor");
+          schema.addMember(testsettingseditor.getValue(), EDITOR.toString());
+          schema.addMember(testsettingsmanager.getValue(), MANAGER.toString());
+
+          db.setActiveUser(testsettingseditor);
           try {
             schema = db.getSchema("testSchemaSettings"); // reload schema
             schema.getMetadata().setSetting("key", "value");
@@ -41,7 +46,7 @@ public class TestSettings {
             // failed correctly
           }
 
-          db.setActiveUser("testsettingsmanager");
+          db.setActiveUser(testsettingsmanager);
           try {
             schema = db.getSchema("testSchemaSettings"); // reload schema
             schema.getMetadata().setSetting("key", "value");
@@ -72,12 +77,14 @@ public class TestSettings {
           // set roles
           // viewer should only be able to see, not change
           // editor should be able to set values
-          s.addMember("testtablesettingsviewer", VIEWER.toString());
-          s.addMember("testtablesettingseditor", EDITOR.toString());
+          Username testtablesettingsviewer = new Username("testtablesettingsviewer");
+          Username testtablesettingseditor = new Username("testtablesettingseditor");
+          s.addMember(testtablesettingsviewer.getValue(), VIEWER.toString());
+          s.addMember(testtablesettingseditor.getValue(), EDITOR.toString());
 
           s.create(table("test").add(column("test")));
 
-          db.setActiveUser("testtablesettingsviewer");
+          db.setActiveUser(testtablesettingsviewer);
           try {
             Table t = db.getSchema("testTableSettings").getTable("test");
             t.getMetadata().setSetting("key", "value");
@@ -86,7 +93,7 @@ public class TestSettings {
             // failed correctly
           }
 
-          db.setActiveUser("testtablesettingseditor");
+          db.setActiveUser(testtablesettingseditor);
           try {
             Table t = db.getSchema("testTableSettings").getTable("test");
             t.getMetadata().setSetting("key", "value");
@@ -113,7 +120,7 @@ public class TestSettings {
   public void testDatabaseSetting() {
     database.tx(
         db -> {
-          db.setActiveUser("admin");
+          db.setActiveUser(ADMIN);
           db.setSetting("it-db-setting-key", "it-db-setting-value");
           assertEquals("it-db-setting-value", db.getSetting("it-db-setting-key"));
         });
@@ -126,7 +133,7 @@ public class TestSettings {
         () -> {
           database.tx(
               db -> {
-                db.setActiveUser("testsettingsmanager");
+                db.setActiveUser(new Username("testsettingsmanager"));
                 db.setSetting("it-db-setting-key", "it-db-setting-value");
               });
         });
@@ -137,7 +144,7 @@ public class TestSettings {
     // setup
     database.tx(
         db -> {
-          db.setActiveUser("admin");
+          db.setActiveUser(ADMIN);
           db.setSetting("delete-me", "life is short");
         });
 
@@ -148,7 +155,7 @@ public class TestSettings {
     // execute
     database.tx(
         db -> {
-          db.setActiveUser("admin");
+          db.setActiveUser(ADMIN);
           db.removeSetting("delete-me");
         });
 
@@ -163,7 +170,7 @@ public class TestSettings {
         () -> {
           database.tx(
               db -> {
-                db.setActiveUser("testsettingsmanager");
+                db.setActiveUser(new Username("testsettingsmanager"));
                 db.removeSetting("delete-me");
               });
         });
@@ -171,12 +178,13 @@ public class TestSettings {
 
   @Test
   public void testUserSettings() {
-    User user = database.addUser("SettingsTestUser");
+    Username settingsTestUser = new Username("SettingsTestUser");
+    User user = database.addUser(settingsTestUser);
     user.setSetting("my-setting", "user setting");
     database.saveUser(user);
-    assertEquals(database.getUser("SettingsTestUser").getSetting("my-setting"), "user setting");
-    user = database.getUser("SettingsTestUser").removeSetting("my-setting");
+    assertEquals(database.getUser(settingsTestUser).getSetting("my-setting"), "user setting");
+    user = database.getUser(settingsTestUser).removeSetting("my-setting");
     database.saveUser(user);
-    assertNull(database.getUser("SettingsTestUser").getSetting("my-setting"));
+    assertNull(database.getUser(settingsTestUser).getSetting("my-setting"));
   }
 }

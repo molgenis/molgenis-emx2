@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 
 public class TestAggregatePermission {
   private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -25,6 +26,7 @@ public class TestAggregatePermission {
   private static Database db;
   static Schema schema;
   static String schemaName = TestAggregatePermission.class.getSimpleName();
+  private static Username AGGREGATE_TEST_USER = new Username("AGGREGATE_TEST_USER");
 
   @BeforeAll
   public static void setUp() throws SQLException {
@@ -35,8 +37,8 @@ public class TestAggregatePermission {
     schema = db.getSchema(schemaName);
     schema.revoke("DragonKeeper", "Pet");
     schema.removeMember(ANONYMOUS);
-    schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
-    db.setActiveUser("AGGREGATE_TEST_USER");
+    schema.addMember(AGGREGATE_TEST_USER.getValue(), AGGREGATOR.toString());
+    db.setActiveUser(AGGREGATE_TEST_USER);
   }
 
   @Test
@@ -115,15 +117,15 @@ public class TestAggregatePermission {
   }
 
   private static String queryAsCountUser(Function<Schema, String> query) {
-    String countUser = "AGGREGATE_TEST_COUNT_USER";
+    Username countUser = new Username("AGGREGATE_TEST_COUNT_USER");
     db.becomeAdmin();
-    db.getSchema(schemaName).addMember(countUser, COUNT.toString());
+    db.getSchema(schemaName).addMember(countUser.getValue(), COUNT.toString());
     db.setActiveUser(countUser);
     try {
       return query.apply(db.getSchema(schemaName));
     } finally {
       db.becomeAdmin();
-      db.setActiveUser("AGGREGATE_TEST_USER");
+      db.setActiveUser(AGGREGATE_TEST_USER);
     }
   }
 }

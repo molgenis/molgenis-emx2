@@ -240,13 +240,15 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public List<String> getInheritedRolesForUser(String username) {
-    return getDatabase().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
+    return getDatabase()
+        .getRoleManager()
+        .getInheritedRoleNamesForUser(getName(), new Username(username));
   }
 
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser().getValue());
     }
     return rolesCache;
   }
@@ -271,7 +273,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public String getRoleForUser(String user) {
     SqlRoleManager roleManager = getDatabase().getRoleManager();
-    if (user == null) user = ANONYMOUS;
+    if (user == null) user = ANONYMOUS.getValue();
     user = user.trim();
     for (Member m : roleManager.getMembers(getName())) {
       if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) return m.getRole();

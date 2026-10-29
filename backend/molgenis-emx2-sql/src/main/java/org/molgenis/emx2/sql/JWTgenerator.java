@@ -14,10 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
-import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.User;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.RandomString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +53,7 @@ public class JWTgenerator {
   }
 
   /*Token should either have id */
-  public static String createNamedTokenForUser(Database db, String user, String tokenId) {
+  public static String createNamedTokenForUser(Database db, Username user, String tokenId) {
     Calendar c = Calendar.getInstance();
     c.setTime(new Date());
     // no enddate for these tokens (100 years), but lets put a century so code checking date does
@@ -70,7 +67,7 @@ public class JWTgenerator {
   }
 
   /* Temporary token has an expiration time */
-  public static String createTemporaryToken(Database db, String user) {
+  public static String createTemporaryToken(Database db, Username user) {
     return createNamedTokenForUser(
         // half our in future, is 30 * 60 * 1000 milliseconds
         db, user, "temporary", Date.from(Instant.now().plus(30, ChronoUnit.MINUTES)));
@@ -81,7 +78,7 @@ public class JWTgenerator {
   }
 
   private static String createNamedTokenForUser(
-      Database db, String user, String tokenId, Date expirationTime) {
+      Database db, Username user, String tokenId, Date expirationTime) {
     requireNonNull(user);
     requireNonNull(tokenId);
     requireNonNull(expirationTime);
@@ -95,7 +92,7 @@ public class JWTgenerator {
       // Prepare JWT with claims set
       JWTClaimsSet claimsSet =
           new JWTClaimsSet.Builder()
-              .subject(user)
+              .subject(user.getValue())
               .jwtID(tokenId)
               .issueTime(new Date())
               .expirationTime(expirationTime)
@@ -155,7 +152,7 @@ public class JWTgenerator {
       throw new MolgenisException("Invalid token or token expired");
     }
 
-    final User user = database.getUser(userName);
+    final User user = database.getUser(new Username(userName));
     if (user == null) {
       throw new MolgenisException("Invalid token or token expired");
     }

@@ -27,7 +27,7 @@ class TestEricRowLevel {
   private static final String COLLECTIONS = "Collections";
   private static final int EXPECTED_COUNTRY_COUNT = 35;
   private static final String TEST_COUNTRY = "DE";
-  private static final String TEST_USER = "eric_rls_test_user_de";
+  private static final Username TEST_USER = new Username("eric_rls_test_user_de");
 
   @BeforeAll
   static void setUp() {
@@ -137,7 +137,7 @@ class TestEricRowLevel {
   @Test
   @Order(4)
   void countryUserSeesOnlyOwnBiobanks() {
-    schema.addMember(TEST_USER, TEST_COUNTRY);
+    schema.addMember(TEST_USER.getValue(), TEST_COUNTRY);
 
     database.setActiveUser(TEST_USER);
     database.tx(

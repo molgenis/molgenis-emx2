@@ -18,16 +18,16 @@ class TestTablePermissionEnforcement {
   private static final String TABLE_B = "TableB";
   private static final String ONTOLOGY_TABLE = "OntologyTable";
 
-  private static final String USER_VIEWER = "tpe_user_viewer";
-  private static final String USER_EDITOR = "tpe_user_editor";
-  private static final String USER_NO_ACCESS = "tpe_user_noaccess";
+  private static final Username USER_VIEWER = new Username("tpe_user_viewer");
+  private static final Username USER_EDITOR = new Username("tpe_user_editor");
+  private static final Username USER_NO_ACCESS = new Username("tpe_user_noaccess");
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
+    for (Username user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -48,7 +48,7 @@ class TestTablePermissionEnforcement {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ViewerRole");
     schema.grant("ViewerRole", new TablePermission(TABLE_A).select(true));
-    schema.addMember(USER_VIEWER, "ViewerRole");
+    schema.addMember(USER_VIEWER.getValue(), "ViewerRole");
 
     database.setActiveUser(USER_VIEWER);
 
@@ -61,7 +61,7 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("NoTableRole");
-    schema.addMember(USER_NO_ACCESS, "NoTableRole");
+    schema.addMember(USER_NO_ACCESS.getValue(), "NoTableRole");
 
     database.setActiveUser(USER_NO_ACCESS);
     assertThrows(
@@ -75,7 +75,7 @@ class TestTablePermissionEnforcement {
     schema.createRole("PartialRole");
     // Grant access to TABLE_A only
     schema.grant("PartialRole", new TablePermission(TABLE_A).select(true));
-    schema.addMember(USER_VIEWER, "PartialRole");
+    schema.addMember(USER_VIEWER.getValue(), "PartialRole");
 
     database.setActiveUser(USER_VIEWER);
 
@@ -94,7 +94,7 @@ class TestTablePermissionEnforcement {
     schema.grant(
         "EditorRole",
         new TablePermission(TABLE_A).select(true).insert(true).update(true).delete(true));
-    schema.addMember(USER_EDITOR, "EditorRole");
+    schema.addMember(USER_EDITOR.getValue(), "EditorRole");
 
     database.setActiveUser(USER_EDITOR);
 
@@ -118,7 +118,7 @@ class TestTablePermissionEnforcement {
     schema.createRole("ReadOnlyRole");
     // Only SELECT – no insert/update/delete
     schema.grant("ReadOnlyRole", new TablePermission(TABLE_A).select(true));
-    schema.addMember(USER_EDITOR, "ReadOnlyRole");
+    schema.addMember(USER_EDITOR.getValue(), "ReadOnlyRole");
 
     database.setActiveUser(USER_EDITOR);
     assertThrows(
@@ -135,7 +135,7 @@ class TestTablePermissionEnforcement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("EmptyRole");
-    schema.addMember(USER_NO_ACCESS, "EmptyRole");
+    schema.addMember(USER_NO_ACCESS.getValue(), "EmptyRole");
 
     database.setActiveUser(USER_NO_ACCESS);
     // Ontology tables should be accessible regardless of grants
@@ -149,7 +149,7 @@ class TestTablePermissionEnforcement {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("CountRole");
     schema.grant("CountRole", new TablePermission(TABLE_A).select(true));
-    schema.addMember(USER_VIEWER, "CountRole");
+    schema.addMember(USER_VIEWER.getValue(), "CountRole");
 
     database.setActiveUser(USER_VIEWER);
     // A user with table-level SELECT (but no VIEWER/COUNT role) should be able to query

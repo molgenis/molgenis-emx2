@@ -24,19 +24,19 @@ class TestRowLevelSecurity {
   private static final String SCHEMA = TestRowLevelSecurity.class.getSimpleName();
   private static final String ARTICLES = "Articles";
 
-  private static final String USER_TEAM_A = "rls_user_team_a";
-  private static final String USER_TEAM_B = "rls_user_team_b";
-  private static final String USER_VIEWER = "rls_user_viewer";
-  private static final String USER_NO_ACCESS = "rls_user_noaccess";
-  private static final String USER_COUNT = "rls_user_count";
-  private static final String USER_EXISTS = "rls_user_exists";
+  private static final Username USER_TEAM_A = new Username("rls_user_team_a");
+  private static final Username USER_TEAM_B = new Username("rls_user_team_b");
+  private static final Username USER_VIEWER = new Username("rls_user_viewer");
+  private static final Username USER_NO_ACCESS = new Username("rls_user_noaccess");
+  private static final Username USER_COUNT = new Username("rls_user_count");
+  private static final Username USER_EXISTS = new Username("rls_user_exists");
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user :
+    for (Username user :
         List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS, USER_COUNT, USER_EXISTS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
@@ -84,11 +84,11 @@ class TestRowLevelSecurity {
         .getTable(ARTICLES)
         .insert(new Row().setString("id", "open").setString("title", "Public"));
 
-    schema.addMember(USER_TEAM_A, "TeamA");
-    schema.addMember(USER_TEAM_B, "TeamB");
-    schema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
-    schema.addMember(USER_COUNT, Privileges.COUNT.toString());
-    schema.addMember(USER_EXISTS, Privileges.EXISTS.toString());
+    schema.addMember(USER_TEAM_A.getValue(), "TeamA");
+    schema.addMember(USER_TEAM_B.getValue(), "TeamB");
+    schema.addMember(USER_VIEWER.getValue(), Privileges.VIEWER.toString());
+    schema.addMember(USER_COUNT.getValue(), Privileges.COUNT.toString());
+    schema.addMember(USER_EXISTS.getValue(), Privileges.EXISTS.toString());
   }
 
   @Test
@@ -106,7 +106,9 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     // the row-level grant on TeamA created the internal RLS_TeamA proxy role
     MolgenisException e =
-        assertThrows(MolgenisException.class, () -> schema.addMember(USER_NO_ACCESS, "RLS_TeamA"));
+        assertThrows(
+            MolgenisException.class,
+            () -> schema.addMember(USER_NO_ACCESS.getValue(), "RLS_TeamA"));
     assertTrue(e.getMessage().contains("internal"), e.getMessage());
   }
 
@@ -175,9 +177,9 @@ class TestRowLevelSecurity {
   @Test
   void mgRolesRejectsNonExistentRoleForManager() {
     database.becomeAdmin();
-    String managerUser = "rls_user_manager_mgroles";
+    Username managerUser = new Username("rls_user_manager_mgroles");
     if (!database.hasUser(managerUser)) database.addUser(managerUser);
-    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
+    database.getSchema(SCHEMA).addMember(managerUser.getValue(), Privileges.MANAGER.toString());
 
     database.setActiveUser(managerUser);
     Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
@@ -208,9 +210,9 @@ class TestRowLevelSecurity {
   @Test
   void mgRolesAcceptsExistingRole() {
     database.becomeAdmin();
-    String managerUser = "rls_user_manager_assigns";
+    Username managerUser = new Username("rls_user_manager_assigns");
     if (!database.hasUser(managerUser)) database.addUser(managerUser);
-    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
+    database.getSchema(SCHEMA).addMember(managerUser.getValue(), Privileges.MANAGER.toString());
 
     database.setActiveUser(managerUser);
     Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
@@ -351,9 +353,9 @@ class TestRowLevelSecurity {
   @Test
   void mgRolesEmptyArrayIsAllowedLikeNull() {
     database.becomeAdmin();
-    String editorUser = "rls_user_editor_mgroles";
+    Username editorUser = new Username("rls_user_editor_mgroles");
     if (!database.hasUser(editorUser)) database.addUser(editorUser);
-    database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
+    database.getSchema(SCHEMA).addMember(editorUser.getValue(), Privileges.EDITOR.toString());
 
     database.setActiveUser(editorUser);
     Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
@@ -437,9 +439,9 @@ class TestRowLevelSecurity {
   @Test
   void mgRolesIsNotDefaultedForUsersWithUnrestrictedAccess() {
     database.becomeAdmin();
-    String editorUser = "rls_user_editor_default";
+    Username editorUser = new Username("rls_user_editor_default");
     if (!database.hasUser(editorUser)) database.addUser(editorUser);
-    database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
+    database.getSchema(SCHEMA).addMember(editorUser.getValue(), Privileges.EDITOR.toString());
 
     database.setActiveUser(editorUser);
     database.tx(
@@ -685,7 +687,7 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     String table = "WriteOnlyTable";
-    String user = "rls_user_write_only";
+    Username user = new Username("rls_user_write_only");
     if (!database.hasUser(user)) database.addUser(user);
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
@@ -700,8 +702,8 @@ class TestRowLevelSecurity {
             .rowLevel(true));
     // Assigning VIEWER gives the user visibility of all rows; the custom role restricts DML to
     // owned rows only.
-    schema.addMember(user, "WriteOnlyRole");
-    schema.addMember(user, Privileges.VIEWER.toString());
+    schema.addMember(user.getValue(), "WriteOnlyRole");
+    schema.addMember(user.getValue(), Privileges.VIEWER.toString());
 
     // Admin inserts rows owned by different roles
     schema
@@ -791,9 +793,9 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     String table = "MixedAccessTable";
-    String rlsUser = "rls_user_mixed_rls";
-    String plainUser = "rls_user_mixed_plain";
-    for (String u : List.of(rlsUser, plainUser)) {
+    Username rlsUser = new Username("rls_user_mixed_rls");
+    Username plainUser = new Username("rls_user_mixed_plain");
+    for (Username u : List.of(rlsUser, plainUser)) {
       if (!database.hasUser(u)) database.addUser(u);
     }
 
@@ -816,8 +818,8 @@ class TestRowLevelSecurity {
                 .set(MG_ROLES, new String[] {"MixedRlsRole"}));
     schema.getTable(table).insert(new Row().setString("id", "m2").setString("title", "plain row"));
 
-    schema.addMember(rlsUser, "MixedRlsRole");
-    schema.addMember(plainUser, "MixedPlainRole");
+    schema.addMember(rlsUser.getValue(), "MixedRlsRole");
+    schema.addMember(plainUser.getValue(), "MixedPlainRole");
 
     // RLS user sees only their row
     database.setActiveUser(rlsUser);
@@ -854,7 +856,7 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     String table = "FlipOnTable";
     String role = "FlipOnRole";
-    String user = "rls_user_flip_on";
+    Username user = new Username("rls_user_flip_on");
     if (!database.hasUser(user)) database.addUser(user);
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
@@ -878,7 +880,7 @@ class TestRowLevelSecurity {
                 .setString("title", "owned")
                 .set(MG_ROLES, new String[] {role}));
     schema.getTable(table).insert(new Row().setString("id", "f2").setString("title", "unowned"));
-    schema.addMember(user, role);
+    schema.addMember(user.getValue(), role);
 
     assertTrue(
         schema.getRoleInfo(role).permissions().stream()
@@ -900,7 +902,7 @@ class TestRowLevelSecurity {
     // Cleanup
     database.becomeAdmin();
     schema.getTable(table).delete(new Row().setString("id", "f1"));
-    schema.removeMember(user);
+    schema.removeMember(user.getValue());
     schema.revoke(role, table);
     schema.deleteRole(role);
   }
@@ -911,7 +913,7 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     String table = "FlipOffTable";
     String role = "FlipOffRole";
-    String user = "rls_user_flip_off";
+    Username user = new Username("rls_user_flip_off");
     if (!database.hasUser(user)) database.addUser(user);
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
@@ -933,7 +935,7 @@ class TestRowLevelSecurity {
                 .setString("title", "owned")
                 .set(MG_ROLES, new String[] {role}));
     schema.getTable(table).insert(new Row().setString("id", "g2").setString("title", "unowned"));
-    schema.addMember(user, role);
+    schema.addMember(user.getValue(), role);
 
     database.setActiveUser(user);
     database.tx(
@@ -979,7 +981,7 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     String table = "KeepModeTable";
     String role = "KeepModeRole";
-    String user = "rls_user_keep_mode";
+    Username user = new Username("rls_user_keep_mode");
     if (!database.hasUser(user)) database.addUser(user);
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
@@ -996,7 +998,7 @@ class TestRowLevelSecurity {
                 .setString("title", "owned")
                 .set(MG_ROLES, new String[] {role}));
     schema.getTable(table).insert(new Row().setString("id", "k2").setString("title", "unowned"));
-    schema.addMember(user, role);
+    schema.addMember(user.getValue(), role);
 
     assertTrue(
         schema.getRoleInfo(role).permissions().stream()
@@ -1016,7 +1018,7 @@ class TestRowLevelSecurity {
 
     database.becomeAdmin();
     schema.getTable(table).delete(new Row().setString("id", "k1"));
-    schema.removeMember(user);
+    schema.removeMember(user.getValue());
     schema.revoke(role, table);
     schema.deleteRole(role);
   }
@@ -1035,10 +1037,10 @@ class TestRowLevelSecurity {
   void tablePermissionsReportsIsRowLevelTrueForUserWithViewerAndRlsRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    String user = "rls_user_viewer_and_rls";
+    Username user = new Username("rls_user_viewer_and_rls");
     if (!database.hasUser(user)) database.addUser(user);
-    schema.addMember(user, "TeamA");
-    schema.addMember(user, Privileges.VIEWER.toString());
+    schema.addMember(user.getValue(), "TeamA");
+    schema.addMember(user.getValue(), Privileges.VIEWER.toString());
 
     database.setActiveUser(user);
     database.tx(
@@ -1056,7 +1058,7 @@ class TestRowLevelSecurity {
         });
 
     database.becomeAdmin();
-    schema.removeMember(user);
+    schema.removeMember(user.getValue());
   }
 
   @Test
@@ -1154,10 +1156,10 @@ class TestRowLevelSecurity {
     String child = "InheritChild";
     String roleA = "InheritTeamA";
     String roleB = "InheritTeamB";
-    String userA = "rls_inherit_a";
-    String userB = "rls_inherit_b";
+    Username userA = new Username("rls_inherit_a");
+    Username userB = new Username("rls_inherit_b");
     Schema schema = database.dropCreateSchema("TestRlsInheritSubclass");
-    for (String u : List.of(userA, userB)) {
+    for (Username u : List.of(userA, userB)) {
       if (!database.hasUser(u)) database.addUser(u);
     }
 
@@ -1177,8 +1179,8 @@ class TestRowLevelSecurity {
             .rowLevel(true));
     schema.grant(roleB, new TablePermission(root).select(true).rowLevel(true));
 
-    schema.addMember(userA, roleA);
-    schema.addMember(userB, roleB);
+    schema.addMember(userA.getValue(), roleA);
+    schema.addMember(userB.getValue(), roleB);
 
     // INSERT on subclass via TeamA
     database.setActiveUser(userA);
@@ -1261,7 +1263,7 @@ class TestRowLevelSecurity {
     String root = "RootParent";
     String child = "RootChild";
     String roleC = "InheritTeamC";
-    String userC = "rls_inherit_c";
+    Username userC = new Username("rls_inherit_c");
     Schema schema = database.dropCreateSchema("TestRlsInheritRoot");
     if (!database.hasUser(userC)) database.addUser(userC);
 
@@ -1279,7 +1281,7 @@ class TestRowLevelSecurity {
             .update(true)
             .delete(true)
             .rowLevel(true));
-    schema.addMember(userC, roleC);
+    schema.addMember(userC.getValue(), roleC);
 
     // Insert via subclass as TeamC: root insert must satisfy root's RLS
     database.setActiveUser(userC);
@@ -1310,7 +1312,7 @@ class TestRowLevelSecurity {
     String mid = "Mid";
     String leaf = "Leaf";
     String roleD = "InheritTeamD";
-    String userD = "rls_inherit_d";
+    Username userD = new Username("rls_inherit_d");
     Schema schema = database.dropCreateSchema("TestRlsInheritMulti");
     if (!database.hasUser(userD)) database.addUser(userD);
 
@@ -1328,7 +1330,7 @@ class TestRowLevelSecurity {
             .update(true)
             .delete(true)
             .rowLevel(true));
-    schema.addMember(userD, roleD);
+    schema.addMember(userD.getValue(), roleD);
 
     // Insert on the leaf — three physical inserts must each satisfy RLS on
     // grand, mid, and leaf.
@@ -1411,7 +1413,7 @@ class TestRowLevelSecurity {
     String root = "RevokeParent";
     String child = "RevokeChild";
     String roleE = "InheritTeamE";
-    String userE = "rls_inherit_e";
+    Username userE = new Username("rls_inherit_e");
     Schema schema = database.dropCreateSchema("TestRlsInheritRevoke");
     if (!database.hasUser(userE)) database.addUser(userE);
 
@@ -1427,7 +1429,7 @@ class TestRowLevelSecurity {
             .update(true)
             .delete(true)
             .rowLevel(true));
-    schema.addMember(userE, roleE);
+    schema.addMember(userE.getValue(), roleE);
 
     // Sanity: grant propagated — can read the subclass.
     database.setActiveUser(userE);

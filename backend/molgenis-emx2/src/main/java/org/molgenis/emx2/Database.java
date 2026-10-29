@@ -44,29 +44,29 @@ public interface Database extends HasSettingsInterface<Database>, SchemaMetadata
 
   List<Table> getTablesFromAllSchemas(String tableId);
 
-  User addUser(String name);
+  User addUser(Username name);
 
-  boolean checkUserPassword(String name, String password);
+  boolean checkUserPassword(Username name, String password);
 
-  void setUserPassword(String name, String password);
+  void setUserPassword(Username name, String password);
 
-  boolean hasUser(String user);
+  boolean hasUser(Username user);
 
   List<User> getUsers(int limit, int offset);
 
-  void removeUser(String name);
+  void removeUser(Username name);
 
-  void setEnabledUser(String name, boolean enabled);
+  void setEnabledUser(Username name, boolean enabled);
 
-  void setAdminUser(String name, boolean admin);
+  void setAdminUser(Username name, boolean admin);
 
-  void setActiveUser(String username);
+  void setActiveUser(Username username);
 
-  String getActiveUser();
+  Username getActiveUser();
 
   void clearActiveUser();
 
-  void grantCreateSchema(String user);
+  void grantCreateSchema(Username user);
 
   void setListener(DatabaseListener listener);
 
@@ -81,7 +81,7 @@ public interface Database extends HasSettingsInterface<Database>, SchemaMetadata
   int countUsers();
 
   /** for testing purposes */
-  String getAdminUserName();
+  Username getAdminUserName();
 
   /**
    * check if the user that is logged in is admin
@@ -101,7 +101,7 @@ public interface Database extends HasSettingsInterface<Database>, SchemaMetadata
 
   boolean hasSchema(String catalogueOntologies);
 
-  User getUser(String userName);
+  User getUser(Username userName);
 
   void saveUser(User user);
 
@@ -115,9 +115,9 @@ public interface Database extends HasSettingsInterface<Database>, SchemaMetadata
 
   List<Member> loadUserRoles();
 
-  void revokeRoles(String userName, List<Map<String, String>> revokedRoles);
+  void revokeRoles(Username userName, List<Map<String, String>> revokedRoles);
 
-  void updateRoles(String userName, List<Map<String, String>> roles);
+  void updateRoles(Username userName, List<Map<String, String>> roles);
 
   String resolveJwtSharedSecret();
 }

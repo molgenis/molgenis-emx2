@@ -672,12 +672,12 @@ public class MetadataUtils {
     return c;
   }
 
-  public static void setUserPassword(DSLContext jooq, String user, String password) {
+  public static void setUserPassword(DSLContext jooq, Username user, String password) {
     // TODO BEFORE MERGE: set USER_ACTIVE to current value and not to "TRUE"
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_ENABLED, USER_PASS)
         .values(
-            field("{0}", String.class, user),
+            field("{0}", String.class, user.getValue()),
             field("{0}", Boolean.class, Boolean.TRUE),
             field("crypt({0}, gen_salt('bf'))", String.class, password))
         .onConflict(USER_NAME)
@@ -686,11 +686,11 @@ public class MetadataUtils {
         .execute();
   }
 
-  public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
+  public static boolean checkUserPassword(DSLContext jooq, Username username, String password) {
     org.jooq.Record result =
         jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as(MATCHES))
             .from(USERS_METADATA)
-            .where(field(USER_NAME).eq(username))
+            .where(field(USER_NAME).eq(username.getValue()))
             .fetchOne();
 
     return result != null && result.get(MATCHES) != null && result.get(MATCHES, Boolean.class);
@@ -744,11 +744,11 @@ public class MetadataUtils {
         .execute();
   }
 
-  public static User loadUserMetadata(SqlDatabase db, String userName) {
+  public static User loadUserMetadata(SqlDatabase db, Username userName) {
     org.jooq.Record userRecord =
-        db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName)).fetchOne();
+        db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName.getValue())).fetchOne();
     if (userRecord != null) {
-      User result = new User(db, userName);
+      User result = new User(db, userName.getValue());
       result.setEnabled(userRecord.get(USER_ENABLED));
       result.setSettings(userRecord.get(SETTINGS, Map.class));
       result.setAdmin(userRecord.get(USER_ADMIN));

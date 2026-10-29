@@ -10,15 +10,19 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestUsersAndPermissions {
-  public static final String ADMIN = "admin";
-  public static final String ANONYMOUS = "anonymous";
-  public static final String USER = "user";
+
   static Database database;
-  private static final String TEST_ENABLE_USERS = "TestEnableUser";
-  private static final String TEST_INITIALLY_ENABLE_USERS = "TestInitiallyEnableUser";
-  private static final String TEST_NONEXISTENT_USERS = "TestNonExistentUser";
-  private static final String TEST_ADMIN_USER = "TestAdminUser";
-  private static final String TEST_ADMIN_USER_2 = "TestAdminUser2";
+
+  public static final Username ADMIN = new Username("admin");
+  public static final Username ANONYMOUS = new Username("anonymous");
+  public static final Username USER = new Username("user");
+
+  private static final Username TEST_ENABLE_USERS = new Username("TestEnableUser");
+  private static final Username TEST_INITIALLY_ENABLE_USERS =
+      new Username("TestInitiallyEnableUser");
+  private static final Username TEST_NONEXISTENT_USERS = new Username("TestNonExistentUser");
+  private static final Username TEST_ADMIN_USER = new Username("TestAdminUser");
+  private static final Username TEST_ADMIN_USER_2 = new Username("TestAdminUser2");
 
   @BeforeAll
   public static void setup() {
@@ -53,7 +57,7 @@ public class TestUsersAndPermissions {
       assertTrue(database.isAdmin());
 
       // add and set user
-      String user1 = "Test Active User1";
+      Username user1 = new Username("Test Active User1");
       if (database.hasUser(user1)) {
         database.removeUser(user1);
       }
@@ -80,7 +84,7 @@ public class TestUsersAndPermissions {
 
       // retry with proper permission
       database.becomeAdmin(); // god mode so I can edit membership
-      schema1.addMember(user1, Privileges.MANAGER.toString());
+      schema1.addMember(user1.getValue(), Privileges.MANAGER.toString());
       database.setActiveUser(user1);
       try {
         schema1.create(table("Test"));
@@ -219,36 +223,39 @@ public class TestUsersAndPermissions {
 
   @Test
   void testPassword() {
+    Username donald = new Username("donald");
+    Username nopassworduser = new Username("nopassworduser");
+    Username katrien = new Username("katrien");
     try {
-      database.addUser("donald");
-      database.setUserPassword("donald", "blaat");
-      assertTrue(database.checkUserPassword("donald", "blaat"));
-      assertFalse(database.checkUserPassword("donald", "blaat2"));
+      database.addUser(donald);
+      database.setUserPassword(donald, "blaat");
+      assertTrue(database.checkUserPassword(donald, "blaat"));
+      assertFalse(database.checkUserPassword(donald, "blaat2"));
 
       // check if user can change their own password
-      database.setActiveUser("donald");
-      assertTrue(database.checkUserPassword("donald", "blaat"));
-      assertFalse(database.checkUserPassword("donald", "blaat2"));
+      database.setActiveUser(donald);
+      assertTrue(database.checkUserPassword(donald, "blaat"));
+      assertFalse(database.checkUserPassword(donald, "blaat2"));
 
       // test empty password returns false
-      database.addUser("nopassworduser");
-      assertFalse(database.checkUserPassword("nopassworduser", "nopassword"));
+      database.addUser(nopassworduser);
+      assertFalse(database.checkUserPassword(nopassworduser, "nopassword"));
 
       // ensure otherwise fails
       database.becomeAdmin();
-      database.addUser("katrien");
-      database.setActiveUser("katrien");
+      database.addUser(katrien);
+      database.setActiveUser(katrien);
       try {
-        database.setUserPassword("donald", "blaat");
+        database.setUserPassword(donald, "blaat");
         fail("should have failed");
       } catch (Exception e) {
         // ok
       }
     } finally {
       database.becomeAdmin();
-      database.removeUser("donald");
-      database.removeUser("katrien");
-      database.removeUser("nopassworduser");
+      database.removeUser(donald);
+      database.removeUser(katrien);
+      database.removeUser(nopassworduser);
     }
   }
 }

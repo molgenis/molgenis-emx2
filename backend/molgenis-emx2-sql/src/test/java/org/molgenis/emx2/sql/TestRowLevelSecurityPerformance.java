@@ -23,15 +23,15 @@ class TestRowLevelSecurityPerformance {
   private static final int WARMUP_RUNS = 2;
   private static final int MEASURED_RUNS = 5;
 
-  private static final String USER_TEAM = "rls_perf_user_team";
-  private static final String USER_VIEWER = "rls_perf_user_viewer";
+  private static final Username USER_TEAM = new Username("rls_perf_user_team");
+  private static final Username USER_VIEWER = new Username("rls_perf_user_viewer");
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_TEAM, USER_VIEWER)) {
+    for (Username user : List.of(USER_TEAM, USER_VIEWER)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -68,8 +68,8 @@ class TestRowLevelSecurityPerformance {
     }
     adminSchema.getTable(ARTICLES).update(stamped);
 
-    adminSchema.addMember(USER_TEAM, "PerfTeam");
-    adminSchema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
+    adminSchema.addMember(USER_TEAM.getValue(), "PerfTeam");
+    adminSchema.addMember(USER_VIEWER.getValue(), Privileges.VIEWER.toString());
 
     long adminWithRlsNs = timeAdminSelect("admin (RLS on, BYPASSRLS)", adminSchema);
     long viewerNs = timeAsUser("viewer (constant bypass policy)", USER_VIEWER);
@@ -100,7 +100,7 @@ class TestRowLevelSecurityPerformance {
     return time(label, () -> schema.getTable(ARTICLES).retrieveRows().size());
   }
 
-  private long timeAsUser(String label, String user) {
+  private long timeAsUser(String label, Username user) {
     long[] holder = new long[1];
     database.setActiveUser(user);
     try {

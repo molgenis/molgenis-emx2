@@ -98,7 +98,7 @@ public class SqlRoleManager {
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     database.tx( // we need to lift to admin to create a role
         db -> {
-          String currentUser = db.getActiveUser();
+          Username currentUser = db.getActiveUser();
           try {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
@@ -124,7 +124,7 @@ public class SqlRoleManager {
     String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
     database.tx( // we need to lift to admin to drop a role
         db -> {
-          String currentUser = db.getActiveUser();
+          Username currentUser = db.getActiveUser();
           try {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
@@ -344,7 +344,7 @@ public class SqlRoleManager {
     String regularFullRole = fullRoleName(schemaName, roleName);
     database.tx(
         db -> {
-          String currentUser = db.getActiveUser();
+          Username currentUser = db.getActiveUser();
           try {
             db.becomeAdmin();
             grant(((SqlDatabase) db).getJooq(), name(rlsFullRole), name(regularFullRole));
@@ -511,12 +511,14 @@ public class SqlRoleManager {
           List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
           String username = MG_USER_PREFIX + member.getUser();
           String roleName = fullRoleName(schemaName, member.getRole());
-          if (!db.hasUser(member.getUser())) {
-            db.addUser(member.getUser());
+          Username memberUsername = new Username(member.getUser());
+
+          if (!db.hasUser(memberUsername)) {
+            db.addUser(memberUsername);
           }
           boolean newRoleIsSystemRole = Privileges.isSystemRole(member.getRole());
           for (Member old : currentMembers) {
-            if (old.getUser().equals(member.getUser())
+            if (old.getUser().equals(memberUsername.getValue())
                 && Privileges.isSystemRole(old.getRole()) == newRoleIsSystemRole) {
               revoke(txDb.getJooq(), name(fullRoleName(schemaName, old.getRole())), name(username));
             }
@@ -586,7 +588,7 @@ public class SqlRoleManager {
         .fetch(r -> r.get(ROLNAME, String.class).substring(rolePrefix.length()));
   }
 
-  public List<String> getInheritedRoleNamesForUser(String schemaName, String username) {
+  public List<String> getInheritedRoleNamesForUser(String schemaName, Username username) {
     if (username == null) return List.of();
     User user = database.getUser(username);
     if (user == null) return List.of();
@@ -599,7 +601,7 @@ public class SqlRoleManager {
         adminJooq ->
             result.addAll(
                 SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                    adminJooq, schemaName, username.trim())));
+                    adminJooq, schemaName, username)));
     return withoutInternalRoles(result);
   }
 

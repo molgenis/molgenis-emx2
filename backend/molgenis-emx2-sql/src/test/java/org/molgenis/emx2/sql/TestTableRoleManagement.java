@@ -21,16 +21,16 @@ class TestTableRoleManagement {
   private static final String TABLE_A = "TableA";
   private static final String TABLE_B = "TableB";
 
-  private static final String USER_VIEWER = "trm_user_viewer";
-  private static final String USER_EDITOR = "trm_user_editor";
-  private static final String USER_NO_ACCESS = "trm_user_noaccess";
+  private static final Username USER_VIEWER = new Username("trm_user_viewer");
+  private static final Username USER_EDITOR = new Username("trm_user_editor");
+  private static final Username USER_NO_ACCESS = new Username("trm_user_noaccess");
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
+    for (Username user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -86,7 +86,7 @@ class TestTableRoleManagement {
   void nonManagerCannotCreateRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
-    schema.addMember(USER_NO_ACCESS, Privileges.VIEWER.toString());
+    schema.addMember(USER_NO_ACCESS.getValue(), Privileges.VIEWER.toString());
 
     database.setActiveUser(USER_NO_ACCESS);
     assertThrows(MolgenisException.class, () -> schema.createRole("Forbidden"));
@@ -125,7 +125,7 @@ class TestTableRoleManagement {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("RevokeRole");
     schema.grant("RevokeRole", new TablePermission(TABLE_A).select(true));
-    schema.addMember(USER_VIEWER, "RevokeRole");
+    schema.addMember(USER_VIEWER.getValue(), "RevokeRole");
 
     // Verify access exists
     database.setActiveUser(USER_VIEWER);
@@ -149,7 +149,7 @@ class TestTableRoleManagement {
     schema.createRole("PartialRevokeRole");
     // Grant SELECT + INSERT
     schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).select(true).insert(true));
-    schema.addMember(USER_EDITOR, "PartialRevokeRole");
+    schema.addMember(USER_EDITOR.getValue(), "PartialRevokeRole");
 
     database.setActiveUser(USER_EDITOR);
 
@@ -176,7 +176,7 @@ class TestTableRoleManagement {
 
     database.becomeAdmin();
     schema.getTable(TABLE_A).delete(new Row().setString("id", "r_partial"));
-    schema.removeMember(USER_EDITOR);
+    schema.removeMember(USER_EDITOR.getValue());
     schema.deleteRole("PartialRevokeRole");
   }
 
@@ -206,7 +206,7 @@ class TestTableRoleManagement {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("LifecycleRole");
     schema.grant("LifecycleRole", new TablePermission(TABLE_A).select(true));
-    schema.addMember(USER_VIEWER, "LifecycleRole");
+    schema.addMember(USER_VIEWER.getValue(), "LifecycleRole");
 
     database.setActiveUser(USER_VIEWER);
     database.tx(
@@ -222,7 +222,7 @@ class TestTableRoleManagement {
 
     database.becomeAdmin();
     schema.getTable(TABLE_A).insert(new Row().setString("id", "r1").setString("value", "hello"));
-    schema.removeMember(USER_VIEWER);
+    schema.removeMember(USER_VIEWER.getValue());
     schema.deleteRole("LifecycleRole");
   }
 
@@ -292,7 +292,7 @@ class TestTableRoleManagement {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ActiveUserRole");
     schema.grant("ActiveUserRole", new TablePermission(TABLE_B).select(true).delete(true));
-    schema.addMember(USER_VIEWER, "ActiveUserRole");
+    schema.addMember(USER_VIEWER.getValue(), "ActiveUserRole");
 
     database.setActiveUser(USER_VIEWER);
     List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
@@ -310,7 +310,7 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("NoGrantRole");
-    schema.addMember(USER_NO_ACCESS, "NoGrantRole");
+    schema.addMember(USER_NO_ACCESS.getValue(), "NoGrantRole");
 
     database.setActiveUser(USER_NO_ACCESS);
     List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
@@ -326,7 +326,7 @@ class TestTableRoleManagement {
     schema.createRole("MergeGrantRole");
     schema.grant("MergeGrantRole", new TablePermission(TABLE_A).select(true));
     schema.grant("MergeGrantRole", new TablePermission(TABLE_A).insert(true));
-    schema.addMember(USER_EDITOR, "MergeGrantRole");
+    schema.addMember(USER_EDITOR.getValue(), "MergeGrantRole");
 
     database.setActiveUser(USER_EDITOR);
     List<TablePermission> perms = database.getSchema(SCHEMA).getPermissionsForActiveUser();
@@ -363,7 +363,7 @@ class TestTableRoleManagement {
     // custom role only grants insert on TABLE_A
     schema.createRole("InsertOnly");
     schema.grant("InsertOnly", new TablePermission(TABLE_A).insert(true));
-    schema.addMember(USER_VIEWER, "InsertOnly");
+    schema.addMember(USER_VIEWER.getValue(), "InsertOnly");
 
     // every user inherits anonymous privileges via PostgreSQL role inheritance,
     // so the user should see merged permissions: select from anonymous + insert from InsertOnly
@@ -382,7 +382,7 @@ class TestTableRoleManagement {
     // clean up to avoid leaking anonymous Viewer into other tests
     database.becomeAdmin();
     schema.removeMember("anonymous");
-    schema.removeMember(USER_VIEWER);
+    schema.removeMember(USER_VIEWER.getValue());
     schema.deleteRole("InsertOnly");
   }
 }

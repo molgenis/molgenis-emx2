@@ -11,9 +11,11 @@ import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
+import org.molgenis.emx2.Username;
 
 public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
-  private String activeUser;
+
+  private Username activeUser;
   private boolean isAdmin = false;
 
   public SqlUserAwareConnectionProvider(DataSource source) {
@@ -32,7 +34,8 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
         // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
-                "RESET ROLE; SET jit='off'; SET ROLE {0}", name(MG_USER_PREFIX + getActiveUser()));
+                "RESET ROLE; SET jit='off'; SET ROLE {0}",
+                name(MG_USER_PREFIX + getActiveUser().getValue()));
       }
       return connection;
     } catch (DataAccessException dae) {
@@ -54,12 +57,12 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     super.release(connection);
   }
 
-  public String getActiveUser() {
+  public Username getActiveUser() {
     // default user is ANONYMOUS, not admin! (never null)
     return activeUser == null ? ANONYMOUS : activeUser;
   }
 
-  public void setActiveUser(String activeUser) {
+  public void setActiveUser(Username activeUser) {
     this.activeUser = activeUser;
   }
 
