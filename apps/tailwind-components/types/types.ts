@@ -119,7 +119,7 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection;
   };
-  orderedVisibleColumnsIds: string[];
+  orderedVisibleColumnsIds?: string[];
   search?: string;
 }
 
