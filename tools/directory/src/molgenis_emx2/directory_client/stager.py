@@ -214,12 +214,16 @@ class Stager:
         for _, table in source_data.table_by_type.items():
             relevant_columns = []
             for column in table.meta.meta:
-                if (
-                    column.columnType in ["ONTOLOGY", "ONTOLOGY_ARRAY"]
-                    and column.refSchemaId == "DirectoryOntologies"
-                    and column.refTableId == "DataCategories"
-                ):
-                    relevant_columns.append(column.name)
+                # For file ingest, no column metadata is available, use table and attribute name
+                if isinstance(source_data.node, FileIngestNode):
+                    if table.type == TableType.COLLECTIONS:
+                        relevant_columns.append('data_categories')
+                elif (
+                        column.columnType in ["ONTOLOGY", "ONTOLOGY_ARRAY"]
+                        and column.refSchemaId == "DirectoryOntologies"
+                        and column.refTableId == "DataCategories"
+                    ):
+                        relevant_columns.append(column.name)
             for row in table.rows:
                 for column in relevant_columns:
                     row[column] = apply_mapping(data_categories_mapping, row[column])
