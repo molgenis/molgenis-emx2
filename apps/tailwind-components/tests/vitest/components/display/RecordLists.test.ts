@@ -95,7 +95,7 @@ describe("DisplayRecord nested lists", () => {
   });
 
   it.each(Object.entries(layouts))(
-    "renders a %s list after the ordinary fields, under a small label",
+    "renders a %s list under a small label, after the field that precedes it",
     async (layout, component) => {
       const wrapper = mountRecord(
         [nameColumn, speciesColumn, petsColumn],
@@ -124,6 +124,23 @@ describe("DisplayRecord nested lists", () => {
       ).toBeTruthy();
     }
   );
+
+  it("renders a list at its field's position: fields before it, the list, then fields after it", async () => {
+    const wrapper = mountRecord([nameColumn, petsColumn, speciesColumn], row);
+    await flushPromises();
+
+    const parts = Array.from(wrapper.get("section").element.children).map(
+      (child) => child.tagName.toLowerCase()
+    );
+    expect(parts).toEqual(["dl", "div", "dl"]);
+    const [before, listBlock, after] = Array.from(
+      wrapper.get("section").element.children
+    );
+    expect(before?.textContent).toContain("Alice");
+    expect(listBlock?.querySelector("h4")?.textContent?.trim()).toBe("Pets");
+    expect(listBlock?.textContent).toContain("Bird 0");
+    expect(after?.textContent).toContain("human");
+  });
 
   it("filters the nested list to the rows that point back at this record", async () => {
     mountRecord([nameColumn, speciesColumn, petsColumn], row);

@@ -2,7 +2,11 @@
 import { useIntersectionObserver } from "@vueuse/core";
 import { computed, ref, type ComponentPublicInstance } from "vue";
 import type { cellPayload } from "../../../types/types";
-import type { RecordLayout, RecordSection } from "../../../types/record";
+import type {
+  RecordField,
+  RecordLayout,
+  RecordSection,
+} from "../../../types/record";
 import type { RecordList } from "../../../types/recordLists";
 import ContentBlock from "../content/ContentBlock.vue";
 import DefinitionList from "../DefinitionList.vue";
@@ -25,17 +29,26 @@ const props = withDefaults(
   }
 );
 
-const ordinaryFields = computed(() =>
-  props.section.fields.filter((field) => !props.lists[field.id])
-);
-const listFields = computed(() =>
-  props.section.fields.flatMap((field) => {
+type Block =
+  | { kind: "fields"; fields: RecordField[] }
+  | { kind: "list"; field: RecordField; list: RecordList };
+
+const blocks = computed(() =>
+  props.section.fields.reduce<Block[]>((result, field) => {
     const list = props.lists[field.id];
-    return list ? [{ field, list }] : [];
-  })
+    const last = result[result.length - 1];
+    if (list) {
+      result.push({ kind: "list", field, list });
+    } else if (last?.kind === "fields") {
+      last.fields.push(field);
+    } else {
+      result.push({ kind: "fields", fields: [field] });
+    }
+    return result;
+  }, [])
 );
 const isSingleListSection = computed(
-  () => props.section.fields.length === 1 && listFields.value.length === 1
+  () => props.section.fields.length === 1 && blocks.value[0]?.kind === "list"
 );
 
 const wrapper = computed(() =>
@@ -79,35 +92,35 @@ useIntersectionObserver(
       {{ section.label }}
     </h3>
 
-    <DefinitionList v-if="ordinaryFields.length" :compact="false">
-      <template v-for="field in ordinaryFields" :key="field.id">
-        <DefinitionListTerm>{{ field.label }}</DefinitionListTerm>
-        <DefinitionListDefinition>
-          <slot name="value" :field="field">
-            <ValueEMX2
-              :metadata="field.metadata"
-              :data="field.value"
-              @valueClick="$emit('valueClick', $event)"
-            />
-          </slot>
-        </DefinitionListDefinition>
-      </template>
-    </DefinitionList>
-
-    <div
-      v-for="{ field, list } in listFields"
-      :key="field.id"
-      class="mt-5 first:mt-0"
+    <template
+      v-for="block in blocks"
+      :key="block.kind === 'list' ? block.field.id : block.fields[0]?.id"
     >
-      <h4 v-if="!isSingleListSection" class="mb-2.5 text-record-heading">
-        {{ field.label }}
-      </h4>
-      <DisplayRecords
-        :schemaId="list.schemaId"
-        :tableId="list.tableId"
-        :filter="list.filter"
-        :displayConfig="list.displayConfig"
-      />
-    </div>
+      <div v-if="block.kind === 'list'" class="mt-5 first:mt-0">
+        <h4 v-if="!isSingleListSection" class="mb-2.5 text-record-heading">
+          {{ block.field.label }}
+        </h4>
+        <DisplayRecords
+          :schemaId="block.list.schemaId"
+          :tableId="block.list.tableId"
+          :filter="block.list.filter"
+          :displayConfig="block.list.displayConfig"
+        />
+      </div>
+      <DefinitionList v-else :compact="false">
+        <template v-for="field in block.fields" :key="field.id">
+          <DefinitionListTerm>{{ field.label }}</DefinitionListTerm>
+          <DefinitionListDefinition>
+            <slot name="value" :field="field">
+              <ValueEMX2
+                :metadata="field.metadata"
+                :data="field.value"
+                @valueClick="$emit('valueClick', $event)"
+              />
+            </slot>
+          </DefinitionListDefinition>
+        </template>
+      </DefinitionList>
+    </template>
   </component>
 </template>
