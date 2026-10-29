@@ -344,11 +344,6 @@ const sortedColumns = computed<IColumn[]>(() => {
 });
 
 const sortedVisibleColumns = computed<IColumn[]>(() => {
-  console.log("sortedColumns.value", sortedColumns.value);
-  console.log(
-    "settings.value.orderedVisibleColumnsIds",
-    settings.value.orderedVisibleColumnsIds
-  );
   if (!settings.value.orderedVisibleColumnsIds) {
     return sortedColumns.value;
   } else {
