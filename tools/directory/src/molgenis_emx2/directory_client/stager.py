@@ -201,8 +201,7 @@ class Stager:
 
         1. Map old DataCategories values to new ones
         """
-        # TODO better message
-        self.printer.print("⚙️ Transform data to match BBMRI-ERIC data model")
+        self.printer.print("⚙️ Transforming external node's data to match BBMRI-ERIC data model")
 
         source_data = self._map_data_categories(source_data)
 
