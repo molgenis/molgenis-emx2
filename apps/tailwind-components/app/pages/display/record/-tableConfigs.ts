@@ -39,7 +39,11 @@ export const tableConfigs: Record<string, TableConfig> = {
       layout: "CARDS",
       titleColumnId: "name",
       descriptionColumnId: "description",
-      detailColumnIds: ["inclusionStart", "inclusionEnd"],
+      detailColumnIds: [
+        "numberOfParticipants",
+        "inclusionStart",
+        "inclusionEnd",
+      ],
     },
   },
   CollectionEvents: {
