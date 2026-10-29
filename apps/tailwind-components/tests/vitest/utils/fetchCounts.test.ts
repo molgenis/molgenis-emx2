@@ -1088,3 +1088,52 @@ describe("fetchCounts - delta semantics (overlap parameter)", () => {
     expect(overlapAggQueries.length).toBeGreaterThan(0);
   });
 });
+
+describe("fetchCounts - BOOL and BOOL_ARRAY via three aliased _agg counts", () => {
+  const counts = { yes: { count: 4 }, no: { count: 2 }, empty: { count: 7 } };
+
+  it.each(["BOOL", "BOOL_ARRAY"])(
+    "%s sends one request with a yes, no and empty alias under the other filters",
+    async (columnType) => {
+      const fetcher = vi.fn().mockResolvedValue(counts);
+      const result = await fetchCounts(
+        "s",
+        "Types",
+        "flag",
+        columnType,
+        { name: { like: ["a", "b"] } },
+        fetcher
+      );
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(fetcher.mock.calls[0]![1]).toBe(
+        `{
+    yes: Types_agg(filter: {name: {like: ["a", "b"]}, flag: {equals: [true]}}) { count }
+    no: Types_agg(filter: {name: {like: ["a", "b"]}, flag: {equals: [false]}}) { count }
+    empty: Types_agg(filter: {name: {like: ["a", "b"]}, flag: {is_null: true}}) { count }
+  }`
+      );
+      expect(result.saturated).toBe(false);
+      expect(result.options).toEqual([
+        { name: "true", label: "Yes", count: 4, overlap: 0 },
+        { name: "false", label: "No", count: 2, overlap: 0 },
+        { name: "_null_", label: "Not set", count: 7, overlap: 0 },
+      ]);
+    }
+  );
+
+  it("puts the three filters under a nested path without touching the cross filter", async () => {
+    const fetcher = vi.fn().mockResolvedValue(counts);
+    const crossFilter = { order: { status: { equals: ["open"] } } };
+    await fetchCounts("s", "Types", "order.flag", "BOOL", crossFilter, fetcher);
+    expect(fetcher.mock.calls[0]![1]).toContain(
+      'yes: Types_agg(filter: {order: {status: {equals: ["open"]}, flag: {equals: [true]}}})'
+    );
+    expect(crossFilter).toEqual({ order: { status: { equals: ["open"] } } });
+  });
+
+  it("counts a missing alias as 0", async () => {
+    const fetcher = vi.fn().mockResolvedValue({ yes: { count: 1 } });
+    const result = await fetchCounts("s", "Types", "flag", "BOOL", {}, fetcher);
+    expect(result.options.map((option) => option.count)).toEqual([1, 0, 0]);
+  });
+});

@@ -19,6 +19,8 @@ export const REF_EXPANDABLE_TYPES = new Set([
 export const COUNTABLE_TYPES = new Set([
   "ONTOLOGY",
   "ONTOLOGY_ARRAY",
+  "BOOL",
+  "BOOL_ARRAY",
   "RADIO",
   "CHECKBOX",
   "STRING_ARRAY",

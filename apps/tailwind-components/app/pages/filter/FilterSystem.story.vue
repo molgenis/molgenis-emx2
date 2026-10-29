@@ -158,6 +158,11 @@ const mockCounts: Record<string, CountedOption[]> = {
       ],
     },
   ],
+  available: [
+    { name: "true", label: "Yes", count: 113, overlap: 0 },
+    { name: "false", label: "No", count: 56, overlap: 0 },
+    { name: "_null_", label: "Not set", count: 9, overlap: 0 },
+  ],
   status: [
     { name: "active", label: "Active", count: 89, overlap: 0 },
     { name: "archived", label: "Archived", count: 52, overlap: 0 },

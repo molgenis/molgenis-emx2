@@ -73,6 +73,7 @@ function onTreeChange(val: IFilterValue | string[] | undefined) {
     <FilterBool
       v-if="isBool"
       :column="column"
+      :options="options"
       :model-value="modelValue"
       @update:model-value="emit('update:modelValue', $event)"
     />

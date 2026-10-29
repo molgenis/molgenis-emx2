@@ -262,6 +262,27 @@ describe("Column dispatcher", () => {
       }
     );
 
+    it.each(["BOOL", "BOOL_ARRAY"] as const)(
+      "%s shows the count beside each choice",
+      (columnType) => {
+        const wrapper = mountColumn({ ...boolColumn(), columnType }, [
+          { name: "true", label: "Yes", count: 4, overlap: 0 },
+          { name: "false", label: "No", count: 2, overlap: 0 },
+          { name: "_null_", label: "Not set", count: 7, overlap: 0 },
+        ]);
+        const labels = wrapper
+          .findAll("label")
+          .map((label) => label.text().replace(/\s+/g, " "));
+        expect(labels).toEqual(["Yes (4)", "No (2)", "Not set (7)"]);
+      }
+    );
+
+    it("shows plain labels while the counts are not there", () => {
+      const wrapper = mountColumn(boolColumn(), [], undefined, true);
+      const labels = wrapper.findAll("label").map((label) => label.text());
+      expect(labels).toEqual(["Yes", "No", "Not set"]);
+    });
+
     it("checks the choices held by the modelValue", () => {
       const wrapper = mountColumn(boolColumn(), [], {
         operator: "equals",
