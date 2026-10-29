@@ -52,7 +52,7 @@ const columns: IColumn[] = [
     columnType: "TEXT",
     position: 7,
   },
-] as IColumn[];
+];
 
 const tableMetadata: ITableMetaData = {
   id: "Patient",
@@ -61,7 +61,7 @@ const tableMetadata: ITableMetaData = {
   label: "Patient",
   tableType: "DATA",
   columns,
-} as ITableMetaData;
+};
 
 const hospitals = ["Erasmus MC", "UMCG", "Radboudumc", "Amsterdam UMC"];
 const doctors = [
@@ -118,7 +118,7 @@ const allRows: TableRow[] = patientNames.map((name, index) => {
     mg_roles: [index % 2 === 0 ? "Owner" : "Viewer"],
     _rowId: { id },
     _rowIdString: id,
-  } as TableRow;
+  };
 });
 
 const features = ref({
@@ -152,22 +152,9 @@ const settings = ref<ITableSettings>({
 
 const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
 
-const columnsForColumnControl = computed<IColumn[]>(() => {
-  const visibleIds = settings.value.orderedVisibleColumnsIds;
-  const visible = visibleIds
-    .map((id) => columns.find((column) => column.id === id))
-    .filter((column): column is IColumn => !!column);
-  const hidden = columns.filter((column) => !visibleIds.includes(column.id));
-  return [...visible, ...hidden].map((column, position) => ({
-    ...column,
-    position,
-    visible: visibleIds.includes(column.id) ? "true" : "false",
-  }));
-});
-
-const sortedVisibleColumns = computed<IColumn[]>(() =>
+const sortedVisibleColumns = computed<IColumn[] | undefined>(() =>
   settings.value.orderedVisibleColumnsIds
-    .map((id) => columns.find((column) => column.id === id))
+    ?.map((id) => columns.find((column) => column.id === id))
     .filter((column): column is IColumn => !!column)
 );
 
@@ -518,7 +505,7 @@ const permissionOptions = [
             Add Patient
           </Button>
           <TableControlColumns
-            :columns="columnsForColumnControl"
+            :columns="columns"
             @update:columns="handleColumnsUpdate"
           />
         </div>

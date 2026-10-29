@@ -291,7 +291,6 @@ const { data, refresh } = useAsyncData(
       props.schemaId,
       props.tableId
     );
-
     const tableData: ITableDataResponse = await fetchTableData(
       props.schemaId,
       props.tableId,
