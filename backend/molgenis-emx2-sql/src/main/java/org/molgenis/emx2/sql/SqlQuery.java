@@ -521,7 +521,7 @@ public class SqlQuery extends QueryBean {
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
             return whereColumnOperator(
-                tableAlias,
+                subAlias,
                 // use the table itself
                 new Column("name")
                     .setType(ColumnType.ONTOLOGY)
@@ -776,6 +776,11 @@ public class SqlQuery extends QueryBean {
       String[] searchTerms) {
     DSLContext jooq = table.getJooq();
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
+
+    if (!PermissionEvaluator.canCount(getSchema(), table)) {
+      throw new MolgenisException(
+          "Need permission >= COUNT to perform group by queries on table: " + table.getTableName());
+    }
 
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("COUNT or SUM is required when using group by");
@@ -1173,7 +1178,10 @@ public class SqlQuery extends QueryBean {
                   .toList()));
     } else {
       Column column =
-          getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
+          getColumnByName(
+              table,
+              filters.getColumn(),
+              filters.getSubfilters().isEmpty() ? filters.getOperator() : null);
       if (column.isReference()
           && column.getReferences().size() > 1
           && filters.getSubfilters().isEmpty()) {
@@ -1262,24 +1270,26 @@ public class SqlQuery extends QueryBean {
       case BETWEEN:
         return whereColumnBetween(columnName, values);
       case MATCH_ANY_INCLUDING_PARENTS:
-        return whereColumnMatchAnyIncludingParents(column, values);
+        return whereColumnMatchAnyIncludingParents(column, columnName, values);
       case SEARCH_INCLUDING_PARENTS:
-        return whereColumnSearchIncludingParents(column, values);
+        return whereColumnSearchIncludingParents(column, columnName, values);
       case MATCH_ANY_INCLUDING_CHILDREN:
-        return whereColumnMatchAnyIncludingChildren(column, values);
+        return whereColumnMatchAnyIncludingChildren(column, columnName, values);
       case MATCH_PATH:
         return or(
-            whereColumnMatchAnyIncludingParents(column, values),
-            whereColumnMatchAnyIncludingChildren(column, values));
+            whereColumnMatchAnyIncludingParents(column, columnName, values),
+            whereColumnMatchAnyIncludingChildren(column, columnName, values));
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
   }
 
-  private Condition whereColumnMatchAnyIncludingChildren(Column column, Object[] values) {
+  private Condition whereColumnMatchAnyIncludingChildren(
+      Column column, Name columnName, Object[] values) {
     if (column.isArray()) {
-      return whereColumnInSubquery(
-          column,
+      return condition(
+          "{0} && ARRAY({1})",
+          columnName,
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
@@ -1289,7 +1299,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          columnName,
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
@@ -1299,10 +1309,12 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition whereColumnMatchAnyIncludingParents(Column column, Object[] values) {
+  private Condition whereColumnMatchAnyIncludingParents(
+      Column column, Name columnName, Object[] values) {
     if (column.isArray()) {
-      return whereColumnInSubquery(
-          column,
+      return condition(
+          "{0} && ARRAY({1})",
+          columnName,
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
@@ -1312,7 +1324,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          columnName,
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
@@ -1322,10 +1334,12 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition whereColumnSearchIncludingParents(Column column, Object[] values) {
+  private Condition whereColumnSearchIncludingParents(
+      Column column, Name columnName, Object[] values) {
     if (column.isArray()) {
-      return whereColumnInSubquery(
-          column,
+      return condition(
+          "{0} && ARRAY({1})",
+          columnName,
           DSL.select(
               field(
                   "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
@@ -1335,7 +1349,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          columnName,
           DSL.select(
               field(
                   "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
@@ -1774,17 +1788,26 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Column getColumnByName(TableMetadata table, String columnName) {
-    return getColumnByName(table, columnName, false);
+    return getColumnByName(table, columnName, null);
   }
 
   private static Column getColumnByName(
-      TableMetadata table, String columnName, boolean isRowQuery) {
+      TableMetadata table, String columnName, Operator rowQueryOperator) {
+    boolean isRowQuery = rowQueryOperator != null;
     // is search?
     if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
       return new Column(table, searchColumnName(table.getTableName()));
     }
     // is scalar column
     Column column = table.getColumnByNameIncludingSubclasses(columnName);
+    if (isRowQuery
+        && column != null
+        && column.isReference()
+        && column.getReferences().size() == 1
+        && !accepts(column.getReferences().get(0).getPrimitiveType(), rowQueryOperator)
+        && accepts(column.getColumnType(), rowQueryOperator)) {
+      return column;
+    }
     if (column == null || (isRowQuery && column.isReference())) {
       // is reference?
       for (Column c : table.getColumnsIncludingSubclasses()) {
@@ -1814,6 +1837,10 @@ public class SqlQuery extends QueryBean {
           "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
     return column;
+  }
+
+  private static boolean accepts(ColumnType type, Operator operator) {
+    return List.of(type.getOperators()).contains(operator);
   }
 
   private Schema getSchema() {

@@ -147,11 +147,39 @@ test("it should be able to fill out all input types", async ({ page }) => {
     )
     .fill("1337");
 
+  // Enum
+  await page
+    .locator('[id="type test-Types-enumType-form-field-input-radio-group"]')
+    .getByText("no", { exact: true })
+    .click();
+
+  // Enum array
+  await page
+    .locator(
+      '[id="type test-Types-enumArrayType-form-field-input-checkbox-group"]'
+    )
+    .getByText("red", { exact: true })
+    .click();
+  await page
+    .locator(
+      '[id="type test-Types-enumArrayType-form-field-input-checkbox-group"]'
+    )
+    .getByText("blue", { exact: true })
+    .click();
+
   // Boolean
-  await page.locator("circle").nth(1).click();
+  await page
+    .locator('[id="type test-Types-boolType-form-field-input-radio-group"]')
+    .getByText("Yes", { exact: true })
+    .click();
 
   // Boolean array
-  await page.locator("circle").nth(5).click();
+  await page
+    .locator(
+      '[id="type test-Types-boolArrayType-form-field-input_0-radio-group"]'
+    )
+    .getByText("Yes", { exact: true })
+    .click();
   await page
     .locator('[id="type test-Types-boolArrayType-form-field"]')
     .getByRole("button", { name: "Add an additional item" })

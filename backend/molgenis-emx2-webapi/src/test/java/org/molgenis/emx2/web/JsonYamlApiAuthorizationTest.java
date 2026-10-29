@@ -25,7 +25,6 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       (String)
           EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, ColumnType.STRING);
 
-  private static final String EMPTY_SCHEMA = "{ }";
   private static final String NON_EXISTING_SCHEMA = "nonexisting";
 
   @BeforeAll
@@ -74,14 +73,13 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(MANAGER, MANAGER);
       Response response = postJson("/" + SCHEMA + "/api/json", schemaJson);
       assertEquals(200, response.getStatusCode());
-      assertEquals(
-          "{ \"message\": \"add/update metadata success\" }", response.getBody().asString());
+      assertEquals("{\"message\":\"add/update metadata success\"}", response.getBody().asString());
     }
 
     @Test
     void postJsonAsViewer_isRejected() {
       login(VIEWER, VIEWER);
-      Response response = postJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
+      Response response = postJson("/" + SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
@@ -90,16 +88,16 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     @Test
     void deleteJsonAsManager_succeeds() {
       login(MANAGER, MANAGER);
-      Response response = deleteJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
+      Response response = deleteJson("/" + SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(200, response.getStatusCode());
       assertEquals(
-          "{ \"message\": \"removed metadata items success\" }", response.getBody().asString());
+          "{\"message\":\"removed metadata items success\"}", response.getBody().asString());
     }
 
     @Test
     void deleteJsonAsViewer_isRejected() {
       login(VIEWER, VIEWER);
-      Response response = deleteJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
+      Response response = deleteJson("/" + SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
@@ -132,14 +130,13 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(MANAGER, MANAGER);
       Response response = postYaml("/" + SCHEMA + "/api/yaml", schemaYaml);
       assertEquals(200, response.getStatusCode());
-      assertEquals(
-          "{ \"message\": \"add/update metadata success\" }", response.getBody().asString());
+      assertEquals("{\"message\":\"add/update metadata success\"}", response.getBody().asString());
     }
 
     @Test
     void postYamlAsViewer_isRejected() {
       login(VIEWER, VIEWER);
-      Response response = postYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      Response response = postYaml("/" + SCHEMA + "/api/yaml", yamlSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
@@ -148,15 +145,15 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     @Test
     void deleteYamlAsManager_succeeds() {
       login(MANAGER, MANAGER);
-      Response response = deleteYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      Response response = deleteYaml("/" + SCHEMA + "/api/yaml", yamlSchema(SCHEMA));
       assertEquals(200, response.getStatusCode());
-      assertEquals("{ \"message\": \"remove metadata success\" }", response.getBody().asString());
+      assertEquals("{\"message\":\"remove metadata success\"}", response.getBody().asString());
     }
 
     @Test
     void deleteYamlAsViewer_isRejected() {
       login(VIEWER, VIEWER);
-      Response response = deleteYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      Response response = deleteYaml("/" + SCHEMA + "/api/yaml", yamlSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
@@ -179,7 +176,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     @Test
     void postJsonNullSchema_isRejected() {
       login(MANAGER, MANAGER);
-      Response response = postJson("/" + NON_EXISTING_SCHEMA + "/api/json", EMPTY_SCHEMA);
+      Response response = postJson("/" + NON_EXISTING_SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
@@ -188,7 +185,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     @Test
     void deleteJsonNullSchema_isRejected() {
       login(MANAGER, MANAGER);
-      Response response = deleteJson("/" + NON_EXISTING_SCHEMA + "/api/json", EMPTY_SCHEMA);
+      Response response = deleteJson("/" + NON_EXISTING_SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
@@ -207,7 +204,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     @Test
     void postYamlNullSchema_isRejected() {
       login(MANAGER, MANAGER);
-      Response response = postYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      Response response = postYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
@@ -216,11 +213,71 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     @Test
     void deleteYamlNullSchema_isRejected() {
       login(MANAGER, MANAGER);
-      Response response = deleteYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      Response response = deleteYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
           errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
+  }
+
+  @Nested
+  class WarningTest {
+
+    @Test
+    void postYamlAsManager_nameMismatch_warns() {
+      login(MANAGER, MANAGER);
+      Response response =
+          given()
+              .sessionId(sessionId)
+              .body(yamlSchema(NON_EXISTING_SCHEMA))
+              .when()
+              .post("/" + SCHEMA + "/api/yaml");
+      assertEquals(200, response.getStatusCode());
+      assertEquals("schema name mismatch", response.jsonPath().getString("warning"));
+    }
+
+    @Test
+    void deleteYamlAsManager_nameMismatch_warns() {
+      login(MANAGER, MANAGER);
+      Response response =
+          given()
+              .sessionId(sessionId)
+              .body(yamlSchema(NON_EXISTING_SCHEMA))
+              .when()
+              .delete("/" + SCHEMA + "/api/yaml");
+      assertEquals(200, response.getStatusCode());
+      assertEquals("schema name mismatch", response.jsonPath().getString("warning"));
+    }
+
+    @Test
+    void postJsonAsManager_nameMismatch_warns() {
+      login(MANAGER, MANAGER);
+      Response response = postJson("/" + SCHEMA + "/api/json", jsonSchema(NON_EXISTING_SCHEMA));
+      assertEquals(200, response.getStatusCode());
+      assertEquals("schema name mismatch", response.jsonPath().getString("warning"));
+    }
+
+    @Test
+    void deleteJsonAsManager_nameMismatch_warns() {
+      login(MANAGER, MANAGER);
+      Response response =
+          given()
+              .sessionId(sessionId)
+              .contentType("application/json")
+              .body(jsonSchema(NON_EXISTING_SCHEMA))
+              .when()
+              .delete("/" + SCHEMA + "/api/json");
+      assertEquals(200, response.getStatusCode());
+      assertEquals("schema name mismatch", response.jsonPath().getString("warning"));
+    }
+  }
+
+  private static String jsonSchema(String name) {
+    return "{ \"name\" : \"" + name + "\" }";
+  }
+
+  private static String yamlSchema(String name) {
+    return "name: " + name;
   }
 
   private static Response postJson(String path, String body) {

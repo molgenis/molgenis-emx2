@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-row">
     <div class="basis-1/2 bg-sidebar-gradient">
-      <FormLegend :sections="sections" @go-to-section="handleGoToRequest" />
+      <Legend :sections="sections" @go-to-section="handleGoToRequest" />
     </div>
   </div>
 </template>

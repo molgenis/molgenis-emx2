@@ -20,6 +20,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.rdf.vocabulary.FDPO;
+import org.molgenis.emx2.rdf.vocabulary.HEALTHDCATAP;
 
 class CrawlingRdfExtractorTest {
 
@@ -29,7 +30,6 @@ class CrawlingRdfExtractorTest {
   private static URI catalog1Uri;
   private static URI catalog2Uri;
   private static URI datasetUri;
-  private static URI distributionUri;
   private static URI csvwUri;
 
   private static SailRepository extracted;
@@ -41,7 +41,6 @@ class CrawlingRdfExtractorTest {
     catalog1Uri = tempDir.resolve("catalog1.ttl").toUri();
     catalog2Uri = tempDir.resolve("catalog2.ttl").toUri();
     datasetUri = tempDir.resolve("dataset.ttl").toUri();
-    distributionUri = tempDir.resolve("distribution.ttl").toUri();
     csvwUri = tempDir.resolve("csvw.ttl").toUri();
 
     Files.writeString(
@@ -78,20 +77,11 @@ class CrawlingRdfExtractorTest {
         """
         @prefix dcat: <http://www.w3.org/ns/dcat#> .
         @prefix dcterms: <http://purl.org/dc/terms/> .
+        @prefix healthdcatap: <http://healthdataportal.eu/ns/health#> .
         <%s> dcterms:title "dataset" ;
-            dcat:distribution <%s> .
+            healthdcatap:hasVariables <%s> .
         """
-            .formatted(datasetUri, distributionUri));
-
-    Files.writeString(
-        Path.of(distributionUri),
-        """
-        @prefix dcat: <http://www.w3.org/ns/dcat#> .
-        @prefix dcterms: <http://purl.org/dc/terms/> .
-        <%s> dcterms:title "distribution 1" ;
-            dcat:downloadURL <%s> .
-        """
-            .formatted(distributionUri, csvwUri));
+            .formatted(datasetUri, csvwUri));
 
     Files.writeString(
         Path.of(csvwUri),
@@ -108,7 +98,7 @@ class CrawlingRdfExtractorTest {
 
   @Test
   void shouldHaveNoMoreStatementsThanNeeded() {
-    assertStatementCount(extracted, 11);
+    assertStatementCount(extracted, 9);
   }
 
   @Test
@@ -137,20 +127,7 @@ class CrawlingRdfExtractorTest {
         statement(Values.iri(datasetUri.toString()), DCTERMS.TITLE, Values.literal("dataset")),
         statement(
             Values.iri(datasetUri.toString()),
-            DCAT.HAS_DISTRIBUTION,
-            Values.iri(distributionUri.toString())));
-  }
-
-  @Test
-  void shouldExtractDistributions() {
-    assertHasStatements(
-        statement(
-            Values.iri(distributionUri.toString()),
-            DCTERMS.TITLE,
-            Values.literal("distribution 1")),
-        statement(
-            Values.iri(distributionUri.toString()),
-            DCAT.DOWNLOAD_URL,
+            HEALTHDCATAP.HAS_VARIABLES,
             Values.iri(csvwUri.toString())));
   }
 

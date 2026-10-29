@@ -129,7 +129,7 @@ public class Generator {
     return switch (columnType) {
       case BOOL -> "boolean";
       case BOOL_ARRAY -> "boolean[]";
-      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK, LONG -> "string";
+      case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK, LONG, ENUM -> "string";
       case EMAIL_ARRAY,
           STRING_ARRAY,
           TEXT_ARRAY,
@@ -137,7 +137,8 @@ public class Generator {
           DATETIME_ARRAY,
           UUID_ARRAY,
           HYPERLINK_ARRAY,
-          LONG_ARRAY ->
+          LONG_ARRAY,
+          ENUM_ARRAY ->
           "string[]";
       case INT, DECIMAL, NON_NEGATIVE_INT -> "number";
       case INT_ARRAY, DECIMAL_ARRAY, NON_NEGATIVE_INT_ARRAY -> "number[]";

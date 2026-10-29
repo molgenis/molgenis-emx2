@@ -2,12 +2,14 @@ package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Tag;
@@ -50,6 +52,25 @@ public class TestExcelStore {
     final TableStoreForXlsxFile errorStore = new TableStoreForXlsxFile(excelFile);
     assertThrows(MolgenisException.class, () -> errorStore.getTableNames());
     assertThrows(MolgenisException.class, () -> errorStore.readTable("test"));
+  }
+
+  @Test
+  void testCellValueTooLongSuggestsCsv() throws IOException {
+    String[] diagnoses = new String[4000];
+    Arrays.fill(diagnoses, "diagnosis");
+    Row patient = new Row().set("id", "p1").set("name", "Alice").set("diagnoses", diagnoses);
+
+    Path tmp = Files.createTempDirectory("TestExcelStore");
+    tmp.toFile().deleteOnExit();
+    TableStoreForXlsxFile store = new TableStoreForXlsxFile(tmp.resolve("patients.xlsx"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                store.writeTable("Patient", List.of("id", "name", "diagnoses"), List.of(patient)));
+    assertTrue(exception.getMessage().contains("table 'Patient', column 'diagnoses', at row 1"));
+    assertTrue(exception.getMessage().contains("Please use CSV export instead"));
   }
 
   @Test

@@ -107,6 +107,8 @@ public class GraphqlFactory {
         }
         if (tableField.hasAggregatePermission(table)) {
           queryBuilder.field(tableField.tableAggField(table));
+        }
+        if (tableField.hasGroupByPermission(table)) {
           queryBuilder.field(tableField.tableGroupByField(table));
         }
       }
@@ -119,8 +121,7 @@ public class GraphqlFactory {
     GraphQL graphql =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
+            .mutationExecutionStrategy(new GraphqlTransactionalMutationStrategy(schema))
             .build();
 
     if (logger.isInfoEnabled()) {

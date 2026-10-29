@@ -14,14 +14,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fills in reference columns that, right after extraction, only know the row they point to as a
- * subject IRI (stored under {@code _subject_<column>}), not yet as an actual key value. Once the
- * referenced row is available, its key value is copied into the reference column (see {@link
- * Column#getReferences()} for how one reference can expand into several columns).
+ * Fills in reference columns that are still empty after extraction. At that point a reference only
+ * holds the subject IRI of the row it points to (in {@code _subject_<column>}). This class looks up
+ * that row and copies its key value into the reference column. If the referenced table has a key
+ * made of several columns, the reference is filled in per key column (see {@link
+ * Column#getReferences()}).
  *
- * <p>Sometimes two rows depend on each other through composite keys, so neither can be resolved
- * first. Example: table {@code Order} has a reference column {@code customer} pointing at table
- * {@code Customer}, whose key is made of two parts, one of which points back to {@code Order}:
+ * <p>In strict mode, a reference to a table that is not in the table store throws an exception. In
+ * lenient mode it logs a warning and skips it.
+ *
+ * <p>Sometimes two rows need each other's values. Example: table {@code Order} has a reference
+ * column {@code customer} pointing at table {@code Customer}. The key of {@code Customer} has two
+ * parts, and one of them points back to {@code Order}:
  *
  * <pre>
  *   Order
@@ -33,17 +37,15 @@ import org.slf4j.LoggerFactory;
  *     order       ->  Order.orderNumber   (key, part 2)
  * </pre>
  *
- * <p>To fill in {@code customer} on the {@code Order} row, we need {@code Customer.order} to
- * already be filled in. But {@code Customer.order} can only be filled in using this very {@code
- * Order} row. Waiting for {@code Customer} to resolve first would never work, since it's waiting on
- * us too. So instead we just copy {@code Order}'s own {@code orderNumber} straight into {@code
- * Customer.order}. See {@link #pointsBackAtOwnTable} and {@link #completeMutualKey} for where this
- * happens.
+ * <p>To fill in {@code customer} on an {@code Order} row, we need {@code Customer.order}. But
+ * {@code Customer.order} is filled in from that same {@code Order} row, so neither side can go
+ * first. In that case we copy the {@code orderNumber} of the {@code Order} row directly into {@code
+ * Customer.order}. We only do this when the {@code Customer} row points back at this exact {@code
+ * Order} row. See {@link #pointsBackAtSelf} and {@link #completeMutualKey}.
  *
- * <p>Tables are resolved in schema order, so a table processed early may need a value that only
- * becomes available once a later table is resolved (or gets this kind of fix-up). {@link #process}
- * therefore keeps repeating passes over every table until a pass makes no more changes, or a
- * maximum number of iterations is reached.
+ * <p>Tables are processed in schema order, so a table can need a value from a table that comes
+ * later. {@link #process} therefore repeats over all tables until nothing changes anymore, or until
+ * {@code MAX_NR_ITERATIONS} passes are done.
  */
 public class ResolveMissingPkPostProcessor implements PostProcessor {
 
@@ -51,10 +53,20 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   private static final int MAX_NR_ITERATIONS = 10;
 
   private final SchemaMetadata schema;
+  private final boolean strict;
   private boolean changesMade;
 
-  public ResolveMissingPkPostProcessor(SchemaMetadata schema) {
+  private ResolveMissingPkPostProcessor(SchemaMetadata schema, boolean strict) {
     this.schema = schema;
+    this.strict = strict;
+  }
+
+  public static ResolveMissingPkPostProcessor strictMode(SchemaMetadata schema) {
+    return new ResolveMissingPkPostProcessor(schema, true);
+  }
+
+  public static ResolveMissingPkPostProcessor lenientMode(SchemaMetadata schema) {
+    return new ResolveMissingPkPostProcessor(schema, false);
   }
 
   @Override
@@ -91,6 +103,20 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
 
   private void resolveRow(TableStore tableStore, Row row, List<Column> referenceColumns) {
     for (Column column : referenceColumns) {
+      if (!tableStore.containsTable(column.getRefTableName())) {
+        if (strict) {
+          throw new MolgenisException(
+              "Cannot resolve pk post processor for row: "
+                  + row
+                  + " in table "
+                  + column.getTableName());
+        }
+
+        logger.warn(
+            "Unable to resolve reference for row: {} in table; {}", row, column.getTableName());
+        continue;
+      }
+
       if (!row.notEmpty(subjectField(column))) {
         continue;
       }
@@ -113,7 +139,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
       }
 
       Optional<Object> value = readAvailableValue(reference, referencedRow);
-      if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
+      if (value.isEmpty() && pointsBackAtSelf(row, referencedRow, column, reference)) {
         // These two rows depend on each other (see the class doc example): the referenced row
         // can't resolve this on its own, so we write the value into both rows right here.
         value = Optional.ofNullable(completeMutualKey(row, referencedRow, reference));
@@ -146,7 +172,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
         Optional<Object> value = readAvailableValue(reference, referencedRow);
         // These two rows depend on each other (see the class doc example): the referenced row
         // can't resolve this on its own, so we write the value into both rows right here.
-        if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
+        if (value.isEmpty() && pointsBackAtSelf(row, referencedRow, column, reference)) {
           value = Optional.of(completeMutualKey(row, referencedRow, reference));
         }
 
@@ -186,19 +212,36 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   }
 
   /**
-   * True when {@code reference} points back at {@code column}'s own table, like {@code
-   * Customer.order} pointing back at {@code Order} in the example above. Resolving it the normal
-   * way would mean the two rows wait on each other forever.
+   * True when {@code referencedRow} points back at {@code row}, like {@code Customer.order}
+   * pointing back at {@code Order} in the class doc example:
+   *
+   * <ul>
+   *   <li>{@code reference} must target {@code row}'s own table (or one it inherits from).
+   *   <li>If {@code referencedRow} holds a subject IRI for that back-reference, it must equal
+   *       {@code row}'s subject.
+   *   <li>If it holds none, we assume it points back at {@code row}.
+   * </ul>
    */
-  private static boolean pointsBackAtOwnTable(Column column, Reference reference) {
-    return column.getTable().getAllInheritNames().contains(reference.getTargetTable());
+  private static boolean pointsBackAtSelf(
+      Row row, Row referencedRow, Column column, Reference reference) {
+    if (!column.getTable().getAllInheritNames().contains(reference.getTargetTable())) {
+      return false;
+    }
+
+    if (referencedRow.notEmpty(SUBJECT_NAME + reference.getReferencedColumnName())) {
+      return referencedRow
+          .getString(SUBJECT_NAME + reference.getReferencedColumnName())
+          .equals(row.getString(SUBJECT_NAME));
+    }
+
+    return true;
   }
 
   /**
    * Writes {@code row}'s own value for {@code reference} into {@code referencedRow}'s matching key
    * column, and returns that value. Mutates {@code referencedRow}. Only call this for the
-   * mutual-key case (see {@link #pointsBackAtOwnTable}), where the referenced row cannot fill in
-   * that column on its own.
+   * mutual-key case (see {@link #pointsBackAtSelf}), where the referenced row cannot fill in that
+   * column on its own.
    */
   private Object completeMutualKey(Row row, Row referencedRow, Reference reference) {
     Object ownValue = row.getValueMap().get(reference.getTargetColumn());

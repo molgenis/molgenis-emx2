@@ -211,3 +211,44 @@ test("the save payload sends subclasses as tables of their own", async () => {
   );
   assert.strictEqual(payload[0].subclasses, undefined);
 });
+
+function saveColumns(columns) {
+  return {
+    name: "s",
+    tables: [{ name: "T", oldName: "T", columns }],
+  };
+}
+
+test("allowed values of an enum column are trimmed and blanks dropped on save", async () => {
+  const { toSaveTables } = await import(moduleUrl);
+  const [table] = toSaveTables(
+    saveColumns([
+      {
+        name: "a",
+        table: "T",
+        columnType: "ENUM",
+        allowedValues: [" x ", "", null, "  ", "y"],
+      },
+      { name: "b", table: "T", columnType: "ENUM_ARRAY", allowedValues: ["z"] },
+    ])
+  );
+  assert.deepStrictEqual(table.columns[0].allowedValues, ["x", "y"]);
+  assert.deepStrictEqual(table.columns[1].allowedValues, ["z"]);
+});
+
+test("a column changed away from enum does not save its allowed values", async () => {
+  const { toSaveTables } = await import(moduleUrl);
+  const [table] = toSaveTables(
+    saveColumns([
+      {
+        name: "a",
+        table: "T",
+        columnType: "STRING",
+        allowedValues: ["x", "y"],
+      },
+      { name: "b", table: "T", columnType: "INT", allowedValues: null },
+    ])
+  );
+  assert.ok(!("allowedValues" in table.columns[0]));
+  assert.ok(!("allowedValues" in table.columns[1]));
+});

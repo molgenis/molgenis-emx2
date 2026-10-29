@@ -10,7 +10,7 @@ import type { ITableDataResponse } from "../../composables/fetchTableData";
 import { useDebounceFn } from "@vueuse/core";
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { useClickOutside } from "../../composables/useClickOutside";
@@ -244,7 +244,7 @@ async function select(label: string) {
 }
 
 async function extractPrimaryKey(row: recordValue) {
-  return await fetchRowPrimaryKey(row, props.refTableId, props.refSchemaId);
+  return await getPrimaryKey(row, props.refTableId, props.refSchemaId);
 }
 
 function deselect(label: string) {

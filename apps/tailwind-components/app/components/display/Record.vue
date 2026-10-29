@@ -1,89 +1,187 @@
-<script lang="ts" setup>
-import { computed } from "vue";
-import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { recordValue } from "../../../../metadata-utils/src/types";
-import ValueEMX2 from "../value/EMX2.vue";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import type {
+  IColumn,
+  IRow,
+  LegendHeading,
+  LegendSection,
+} from "../../../../metadata-utils/src/types";
+import type { cellPayload } from "../../../types/types";
+import type {
+  RecordHeading,
+  RecordLayout,
+  RecordSection,
+  RecordSectionGroup,
+} from "../../../types/record";
+import { groupRecordSections } from "../../utils/groupRecordSections";
+import { recordTitle } from "../../utils/recordTitle";
+import Legend from "../Legend.vue";
+import SidebarLayout from "./SidebarLayout.vue";
+import DisplayRecordSection from "./RecordSection.vue";
 
 const props = withDefaults(
   defineProps<{
-    tableMetadata?: ITableMetaData;
-    inputRowData: recordValue;
-    showMgColumns?: boolean;
-    keyFieldsOnly?: boolean;
+    columns: IColumn[];
+    row: IRow;
+    showTableOfContents?: boolean;
+    layout?: RecordLayout;
+    titleTemplate?: string;
   }>(),
   {
-    showMgColumns: false,
-    keyFieldsOnly: false,
+    showTableOfContents: true,
+    layout: "CARDS",
   }
 );
 
-const filteredTableMetadata = computed(() => {
-  return props.tableMetadata?.columns
-    .filter((column) => props.showMgColumns || !column.id.startsWith("mg_"))
-    .filter((column) => (props.keyFieldsOnly ? column.key === 1 : true));
+defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
+
+const sections = computed(() => groupRecordSections(props.columns, props.row));
+
+const recordSections = computed<RecordSection[]>(() =>
+  sections.value.flatMap((section) => [
+    ...(hasOwnSection(section)
+      ? [
+          {
+            kind: "section" as const,
+            id: section.id,
+            label: section.label,
+            fields: section.fields,
+          },
+        ]
+      : []),
+    ...section.headings.map((heading) => ({
+      kind: "heading" as const,
+      ...heading,
+    })),
+  ])
+);
+
+function hasOwnSection(section: RecordSectionGroup): boolean {
+  return section.fields.length > 0;
+}
+
+function legendAnchorId(section: RecordSectionGroup): string {
+  return hasOwnSection(section)
+    ? section.id
+    : section.headings[0]?.id ?? section.id;
+}
+
+const hasTableOfContents = computed(
+  () => props.showTableOfContents && recordSections.value.length > 1
+);
+
+const reportedSectionId = ref<string | null>(null);
+const activeSectionId = computed(() => {
+  const reported = recordSections.value.some(
+    (recordSection) => recordSection.id === reportedSectionId.value
+  )
+    ? reportedSectionId.value
+    : null;
+  return reported ?? recordSections.value[0]?.id ?? null;
 });
 
-const tableMetadataByHeadings = computed(() => {
-  if (filteredTableMetadata.value) {
-    const headings = filteredTableMetadata.value.reduce(
-      (results, row) => {
-        if (row.columnType === "HEADING") {
-          results[row.label] = [];
-        }
-
-        return results;
-      },
-      { _base: [] } as Record<string, any>
-    );
-
-    let currentHeading: string = "";
-    filteredTableMetadata.value?.forEach((row) => {
-      if (row.columnType === "HEADING") {
-        currentHeading = row.label;
-      }
-
-      if (currentHeading === "" && row.columnType !== "HEADING") {
-        headings["_base"].push(row);
-      } else if (currentHeading !== "" && row.columnType !== "HEADING") {
-        headings[currentHeading].push(row);
-      } else {
-        return null;
-      }
-    });
-
-    return headings;
+const legendGroups = computed<LegendSection[]>(() => {
+  if (sections.value.length === 1) {
+    return recordSections.value
+      .filter((recordSection) => recordSection.label)
+      .map((recordSection) =>
+        legendSection(recordSection.id, recordSection.label as string)
+      );
   }
+  return sections.value.flatMap((section) => {
+    if (section.label) {
+      return [
+        legendSection(
+          section.id,
+          section.label,
+          section.headings.map(legendHeading)
+        ),
+      ];
+    }
+    return section.headings.map((heading) =>
+      legendSection(heading.id, heading.label)
+    );
+  });
 });
+
+function legendSection(
+  id: string,
+  label: string,
+  headers: LegendHeading[] = []
+): LegendSection {
+  return {
+    id,
+    label,
+    type: "SECTION",
+    headers,
+    isActive: id === activeSectionId.value,
+  };
+}
+
+function legendHeading(heading: RecordHeading): LegendHeading {
+  return {
+    id: heading.id,
+    label: heading.label,
+    type: "HEADING",
+    isActive: heading.id === activeSectionId.value,
+  };
+}
+
+function goToSection(id: string): void {
+  const group = sections.value.find((section) => section.id === id);
+  const targetId = group ? legendAnchorId(group) : id;
+  reportedSectionId.value = targetId;
+  document.getElementById(targetId)?.scrollIntoView();
+}
+
+const title = computed(() =>
+  recordTitle(props.columns, props.row, props.titleTemplate)
+);
 </script>
 
 <template>
-  <div v-for="(headingData, heading) in tableMetadataByHeadings">
-    <p v-if="heading !== '_base'" class="mb-1 text-record-heading font-bold">
-      {{ heading }}
-    </p>
-    <ul>
-      <li
-        v-for="row in headingData"
-        class="grid grid-cols-1 md:grid-cols-[1fr_3fr]"
+  <SidebarLayout :show-sidebar="hasTableOfContents">
+    <template v-if="$slots.header" #header>
+      <slot name="header" />
+    </template>
+
+    <template v-if="hasTableOfContents" #sidebar>
+      <Legend
+        :sections="legendGroups"
+        class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
+        @goToSection="goToSection"
       >
-        <div>
-          <span class="text-record-label">{{ row.label }}</span>
-        </div>
-        <div
-          class="text-record-value flex sm:flex-col md:flex-row"
-          :class="{
-            'md:flex-col': row.columnType.startsWith('HYPERLINK'),
-          }"
+        <template v-if="title" #title>
+          <h2
+            class="pl-7 mb-6 break-words text-heading-4xl font-display text-title-contrast"
+          >
+            {{ title }}
+          </h2>
+        </template>
+      </Legend>
+    </template>
+
+    <template #main>
+      <div
+        class="grid"
+        :class="layout === 'CARDS' ? 'lg:gap-2.5 gap-0' : 'gap-7.5'"
+      >
+        <DisplayRecordSection
+          v-for="recordSection in recordSections"
+          :key="recordSection.id"
+          :section="recordSection"
+          :layout="layout"
+          :trackInView="hasTableOfContents"
+          @valueClick="$emit('valueClick', $event)"
+          @inView="reportedSectionId = recordSection.id"
         >
-          <ValueEMX2
-            :metadata="row"
-            :data="(inputRowData as recordValue)[row.id]"
-            :hide-list-separator="
-              row.columnType.startsWith('HYPERLINK') ? true : false
-            "
-          />
-        </div>
-      </li>
-    </ul>
-  </div>
+          <template v-if="$slots.value" #value="{ field }">
+            <slot name="value" :field="field" />
+          </template>
+        </DisplayRecordSection>
+      </div>
+    </template>
+  </SidebarLayout>
 </template>

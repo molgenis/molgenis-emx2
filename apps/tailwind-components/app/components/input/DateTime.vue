@@ -1,6 +1,6 @@
 <template>
   <client-only>
-    <!-- teleport: render popup at body to avoid clipping by overflow-hidden ancestors -->
+    <!-- teleport: render popup at body (or inside an open modal, so its focus trap allows clicks) to avoid clipping by overflow-hidden ancestors -->
     <vue-date-picker
       :uid="id"
       :placeholder="datePlaceholder"
@@ -10,7 +10,7 @@
       :data-invalid="invalid"
       :year-range="[432, 2060]"
       type="Date"
-      v-model:="formatedInternalValue"
+      v-model="formatedInternalValue"
       @update:modelValue="handleUpdate"
       model-type="format"
       month-name-format="long"
@@ -25,7 +25,7 @@
         escClose: true,
       }"
       @blur="handleBlur"
-      :teleport="true"
+      :teleport="modalTeleportTarget ?? true"
     />
   </client-only>
 </template>
@@ -35,7 +35,8 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../../types/types";
 import type { DateValue } from "../../../../metadata-utils/src/types";
-import { watch, ref, onMounted, computed } from "vue";
+import { watch, ref, onMounted, computed, inject } from "vue";
+import { MODAL_TELEPORT_TARGET } from "../../utils/modalManager";
 
 const props = defineProps<
   IInputProps & {
@@ -48,6 +49,8 @@ const datePlaceholder = ref<string>(inputDateFormat);
 //vue-date-picker emitted to many events so we need a filter
 const internalValue = ref<DateValue>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+const modalTeleportTarget = inject(MODAL_TELEPORT_TARGET, null);
 
 function setPlaceholder(value?: DateValue) {
   if (value) {

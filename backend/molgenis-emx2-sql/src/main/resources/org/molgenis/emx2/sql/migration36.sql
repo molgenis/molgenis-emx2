@@ -1,0 +1,1 @@
+ALTER TABLE "MOLGENIS".column_metadata ADD COLUMN IF NOT EXISTS "allowedValues" VARCHAR[];

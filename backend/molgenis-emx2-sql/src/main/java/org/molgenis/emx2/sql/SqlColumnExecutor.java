@@ -13,6 +13,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,7 +21,6 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.Schema;
 
 public class SqlColumnExecutor {
   private SqlColumnExecutor() {
@@ -277,12 +277,15 @@ public class SqlColumnExecutor {
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
     if (column.getRefSchemaName() != null) {
-      Schema columnRefSchema = schema.getDatabase().getSchema(column.getRefSchemaName());
-      if (columnRefSchema == null) {
+      try {
+        refSchema = schema.getSchemaMetadataProvider().getSchemaMetadata(column.getRefSchemaName());
+        if (refSchema == null) {
+          throw new MolgenisException("Unable to find Schema");
+        }
+      } catch (MolgenisException e) {
         throw new MolgenisException(
             "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = columnRefSchema.getMetadata();
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
@@ -373,6 +376,32 @@ public class SqlColumnExecutor {
             table.getRootTable().getTableName()));
   }
 
+  private static void validateAllowedValues(Column c) {
+    String[] values = c.getAllowedValues();
+    boolean hasValues = values != null && values.length > 0;
+    if (!c.getColumnType().isEnum()) {
+      if (hasValues) {
+        throw new MolgenisException(
+            "allowedValues can only be set on ENUM or ENUM_ARRAY, not on " + c.getColumnType());
+      }
+      c.setAllowedValues((String[]) null);
+      return;
+    }
+    if (!hasValues) {
+      throw new MolgenisException(
+          c.getColumnType() + " requires at least one value in 'allowedValues'");
+    }
+    if (Arrays.stream(values).anyMatch(v -> v == null || v.isBlank())) {
+      throw new MolgenisException("'allowedValues' cannot contain a blank value");
+    }
+    String[] trimmed = Arrays.stream(values).map(String::trim).toArray(String[]::new);
+    if (Arrays.stream(trimmed).distinct().count() != trimmed.length) {
+      throw new MolgenisException(
+          "'allowedValues' cannot contain duplicates: '" + String.join("', '", trimmed) + "'");
+    }
+    c.setAllowedValues(trimmed);
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -460,6 +489,7 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
+      validateAllowedValues(c);
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
         c.setRequired(true);
@@ -499,9 +529,7 @@ public class SqlColumnExecutor {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
         SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
-        column
-            .getTable()
-            .getSchema()
+        ((SqlSchemaMetadata) column.getTable().getSchema())
             .getDatabase()
             .getListener()
             .schemaChanged(column.getReferenceRefback().getSchemaName());

@@ -3,6 +3,7 @@ import type {
   IDeveloperPages,
   IDependenciesCSS,
   IDependenciesJS,
+  IFiles,
 } from "../../types/cms";
 
 import { getContainersQuery } from "../gql/cmsPages";
@@ -15,7 +16,20 @@ import type {
   ICmsOrderWithBlockId,
 } from "../../types/CmsComponents";
 
-import { AddNavigationCard, AddOrderedList, AddUnorderedList } from "./cms/add";
+import {
+  AddNavigationCard,
+  AddOrderedList,
+  AddUnorderedList,
+  AddColumnChart,
+  AddFile,
+  AddFileList,
+  AddButton,
+} from "./cms/add";
+
+export const actionsToolbarShowDelay = 200;
+export const actionsToolbarHideDelay = 300;
+
+import { deleteChartData } from "./cms/delete";
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -98,6 +112,47 @@ export async function cmsFetch(
   }
 
   return response;
+}
+
+export async function getFiles(
+  schema: string,
+  fileTag: string,
+  orderby:
+    | "fileTag"
+    | "alternateFileName"
+    | "file"
+    | "linkToExternalFile" = "fileTag",
+  direction: "ASC" | "DESC" = "ASC"
+): Promise<IFiles[]> {
+  const query = `query getFiles($filter:FilesFilter, $orderby:[Filesorderby]) {
+    Files(filter:$filter,orderby:$orderby) {
+      alternateFileName
+      file {
+         id
+         size
+         filename
+         extension
+         url
+      }
+      fileTag
+      linkToExternalFile
+    }
+  }`;
+
+  let variables = {
+    filter: {},
+    orderby: [{ [orderby]: direction }],
+  };
+  if (fileTag !== "") {
+    variables.filter = { fileTag: { equals: fileTag } };
+  }
+
+  const url: string = `/${schema}/graphql`;
+  const response: any = await $fetch(url, {
+    method: "POST",
+    body: { query: query, variables: variables },
+  });
+  return response.data?.Files ?? [];
 }
 
 async function getBlockAbove(
@@ -307,7 +362,8 @@ export async function deleteComponent(
   componentId: string,
   componentOrderid: string,
   block: string,
-  reorder: boolean = true
+  reorder: boolean = true,
+  componentType?: string
 ) {
   const orderQuery = `mutation delete($orderId:[ComponentOrdersInput]) {
     delete(ComponentOrders:$orderId){
@@ -324,6 +380,10 @@ export async function deleteComponent(
   const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
   const componentVars = { componentId: [{ id: `${componentId}` }] };
 
+  if (componentType?.endsWith(".Statistical charts")) {
+    await deleteChartData(schema, componentId);
+  }
+
   await cmsFetch(schema, orderQuery, orderVars);
   await cmsFetch(schema, componentQuery, componentVars);
 
@@ -338,6 +398,7 @@ async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
       id
       order
       component {
+        mg_tableclass
         id
       }
     }
@@ -357,10 +418,17 @@ async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
   if (data?.ComponentOrders) {
     const itemsToRemove = data.ComponentOrders as {
       id: string;
-      component: { id: string };
+      component: { id: string; mg_tableclass?: string };
     }[];
     for (const item of itemsToRemove) {
-      await deleteComponent(schema, item.component.id, item.id, blockId, false);
+      await deleteComponent(
+        schema,
+        item.component.id,
+        item.id,
+        blockId,
+        false,
+        item.component?.mg_tableclass
+      );
     }
   }
 }
@@ -414,6 +482,14 @@ export async function addComponent(
     await AddImage(schema, id);
   }
 
+  if (componentType === "File") {
+    await AddFile(schema, id);
+  }
+
+  if (componentType === "FileList") {
+    await AddFileList(schema, id);
+  }
+
   if (componentType === "NavigationCards") {
     await AddNavigationCard(schema, id);
   }
@@ -424,6 +500,14 @@ export async function addComponent(
 
   if (componentType === "UnorderedLists") {
     await AddUnorderedList(schema, id);
+  }
+
+  if (componentType === "ColumnCharts") {
+    await AddColumnChart(schema, id);
+  }
+
+  if (componentType === "Buttons") {
+    await AddButton(schema, id);
   }
 
   await AddOrder(schema, id, order, parentBlock);
@@ -828,4 +912,20 @@ export function parsePageText(value?: string): string {
 export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
+}
+
+export async function updateCMSfield(
+  schema: string,
+  typeName: "Paragraphs" | "Headings",
+  id: string,
+  text: string
+) {
+  const updateQuery = `mutation update($value:[${typeName}Input]) {
+      update(${typeName}:$value) {
+        message
+      }
+    }`;
+
+  const updateVars = { value: [{ id, text }] };
+  await cmsFetch(schema, updateQuery, updateVars);
 }

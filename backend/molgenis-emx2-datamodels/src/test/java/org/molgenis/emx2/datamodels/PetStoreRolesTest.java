@@ -101,13 +101,7 @@ class PetStoreRolesTest {
         () -> asAggregator.getTable("Pet").retrieveRows(),
         "aggregator must not be able to read rows");
 
-    String json =
-        asAggregator
-            .query(
-                "Pet_groupBy",
-                SelectColumn.s("count"),
-                SelectColumn.s("tags", SelectColumn.s("name")))
-            .retrieveJSON();
+    String json = asAggregator.query("Pet_agg", SelectColumn.s("count")).retrieveJSON();
     assertTrue(
         json.contains("\"count\""),
         "aggregator should get counts despite row level security, but got: " + json);

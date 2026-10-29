@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
+import static org.molgenis.emx2.Privileges.COUNT;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlQuery.*;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Function;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -64,8 +66,31 @@ public class TestAggregatePermission {
   }
 
   @Test
-  public void testAggregatorPermissionGroupByThresholds() throws JsonProcessingException {
-    String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
+  public void testAggregatorCannotGroupBy() {
+    assertThrows(
+        MolgenisException.class,
+        () -> schema.query("Pet_groupBy", s(COUNT_FIELD), s("tags", s("name"))).retrieveJSON());
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            schema
+                .query("Pet_groupBy", s(SUM_FIELD, s("weight")), s("tags", s("name")))
+                .retrieveJSON());
+  }
+
+  @Test
+  public void testCountCanGroupByOntologyFieldsWithExactCountsAndSums()
+      throws JsonProcessingException {
+    String json =
+        queryAsCountUser(
+            asCount ->
+                asCount
+                    .query(
+                        "Pet_groupBy",
+                        s(COUNT_FIELD),
+                        s(SUM_FIELD, s("weight")),
+                        s("tags", s("name")))
+                    .retrieveJSON());
     List<Integer> counts =
         MAPPER
             .readTree(json)
@@ -73,19 +98,32 @@ public class TestAggregatePermission {
             .valueStream()
             .map(node -> node.get(COUNT_FIELD).asInt())
             .toList();
-    counts.forEach(count -> assertEquals(AGGREGATE_COUNT_THRESHOLD, count));
-
-    json =
-        schema
-            .query("Pet_groupBy", s(COUNT_FIELD), s(SUM_FIELD, s("weight")), s("tags", s("name")))
-            .retrieveJSON();
-    assertTrue(json.contains("16.21")); // should be a sum of all 'green'
+    assertTrue(counts.stream().anyMatch(count -> count < AGGREGATE_COUNT_THRESHOLD));
+    assertTrue(json.contains("16.21"));
   }
 
   @Test
-  public void testAggregatorCanGroupByNonOntologyFields() throws JsonProcessingException {
+  public void testCountCannotGroupByNonOntologyFields() {
     assertThrows(
         MolgenisException.class,
-        () -> schema.query("Pet_groupBy", s("count"), s("category", s("name"))).retrieveJSON());
+        () ->
+            queryAsCountUser(
+                asCount ->
+                    asCount
+                        .query("Pet_groupBy", s(COUNT_FIELD), s("category", s("name")))
+                        .retrieveJSON()));
+  }
+
+  private static String queryAsCountUser(Function<Schema, String> query) {
+    String countUser = "AGGREGATE_TEST_COUNT_USER";
+    db.becomeAdmin();
+    db.getSchema(schemaName).addMember(countUser, COUNT.toString());
+    db.setActiveUser(countUser);
+    try {
+      return query.apply(db.getSchema(schemaName));
+    } finally {
+      db.becomeAdmin();
+      db.setActiveUser("AGGREGATE_TEST_USER");
+    }
   }
 }

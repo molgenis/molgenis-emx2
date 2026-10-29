@@ -4,6 +4,7 @@ import java.util.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.slf4j.Logger;
@@ -17,7 +18,11 @@ public class ResolveOntologyPostProcessor implements PostProcessor {
   private final SchemaMetadata schema;
   private final OntologyMappingFetcher ontologyMappingFetcher;
 
-  public ResolveOntologyPostProcessor(
+  public ResolveOntologyPostProcessor(SchemaMetadata schema, GraphqlClient client) {
+    this(schema, new GraphqlOntologyMappingFetcher(client));
+  }
+
+  ResolveOntologyPostProcessor(
       SchemaMetadata schema, OntologyMappingFetcher ontologyMappingFetcher) {
     this.schema = schema;
     this.ontologyMappingFetcher = ontologyMappingFetcher;

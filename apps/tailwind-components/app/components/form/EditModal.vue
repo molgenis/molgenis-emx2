@@ -42,7 +42,7 @@
         v-if="form?.showLegend.value"
         class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
       >
-        <FormLegend
+        <Legend
           class="sticky top-0"
           :sections="form.sections.value"
           @goToSection="gotoSection"
@@ -135,7 +135,7 @@ import type {
   IRow,
 } from "../../../../metadata-utils/src/types";
 import fetchColumnValues from "../../composables/fetchColumnValues";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import useForm, { type UseForm } from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
@@ -147,7 +147,7 @@ import Modal from "../Modal.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
 import Form from "./Form.vue";
-import FormLegend from "./Legend.vue";
+import Legend from "../Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
@@ -320,7 +320,7 @@ async function updateAutoIds() {
     (col) => col.columnType === "AUTO_ID"
   );
   if (autoIds.length) {
-    const rowId = await fetchRowPrimaryKey(
+    const rowId = await getPrimaryKey(
       formValues.value,
       tableId.value,
       props.schemaId

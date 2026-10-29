@@ -112,7 +112,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLType outputPermissionType =
+  static final GraphQLType outputPermissionType =
       new GraphQLObjectType.Builder()
           .name("MolgenisPermissionType")
           .field(
@@ -342,6 +342,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.ALLOWED_VALUES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
           .build();
   private static final GraphQLObjectType outputTableType =
       new GraphQLObjectType.Builder()
@@ -353,6 +357,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ROW_LABEL_TEMPLATE)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -502,6 +510,10 @@ public class GraphqlSchemaFieldFactory {
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.ALLOWED_VALUES)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .build();
   private final GraphQLInputObjectType inputTableMetadataType =
@@ -559,22 +571,24 @@ public class GraphqlSchemaFieldFactory {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(GraphqlConstants.NAME, role.name());
     roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
-    roleMap.put(
-        GraphqlConstants.PERMISSIONS,
-        role.permissions().stream()
-            .map(
-                p -> {
-                  Map<String, Object> permMap = new LinkedHashMap<>();
-                  permMap.put(TABLE, p.table());
-                  permMap.put(GraphqlConstants.SELECT, p.select());
-                  permMap.put(GraphqlConstants.INSERT, p.insert());
-                  permMap.put(GraphqlConstants.UPDATE, p.update());
-                  permMap.put(GraphqlConstants.DELETE, p.delete());
-                  permMap.put(GraphqlConstants.IS_ROW_LEVEL, p.isRowLevel());
-                  return permMap;
-                })
-            .toList());
+    roleMap.put(GraphqlConstants.PERMISSIONS, permissionsToList(role));
     return roleMap;
+  }
+
+  static List<Map<String, Object>> permissionsToList(Role role) {
+    return role.permissions().stream()
+        .map(
+            p -> {
+              Map<String, Object> permMap = new LinkedHashMap<>();
+              permMap.put(TABLE, p.table());
+              permMap.put(GraphqlConstants.SELECT, p.select());
+              permMap.put(GraphqlConstants.INSERT, p.insert());
+              permMap.put(GraphqlConstants.UPDATE, p.update());
+              permMap.put(GraphqlConstants.DELETE, p.delete());
+              permMap.put(GraphqlConstants.IS_ROW_LEVEL, p.isRowLevel());
+              return permMap;
+            })
+        .toList();
   }
 
   private static DataFetcher<?> queryFetcher(Schema schema) {
@@ -632,11 +646,15 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private static DataFetcher<?> truncateFetcher(Schema schema, TaskService taskService) {
-    return dataFetchingEnvironment -> {
-      List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-      boolean async = dataFetchingEnvironment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
+    return environment -> {
+      List<String> tables = environment.getArgument(GraphqlConstants.TABLES);
+      boolean async = environment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
       GraphqlApiMutationResult result =
           new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
+
+      if (async && GraphqlTransactionalMutationStrategy.isCombinedWithOtherMutations(environment)) {
+        throw new GraphqlException("Async truncate cannot be combined with other mutations");
+      }
 
       if (async) {
         Task task =
@@ -659,7 +677,9 @@ public class GraphqlSchemaFieldFactory {
         String id = taskService.submit(task);
         result.setTaskId(id);
       } else {
-        truncateTables(schema, tables);
+        Schema transcationalSchema =
+            GraphqlTransactionalMutationStrategy.currentSchema(environment, schema);
+        truncateTables(transcationalSchema, tables);
       }
       return result;
     };
@@ -1032,7 +1052,7 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition.Builder truncateMutation(Schema schema, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("truncate")
+        .name(TRUNCATE)
         .dataFetcher(truncateFetcher(schema, taskService))
         .type(typeForMutationResult)
         .argument(

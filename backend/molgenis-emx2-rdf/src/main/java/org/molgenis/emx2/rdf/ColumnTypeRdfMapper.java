@@ -43,6 +43,8 @@ public abstract class ColumnTypeRdfMapper {
           entry(ColumnType.TEXT, RdfColumnType.STRING),
           entry(ColumnType.TEXT_ARRAY, RdfColumnType.STRING),
           entry(ColumnType.JSON, RdfColumnType.STRING),
+          entry(ColumnType.ENUM, RdfColumnType.STRING),
+          entry(ColumnType.ENUM_ARRAY, RdfColumnType.STRING),
 
           // NUMERIC
           entry(ColumnType.INT, RdfColumnType.INT),

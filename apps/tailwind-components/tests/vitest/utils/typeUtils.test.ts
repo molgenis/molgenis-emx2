@@ -40,6 +40,26 @@ describe("getInitialFormValues", () => {
     expect(initialValues).toEqual(expectedValue);
   });
 
+  it("should split an enum array default on commas", () => {
+    const metadata = {
+      columns: [
+        { id: "col1", defaultValue: "a, b", columnType: "ENUM_ARRAY" },
+        { id: "col2", defaultValue: "a", columnType: "ENUM_ARRAY" },
+        {
+          id: "col3",
+          defaultValue: '"other, please explain",red',
+          columnType: "ENUM_ARRAY",
+        },
+      ],
+    } as ITableMetaData;
+
+    expect(getInitialFormValues(metadata)).toEqual({
+      col1: ["a", "b"],
+      col2: ["a"],
+      col3: ["other, please explain", "red"],
+    });
+  });
+
   it("should return empty object when no default values are set", () => {
     const metadata = {
       columns: [

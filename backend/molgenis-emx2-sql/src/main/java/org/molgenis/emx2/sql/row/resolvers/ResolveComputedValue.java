@@ -6,6 +6,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.sql.JavascriptContextBuilder;
 import org.molgenis.emx2.utils.TypeUtils;
@@ -20,9 +21,9 @@ public class ResolveComputedValue {
     apply(context, List.of(column), row);
   }
 
-  public static void apply(List<Column> columns, List<Row> rows) {
+  public static void apply(Database database, List<Column> columns, List<Row> rows) {
     for (Row row : rows) {
-      Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+      Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
       apply(context, columns, row);
     }
   }

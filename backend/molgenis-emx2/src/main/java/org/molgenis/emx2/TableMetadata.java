@@ -8,6 +8,7 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -420,15 +421,20 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata getInheritedTable() {
     if (inheritName != null && getSchema() != null) {
-      if (getImportSchema() != null && getSchema().getDatabase() != null) {
-        Schema importedSchema = getSchema().getDatabase().getSchema(getImportSchema());
-        if (importedSchema == null) {
+      if (getImportSchema() != null && getSchema().getSchemaMetadataProvider() != null) {
+        SchemaMetadata importedSchema;
+        try {
+          importedSchema =
+              getSchema().getSchemaMetadataProvider().getSchemaMetadata(getImportSchema());
+        } catch (MolgenisException e) {
           throw new MolgenisException(cannotInheritMessage() + schemaNotFoundReason());
         }
-        if (importedSchema.getTable(inheritName) == null) {
+
+        TableMetadata tableMetadata = importedSchema.getTableMetadata(inheritName);
+        if (tableMetadata == null) {
           throw new MolgenisException(cannotInheritMessage() + parentTableNotFoundReason());
         }
-        return importedSchema.getTable(inheritName).getMetadata();
+        return tableMetadata;
       } else {
         return getSchema().getTableMetadata(inheritName);
       }
@@ -533,6 +539,20 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getKey(1);
   }
 
+  public String getRowLabelTemplate() {
+    return getPrimaryKeyColumns().stream()
+        .flatMap(
+            pk ->
+                pk.isReference()
+                    ? pk.getReferences().stream()
+                        .filter(ref -> !ref.isOverlapping())
+                        .map(
+                            ref ->
+                                "${" + pk.getName() + "." + String.join(".", ref.getPath()) + "}")
+                    : Stream.of("${" + pk.getName() + "}"))
+        .collect(Collectors.joining(" "));
+  }
+
   public List<Column> getKey(int key) {
     List<Column> keyColumns = new ArrayList<>();
     for (Column c : getStoredColumns()) {
@@ -628,10 +648,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       return getTableName().compareTo((metadata).getTableName());
     }
     return 0;
-  }
-
-  public Table getTable() {
-    return getSchema().getDatabase().getSchema(this.getSchemaName()).getTable(getTableName());
   }
 
   public List<Column> getColumnsWithoutMetadata() {

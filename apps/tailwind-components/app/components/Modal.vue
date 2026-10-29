@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
+import {
+  onBeforeUnmount,
+  onMounted,
+  onUnmounted,
+  provide,
+  useTemplateRef,
+  watchEffect,
+} from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
-import { registerModal } from "../utils/modalManager";
+import { MODAL_TELEPORT_TARGET, registerModal } from "../utils/modalManager";
 import OptionalFocusTrap from "./OptionalFocusTrap.vue";
 
 withDefaults(
@@ -28,6 +35,9 @@ const visible = defineModel("visible", {
 });
 
 const emit = defineEmits(["closed"]);
+
+const dialog = useTemplateRef<HTMLElement>("dialog");
+provide(MODAL_TELEPORT_TARGET, dialog);
 
 // needed for case where modal is show/hidden but not added /removed from DOM
 watchEffect(() => {

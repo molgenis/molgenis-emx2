@@ -3,6 +3,10 @@ import { ref } from "vue";
 import UnorderedList from "./UnorderedList.vue";
 import type { IUnorderedLists } from "../../../../types/cms.ts";
 import ComponentActions from "../ComponentActions.vue";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IUnorderedLists & { isEditable?: boolean }>(),
@@ -20,7 +24,7 @@ const showMenu = ref<boolean>(false);
     v-if="isEditable"
     v-model:show="showMenu"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 50 }"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
     placement="bottom-start"
     noAutoFocus
   >

@@ -170,7 +170,7 @@ test.describe("when selecting a permission for a row", () => {
       page.getByRole("cell", { name: DRAGON_KEEPER })
     ).not.toBeVisible();
 
-    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.locator('tr:has-text("smaug")').hover();
     await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
     await page.getByRole("combobox", { name: "Access group" }).click();
     await page.getByRole("option", { name: DRAGON_KEEPER }).click();

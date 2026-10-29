@@ -23,7 +23,7 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.molgenis.emx2.tasks.TaskStatus;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-public class TestGraphqlDatabaseFields {
+class TestGraphqlDatabaseFields {
 
   private static GraphqlExecutor grapql;
   private static Database database;
@@ -31,7 +31,7 @@ public class TestGraphqlDatabaseFields {
   private static final String SCHEMA_NAME = TestGraphqlDatabaseFields.class.getSimpleName();
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(SCHEMA_NAME);
     taskService = new TaskServiceInMemory();
@@ -39,8 +39,7 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testCreateAndDeleteSchema() throws IOException {
-    // ensure schema doesn't exist
+  void testCreateAndDeleteSchema() throws IOException {
     database.dropSchemaIfExists(SCHEMA_NAME + "B");
 
     assertNull(database.getSchema(SCHEMA_NAME + "B"));
@@ -57,7 +56,7 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testCreateSchemaFromTemplate() throws IOException, InterruptedException {
+  void testCreateSchemaFromTemplate() throws IOException, InterruptedException {
     database.dropSchemaIfExists(SCHEMA_NAME + "B");
     assertNull(database.getSchema(SCHEMA_NAME + "B"));
     JsonNode executeResult =
@@ -81,7 +80,7 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testUpdateSchema() throws IOException {
+  void testUpdateSchema() throws IOException {
     database.dropSchemaIfExists(SCHEMA_NAME + "B");
 
     assertNull(database.getSchema(SCHEMA_NAME + "B"));
@@ -105,19 +104,18 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testCreateDatabaseSetting() throws IOException {
+  void testCreateDatabaseSetting() throws IOException {
     String createSettingQuery =
         """
-                        mutation {
-                          change(settings:{key: "db-key-1", value: "db-value-1" }){
-                                message
-                          }
-                        }
-                        """;
+        mutation {
+          change(settings:{key: "db-key-1", value: "db-value-1" }){
+                message
+          }
+        }
+        """;
 
     JsonNode result = execute(createSettingQuery);
 
-    // verify
     ObjectNode expected =
         new ObjectMapper()
             .readValue(
@@ -127,19 +125,18 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testDeleteDatabaseSetting() throws IOException {
+  void testDeleteDatabaseSetting() throws IOException {
     String createSettingQuery =
         """
-                        mutation {
-                          drop(settings:{key: "db-key-1"}){
-                                message
-                          }
-                        }
-                        """;
+        mutation {
+          drop(settings:{key: "db-key-1"}){
+                message
+          }
+        }
+        """;
 
     JsonNode result = execute(createSettingQuery);
 
-    // verify
     ObjectNode expected =
         new ObjectMapper()
             .readValue(
@@ -149,11 +146,54 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testRegisterAndLoginUsers() throws IOException {
-
-    // todo: default user should be anonymous?
+  void testRegisterAndLoginUsers() throws IOException {
     assertTrue(database.isAdmin());
 
+    GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
+
+    if (database.hasUser("pietje")) database.removeUser("pietje");
+    execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
+    assertTrue(database.hasUser("pietje"));
+    assertTrue(database.checkUserPassword("pietje", "blaat123"));
+
+    assertTrue(
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
+            .at("/data/signin/message")
+            .textValue()
+            .contains("Signed in"));
+    assertEquals("pietje", sessionManager.getCurrentUser());
+
+    database.setActiveUser("pietje");
+    assertTrue(
+        execute("mutation{changePassword(password:\"blaat124\"){message}}")
+            .at("/data/changePassword/message")
+            .textValue()
+            .contains("Password changed"));
+    assertTrue(database.checkUserPassword("pietje", "blaat124"));
+
+    execute("mutation{signout{message}}", sessionManager);
+    assertNull(sessionManager.getCurrentUser());
+
+    database.becomeAdmin();
+  }
+
+  @Test
+  void testLoginWithWrongPassword() throws IOException {
+    GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
+
+    if (database.hasUser("jantje")) database.removeUser("jantje");
+    execute("mutation{signup(email:\"jantje\",password:\"blaat123\"){message}}");
+
+    assertTrue(
+        execute("mutation{signin(email:\"jantje\",password:\"blaat12\"){message}}", sessionManager)
+            .at("/data/signin/message")
+            .textValue()
+            .contains("failed"));
+
+    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
+  }
+
+  private GraphqlSessionHandlerInterface signinAsAdmin() throws IOException {
     // read admin password from environment if necessary
     String adminPass =
         (String)
@@ -186,44 +226,11 @@ public class TestGraphqlDatabaseFields {
             + "\") {message}}",
         sessionManager);
     assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
-
-    if (database.hasUser("pietje")) database.removeUser("pietje");
-    execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
-    assertTrue(database.hasUser("pietje"));
-    assertTrue(database.checkUserPassword("pietje", "blaat123"));
-
-    assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}", sessionManager)
-            .at("/data/signin/message")
-            .textValue()
-            .contains("failed"));
-    // still admin
-    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
-
-    assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
-            .at("/data/signin/message")
-            .textValue()
-            .contains("Signed in"));
-    assertEquals("pietje", sessionManager.getCurrentUser());
-
-    database.setActiveUser("pietje");
-    assertTrue(
-        execute("mutation{changePassword(password:\"blaat124\"){message}}")
-            .at("/data/changePassword/message")
-            .textValue()
-            .contains("Password changed"));
-    assertTrue(database.checkUserPassword("pietje", "blaat124"));
-
-    execute("mutation{signout{message}}", sessionManager);
-    assertNull(sessionManager.getCurrentUser());
-
-    // back to superuser
-    database.becomeAdmin();
+    return sessionManager;
   }
 
   @Test
-  public void testUserSettings() throws IOException {
+  void testUserSettings() throws IOException {
     try {
       execute(
           "mutation{change(users:{email:\"pietje\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
@@ -259,7 +266,7 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
-  public void testDatabaseVersion() throws IOException {
+  void testDatabaseVersion() throws IOException {
     String result =
         execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();
     // should be a number

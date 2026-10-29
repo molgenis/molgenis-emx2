@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 36;
+  private static final int SOFTWARE_DATABASE_VERSION = 37;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -213,6 +213,10 @@ public class Migrations {
                 tdb,
                 "migration35.sql",
                 "add system role 'Member' so aggregate permissions can bypass row level security");
+          }
+
+          if (version < 37) {
+            executeMigrationFile(tdb, "migration36.sql", "add column_metadata.values");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

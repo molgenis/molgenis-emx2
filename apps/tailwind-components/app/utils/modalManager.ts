@@ -1,3 +1,10 @@
+import type { InjectionKey, Ref } from "vue";
+
+// Popups that teleport (e.g. the date picker menu) must render inside the open
+// modal, otherwise the modal's focus trap swallows their clicks.
+export const MODAL_TELEPORT_TARGET: InjectionKey<Ref<HTMLElement | null>> =
+  Symbol("modalTeleportTarget");
+
 type CloseFn = () => void;
 
 const stack: CloseFn[] = [];

@@ -19,7 +19,7 @@
     "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
     "typescript": "5.9.2",
-    "vite": "7.3.5",
+    "vite": "8.2.4",
     "vue-tsc": "3.3.10"
   },
   "publishConfig": {

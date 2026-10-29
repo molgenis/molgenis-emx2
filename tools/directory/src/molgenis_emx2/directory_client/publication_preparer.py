@@ -22,22 +22,22 @@ class PublicationPreparer:
     @requests_error_handler
     def prepare(self, node: Node, state: PublishingState) -> NodeData:
         node_data = self._get_node_data(node)
-        self._validate_node(node_data, state.report)
+        self._validate_node(node_data, state)
         self._fit_node_model(node_data, state.report)
         self._transform_node(node_data, state)
         self._manage_node_pids(node_data, state)
         return node_data
 
-    def _validate_node(self, node_data: NodeData, report: ErrorReport):
+    def _validate_node(self, node_data: NodeData, state: PublishingState):
         self.printer.print(f"🔎 Validating staged data of node {node_data.node.code}")
         with self.printer.indentation():
-            warnings = Validator(node_data, self.printer).validate()
+            warnings = Validator(node_data, state, self.printer).validate()
             if warnings:
-                report.add_node_warnings(node_data.node, warnings)
+                state.report.add_node_warnings(node_data.node, warnings)
 
     def _fit_node_model(self, node_data: NodeData, report: ErrorReport):
         self.printer.print(
-            f"⟺ Align staged data of node {node_data.node.code} "
+            f"↔️ Align staged data of node {node_data.node.code} "
             f"with the published model"
         )
         with self.printer.indentation():

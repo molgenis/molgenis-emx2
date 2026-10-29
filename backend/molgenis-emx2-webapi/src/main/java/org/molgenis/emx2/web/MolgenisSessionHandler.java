@@ -32,20 +32,19 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   @Override
   public synchronized void createSession(String username) {
     HttpSession session = request.getSession(true);
+    String previousUsername = (String) session.getAttribute(USERNAME);
+    if (previousUsername != null) {
+      unregisterSession(previousUsername, session.getId());
+    }
+
+    String sessionId = request.changeSessionId();
     session.setMaxInactiveInterval(30 * 60); // 30 minutes
     session.setAttribute(USERNAME, username);
-
-    // register this session
-    Set<String> sessions =
-        userSessions.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet());
-    if (!sessions.contains(session.getId())) {
-      sessions.add(session.getId());
-      sessionGauge.inc(1);
-    }
+    registerSession(username, sessionId);
 
     logger.info(
         "Session {} linked to user {}. This user now has {} sessions with {} total",
-        session.getId(),
+        sessionId,
         username,
         userSessions.get(username).size(),
         sessionGauge.get());
@@ -56,22 +55,32 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
     HttpSession session = request.getSession(false);
     if (session != null) {
       String username = (String) session.getAttribute(USERNAME);
+      String sessionId = session.getId();
       session.invalidate();
-      sessionGauge.dec(1);
-
-      // remove from registry
-      Set<String> sessions = userSessions.get(username);
-      int sessionCountForUser = 0;
-      if (sessions != null) {
-        sessions.remove(session.getId());
-        sessionCountForUser = sessions.size();
+      if (username != null) {
+        unregisterSession(username, sessionId);
+        logger.info(
+            "session {} invalidated. User {} now has {} sessions with {} total",
+            sessionId,
+            username,
+            userSessions.getOrDefault(username, Set.of()).size(),
+            sessionGauge.get());
       }
-      logger.info(
-          "session {} invalidated. User {} now has {} sessions with {} total",
-          session.getId(),
-          username,
-          sessionCountForUser,
-          sessionGauge.get());
+    }
+  }
+
+  private static void registerSession(String username, String sessionId) {
+    Set<String> sessions =
+        userSessions.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet());
+    if (sessions.add(sessionId)) {
+      sessionGauge.inc(1);
+    }
+  }
+
+  private static void unregisterSession(String username, String sessionId) {
+    Set<String> sessions = userSessions.get(username);
+    if (sessions != null && sessions.remove(sessionId)) {
+      sessionGauge.dec(1);
     }
   }
 
