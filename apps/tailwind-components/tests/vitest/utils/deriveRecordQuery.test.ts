@@ -54,6 +54,10 @@ const schema: ISchemaMetaData = {
       ref("owner", "REF", "Owner", { refLabel: "${name} ${city.name}" }),
       ref("category", "ONTOLOGY", "Categories", { refLabelDefault: "${name}" }),
       ref("plain", "REF", "Owner"),
+      ref("sponsor", "REF", "Org", {
+        refSchemaId: "other",
+        refLabelDefault: "${name} ${country.code}",
+      }),
       ref("toys", "REFBACK", "Toy", { refBackId: "pet" }),
       ref("friends", "REF_ARRAY", "Pet", { refLabelDefault: "${name}" }),
     ]),
@@ -64,10 +68,6 @@ const schema: ISchemaMetaData = {
     table("City", [
       column("name", "STRING", { key: 1 }),
       column("mg_draft", "BOOL"),
-    ]),
-    table("Categories", [
-      column("name", "STRING", { key: 1 }),
-      column("label", "STRING"),
     ]),
     table("Toy", [
       column("name", "STRING", { key: 1 }),
@@ -108,8 +108,12 @@ describe("deriveRecordQuery", () => {
     expect(query()).toContain("plain { name }");
   });
 
-  test("selects label as well as the refLabelDefault paths for an ontology column", () => {
+  test("selects name and label for an ontology column, whose table the schema metadata does not list", () => {
     expect(query()).toContain("category { name label }");
+  });
+
+  test("selects a ref into another schema from its refLabel paths alone, as that schema's metadata is not at hand", () => {
+    expect(query()).toContain("sponsor { name country { code } }");
   });
 
   test("selects limit and a sibling _agg count for a configured refback", () => {

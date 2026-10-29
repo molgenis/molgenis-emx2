@@ -77,14 +77,40 @@ function columnSelection(schema: ISchemaMetaData, column: IColumn): string {
   if (column.columnType === "FILE") {
     return `${column.id} ${FILE_FRAGMENT}`;
   }
+  if (isOntology(column)) {
+    return `${column.id} { name label }`;
+  }
   if (!column.refTableId) {
     return column.id;
   }
   const paths = labelPaths(column);
-  if (column.columnType.startsWith("ONTOLOGY")) {
-    paths.push(["name"], ["label"]);
-  }
-  return `${column.id} { ${pathSelection(schema, column.refTableId, paths)} }`;
+  return `${column.id} { ${
+    isForeign(schema, column)
+      ? pathTree(paths)
+      : pathSelection(schema, column.refTableId, paths)
+  } }`;
+}
+
+// _schema lists no ontology tables, so their fields cannot be looked up.
+function isOntology(column: IColumn): boolean {
+  return column.columnType.startsWith("ONTOLOGY");
+}
+
+// A foreign schema's tables are not in the metadata, so only the label paths can be selected.
+function isForeign(schema: ISchemaMetaData, column: IColumn): boolean {
+  return column.refSchemaId !== undefined && column.refSchemaId !== schema.id;
+}
+
+function pathTree(paths: string[][]): string {
+  const heads = [...new Set(paths.map(([head]) => head))];
+  return heads
+    .map((head) => {
+      const rest = paths
+        .filter(([candidate, ...tail]) => candidate === head && tail.length)
+        .map(([, ...tail]) => tail);
+      return rest.length ? `${head} { ${pathTree(rest)} }` : head;
+    })
+    .join(" ");
 }
 
 function labelPaths(column: IColumn): string[][] {
@@ -115,7 +141,11 @@ function pathSelection(
       if (column.key !== 1 && !named) {
         return [];
       }
-      if (column.refTableId && column.columnType !== "FILE") {
+      if (
+        column.refTableId &&
+        !isOntology(column) &&
+        !isForeign(schema, column)
+      ) {
         return [
           `${column.id} { ${pathSelection(
             schema,
