@@ -98,6 +98,23 @@ class TestChangelog {
     assertTrue(plan.contains(ChangeLogExecutor.STAMP_INDEX), plan);
   }
 
+  @Test
+  void changelogLogsAgainAfterDisableAndEnable() {
+    String schemaName = "TestChangelogToggle";
+    database.dropSchemaIfExists(schemaName);
+    database.becomeAdmin();
+    Schema schema = database.createSchema(schemaName);
+    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
+    Table table = schema.create(table("Item", column("id").setType(INT).setPkey()));
+    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.FALSE.toString());
+    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
+    int before = schema.getChangesCount();
+
+    table.insert(new Row().setInt("id", 1));
+
+    assertEquals(before + 1, schema.getChangesCount());
+  }
+
   private Schema setupSchemaWithTestDataAndChangelog(Database database, String schemaName) {
     database.dropSchemaIfExists(schemaName);
     database.becomeAdmin();
