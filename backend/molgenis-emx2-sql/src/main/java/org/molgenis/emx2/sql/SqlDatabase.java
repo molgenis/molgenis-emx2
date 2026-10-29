@@ -856,7 +856,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public void saveUser(User user) {
-    if (!isAdmin() && !user.getUsername().equals(getActiveUser().getValue())) {
+    if (!isAdmin() && !user.getUsername().equals(getActiveUser())) {
       throw new MolgenisException("Cannot save changes for user " + user + ": permission denied");
     }
     MetadataUtils.saveUserMetadata(getJooq(), user);
@@ -867,7 +867,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (hasUser(userName)) {
       User user = MetadataUtils.loadUserMetadata(this, userName);
       // might not yet have any metadata saved
-      return user != null ? user : new User(this, userName.getValue());
+      return user != null ? user : new User(this, userName);
     }
     return null;
   }

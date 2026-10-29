@@ -197,7 +197,7 @@ public class GraphqlAdminFieldFactory {
 
   private static Map<String, Object> toGraphqlUser(User user, List<Member> members) {
     Map<String, Object> result = new LinkedHashMap<>();
-    result.put(EMAIL, user.getUsername());
+    result.put(EMAIL, user.getUsername().getValue());
     result.put(ENABLED, user.getEnabled());
     result.put(ADMIN, user.isAdmin());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
@@ -209,7 +209,7 @@ public class GraphqlAdminFieldFactory {
 
   private static List<Map<String, String>> getRoles(User user, List<Member> members) {
     return members.stream()
-        .filter(member -> member.getUser().equals(user.getUsername()))
+        .filter(member -> member.getUser().equals(user.getUsername().getValue()))
         .map(GraphqlAdminFieldFactory::getUserRoleMap)
         .toList();
   }

@@ -35,7 +35,7 @@ class SqlDatabaseExecutor {
       jooq.execute(
           "GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user.getValue()));
       // save metadata
-      MetadataUtils.saveUserMetadata(jooq, new User(db, user.getValue()));
+      MetadataUtils.saveUserMetadata(jooq, new User(db, user));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add user failed", dae);
     }

@@ -112,7 +112,7 @@ public class JWTgenerator {
   }
 
   // parse token
-  public static String getUserFromToken(Database database, String token) {
+  public static Username getUserFromToken(Database database, String token) {
     if (signer == null) {
       init(database);
     }

@@ -62,8 +62,8 @@ class JWTgeneratorTest {
     db.setActiveUser(TEST_USER);
     String token = JWTgenerator.createTemporaryToken(db);
     assertNotNull(token);
-    String user = JWTgenerator.getUserFromToken(db, token);
-    assertEquals(TEST_USER.getValue(), user);
+    Username user = JWTgenerator.getUserFromToken(db, token);
+    assertEquals(TEST_USER, user);
   }
 
   @Test
@@ -78,15 +78,15 @@ class JWTgeneratorTest {
   @Test
   void testGetUserFromTemporaryToken() {
     String token = JWTgenerator.createTemporaryToken(db, TEST_USER);
-    String user = JWTgenerator.getUserFromToken(db, token);
-    assertEquals(TEST_USER.getValue(), user);
+    Username user = JWTgenerator.getUserFromToken(db, token);
+    assertEquals(TEST_USER, user);
   }
 
   @Test
   void testGetUserFromNamedToken() {
     String token = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "mytoken");
-    String user = JWTgenerator.getUserFromToken(db, token);
-    assertEquals(TEST_USER.getValue(), user);
+    Username user = JWTgenerator.getUserFromToken(db, token);
+    assertEquals(TEST_USER, user);
   }
 
   @Test
@@ -94,11 +94,11 @@ class JWTgeneratorTest {
     String token1 = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "token1");
     String token2 = JWTgenerator.createNamedTokenForUser(db, OTHER_USER, "token2");
 
-    String user1 = JWTgenerator.getUserFromToken(db, token1);
-    String user2 = JWTgenerator.getUserFromToken(db, token2);
+    Username user1 = JWTgenerator.getUserFromToken(db, token1);
+    Username user2 = JWTgenerator.getUserFromToken(db, token2);
 
-    assertEquals(TEST_USER.getValue(), user1);
-    assertEquals(OTHER_USER.getValue(), user2);
+    assertEquals(TEST_USER, user1);
+    assertEquals(OTHER_USER, user2);
   }
 
   @Test
@@ -129,8 +129,8 @@ class JWTgeneratorTest {
   void testAdminCanCreateTokenForOtherUser() {
     db.setActiveUser(ADMIN_USER);
     String token = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "admintoken");
-    String user = JWTgenerator.getUserFromToken(db, token);
-    assertEquals(TEST_USER.getValue(), user);
+    Username user = JWTgenerator.getUserFromToken(db, token);
+    assertEquals(TEST_USER, user);
   }
 
   @Test
@@ -146,8 +146,8 @@ class JWTgeneratorTest {
     db.setActiveUser(TEST_USER);
     String token = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "owntoken");
     assertNotNull(token);
-    String user = JWTgenerator.getUserFromToken(db, token);
-    assertEquals(TEST_USER.getValue(), user);
+    Username user = JWTgenerator.getUserFromToken(db, token);
+    assertEquals(TEST_USER, user);
   }
 
   @Test
@@ -171,8 +171,8 @@ class JWTgeneratorTest {
     String token2 = JWTgenerator.createTemporaryToken(db, TEST_USER);
 
     // Both tokens should be valid and extract the same user
-    assertEquals(TEST_USER.getValue(), JWTgenerator.getUserFromToken(db, token1));
-    assertEquals(TEST_USER.getValue(), JWTgenerator.getUserFromToken(db, token2));
+    assertEquals(TEST_USER, JWTgenerator.getUserFromToken(db, token1));
+    assertEquals(TEST_USER, JWTgenerator.getUserFromToken(db, token2));
   }
 
   @Test
@@ -184,8 +184,8 @@ class JWTgeneratorTest {
     assertTrue(db.getUser(TEST_USER).hasToken(tokenId));
 
     // Verify we can extract the user from the token
-    String user = JWTgenerator.getUserFromToken(db, token);
-    assertEquals(TEST_USER.getValue(), user);
+    Username user = JWTgenerator.getUserFromToken(db, token);
+    assertEquals(TEST_USER, user);
   }
 
   @Test
@@ -194,16 +194,16 @@ class JWTgeneratorTest {
     String token2 = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "token2");
 
     assertNotEquals(token1, token2);
-    assertEquals(TEST_USER.getValue(), JWTgenerator.getUserFromToken(db, token1));
-    assertEquals(TEST_USER.getValue(), JWTgenerator.getUserFromToken(db, token2));
+    assertEquals(TEST_USER, JWTgenerator.getUserFromToken(db, token1));
+    assertEquals(TEST_USER, JWTgenerator.getUserFromToken(db, token2));
   }
 
   @Test
   void testTemporaryTokenHasExpirationTime() {
     String token = JWTgenerator.createTemporaryToken(db, TEST_USER);
     // Should not throw an exception if the token is still valid
-    String user = JWTgenerator.getUserFromToken(db, token);
-    assertEquals(TEST_USER.getValue(), user);
+    Username user = JWTgenerator.getUserFromToken(db, token);
+    assertEquals(TEST_USER, user);
   }
 
   @Test

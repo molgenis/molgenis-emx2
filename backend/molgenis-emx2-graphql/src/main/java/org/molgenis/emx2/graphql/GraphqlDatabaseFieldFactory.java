@@ -363,7 +363,7 @@ public class GraphqlDatabaseFieldFactory {
       Database database, List<Map<String, String>> userList, StringBuilder messageBuilder) {
     if (userList != null) {
       for (Map<String, ?> userAsMap : userList) {
-        User user = new User(database, (String) userAsMap.get(EMAIL));
+        User user = new User(database, new Username((String) userAsMap.get(EMAIL)));
         changeSettings(user, (List<Map<String, String>>) userAsMap.get(SETTINGS), null);
         database.saveUser(user);
         messageBuilder.append("Changed user '" + userAsMap.get(EMAIL) + "'. ");

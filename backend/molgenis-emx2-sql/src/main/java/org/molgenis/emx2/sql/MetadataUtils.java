@@ -413,7 +413,8 @@ public class MetadataUtils {
               .limit(limit)
               .offset(offset)
               .fetchArray()) {
-        User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
+        User newUser =
+            new User(db, new Username(user.get(USER_NAME)), user.get(SETTINGS, Map.class));
         newUser.setEnabled(user.get(USER_ENABLED));
         newUser.setAdmin(user.get(USER_ADMIN));
         users.add(newUser);
@@ -737,7 +738,7 @@ public class MetadataUtils {
     // don't update password via this route
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_ENABLED, SETTINGS)
-        .values(user.getUsername(), true, user.getSettings())
+        .values(user.getUsername().getValue(), true, user.getSettings())
         .onConflict(USER_NAME)
         .doUpdate()
         .set(SETTINGS, user.getSettings())
@@ -748,7 +749,7 @@ public class MetadataUtils {
     org.jooq.Record userRecord =
         db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName.getValue())).fetchOne();
     if (userRecord != null) {
-      User result = new User(db, userName.getValue());
+      User result = new User(db, userName);
       result.setEnabled(userRecord.get(USER_ENABLED));
       result.setSettings(userRecord.get(SETTINGS, Map.class));
       result.setAdmin(userRecord.get(USER_ADMIN));

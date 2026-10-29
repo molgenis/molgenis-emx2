@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -19,16 +20,16 @@ public class TestTokenBasedAccess {
 
     // temp token
     JWTgenerator gen = new JWTgenerator();
-    String result = gen.createTemporaryToken(db, "tokentest1");
+    String result = gen.createTemporaryToken(db, new Username("tokentest1"));
     System.out.println(result);
     assertNotEquals(result, "tokentest1");
-    String user = gen.getUserFromToken(db, result);
-    assertEquals(user, "tokentest1");
+    Username user = gen.getUserFromToken(db, result);
+    assertEquals(user, new Username("tokentest1"));
 
     // named token
-    result = gen.createNamedTokenForUser(db, "tokentest2", "mytoken");
+    result = gen.createNamedTokenForUser(db, new Username("tokentest2"), "mytoken");
     user = gen.getUserFromToken(db, result);
-    assertEquals(user, "tokentest2");
+    assertEquals(user, new Username("tokentest2"));
 
     // check cannot make token for user if not authorized
     db.setActiveUser("tokentest1");
