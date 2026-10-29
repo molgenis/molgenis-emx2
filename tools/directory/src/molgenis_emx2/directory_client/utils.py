@@ -41,18 +41,27 @@ def create_csv(table: List[dict], file_name: str, meta_attributes: List[str]):
             writer.writerow(row)
 
 def apply_mapping(mapping, element):
-    """Take a value and apply the ontology mapping"""
+    """
+    Take a value and apply the ontology mapping
+    If value is not present in mapping, return the original value
+    """
     if isinstance(element, list):
         mapped_element = []
         for value in element:
-            if isinstance(mapping[value], list):
-                mapped_element += mapping[value]
-            elif isinstance(mapping[value], str):
-                mapped_element.append(mapping[value])
+            if value not in mapping:
+                mapped_element.append(value)
             else:
-                raise ValueError
+                if isinstance(mapping[value], list):
+                    mapped_element += mapping[value]
+                elif isinstance(mapping[value], str):
+                    mapped_element.append(mapping[value])
+                else:
+                    raise ValueError
         return mapped_element
     elif isinstance(element, str):
-        return mapping[element]
+        if element in mapping:
+            return mapping[element]
+        else:
+            return element
     else:
         raise ValueError
