@@ -96,6 +96,16 @@ function mountColumn(
 
 describe("Column dispatcher", () => {
   describe("countable types — renders FilterTree", () => {
+    it.each(["ENUM", "ENUM_ARRAY"] as const)(
+      "renders FilterTree for %s column type",
+      (columnType) => {
+        const col = { id: "status", label: "Status", columnType } as IColumn;
+        const wrapper = mountColumn(col, [{ name: "open", count: 0 }]);
+        expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+        expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+      }
+    );
+
     it("renders FilterTree for ONTOLOGY column type", () => {
       const wrapper = mountColumn(ontologyColumn(), sampleOptions);
       expect(wrapper.findComponent(FilterTree).exists()).toBe(true);

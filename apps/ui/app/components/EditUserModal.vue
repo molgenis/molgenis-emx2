@@ -111,23 +111,23 @@
 </template>
 
 <script setup lang="ts">
-import type { IRole, ISchemaInfo, IUser } from "../util/adminUtils";
-import { isValidPassword, updateUser } from "../util/adminUtils";
 import { computed, ref, watch } from "vue";
+import Button from "../../../tailwind-components/app/components/Button.vue";
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
-import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import Table from "../../../tailwind-components/app/components/Table.vue";
+import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
+import TableHead from "../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
 import InputRadioGroup from "../../../tailwind-components/app/components/input/RadioGroup.vue";
 import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
-import Button from "../../../tailwind-components/app/components/Button.vue";
-import Table from "../../../tailwind-components/app/components/Table.vue";
-import TableHead from "../../../tailwind-components/app/components/TableHead.vue";
-import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
-import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
-import TableHeadRow from "../../../tailwind-components/app/components/TableHeadRow.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import type { Role, SchemaInfo, User } from "../interfaces/interfaces.ts";
+import { isValidPassword, updateUser } from "../util/adminUtils";
 
 const props = defineProps<{
-  user: IUser;
-  schemas: ISchemaInfo[];
+  user: User;
+  schemas: SchemaInfo[];
   roles: string[];
 }>();
 
@@ -142,11 +142,11 @@ const schema = ref<string>(
 
 const userName = computed(() => props.user.email);
 const isEnabled = ref<boolean>(props.user.enabled);
-const revokedRoles = ref<Record<string, IRole>>({});
+const revokedRoles = ref<Record<string, Role>>({});
 const password = ref<string>("");
 const password2 = ref<string>("");
 
-const userRoles = ref<Record<string, IRole>>(getRoles(props.user.roles || []));
+const userRoles = ref<Record<string, Role>>(getRoles(props.user.roles || []));
 const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
 
 watch(
@@ -178,16 +178,16 @@ function addRole() {
   }
 }
 
-function removeRole(role: IRole) {
+function removeRole(role: Role) {
   revokedRoles.value[role.schemaId] = role;
   delete userRoles.value[role.schemaId];
 }
 
-function getRoles(roles: IRole[]): Record<string, IRole> {
+function getRoles(roles: Role[]): Record<string, Role> {
   return roles.reduce((accum, role) => {
     accum[role.schemaId] = role;
     return accum;
-  }, {} as Record<string, IRole>);
+  }, {} as Record<string, Role>);
 }
 
 function isValidUser(): boolean {
@@ -197,7 +197,7 @@ function isValidUser(): boolean {
 }
 
 async function saveUser() {
-  const editedUser: IUser = {
+  const editedUser: User = {
     email: userName.value,
     settings: [],
     enabled: isEnabled.value,

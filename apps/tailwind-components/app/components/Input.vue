@@ -296,6 +296,20 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputEnum
+    v-else-if="['ENUM', 'ENUM_ARRAY'].includes(typeUpperCase)"
+    :id="id"
+    :isArray="typeUpperCase === 'ENUM_ARRAY'"
+    v-model="modelValue as string | string[] | null | undefined"
+    :allowedValues="allowedValues ?? []"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :required="required"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
 </template>
 
 <script setup lang="ts">
@@ -314,6 +328,7 @@ import InputCheckboxGroup from "./input/CheckboxGroup.vue";
 import InputDate from "./input/Date.vue";
 import InputDateTime from "./input/DateTime.vue";
 import InputDecimal from "./input/Decimal.vue";
+import InputEnum from "./input/Enum.vue";
 import InputFile from "./input/File.vue";
 import InputInt from "./input/Int.vue";
 import InputLong from "./input/Long.vue";
@@ -336,6 +351,8 @@ const props = withDefaults(
       refBackColumn?: string;
       rowKey?: any;
       options?: IValueLabel[];
+      allowedValues?: string[];
+      required?: boolean;
       trueLabel?: string;
       falseLabel?: string;
       align?: "horizontal" | "vertical";
