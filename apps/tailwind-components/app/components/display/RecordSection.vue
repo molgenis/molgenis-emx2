@@ -97,7 +97,7 @@ useIntersectionObserver(
       :key="block.kind === 'list' ? block.field.id : block.fields[0]?.id"
     >
       <div v-if="block.kind === 'list'" class="mt-5 first:mt-0">
-        <h4 v-if="!isSingleListSection" class="mb-2.5 text-record-heading">
+        <h4 v-if="!isSingleListSection" class="mb-2.5 font-bold text-body-base">
           {{ block.field.label }}
         </h4>
         <DisplayRecords

@@ -341,11 +341,15 @@ describe("Records.vue", () => {
     });
 
     it("renders the range and the total itself, including the empty and floor cases", async () => {
+      fetchTableDataMock.mockResolvedValueOnce({
+        rows: makeRows(3),
+        count: 4,
+      });
       const wrapper = mount(Records, {
         props: { schemaId: "test-schema", tableId: "pet", pageSize: 3 },
       });
       await flushPromises();
-      expect(wrapper.find("p").text()).toBe("1 - 3 of 3");
+      expect(wrapper.find("p").text()).toBe("1 - 3 of 4");
       wrapper.unmount();
 
       fetchTableDataMock.mockResolvedValueOnce({ rows: [], count: 0 });
@@ -353,7 +357,7 @@ describe("Records.vue", () => {
         props: { schemaId: "test-schema", tableId: "pet", pageSize: 3 },
       });
       await flushPromises();
-      expect(empty.find("p").text()).toBe("0 of 0");
+      expect(empty.find("p").exists()).toBe(false);
     });
 
     it("clamps the end of a last page that is not full, after the next control advances", async () => {
@@ -372,6 +376,27 @@ describe("Records.vue", () => {
 
       expect(wrapper.find("p").text()).toBe("51 - 57 of 57");
     });
+
+    it.each([
+      [3, 3, false],
+      [0, 3, false],
+      [4, 3, true],
+    ])(
+      "with %s rows at page size %s, shows the pager and the range text: %s",
+      async (count, pageSize, shown) => {
+        fetchTableDataMock.mockResolvedValue({
+          rows: makeRows(Math.min(count, pageSize)),
+          count,
+        });
+        const wrapper = mount(Records, {
+          props: { schemaId: "test-schema", tableId: "pet", pageSize },
+        });
+        await flushPromises();
+
+        expect(wrapper.findComponent(Pagination).exists()).toBe(shown);
+        expect(wrapper.find("p").exists()).toBe(shown);
+      }
+    );
 
     it("adds no file under display/ or display/records/ named like a pagination component", () => {
       const displayDir = resolve(
@@ -398,6 +423,7 @@ describe("Records.vue", () => {
       "renders Pagination for %s only when the layout pages (paginated: %s)",
       async (layout, paginated) => {
         const displayConfig: DisplayConfig = { layout };
+        fetchTableDataMock.mockResolvedValue({ rows: makeRows(10), count: 25 });
         const wrapper = mount(Records, {
           props: { schemaId: "test-schema", tableId: "pet", displayConfig },
         });

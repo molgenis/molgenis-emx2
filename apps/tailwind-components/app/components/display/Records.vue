@@ -235,7 +235,7 @@ function onPageUpdate(page: number) {
     />
 
     <Pagination
-      v-if="layoutMeta.paginated"
+      v-if="layoutMeta.paginated && totalPages > 1"
       :currentPage="currentPage"
       :totalPages="totalPages"
       class="pt-5 pb-[30px]"
@@ -245,7 +245,10 @@ function onPageUpdate(page: number) {
       Load more ({{ remaining }})
     </Button>
 
-    <p v-if="layoutMeta.paginated" class="text-center text-pagination">
+    <p
+      v-if="layoutMeta.paginated && totalPages > 1"
+      class="text-center text-pagination"
+    >
       {{ rangeText }} of {{ fetchedCount }}
     </p>
   </div>
