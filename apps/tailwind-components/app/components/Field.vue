@@ -23,7 +23,8 @@ withDefaults(
       refBackId?: string;
       rowKey?: any;
       options?: IValueLabel[];
-      allowedValues?: string[];trueLabel?: string;
+      allowedValues?: string[];
+      trueLabel?: string;
       falseLabel?: string;
       showClearButton?: boolean;
       align?: "horizontal" | "vertical";
