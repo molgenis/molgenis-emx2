@@ -17,16 +17,25 @@ describe("computeDefaultFilters logic", () => {
     expect(result).toEqual(["ont1", "ont2", "ont3", "ont4", "ont5", "ont6"]);
   });
 
-  it("returns RADIO and SELECT as default filters", () => {
+  it("returns RADIO, SELECT, ENUM and ENUM_ARRAY as default filters", () => {
     const columns: IColumn[] = [
       { id: "ont1", label: "Ont 1", columnType: "ONTOLOGY" },
       { id: "ont2", label: "Ont 2", columnType: "ONTOLOGY_ARRAY" },
       { id: "radio1", label: "Radio 1", columnType: "RADIO" },
       { id: "sel1", label: "Select 1", columnType: "SELECT" },
+      { id: "enum1", label: "Enum 1", columnType: "ENUM" },
+      { id: "enum2", label: "Enum 2", columnType: "ENUM_ARRAY" },
     ];
 
     const result = computeDefaultFilters(columns);
-    expect(result).toEqual(["ont1", "ont2", "radio1", "sel1"]);
+    expect(result).toEqual([
+      "ont1",
+      "ont2",
+      "radio1",
+      "sel1",
+      "enum1",
+      "enum2",
+    ]);
   });
 
   it("excludes REF, REF_ARRAY, REFBACK, BOOL, CHECKBOX, MULTISELECT from defaults (regression guard)", () => {

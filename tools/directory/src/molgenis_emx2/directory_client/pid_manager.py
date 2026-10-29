@@ -20,6 +20,10 @@ class BasePidManager(ABC):
     def terminate_biobanks(self, biobank_pids: List[str]):
         pass
 
+    @abstractmethod
+    def withdraw_biobanks(self, biobank_pids: List[str]):
+        pass
+
 
 class PidManager(BasePidManager):
     """
@@ -77,6 +81,16 @@ class PidManager(BasePidManager):
                 f"Set STATUS of {biobank_pid} to {Status.TERMINATED.value}"
             )
 
+    def withdraw_biobanks(self, biobank_pids: List[str]):
+        """
+        Sets the STATUS of a PID to WITHDRAWN.
+        """
+        for biobank_pid in biobank_pids:
+            self.pid_service.set_status(biobank_pid, Status.WITHDRAWN)
+            self.printer.print(
+                f"🆔 Set STATUS of {biobank_pid} to {Status.WITHDRAWN.value}"
+            )
+
     def _register_biobank_pid(
         self, biobank_id: str, biobank_name: str, warnings: List[DirectoryWarning]
     ) -> str:
@@ -128,6 +142,8 @@ class NoOpPidManager(BasePidManager):
     def terminate_biobanks(self, biobank_pids: List[str]):
         pass
 
+    def withdraw_biobanks(self, biobank_pids: List[str]):
+        pass
 
 class PidManagerFactory:
     """

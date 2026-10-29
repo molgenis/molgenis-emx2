@@ -23,7 +23,7 @@ withDefaults(
       refBackId?: string;
       rowKey?: any;
       options?: IValueLabel[];
-      trueLabel?: string;
+      allowedValues?: string[];trueLabel?: string;
       falseLabel?: string;
       showClearButton?: boolean;
       align?: "horizontal" | "vertical";
@@ -63,6 +63,8 @@ const emit = defineEmits(["focus", "blur"]);
       :placeholder="placeholder"
       :rowKey="rowKey"
       :options="options"
+      :allowedValues="allowedValues"
+      :required="required"
       :errorMessage="errorMessage"
       :refSchemaId="(refSchemaId as string)"
       :refTableId="(refTableId as string)"
