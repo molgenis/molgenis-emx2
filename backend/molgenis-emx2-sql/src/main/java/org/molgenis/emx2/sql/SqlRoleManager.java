@@ -509,16 +509,16 @@ public class SqlRoleManager {
         db -> {
           SqlDatabase txDb = (SqlDatabase) db;
           List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
-          String username = MG_USER_PREFIX + member.getUser();
+          String username = MG_USER_PREFIX + member.getUser().getValue();
           String roleName = fullRoleName(schemaName, member.getRole());
-          Username memberUsername = new Username(member.getUser());
+          Username memberUsername = member.getUser();
 
           if (!db.hasUser(memberUsername)) {
             db.addUser(memberUsername);
           }
           boolean newRoleIsSystemRole = Privileges.isSystemRole(member.getRole());
           for (Member old : currentMembers) {
-            if (old.getUser().equals(memberUsername.getValue())
+            if (old.getUser().equals(memberUsername)
                 && Privileges.isSystemRole(old.getRole()) == newRoleIsSystemRole) {
               revoke(txDb.getJooq(), name(fullRoleName(schemaName, old.getRole())), name(username));
             }
@@ -532,7 +532,7 @@ public class SqlRoleManager {
   }
 
   public void removeMembers(String schemaName, List<Member> members) {
-    List<String> usernames = members.stream().map(Member::getUser).toList();
+    List<Username> usernames = members.stream().map(Member::getUser).toList();
     String rolePrefix = rolePrefix(schemaName);
     database.tx(
         db -> {
@@ -540,7 +540,10 @@ public class SqlRoleManager {
           try {
             for (Member m : getMembers(jooq, schemaName)) {
               if (usernames.contains(m.getUser())) {
-                revoke(jooq, name(rolePrefix + m.getRole()), name(MG_USER_PREFIX + m.getUser()));
+                revoke(
+                    jooq,
+                    name(rolePrefix + m.getRole()),
+                    name(MG_USER_PREFIX + m.getUser().getValue()));
               }
             }
           } catch (DataAccessException dae) {
@@ -570,7 +573,7 @@ public class SqlRoleManager {
         .fetch(
             r ->
                 new Member(
-                    r.get(memberField).substring(MG_USER_PREFIX.length()),
+                    new Username(r.get(memberField).substring(MG_USER_PREFIX.length())),
                     r.get(roleField).substring(rolePrefix(schemaName).length())));
   }
 

@@ -1,11 +1,11 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.Privileges.COUNT;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,7 +37,7 @@ public class TestAggregatePermission {
     schema = db.getSchema(schemaName);
     schema.revoke("DragonKeeper", "Pet");
     schema.removeMember(ANONYMOUS);
-    schema.addMember(AGGREGATE_TEST_USER.getValue(), AGGREGATOR.toString());
+    schema.addMember(AGGREGATE_TEST_USER, AGGREGATOR.toString());
     db.setActiveUser(AGGREGATE_TEST_USER);
   }
 
@@ -119,7 +119,7 @@ public class TestAggregatePermission {
   private static String queryAsCountUser(Function<Schema, String> query) {
     Username countUser = new Username("AGGREGATE_TEST_COUNT_USER");
     db.becomeAdmin();
-    db.getSchema(schemaName).addMember(countUser.getValue(), COUNT.toString());
+    db.getSchema(schemaName).addMember(countUser, COUNT.toString());
     db.setActiveUser(countUser);
     try {
       return query.apply(db.getSchema(schemaName));

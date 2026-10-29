@@ -41,7 +41,7 @@ public class Emx2Members {
     if (store.containsTable(MEMBERS_TABLE)) {
       for (Row row : store.readTable(MEMBERS_TABLE)) {
         count++;
-        schema.addMember(row.getString(USER), row.getString(ROLE));
+        schema.addMember(new Username(row.getString(USER)), row.getString(ROLE));
       }
     }
     return count;

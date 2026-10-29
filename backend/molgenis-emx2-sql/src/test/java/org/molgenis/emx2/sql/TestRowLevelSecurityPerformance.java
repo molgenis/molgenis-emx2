@@ -68,8 +68,8 @@ class TestRowLevelSecurityPerformance {
     }
     adminSchema.getTable(ARTICLES).update(stamped);
 
-    adminSchema.addMember(USER_TEAM.getValue(), "PerfTeam");
-    adminSchema.addMember(USER_VIEWER.getValue(), Privileges.VIEWER.toString());
+    adminSchema.addMember(USER_TEAM, "PerfTeam");
+    adminSchema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
 
     long adminWithRlsNs = timeAdminSelect("admin (RLS on, BYPASSRLS)", adminSchema);
     long viewerNs = timeAsUser("viewer (constant bypass policy)", USER_VIEWER);

@@ -47,14 +47,15 @@ public class TestGrantRolesToUsers {
     assertTrue(
         first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
 
-    schema.addMember("user1", "Viewer");
+    Username user1 = new Username("user1");
+    schema.addMember(user1, "Viewer");
     assertEquals(1, schema.getMembers().size());
 
-    schema.addMember("user1", "Editor"); // should override previous
+    schema.addMember(user1, "Editor"); // should override previous
     assertEquals(1, schema.getMembers().size());
-    assertEquals("Editor", schema.getRoleForUser("user1"));
+    assertEquals("Editor", schema.getRoleForUser(user1));
 
-    schema.removeMember("user1");
+    schema.removeMember(user1);
 
     assertEquals(0, schema.getMembers().size());
   }
@@ -81,24 +82,24 @@ public class TestGrantRolesToUsers {
     database.addUser(MANAGER);
 
     // grant proper roles
-    schema.addMember(VIEWER.getValue(), Privileges.VIEWER.toString());
-    schema.addMember(EDITOR.getValue(), Privileges.EDITOR.toString());
-    schema.addMember(MANAGER.getValue(), Privileges.MANAGER.toString());
+    schema.addMember(VIEWER, Privileges.VIEWER.toString());
+    schema.addMember(EDITOR, Privileges.EDITOR.toString());
+    schema.addMember(MANAGER, Privileges.MANAGER.toString());
 
     // test that manager also had editor and viewer roles
-    roles = schema.getInheritedRolesForUser(MANAGER.getValue());
+    roles = schema.getInheritedRolesForUser(MANAGER);
     assertTrue(roles.contains(Privileges.VIEWER.toString()));
     assertTrue(roles.contains(Privileges.EDITOR.toString()));
     assertTrue(roles.contains(Privileges.MANAGER.toString()));
 
     // test that editor also had editor and viewer roles
-    roles = schema.getInheritedRolesForUser(EDITOR.getValue());
+    roles = schema.getInheritedRolesForUser(EDITOR);
     assertTrue(roles.contains(Privileges.VIEWER.toString()));
     assertTrue(roles.contains(Privileges.EDITOR.toString()));
     assertFalse(roles.contains(Privileges.MANAGER.toString()));
 
     // test that editor also had editor and viewer roles
-    roles = schema.getInheritedRolesForUser(VIEWER.getValue());
+    roles = schema.getInheritedRolesForUser(VIEWER);
     assertTrue(roles.contains(Privileges.VIEWER.toString()));
     assertFalse(roles.contains(Privileges.EDITOR.toString()));
     assertFalse(roles.contains(Privileges.MANAGER.toString()));
@@ -178,7 +179,8 @@ public class TestGrantRolesToUsers {
       database.tx(
           db -> {
             StopWatch.print("settings permissions Table");
-            db.getSchema("testRolePermissions").addMember("fail", Privileges.VIEWER.toString());
+            db.getSchema("testRolePermissions")
+                .addMember(new Username("fail"), Privileges.VIEWER.toString());
           });
       fail("role(viewers) should not be able to add members");
     } catch (Exception e) {
@@ -196,7 +198,7 @@ public class TestGrantRolesToUsers {
           db -> {
             StopWatch.print("settings permissions Table");
             db.getSchema("testRolePermissions")
-                .addMember(successUsername.getValue(), Privileges.VIEWER.toString());
+                .addMember(successUsername, Privileges.VIEWER.toString());
             db.becomeAdmin();
             db.removeUser(successUsername);
           });
@@ -227,11 +229,11 @@ public class TestGrantRolesToUsers {
 
       database.becomeAdmin();
 
-      schema.addMember(testadmin.getValue(), OWNER.toString());
-      assertEquals(OWNER.toString(), schema.getRoleForUser(testadmin.getValue()));
+      schema.addMember(testadmin, OWNER.toString());
+      assertEquals(OWNER.toString(), schema.getRoleForUser(testadmin));
 
-      assertTrue(schema.getInheritedRolesForUser(testadmin.getValue()).contains(OWNER.toString()));
-      assertEquals(9, schema.getInheritedRolesForUser(testadmin.getValue()).size());
+      assertTrue(schema.getInheritedRolesForUser(testadmin).contains(OWNER.toString()));
+      assertEquals(9, schema.getInheritedRolesForUser(testadmin).size());
 
       database.setActiveUser(testadmin);
       assertEquals(OWNER.toString(), schema.getRoleForActiveUser());
@@ -262,7 +264,7 @@ public class TestGrantRolesToUsers {
             db -> {
               db.getSchema("testRole").create(table("Test"));
               // this is soo cooool
-              db.getSchema("testRole").addMember(testuser.getValue(), Privileges.VIEWER.toString());
+              db.getSchema("testRole").addMember(testuser, Privileges.VIEWER.toString());
             });
 
       } catch (Exception e) {
@@ -282,7 +284,7 @@ public class TestGrantRolesToUsers {
 
     // add member to schema
     final Username USER = new Username("testCaseSensitiveSchemaNamesMANAGER");
-    s1.addMember(USER.getValue(), Privileges.MANAGER.toString());
+    s1.addMember(USER, Privileges.MANAGER.toString());
     assertEquals(1, s1.getMembers().size());
 
     // create another schema with case insensitive equal name

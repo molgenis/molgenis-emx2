@@ -123,11 +123,11 @@ public class ImportProfileTask extends Task {
       ontologySchema = createSchema(profiles.getOntologiesToFixedSchema(), schema.getDatabase());
       if (profiles.getSetFixedSchemaViewPermission() != null) {
         ontologySchema.addMember(
-            profiles.getSetFixedSchemaViewPermission(), Privileges.VIEWER.toString());
+            new Username(profiles.getSetFixedSchemaViewPermission()), Privileges.VIEWER.toString());
       }
       if (profiles.getSetFixedSchemaEditPermission() != null) {
         ontologySchema.addMember(
-            profiles.getSetFixedSchemaEditPermission(), Privileges.EDITOR.toString());
+            new Username(profiles.getSetFixedSchemaEditPermission()), Privileges.EDITOR.toString());
       }
     } else {
       ontologySchema = schema;
@@ -148,10 +148,10 @@ public class ImportProfileTask extends Task {
     this.ontologySchemaName = ontologySchema.getName();
 
     if (profiles.getSetViewPermission() != null) {
-      schema.addMember(profiles.getSetViewPermission(), Privileges.VIEWER.toString());
+      schema.addMember(new Username(profiles.getSetViewPermission()), Privileges.VIEWER.toString());
     }
     if (profiles.getSetEditPermission() != null) {
-      schema.addMember(profiles.getSetEditPermission(), Privileges.EDITOR.toString());
+      schema.addMember(new Username(profiles.getSetEditPermission()), Privileges.EDITOR.toString());
     }
 
     for (String setting : profiles.getSettingsList()) {

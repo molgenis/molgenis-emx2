@@ -35,7 +35,7 @@ public class BiobankDirectoryLoader extends ImportDataModelTask {
     if (ontologySchema == null) {
       createSchema(db.createSchema(ONTOLOGIES), "biobank-directory/ontologies/molgenis.csv");
       Schema ontologies = db.getSchema(ONTOLOGIES);
-      ontologies.addMember(SqlDatabase.ANONYMOUS.getValue(), Privileges.VIEWER.toString());
+      ontologies.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
     }
 
     // create biobank-directory or staging schema (which will create tables in ontology schema)
@@ -43,7 +43,7 @@ public class BiobankDirectoryLoader extends ImportDataModelTask {
     ontologyTask.complete();
 
     if (!this.staging) {
-      getSchema().addMember(SqlDatabase.ANONYMOUS.getValue(), Privileges.VIEWER.toString());
+      getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
     }
 
     if (ontologySchema == null || !this.staging) {

@@ -16,7 +16,7 @@ public class DashboardLoader extends ImportDataModelTask {
   public void run() {
     this.start();
     createSchema(getSchema(), "dashboard/molgenis.csv");
-    getSchema().addMember(SqlDatabase.ANONYMOUS.getValue(), Privileges.VIEWER.toString());
+    getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
 
     if (isIncludeDemoData()) {
       MolgenisIO.fromClasspathDirectory("dashboard/demodata/ontologies", getSchema(), false);

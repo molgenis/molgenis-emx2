@@ -30,7 +30,7 @@ class TestMgColumns {
     database.becomeAdmin();
     schema = database.dropCreateSchema(TestMgColumns.class.getSimpleName());
     if (!database.hasUser(EDITOR_USER)) database.addUser(EDITOR_USER);
-    schema.addMember(EDITOR_USER.getValue(), Privileges.EDITOR.toString());
+    schema.addMember(EDITOR_USER, Privileges.EDITOR.toString());
   }
 
   /** Reads back the single row these tests keep in a table. */

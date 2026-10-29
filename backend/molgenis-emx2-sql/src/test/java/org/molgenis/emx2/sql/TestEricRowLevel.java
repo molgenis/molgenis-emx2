@@ -137,7 +137,7 @@ class TestEricRowLevel {
   @Test
   @Order(4)
   void countryUserSeesOnlyOwnBiobanks() {
-    schema.addMember(TEST_USER.getValue(), TEST_COUNTRY);
+    schema.addMember(TEST_USER, TEST_COUNTRY);
 
     database.setActiveUser(TEST_USER);
     database.tx(

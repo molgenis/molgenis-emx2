@@ -84,11 +84,11 @@ class TestRowLevelSecurity {
         .getTable(ARTICLES)
         .insert(new Row().setString("id", "open").setString("title", "Public"));
 
-    schema.addMember(USER_TEAM_A.getValue(), "TeamA");
-    schema.addMember(USER_TEAM_B.getValue(), "TeamB");
-    schema.addMember(USER_VIEWER.getValue(), Privileges.VIEWER.toString());
-    schema.addMember(USER_COUNT.getValue(), Privileges.COUNT.toString());
-    schema.addMember(USER_EXISTS.getValue(), Privileges.EXISTS.toString());
+    schema.addMember(USER_TEAM_A, "TeamA");
+    schema.addMember(USER_TEAM_B, "TeamB");
+    schema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
+    schema.addMember(USER_COUNT, Privileges.COUNT.toString());
+    schema.addMember(USER_EXISTS, Privileges.EXISTS.toString());
   }
 
   @Test
@@ -106,9 +106,7 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     // the row-level grant on TeamA created the internal RLS_TeamA proxy role
     MolgenisException e =
-        assertThrows(
-            MolgenisException.class,
-            () -> schema.addMember(USER_NO_ACCESS.getValue(), "RLS_TeamA"));
+        assertThrows(MolgenisException.class, () -> schema.addMember(USER_NO_ACCESS, "RLS_TeamA"));
     assertTrue(e.getMessage().contains("internal"), e.getMessage());
   }
 
@@ -179,7 +177,7 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Username managerUser = new Username("rls_user_manager_mgroles");
     if (!database.hasUser(managerUser)) database.addUser(managerUser);
-    database.getSchema(SCHEMA).addMember(managerUser.getValue(), Privileges.MANAGER.toString());
+    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
 
     database.setActiveUser(managerUser);
     Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
@@ -212,7 +210,7 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Username managerUser = new Username("rls_user_manager_assigns");
     if (!database.hasUser(managerUser)) database.addUser(managerUser);
-    database.getSchema(SCHEMA).addMember(managerUser.getValue(), Privileges.MANAGER.toString());
+    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
 
     database.setActiveUser(managerUser);
     Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
@@ -355,7 +353,7 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Username editorUser = new Username("rls_user_editor_mgroles");
     if (!database.hasUser(editorUser)) database.addUser(editorUser);
-    database.getSchema(SCHEMA).addMember(editorUser.getValue(), Privileges.EDITOR.toString());
+    database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
 
     database.setActiveUser(editorUser);
     Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
@@ -441,7 +439,7 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Username editorUser = new Username("rls_user_editor_default");
     if (!database.hasUser(editorUser)) database.addUser(editorUser);
-    database.getSchema(SCHEMA).addMember(editorUser.getValue(), Privileges.EDITOR.toString());
+    database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
 
     database.setActiveUser(editorUser);
     database.tx(
@@ -702,8 +700,8 @@ class TestRowLevelSecurity {
             .rowLevel(true));
     // Assigning VIEWER gives the user visibility of all rows; the custom role restricts DML to
     // owned rows only.
-    schema.addMember(user.getValue(), "WriteOnlyRole");
-    schema.addMember(user.getValue(), Privileges.VIEWER.toString());
+    schema.addMember(user, "WriteOnlyRole");
+    schema.addMember(user, Privileges.VIEWER.toString());
 
     // Admin inserts rows owned by different roles
     schema
@@ -818,8 +816,8 @@ class TestRowLevelSecurity {
                 .set(MG_ROLES, new String[] {"MixedRlsRole"}));
     schema.getTable(table).insert(new Row().setString("id", "m2").setString("title", "plain row"));
 
-    schema.addMember(rlsUser.getValue(), "MixedRlsRole");
-    schema.addMember(plainUser.getValue(), "MixedPlainRole");
+    schema.addMember(rlsUser, "MixedRlsRole");
+    schema.addMember(plainUser, "MixedPlainRole");
 
     // RLS user sees only their row
     database.setActiveUser(rlsUser);
@@ -880,7 +878,7 @@ class TestRowLevelSecurity {
                 .setString("title", "owned")
                 .set(MG_ROLES, new String[] {role}));
     schema.getTable(table).insert(new Row().setString("id", "f2").setString("title", "unowned"));
-    schema.addMember(user.getValue(), role);
+    schema.addMember(user, role);
 
     assertTrue(
         schema.getRoleInfo(role).permissions().stream()
@@ -902,7 +900,7 @@ class TestRowLevelSecurity {
     // Cleanup
     database.becomeAdmin();
     schema.getTable(table).delete(new Row().setString("id", "f1"));
-    schema.removeMember(user.getValue());
+    schema.removeMember(user);
     schema.revoke(role, table);
     schema.deleteRole(role);
   }
@@ -935,7 +933,7 @@ class TestRowLevelSecurity {
                 .setString("title", "owned")
                 .set(MG_ROLES, new String[] {role}));
     schema.getTable(table).insert(new Row().setString("id", "g2").setString("title", "unowned"));
-    schema.addMember(user.getValue(), role);
+    schema.addMember(user, role);
 
     database.setActiveUser(user);
     database.tx(
@@ -998,7 +996,7 @@ class TestRowLevelSecurity {
                 .setString("title", "owned")
                 .set(MG_ROLES, new String[] {role}));
     schema.getTable(table).insert(new Row().setString("id", "k2").setString("title", "unowned"));
-    schema.addMember(user.getValue(), role);
+    schema.addMember(user, role);
 
     assertTrue(
         schema.getRoleInfo(role).permissions().stream()
@@ -1018,7 +1016,7 @@ class TestRowLevelSecurity {
 
     database.becomeAdmin();
     schema.getTable(table).delete(new Row().setString("id", "k1"));
-    schema.removeMember(user.getValue());
+    schema.removeMember(user);
     schema.revoke(role, table);
     schema.deleteRole(role);
   }
@@ -1039,8 +1037,8 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     Username user = new Username("rls_user_viewer_and_rls");
     if (!database.hasUser(user)) database.addUser(user);
-    schema.addMember(user.getValue(), "TeamA");
-    schema.addMember(user.getValue(), Privileges.VIEWER.toString());
+    schema.addMember(user, "TeamA");
+    schema.addMember(user, Privileges.VIEWER.toString());
 
     database.setActiveUser(user);
     database.tx(
@@ -1058,7 +1056,7 @@ class TestRowLevelSecurity {
         });
 
     database.becomeAdmin();
-    schema.removeMember(user.getValue());
+    schema.removeMember(user);
   }
 
   @Test
@@ -1179,8 +1177,8 @@ class TestRowLevelSecurity {
             .rowLevel(true));
     schema.grant(roleB, new TablePermission(root).select(true).rowLevel(true));
 
-    schema.addMember(userA.getValue(), roleA);
-    schema.addMember(userB.getValue(), roleB);
+    schema.addMember(userA, roleA);
+    schema.addMember(userB, roleB);
 
     // INSERT on subclass via TeamA
     database.setActiveUser(userA);
@@ -1281,7 +1279,7 @@ class TestRowLevelSecurity {
             .update(true)
             .delete(true)
             .rowLevel(true));
-    schema.addMember(userC.getValue(), roleC);
+    schema.addMember(userC, roleC);
 
     // Insert via subclass as TeamC: root insert must satisfy root's RLS
     database.setActiveUser(userC);
@@ -1330,7 +1328,7 @@ class TestRowLevelSecurity {
             .update(true)
             .delete(true)
             .rowLevel(true));
-    schema.addMember(userD.getValue(), roleD);
+    schema.addMember(userD, roleD);
 
     // Insert on the leaf — three physical inserts must each satisfy RLS on
     // grand, mid, and leaf.
@@ -1429,7 +1427,7 @@ class TestRowLevelSecurity {
             .update(true)
             .delete(true)
             .rowLevel(true));
-    schema.addMember(userE.getValue(), roleE);
+    schema.addMember(userE, roleE);
 
     // Sanity: grant propagated — can read the subclass.
     database.setActiveUser(userE);

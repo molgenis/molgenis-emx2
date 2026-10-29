@@ -84,7 +84,7 @@ public class TestUsersAndPermissions {
 
       // retry with proper permission
       database.becomeAdmin(); // god mode so I can edit membership
-      schema1.addMember(user1.getValue(), Privileges.MANAGER.toString());
+      schema1.addMember(user1, Privileges.MANAGER.toString());
       database.setActiveUser(user1);
       try {
         schema1.create(table("Test"));

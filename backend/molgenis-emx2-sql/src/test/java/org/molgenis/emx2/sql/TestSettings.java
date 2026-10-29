@@ -34,8 +34,8 @@ public class TestSettings {
           Username testsettingseditor = new Username("testsettingseditor");
           Username testsettingsmanager = new Username("testsettingsmanager");
 
-          schema.addMember(testsettingseditor.getValue(), EDITOR.toString());
-          schema.addMember(testsettingsmanager.getValue(), MANAGER.toString());
+          schema.addMember(testsettingseditor, EDITOR.toString());
+          schema.addMember(testsettingsmanager, MANAGER.toString());
 
           db.setActiveUser(testsettingseditor);
           try {
@@ -79,8 +79,8 @@ public class TestSettings {
           // editor should be able to set values
           Username testtablesettingsviewer = new Username("testtablesettingsviewer");
           Username testtablesettingseditor = new Username("testtablesettingseditor");
-          s.addMember(testtablesettingsviewer.getValue(), VIEWER.toString());
-          s.addMember(testtablesettingseditor.getValue(), EDITOR.toString());
+          s.addMember(testtablesettingsviewer, VIEWER.toString());
+          s.addMember(testtablesettingseditor, EDITOR.toString());
 
           s.create(table("test").add(column("test")));
 

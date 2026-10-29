@@ -19,7 +19,7 @@ public class PatientRegistryDemoLoader extends ImportDataModelTask {
     try {
       createSchema(getSchema(), "dashboard/molgenis.csv");
       createSchema(getSchema(), "patient_registry_demo/molgenis.csv");
-      getSchema().addMember(SqlDatabase.ANONYMOUS.getValue(), Privileges.VIEWER.toString());
+      getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
       MolgenisIO.fromClasspathDirectory("patient_registry_demo/ontologies", getSchema(), false);
 
       if (isIncludeDemoData()) {

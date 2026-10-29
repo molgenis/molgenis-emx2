@@ -330,7 +330,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
           // make current user a manager
           if (db.getActiveUser() != null && !db.getActiveUser().equals(ADMIN_USER)) {
-            schema.addMember(db.getActiveUser().getValue(), Privileges.MANAGER.toString());
+            schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
           // refresh
           db.clearCache();
@@ -922,7 +922,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       String memberName =
           userRecord.getValue("member", String.class).substring(userFilter.length());
       String roleName = userRecord.getValue("role", String.class).substring(roleFilter.length());
-      members.add(new Member(memberName, roleName));
+      members.add(new Member(new Username(memberName), roleName));
     }
     return members;
   }
