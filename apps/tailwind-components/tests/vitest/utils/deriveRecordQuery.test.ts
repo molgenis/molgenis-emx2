@@ -5,6 +5,7 @@ import type {
   ISchemaMetaData,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
+import type { RecordConfig } from "../../../types/recordConfig";
 import {
   deriveRecordQuery,
   NESTED_LIST_LIMIT,
@@ -79,8 +80,8 @@ const schema: ISchemaMetaData = {
   ],
 };
 
-function query(lists = {}) {
-  return deriveRecordQuery(schema, "Pet", lists).replace(/\s+/g, " ");
+function query(config: RecordConfig = {}) {
+  return deriveRecordQuery(schema, "Pet", config).replace(/\s+/g, " ");
 }
 
 describe("deriveRecordQuery", () => {
@@ -117,7 +118,7 @@ describe("deriveRecordQuery", () => {
   });
 
   test("selects limit and a sibling _agg count for a configured refback", () => {
-    const text = query({ toys: { layout: "LIST" } });
+    const text = query({ columns: { toys: { display: { layout: "LIST" } } } });
     expect(text).toContain(
       `toys(limit: ${NESTED_LIST_LIMIT}) { name pet { name } color notes } toys_agg { count }`
     );
@@ -125,7 +126,15 @@ describe("deriveRecordQuery", () => {
 
   test("selects the columns a configured list names, besides the keys", () => {
     const text = query({
-      friends: { layout: "LINKS", titleColumn: "name", detailColumnIds: [] },
+      columns: {
+        friends: {
+          display: {
+            layout: "LINKS",
+            titleColumn: "name",
+            detailColumnIds: [],
+          },
+        },
+      },
     });
     expect(text).toContain(
       `friends(limit: ${NESTED_LIST_LIMIT}) { name } friends_agg { count }`

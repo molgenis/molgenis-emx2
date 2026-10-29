@@ -9,6 +9,8 @@ import RecordsCards from "../../../../app/components/display/records/Cards.vue";
 import RecordsList from "../../../../app/components/display/records/List.vue";
 import RecordsLinks from "../../../../app/components/display/records/Links.vue";
 import RecordsBullets from "../../../../app/components/display/records/Bullets.vue";
+import Pagination from "../../../../app/components/Pagination.vue";
+import { NESTED_LIST_LIMIT } from "../../../../app/utils/deriveRecordQuery";
 import type { DisplayConfig, Layout } from "../../../../app/types/display";
 
 enableAutoUnmount(afterEach);
@@ -74,7 +76,9 @@ function mountRecord(
       columns,
       row: recordRow,
       showTableOfContents: false,
-      lists: layout ? { pets: displayConfig ?? { layout } } : undefined,
+      config: layout
+        ? { columns: { pets: { display: displayConfig ?? { layout } } } }
+        : undefined,
     },
   });
 }
@@ -142,6 +146,56 @@ describe("DisplayRecord nested lists", () => {
     expect(after?.textContent).toContain("human");
   });
 
+  it("seeds the list from the record's own rows and count, and pages past them by the query's limit", async () => {
+    const wrapper = mount(DisplayRecord, {
+      props: {
+        columns: [nameColumn, petsColumn],
+        row: {
+          name: "Alice",
+          pets: Array.from({ length: NESTED_LIST_LIMIT }, (_, index) => ({
+            name: `Seeded ${index}`,
+          })),
+          pets_agg: { count: 25 },
+        },
+        schema: {
+          id: "test-schema",
+          label: "test",
+          tables: [
+            {
+              id: "Pet",
+              name: "Pet",
+              label: "Pet",
+              schemaId: "test-schema",
+              tableType: "DATA",
+              columns: petColumns,
+            },
+          ],
+        },
+        showTableOfContents: false,
+        config: { columns: { pets: { display: { layout: "LIST" } } } },
+      },
+    });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Seeded 0");
+    expect(wrapper.text()).toContain(`1 - ${NESTED_LIST_LIMIT} of 25`);
+    expect(fetchTableMetadataMock).not.toHaveBeenCalled();
+    expect(fetchTableDataMock).not.toHaveBeenCalled();
+
+    wrapper.findComponent(Pagination).vm.$emit("update", 2);
+    await flushPromises();
+
+    expect(fetchTableDataMock).toHaveBeenCalledTimes(1);
+    expect(fetchTableDataMock).toHaveBeenCalledWith(
+      "test-schema",
+      "Pet",
+      expect.objectContaining({
+        limit: NESTED_LIST_LIMIT,
+        offset: NESTED_LIST_LIMIT,
+      })
+    );
+  });
+
   it("filters the nested list to the rows that point back at this record", async () => {
     mountRecord([nameColumn, speciesColumn, petsColumn], row);
     await flushPromises();
@@ -172,7 +226,7 @@ describe("DisplayRecord nested lists", () => {
           friends_agg: { count: 2 },
         },
         showTableOfContents: false,
-        lists: { friends: { layout: "LIST" } },
+        config: { columns: { friends: { display: { layout: "LIST" } } } },
       },
     });
     await flushPromises();

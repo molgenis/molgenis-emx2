@@ -3,7 +3,7 @@ import type {
   ISchemaMetaData,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
-import type { RecordListConfig } from "../../types/recordLists";
+import type { RecordConfig } from "../../types/recordConfig";
 import { resolveDisplay } from "./displayUtils";
 
 export const NESTED_LIST_LIMIT = 10;
@@ -14,10 +14,10 @@ const PAGED_TYPES = ["REF_ARRAY", "REFBACK"];
 export function deriveRecordQuery(
   schema: ISchemaMetaData,
   tableId: string,
-  lists: RecordListConfig = {}
+  config: RecordConfig = {}
 ): string {
   const fields = selectableColumns(findTable(schema, tableId).columns)
-    .map((column) => rootSelection(schema, column, lists))
+    .map((column) => rootSelection(schema, column, config))
     .join(" ");
   return `query ($filter: ${tableId}Filter) { ${tableId}(filter: $filter, limit: 1) { ${fields} } }`;
 }
@@ -42,9 +42,9 @@ function selectableColumns(columns: IColumn[]): IColumn[] {
 function rootSelection(
   schema: ISchemaMetaData,
   column: IColumn,
-  lists: RecordListConfig
+  config: RecordConfig
 ): string {
-  const entry = lists[column.id];
+  const entry = config.columns?.[column.id]?.display;
   if (!entry || !column.refTableId) {
     return columnSelection(schema, column);
   }

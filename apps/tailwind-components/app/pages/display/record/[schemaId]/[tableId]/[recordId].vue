@@ -6,7 +6,7 @@ import fetchMetadata from "../../../../../composables/fetchMetadata";
 import DisplayRecord from "../../../../../components/display/Record.vue";
 import Message from "../../../../../components/Message.vue";
 import { deriveRecordQuery } from "../../../../../utils/deriveRecordQuery";
-import { recordLists } from "../../-recordLists";
+import { recordConfigs } from "../../-recordConfigs";
 
 const route = useRoute();
 const schemaId = String(route.params.schemaId);
@@ -22,13 +22,18 @@ const { data, error } = await useAsyncData(
     if (!table || !keyColumn) {
       throw new Error(`Table ${tableId} has no key in schema ${schemaId}`);
     }
-    const lists = recordLists[tableId] ?? {};
+    const config = recordConfigs[tableId] ?? {};
     const response = await fetchGraphql(
       schemaId,
-      deriveRecordQuery(schema, tableId, lists),
+      deriveRecordQuery(schema, tableId, config),
       { filter: { [keyColumn.id]: { equals: recordId } } }
     );
-    return { columns: table.columns, row: response[tableId][0] ?? null, lists };
+    return {
+      schema,
+      columns: table.columns,
+      row: response[tableId][0] ?? null,
+      config,
+    };
   }
 );
 </script>
@@ -44,6 +49,7 @@ const { data, error } = await useAsyncData(
     v-else
     :columns="data.columns"
     :row="data.row"
-    :lists="data.lists"
+    :config="data.config"
+    :schema="data.schema"
   />
 </template>

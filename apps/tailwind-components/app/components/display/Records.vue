@@ -2,6 +2,7 @@
 import { computed, ref, useId, watch } from "vue";
 import { useAsyncData } from "#app";
 import type { IRow } from "../../../../metadata-utils/src/types";
+import type { ListSeed } from "../../../types/recordConfig";
 import type { DisplayConfig } from "../../types/display";
 import { resolveDisplay, resolveLayout } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
@@ -24,6 +25,7 @@ const props = withDefaults(
     pageSize?: number;
     linkTo?: (row: IRow) => string;
     showEmpty?: boolean;
+    seed?: ListSeed;
   }>(),
   {
     pageSize: 10,
@@ -85,7 +87,12 @@ const { data, error } = useAsyncData(
   asyncDataKey,
   async () => {
     latestRequestId++;
-    const metadata = await fetchTableMetadata(props.schemaId, props.tableId);
+    if (props.seed && currentPage.value === 1) {
+      return props.seed;
+    }
+    const columns =
+      props.seed?.columns ??
+      (await fetchTableMetadata(props.schemaId, props.tableId)).columns;
     const paginated = layoutMeta.value.paginated;
     const limit = paginated ? props.pageSize : layoutMeta.value.batchSize;
     const offset = paginated ? (currentPage.value - 1) * props.pageSize : 0;
@@ -96,7 +103,7 @@ const { data, error } = useAsyncData(
       expandLevel: 1,
     });
     return {
-      columns: metadata.columns,
+      columns,
       rows: response.rows,
       count: response.count,
     };

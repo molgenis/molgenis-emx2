@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { clearNuxtData } from "#app";
 import type { ISchemaMetaData } from "../../../../../metadata-utils/src/types";
 import RecordPage from "../../../../app/pages/display/record/[schemaId]/[tableId]/[recordId].vue";
-import { recordLists } from "../../../../app/pages/display/record/-recordLists";
+import { recordConfigs } from "../../../../app/pages/display/record/-recordConfigs";
 import { deriveRecordQuery } from "../../../../app/utils/deriveRecordQuery";
 
 const fetchGraphqlMock = vi.fn();
@@ -76,7 +76,7 @@ describe("record page", () => {
 
     expect(fetchGraphqlMock).toHaveBeenCalledWith(
       "demo",
-      deriveRecordQuery(schema, "Collections", recordLists["Collections"]),
+      deriveRecordQuery(schema, "Collections", recordConfigs["Collections"]),
       { filter: { id: { equals: "c1" } } }
     );
     expect(wrapper.text()).toContain("Cohort one");

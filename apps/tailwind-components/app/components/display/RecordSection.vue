@@ -7,7 +7,7 @@ import type {
   RecordLayout,
   RecordSection,
 } from "../../../types/record";
-import type { RecordList } from "../../../types/recordLists";
+import type { RecordList } from "../../../types/recordConfig";
 import ContentBlock from "../content/ContentBlock.vue";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
@@ -105,6 +105,8 @@ useIntersectionObserver(
           :tableId="block.list.tableId"
           :filter="block.list.filter"
           :displayConfig="block.list.displayConfig"
+          :pageSize="block.list.pageSize"
+          :seed="block.list.seed"
         />
       </div>
       <DefinitionList v-else :compact="false">
