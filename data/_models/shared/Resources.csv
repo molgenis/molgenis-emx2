@@ -88,7 +88,7 @@ Networks,,parent networks,refback,,,,Networks,,child networks,,,The consortia or
 Networks,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,EMA,,,,
 Resources,,organisations involved section,heading,,,,,,,,,Organisations involved in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,,,organisations
 Resources,,organisations involved,refback,,,,Organisations,,resource,,,Organisations involved in this resource and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,,,
-Resources,,people involved section,heading,,,,,,,,,People involved in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,,,people
+Resources,,people involved section,heading,,,,,,,,,People involved in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,,,contributors
 Resources,,people involved,refback,,,,Contacts,,resource,,,Persons that contributed to this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,,,
 Collections,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging",,,,
 Resources,,tables,refback,,,,Tables,,resource,,healthdcatap:hasVariables,List of tables contained in this resouce if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,,
