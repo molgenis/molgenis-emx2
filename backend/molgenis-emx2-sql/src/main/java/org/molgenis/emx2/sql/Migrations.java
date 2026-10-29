@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 37;
+  private static final int SOFTWARE_DATABASE_VERSION = 38;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -217,6 +217,10 @@ public class Migrations {
 
           if (version < 37) {
             executeMigrationFile(tdb, "migration36.sql", "add column_metadata.values");
+          }
+
+          if (version < 38) {
+            executeMigrationFile(tdb, "migration37.sql", "index mg_changelog on stamp");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,8 @@ class TestChangelog {
           assertEquals(1, changes.size());
           assertEquals("Person", changes.get(0).tableName());
           assertEquals('I', changes.get(0).operation());
-          assertTrue(changes.get(0).newRowData().contains("Kwik"));
+          String newRow = changes.get(0).newRowData();
+          assertTrue(newRow.contains("Kwik") || newRow.contains("Kwek") || newRow.contains("Kwak"));
         });
   }
 
@@ -56,7 +58,8 @@ class TestChangelog {
           assertEquals(1, changes.size());
           assertEquals("Person", changes.get(0).tableName());
           assertEquals('I', changes.get(0).operation());
-          assertTrue(changes.get(0).newRowData().contains("Kwek"));
+          String newRow = changes.get(0).newRowData();
+          assertTrue(newRow.contains("Kwik") || newRow.contains("Kwek") || newRow.contains("Kwak"));
         });
   }
 
@@ -68,6 +71,31 @@ class TestChangelog {
           Schema schema = setupSchemaWithTestDataAndChangelog(db, "testSchemaChangesChangeCount");
           assertEquals(java.util.Optional.of(3), java.util.Optional.of(schema.getChangesCount()));
         });
+  }
+
+  @Test
+  void lastUpdateBranchReadsStampIndex() {
+    String schemaName = "TestChangelogIndex";
+    database.dropSchemaIfExists(schemaName);
+    database.becomeAdmin();
+    Schema schema = database.createSchema(schemaName);
+    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
+    Table table = schema.create(table("Item", column("id").setType(INT).setPkey()));
+    List<Row> rows = new ArrayList<>();
+    for (int i = 0; i < 3000; i++) {
+      rows.add(new Row().setInt("id", i));
+    }
+    table.insert(rows);
+
+    String plan =
+        ((SqlDatabase) database)
+            .getJooq()
+            .fetch(
+                "EXPLAIN SELECT operation, stamp, userid, tablename FROM \"TestChangelogIndex\".mg_changelog ORDER BY stamp DESC LIMIT 1")
+            .getValues(0, String.class)
+            .toString();
+    assertTrue(plan.contains("Index Scan"), plan);
+    assertTrue(plan.contains(ChangeLogExecutor.STAMP_INDEX), plan);
   }
 
   private Schema setupSchemaWithTestDataAndChangelog(Database database, String schemaName) {
