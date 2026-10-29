@@ -158,10 +158,6 @@ const mockCounts: Record<string, CountedOption[]> = {
       ],
     },
   ],
-  available: [
-    { name: "true", count: 113, overlap: 0 },
-    { name: "false", count: 56, overlap: 0 },
-  ],
   status: [
     { name: "active", label: "Active", count: 89, overlap: 0 },
     { name: "archived", label: "Archived", count: 52, overlap: 0 },
@@ -184,7 +180,21 @@ const nestedColumnMetaRef = ref(
 );
 
 const filterStatesRef = ref<Map<string, IFilterValue>>(
-  new Map([["owner.city", { operator: "equals", value: ["amsterdam"] }]])
+  new Map<string, IFilterValue>([
+    ["owner.city", { operator: "equals", value: ["amsterdam"] }],
+    ["name", { operator: "like", value: ["dog", "cat"] }],
+    [
+      "age",
+      {
+        operator: "between",
+        value: [
+          [10, 20],
+          [30, 40],
+        ],
+      },
+    ],
+    ["available", { operator: "equals", value: ["false", "_null_"] }],
+  ])
 );
 const searchValueRef = ref("");
 const visibleFilterIdsRef = ref<string[]>([
@@ -193,6 +203,7 @@ const visibleFilterIdsRef = ref<string[]>([
   "available",
   "status",
   "age",
+  "name",
 ]);
 const columnsRef = ref<IColumn[]>(columns);
 
@@ -260,6 +271,7 @@ function resetFilters() {
     "available",
     "status",
     "age",
+    "name",
   ];
 }
 

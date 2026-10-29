@@ -28,6 +28,11 @@ describe("buildLabelMap — BOOL", () => {
     expect(map["_null_"]).toBe("Not set");
   });
 
+  it("returns BOOL_LABELS for BOOL_ARRAY", () => {
+    const map = buildLabelMap({ id: "flags", columnType: "BOOL_ARRAY" }, null);
+    expect(map).toEqual({ true: "Yes", false: "No", _null_: "Not set" });
+  });
+
   it("returns BOOL_LABELS when counted is an empty array", () => {
     const map = buildLabelMap(boolColumn, []);
     expect(map).toEqual({ true: "Yes", false: "No", _null_: "Not set" });

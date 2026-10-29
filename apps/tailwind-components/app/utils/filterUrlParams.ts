@@ -1,6 +1,11 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
-import { RANGE_TYPES, REF_EXPANDABLE_TYPES } from "./filterUtils";
+import {
+  nonEmptyRanges,
+  RANGE_TYPES,
+  REF_EXPANDABLE_TYPES,
+  TEXT_FILTER_TYPES,
+} from "./filterUtils";
 
 const REF_TYPES = new Set([
   "REF",
@@ -53,11 +58,10 @@ export function serializeFilterValue(value: IFilterValue): string | null {
 
   switch (operator) {
     case "between": {
-      const [min, max] = val;
-      const minStr = min ?? "";
-      const maxStr = max ?? "";
-      if (minStr === "" && maxStr === "") return null;
-      return `${minStr}..${maxStr}`;
+      const ranges = nonEmptyRanges(val).map(
+        ([min, max]) => `${min ?? ""}..${max ?? ""}`
+      );
+      return ranges.length > 0 ? ranges.join(MULTI_VALUE_SEPARATOR) : null;
     }
 
     case "notNull":
@@ -67,7 +71,7 @@ export function serializeFilterValue(value: IFilterValue): string | null {
       return "null";
 
     case "like":
-      return String(val);
+      return val.join(MULTI_VALUE_SEPARATOR);
 
     case "equals":
     default:
@@ -110,6 +114,8 @@ export function parseFilterValue(
     "ONTOLOGY",
     "ONTOLOGY_ARRAY",
     "BOOL",
+    "BOOL_ARRAY",
+    "STRING_ARRAY",
     "RADIO",
     "CHECKBOX",
     "ENUM",
@@ -140,50 +146,40 @@ export function parseFilterValue(
   }
 
   if (RANGE_TYPES.has(columnType)) {
-    if (urlValue.includes("..")) {
-      const [minStr = "", maxStr = ""] = urlValue.split("..");
-      const isDateType = columnType.includes("DATE");
-      return {
-        operator: "between",
-        value: [
-          minStr === "" ? null : isDateType ? minStr : Number(minStr),
-          maxStr === "" ? null : isDateType ? maxStr : Number(maxStr),
-        ],
-      };
-    }
     const isDateType = columnType.includes("DATE");
+    const toBound = (bound: string) =>
+      bound === "" ? null : isDateType ? bound : Number(bound);
+    if (!urlValue.includes("..") && !urlValue.includes(MULTI_VALUE_SEPARATOR)) {
+      return { operator: "equals", value: toBound(urlValue) };
+    }
     return {
-      operator: "equals",
-      value: isDateType ? urlValue : Number(urlValue),
+      operator: "between",
+      value: urlValue.split(MULTI_VALUE_SEPARATOR).map((part) => {
+        const [minStr = "", maxStr = ""] = part.includes("..")
+          ? part.split("..")
+          : [part, part];
+        return [toBound(minStr), toBound(maxStr)];
+      }),
     };
   }
-
-  const STRING_TYPES = [
-    "STRING",
-    "TEXT",
-    "EMAIL",
-    "HYPERLINK",
-    "AUTO_ID",
-    "JSON",
-    "STRING_ARRAY",
-    "TEXT_ARRAY",
-    "EMAIL_ARRAY",
-    "HYPERLINK_ARRAY",
-  ];
 
   if (columnType === "UUID" || columnType === "UUID_ARRAY") {
     return { operator: "equals", value: urlValue };
   }
 
-  if (STRING_TYPES.includes(columnType)) {
-    return { operator: "like", value: urlValue };
+  if (TEXT_FILTER_TYPES.has(columnType)) {
+    return { operator: "like", value: urlValue.split(MULTI_VALUE_SEPARATOR) };
+  }
+
+  if (columnType === "JSON") {
+    return { operator: "like", value: [urlValue] };
   }
 
   if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
     return { operator: "equals", value: urlValue.split(MULTI_VALUE_SEPARATOR) };
   }
 
-  return { operator: "like", value: urlValue };
+  return { operator: "like", value: [urlValue] };
 }
 
 export function serializeFiltersToUrl(
@@ -274,7 +270,10 @@ export function parseFiltersFromUrl(
       const firstSeg = resolvedKey.split(".")[0]!;
       const column = columns.find((c) => c.id === firstSeg);
       if (!column) continue;
-      filters.set(resolvedKey, { operator: "like", value: decodedValue });
+      filters.set(resolvedKey, {
+        operator: "like",
+        value: decodedValue.split(MULTI_VALUE_SEPARATOR),
+      });
       continue;
     }
 

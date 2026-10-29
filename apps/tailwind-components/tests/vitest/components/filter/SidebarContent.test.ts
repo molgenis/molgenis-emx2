@@ -391,7 +391,7 @@ describe("SidebarContent", () => {
 
     it("text filter (string value) renders 'Clear', not 'Remove 1 selected'", async () => {
       const filterStates = new Map<string, IFilterValue>([
-        ["col1", { operator: "like", value: "hello" }],
+        ["col1", { operator: "like", value: ["hello"] }],
       ]);
       const wrapper = mountSidebarContent(["col1"], filterStates);
       await wrapper.vm.$nextTick();
@@ -401,7 +401,7 @@ describe("SidebarContent", () => {
 
     it("range filter ({between, [min,max]}) renders 'Clear', not 'Remove N selected'", async () => {
       const filterStates = new Map<string, IFilterValue>([
-        ["col1", { operator: "between", value: [1, 100] }],
+        ["col1", { operator: "between", value: [[1, 100]] }],
       ]);
       const wrapper = mountSidebarContent(["col1"], filterStates);
       await wrapper.vm.$nextTick();

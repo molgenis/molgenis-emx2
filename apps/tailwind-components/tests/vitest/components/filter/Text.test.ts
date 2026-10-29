@@ -1,138 +1,157 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../../types/filters";
 import FilterText from "../../../../app/components/filter/Text.vue";
-import InputSearch from "../../../../app/components/input/Search.vue";
 
-function stringColumn(): IColumn {
-  return {
-    id: "name",
-    label: "Name",
-    columnType: "STRING",
-  } as IColumn;
+function column(columnType: IColumn["columnType"] = "STRING"): IColumn {
+  return { id: "name", label: "Name", columnType } as IColumn;
 }
 
 function mountText(
-  column: IColumn,
+  col: IColumn,
   modelValue: IFilterValue | undefined = undefined
 ) {
-  return mount(FilterText, {
-    props: { column, modelValue },
-  });
+  return mount(FilterText, { props: { column: col, modelValue } });
+}
+
+function rowValues(wrapper: ReturnType<typeof mountText>) {
+  return wrapper
+    .findAll("input")
+    .map((input) => (input.element as HTMLInputElement).value);
+}
+
+async function typeInRow(
+  wrapper: ReturnType<typeof mountText>,
+  index: number,
+  text: string
+) {
+  await wrapper.findAll("input")[index]!.setValue(text);
+}
+
+function buttons(wrapper: ReturnType<typeof mountText>, name: string) {
+  return wrapper.findAll("button").filter((button) => button.text() === name);
+}
+
+function lastEmit(wrapper: ReturnType<typeof mountText>) {
+  const emitted = wrapper.emitted("update:modelValue");
+  return emitted![emitted!.length - 1]![0];
 }
 
 describe("FilterText", () => {
-  describe("string-like types", () => {
-    it("renders search input for STRING column type", () => {
-      const wrapper = mountText(stringColumn());
-      const input = wrapper.find('input[type="search"]');
-      expect(input.exists()).toBe(true);
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("shows one empty text row and an add button for a column without a filter", () => {
+    const wrapper = mountText(column());
+    expect(rowValues(wrapper)).toEqual([""]);
+    expect(buttons(wrapper, "Add an additional item")).toHaveLength(1);
+    expect(buttons(wrapper, "Remove item")).toHaveLength(0);
+  });
+
+  it("shows one row per value, each with a remove button once there are two", () => {
+    const wrapper = mountText(column(), {
+      operator: "like",
+      value: ["dog", "cat"],
     });
+    expect(rowValues(wrapper)).toEqual(["dog", "cat"]);
+    expect(buttons(wrapper, "Remove item")).toHaveLength(2);
+  });
 
-    it("renders InputSearch component for accessibility", () => {
-      const wrapper = mountText(stringColumn());
-      const inputSearch = wrapper.findComponent({ name: "InputSearch" });
-      expect(inputSearch.exists()).toBe(true);
-    });
-
-    it("search input shows current like filter value", () => {
-      const wrapper = mountText(stringColumn(), {
-        operator: "like",
-        value: "fluffy",
-      });
-      const input = wrapper.find('input[type="search"]');
-      expect((input.element as HTMLInputElement).value).toBe("fluffy");
-    });
-
-    it("emits like filter on text input after debounce", async () => {
-      vi.useFakeTimers();
-      const wrapper = mountText(stringColumn());
-      const input = wrapper.find('input[type="search"]');
-      const el = input.element as HTMLInputElement;
-      el.value = "hello";
-      await input.trigger("input");
-      vi.advanceTimersByTime(500);
-      const emitted = wrapper.emitted("update:modelValue");
-      expect(emitted).toBeTruthy();
-      expect(emitted![0][0]).toEqual({ operator: "like", value: "hello" });
-      vi.useRealTimers();
-    });
-
-    it("rapid typing: 3 keystrokes within 100ms produce only one emit after 500ms", async () => {
-      vi.useFakeTimers();
-      const wrapper = mountText(stringColumn());
-      const input = wrapper.find('input[type="search"]');
-      const el = input.element as HTMLInputElement;
-
-      el.value = "a";
-      await input.trigger("input");
-      vi.advanceTimersByTime(100);
-
-      el.value = "ab";
-      await input.trigger("input");
-      vi.advanceTimersByTime(100);
-
-      el.value = "abc";
-      await input.trigger("input");
-
-      expect(wrapper.emitted("update:modelValue")).toBeFalsy();
-
-      vi.advanceTimersByTime(500);
-
-      const emitted = wrapper.emitted("update:modelValue");
-      expect(emitted).toBeTruthy();
-      expect(emitted!.length).toBe(1);
-      expect(emitted![0][0]).toEqual({ operator: "like", value: "abc" });
-      vi.useRealTimers();
-    });
-
-    it("H7: input value clears when modelValue is removed (filter removed from sidebar)", async () => {
-      const wrapper = mountText(stringColumn(), {
-        operator: "like",
-        value: "asdf",
-      });
-      const inputBefore = wrapper.find('input[type="search"]');
-      expect((inputBefore.element as HTMLInputElement).value).toBe("asdf");
-
-      await wrapper.setProps({ modelValue: undefined });
-      await wrapper.vm.$nextTick();
-
-      const inputAfter = wrapper.find('input[type="search"]');
-      expect((inputAfter.element as HTMLInputElement).value).toBe("");
-    });
-
-    it("emits undefined when text input is cleared", async () => {
-      vi.useFakeTimers();
-      const wrapper = mountText(stringColumn(), {
-        operator: "like",
-        value: "hello",
-      });
-      const input = wrapper.find('input[type="search"]');
-      const el = input.element as HTMLInputElement;
-      el.value = "";
-      await input.trigger("input");
-      vi.advanceTimersByTime(500);
-      const emitted = wrapper.emitted("update:modelValue");
-      expect(emitted).toBeTruthy();
-      expect(emitted![0][0]).toBeUndefined();
-      vi.useRealTimers();
+  it("adds a row and emits the trimmed values after the debounce", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountText(column());
+    await typeInRow(wrapper, 0, " dog ");
+    await buttons(wrapper, "Add an additional item")[0]!.trigger("click");
+    expect(rowValues(wrapper)).toEqual([" dog ", ""]);
+    await typeInRow(wrapper, 1, "cat dog");
+    vi.advanceTimersByTime(500);
+    expect(lastEmit(wrapper)).toEqual({
+      operator: "like",
+      value: ["dog", "cat dog"],
     });
   });
 
-  describe("does not render Tree or FilterRange", () => {
-    it("does not render Tree or FilterRange for string types", () => {
-      const wrapper = mountText(stringColumn());
-      expect(wrapper.findComponent({ name: "Tree" }).exists()).toBe(false);
-      expect(wrapper.findComponent({ name: "FilterRange" }).exists()).toBe(
-        false
-      );
-    });
+  it("keeps the values when an empty row is added and left empty", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountText(column(), { operator: "like", value: ["dog"] });
+    await buttons(wrapper, "Add an additional item")[0]!.trigger("click");
+    vi.advanceTimersByTime(500);
+    expect(rowValues(wrapper)).toEqual(["dog", ""]);
+    expect(lastEmit(wrapper)).toEqual({ operator: "like", value: ["dog"] });
+  });
 
-    it("renders exactly one InputSearch", () => {
-      const wrapper = mountText(stringColumn());
-      const allSearchInputs = wrapper.findAllComponents(InputSearch);
-      expect(allSearchInputs).toHaveLength(1);
+  it("ignores empty and whitespace rows", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountText(column(), {
+      operator: "like",
+      value: ["dog", "cat"],
     });
+    await typeInRow(wrapper, 1, "   ");
+    vi.advanceTimersByTime(500);
+    expect(lastEmit(wrapper)).toEqual({ operator: "like", value: ["dog"] });
+  });
+
+  it("emits undefined when every row is empty", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountText(column(), { operator: "like", value: ["dog"] });
+    await typeInRow(wrapper, 0, "");
+    vi.advanceTimersByTime(500);
+    expect(lastEmit(wrapper)).toBeUndefined();
+  });
+
+  it("removing a row emits the remaining values", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountText(column(), {
+      operator: "like",
+      value: ["dog", "cat"],
+    });
+    await buttons(wrapper, "Remove item")[0]!.trigger("click");
+    vi.advanceTimersByTime(500);
+    expect(rowValues(wrapper)).toEqual(["cat"]);
+    expect(lastEmit(wrapper)).toEqual({ operator: "like", value: ["cat"] });
+  });
+
+  it("rapid typing: 3 keystrokes within 100ms produce one emit after the debounce", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountText(column());
+    await typeInRow(wrapper, 0, "a");
+    vi.advanceTimersByTime(100);
+    await typeInRow(wrapper, 0, "ab");
+    vi.advanceTimersByTime(100);
+    await typeInRow(wrapper, 0, "abc");
+    expect(wrapper.emitted("update:modelValue")).toBeFalsy();
+    vi.advanceTimersByTime(500);
+    expect(wrapper.emitted("update:modelValue")).toEqual([
+      [{ operator: "like", value: ["abc"] }],
+    ]);
+  });
+
+  it("empties every row when the filter is removed from outside", async () => {
+    const wrapper = mountText(column(), {
+      operator: "like",
+      value: ["dog", "cat"],
+    });
+    await wrapper.setProps({ modelValue: undefined });
+    expect(rowValues(wrapper)).toEqual([""]);
+  });
+
+  it.each(["EMAIL", "HYPERLINK_ARRAY", "TEXT"] as const)(
+    "%s column rows are plain text inputs",
+    (columnType) => {
+      const wrapper = mountText(column(columnType));
+      expect(wrapper.find("input").attributes("type")).toBe("text");
+    }
+  );
+
+  it("a UUID column keeps the single search box and emits a like list of one", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountText(column("UUID"));
+    expect(wrapper.find('input[type="search"]').exists()).toBe(true);
+    expect(buttons(wrapper, "Add an additional item")).toHaveLength(0);
+    await wrapper.find('input[type="search"]').setValue("abc");
+    vi.advanceTimersByTime(500);
+    expect(lastEmit(wrapper)).toEqual({ operator: "like", value: ["abc"] });
   });
 });

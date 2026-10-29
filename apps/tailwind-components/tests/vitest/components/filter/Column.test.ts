@@ -7,6 +7,7 @@ import Column from "../../../../app/components/filter/Column.vue";
 import FilterTree from "../../../../app/components/filter/Tree.vue";
 import FilterRange from "../../../../app/components/filter/Range.vue";
 import FilterText from "../../../../app/components/filter/Text.vue";
+import FilterBool from "../../../../app/components/filter/Bool.vue";
 import GenericInput from "../../../../app/components/Input.vue";
 
 vi.mock("../../../../app/components/Input.vue", () => ({
@@ -108,16 +109,6 @@ describe("Column dispatcher", () => {
 
     it("renders FilterTree for ONTOLOGY column type", () => {
       const wrapper = mountColumn(ontologyColumn(), sampleOptions);
-      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
-      expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
-      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
-    });
-
-    it("renders FilterTree for BOOL column type", () => {
-      const wrapper = mountColumn(boolColumn(), [
-        { name: "true", count: 3 },
-        { name: "false", count: 2 },
-      ]);
       expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
       expect(wrapper.findComponent(FilterText).exists()).toBe(false);
@@ -256,6 +247,54 @@ describe("Column dispatcher", () => {
     });
   });
 
+  describe("BOOL and BOOL_ARRAY — three-choice boolean input", () => {
+    it.each(["BOOL", "BOOL_ARRAY"] as const)(
+      "%s renders Yes, No and Not set checkboxes, not the counted tree",
+      (columnType) => {
+        const wrapper = mountColumn({ ...boolColumn(), columnType });
+        expect(wrapper.findComponent(FilterBool).exists()).toBe(true);
+        expect(wrapper.findComponent(FilterTree).exists()).toBe(false);
+        expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+        expect(wrapper.findAll('input[type="checkbox"]')).toHaveLength(3);
+        expect(wrapper.text()).toContain("Yes");
+        expect(wrapper.text()).toContain("No");
+        expect(wrapper.text()).toContain("Not set");
+      }
+    );
+
+    it("checks the choices held by the modelValue", () => {
+      const wrapper = mountColumn(boolColumn(), [], {
+        operator: "equals",
+        value: ["false", "_null_"],
+      });
+      const checked = wrapper
+        .findAll('input[type="checkbox"]')
+        .map((box) => (box.element as HTMLInputElement).checked);
+      expect(checked).toEqual([false, true, true]);
+    });
+
+    it("emits equals with the chosen values in Yes, No, Not set order", async () => {
+      const wrapper = mountColumn(boolColumn(), [], {
+        operator: "equals",
+        value: ["_null_"],
+      });
+      await wrapper.findAll('input[type="checkbox"]')[1]!.setValue(true);
+      expect(wrapper.emitted("update:modelValue")!.at(-1)![0]).toEqual({
+        operator: "equals",
+        value: ["false", "_null_"],
+      });
+    });
+
+    it("emits undefined when nothing is chosen", async () => {
+      const wrapper = mountColumn(boolColumn(), [], {
+        operator: "equals",
+        value: ["true"],
+      });
+      await wrapper.findAll('input[type="checkbox"]')[0]!.setValue(false);
+      expect(wrapper.emitted("update:modelValue")!.at(-1)![0]).toBeUndefined();
+    });
+  });
+
   describe("range types — renders FilterRange", () => {
     it("renders FilterRange for INT column type", () => {
       const wrapper = mountColumn(intColumn());
@@ -292,16 +331,16 @@ describe("Column dispatcher", () => {
     it("passes range values from modelValue between operator", () => {
       const wrapper = mountColumn(intColumn(), [], {
         operator: "between",
-        value: [10, 50],
+        value: [[10, 50]],
       });
       const range = wrapper.findComponent(FilterRange);
-      expect(range.props("modelValue")).toEqual([10, 50]);
+      expect(range.props("modelValue")).toEqual([[10, 50]]);
     });
 
-    it("passes [null, null] to FilterRange when no modelValue", () => {
+    it("passes no ranges to FilterRange when no modelValue", () => {
       const wrapper = mountColumn(intColumn());
       const range = wrapper.findComponent(FilterRange);
-      expect(range.props("modelValue")).toEqual([null, null]);
+      expect(range.props("modelValue")).toEqual([]);
     });
 
     it("renders generic Input with DATE type for DATE column range", () => {
@@ -334,10 +373,10 @@ describe("Column dispatcher", () => {
     it("emits undefined when range min and max are both null", async () => {
       const wrapper = mountColumn(intColumn(), [], {
         operator: "between",
-        value: [10, 50],
+        value: [[10, 50]],
       });
       const range = wrapper.findComponent(FilterRange);
-      await range.vm.$emit("update:modelValue", [null, null]);
+      await range.vm.$emit("update:modelValue", [[null, null]]);
       const emitted = wrapper.emitted("update:modelValue");
       expect(emitted).toBeTruthy();
       expect(emitted![0][0]).toBeUndefined();
@@ -346,10 +385,61 @@ describe("Column dispatcher", () => {
     it("emits between filter when range value set", async () => {
       const wrapper = mountColumn(intColumn());
       const range = wrapper.findComponent(FilterRange);
-      await range.vm.$emit("update:modelValue", [5, 20]);
+      await range.vm.$emit("update:modelValue", [[5, 20]]);
       const emitted = wrapper.emitted("update:modelValue");
       expect(emitted).toBeTruthy();
-      expect(emitted![0][0]).toEqual({ operator: "between", value: [5, 20] });
+      expect(emitted![0][0]).toEqual({
+        operator: "between",
+        value: [[5, 20]],
+      });
+    });
+
+    it("emits only the ranges that have a side, dropping empty rows", async () => {
+      const wrapper = mountColumn(intColumn());
+      await wrapper.findComponent(FilterRange).vm.$emit("update:modelValue", [
+        [5, 20],
+        [null, null],
+        [null, 3],
+      ]);
+      expect(wrapper.emitted("update:modelValue")![0]![0]).toEqual({
+        operator: "between",
+        value: [
+          [5, 20],
+          [null, 3],
+        ],
+      });
+    });
+
+    it("shows one min and max pair per range, with add and remove from two rows", async () => {
+      const wrapper = mountColumn(intColumn(), [], {
+        operator: "between",
+        value: [[10, 20]],
+      });
+      const named = (name: string) =>
+        wrapper.findAll("button").filter((button) => button.text() === name);
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(2);
+      expect(named("Remove item")).toHaveLength(0);
+
+      await named("Add an additional item")[0]!.trigger("click");
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(4);
+      expect(named("Remove item")).toHaveLength(2);
+
+      await named("Remove item")[1]!.trigger("click");
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(2);
+      expect(named("Remove item")).toHaveLength(0);
+    });
+
+    it("empties the rows when the filter is removed from outside", async () => {
+      const wrapper = mountColumn(intColumn(), [], {
+        operator: "between",
+        value: [
+          [10, 20],
+          [30, 40],
+        ],
+      });
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(4);
+      await wrapper.setProps({ modelValue: undefined });
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(2);
     });
   });
 
@@ -367,10 +457,12 @@ describe("Column dispatcher", () => {
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
     });
 
-    it("renders search input for STRING column type", () => {
+    it("renders a text row for STRING column type", () => {
       const wrapper = mountColumn(stringColumn());
-      const input = wrapper.find('input[type="search"]');
-      expect(input.exists()).toBe(true);
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(1);
+      expect(wrapper.findAllComponents(GenericInput)[0]!.props("type")).toBe(
+        "STRING"
+      );
     });
   });
 
@@ -380,7 +472,7 @@ describe("Column dispatcher", () => {
       expect(rangeWrapper.findComponent(FilterRange).exists()).toBe(true);
 
       const stringWrapper = mountColumn(stringColumn(), [], undefined, false);
-      expect(stringWrapper.find('input[type="search"]').exists()).toBe(true);
+      expect(stringWrapper.findComponent(FilterText).exists()).toBe(true);
     });
   });
 });
