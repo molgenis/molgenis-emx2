@@ -2,24 +2,25 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 @Tag("slow")
 class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
   private static final String SCHEMA = JsonYamlApiAuthorizationTest.class.getSimpleName();
-  private static final String VIEWER = "jsonyamlauth_viewer";
-  private static final String MANAGER = "jsonyamlauth_manager";
+  private static final Username VIEWER = new Username("jsonyamlauth_viewer");
+  private static final Username MANAGER = new Username("jsonyamlauth_manager");
 
   private static final String ADMIN_PASS =
       (String)
@@ -34,8 +35,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     PET_STORE.getImportTask(database, SCHEMA, "", true).run();
     Schema schema = database.getSchema(SCHEMA);
 
-    database.setUserPassword(VIEWER, VIEWER);
-    database.setUserPassword(MANAGER, MANAGER);
+    database.setUserPassword(VIEWER, VIEWER.getValue());
+    database.setUserPassword(MANAGER, MANAGER.getValue());
     schema.addMember(VIEWER, Privileges.VIEWER.toString());
     schema.addMember(MANAGER, Privileges.MANAGER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
@@ -52,7 +53,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void getJsonAsViewer_succeeds() {
-      login(VIEWER, VIEWER);
+      login(VIEWER, VIEWER.getValue());
       Response response = given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/json");
       assertEquals(200, response.getStatusCode());
     }
@@ -70,7 +71,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       String schemaJson =
           given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/json").asString();
 
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = postJson("/" + SCHEMA + "/api/json", schemaJson);
       assertEquals(200, response.getStatusCode());
       assertEquals("{\"message\":\"add/update metadata success\"}", response.getBody().asString());
@@ -78,7 +79,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void postJsonAsViewer_isRejected() {
-      login(VIEWER, VIEWER);
+      login(VIEWER, VIEWER.getValue());
       Response response = postJson("/" + SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -87,7 +88,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteJsonAsManager_succeeds() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = deleteJson("/" + SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(200, response.getStatusCode());
       assertEquals(
@@ -96,7 +97,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteJsonAsViewer_isRejected() {
-      login(VIEWER, VIEWER);
+      login(VIEWER, VIEWER.getValue());
       Response response = deleteJson("/" + SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -109,7 +110,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void getYamlAsViewer_succeeds() {
-      login(VIEWER, VIEWER);
+      login(VIEWER, VIEWER.getValue());
       Response response = given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/yaml");
       assertEquals(200, response.getStatusCode());
     }
@@ -127,7 +128,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       String schemaYaml =
           given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/yaml").asString();
 
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = postYaml("/" + SCHEMA + "/api/yaml", schemaYaml);
       assertEquals(200, response.getStatusCode());
       assertEquals("{\"message\":\"add/update metadata success\"}", response.getBody().asString());
@@ -135,7 +136,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void postYamlAsViewer_isRejected() {
-      login(VIEWER, VIEWER);
+      login(VIEWER, VIEWER.getValue());
       Response response = postYaml("/" + SCHEMA + "/api/yaml", yamlSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -144,7 +145,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteYamlAsManager_succeeds() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = deleteYaml("/" + SCHEMA + "/api/yaml", yamlSchema(SCHEMA));
       assertEquals(200, response.getStatusCode());
       assertEquals("{\"message\":\"remove metadata success\"}", response.getBody().asString());
@@ -152,7 +153,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteYamlAsViewer_isRejected() {
-      login(VIEWER, VIEWER);
+      login(VIEWER, VIEWER.getValue());
       Response response = deleteYaml("/" + SCHEMA + "/api/yaml", yamlSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -165,7 +166,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void getJsonNullSchema_isRejected() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response =
           given().sessionId(sessionId).when().get("/" + NON_EXISTING_SCHEMA + "/api/json");
       assertEquals(400, response.getStatusCode());
@@ -175,7 +176,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void postJsonNullSchema_isRejected() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = postJson("/" + NON_EXISTING_SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -184,7 +185,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteJsonNullSchema_isRejected() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = deleteJson("/" + NON_EXISTING_SCHEMA + "/api/json", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -193,7 +194,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void getYamlNullSchema_isRejected() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response =
           given().sessionId(sessionId).when().get("/" + NON_EXISTING_SCHEMA + "/api/yaml");
       assertEquals(400, response.getStatusCode());
@@ -203,7 +204,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void postYamlNullSchema_isRejected() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = postYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -212,7 +213,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteYamlNullSchema_isRejected() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = deleteYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", jsonSchema(SCHEMA));
       assertEquals(400, response.getStatusCode());
       assertEquals(
@@ -225,7 +226,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void postYamlAsManager_nameMismatch_warns() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response =
           given()
               .sessionId(sessionId)
@@ -238,7 +239,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteYamlAsManager_nameMismatch_warns() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response =
           given()
               .sessionId(sessionId)
@@ -251,7 +252,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void postJsonAsManager_nameMismatch_warns() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response = postJson("/" + SCHEMA + "/api/json", jsonSchema(NON_EXISTING_SCHEMA));
       assertEquals(200, response.getStatusCode());
       assertEquals("schema name mismatch", response.jsonPath().getString("warning"));
@@ -259,7 +260,7 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
     @Test
     void deleteJsonAsManager_nameMismatch_warns() {
-      login(MANAGER, MANAGER);
+      login(MANAGER, MANAGER.getValue());
       Response response =
           given()
               .sessionId(sessionId)

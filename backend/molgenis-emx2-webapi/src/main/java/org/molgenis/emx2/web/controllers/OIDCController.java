@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.web.ApplicationCachePerUser;
 import org.molgenis.emx2.web.MolgenisSessionHandler;
 import org.molgenis.emx2.web.SecurityConfigFactory;
@@ -90,8 +91,8 @@ public class OIDCController {
       return;
     }
 
-    String user = oidcProfile.get().getAttribute("email").toString();
-    if (user == null || user.isEmpty()) {
+    Username user = new Username(oidcProfile.get().getAttribute("email").toString());
+    if (user == null) {
       logger.error("OIDC sign in failed, email claim is empty");
       ctx.status(500);
       ctx.redirect("/");

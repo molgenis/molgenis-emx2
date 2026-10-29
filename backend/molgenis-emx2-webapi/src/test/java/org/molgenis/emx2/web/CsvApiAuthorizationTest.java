@@ -3,11 +3,11 @@ package org.molgenis.emx2.web;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Constants.IS_CHANGELOG_ENABLED;
 import static org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 
 import io.restassured.response.Response;
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /** Verifies role-based access control on {@link CsvApi}. */
@@ -25,8 +26,8 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 class CsvApiAuthorizationTest extends ApiTestBase {
 
   private static final String SCHEMA = "pet store csv auth";
-  private static final String VIEWER = "csvauth_viewer";
-  private static final String MANAGER = "csvauth_manager";
+  private static final Username VIEWER = new Username("csvauth_viewer");
+  private static final Username MANAGER = new Username("csvauth_manager");
 
   private static final String ADMIN_PASS =
       (String)
@@ -40,8 +41,8 @@ class CsvApiAuthorizationTest extends ApiTestBase {
     Schema schema = database.getSchema(SCHEMA);
     schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
 
-    database.setUserPassword(VIEWER, VIEWER);
-    database.setUserPassword(MANAGER, MANAGER);
+    database.setUserPassword(VIEWER, VIEWER.getValue());
+    database.setUserPassword(MANAGER, MANAGER.getValue());
     schema.addMember(VIEWER, Privileges.VIEWER.toString());
     schema.addMember(MANAGER, Privileges.MANAGER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
@@ -61,13 +62,13 @@ class CsvApiAuthorizationTest extends ApiTestBase {
 
   @Test
   void changelogAsManager_succeeds() {
-    login(MANAGER, MANAGER);
+    login(MANAGER, MANAGER.getValue());
     assertEquals(200, getCsv("/" + SCHEMA + "/api/csv/changelog").getStatusCode());
   }
 
   @Test
   void changelogAsViewer_isRejected() {
-    login(VIEWER, VIEWER);
+    login(VIEWER, VIEWER.getValue());
     Response response = getCsv("/" + SCHEMA + "/api/csv/changelog");
     assertEquals(400, response.getStatusCode());
     assertTrue(
@@ -86,13 +87,13 @@ class CsvApiAuthorizationTest extends ApiTestBase {
 
   @Test
   void membersAsManager_succeeds() {
-    login(MANAGER, MANAGER);
+    login(MANAGER, MANAGER.getValue());
     assertEquals(200, getCsv("/" + SCHEMA + "/api/csv/members").getStatusCode());
   }
 
   @Test
   void membersAsViewer_isRejected() {
-    login(VIEWER, VIEWER);
+    login(VIEWER, VIEWER.getValue());
     Response response = getCsv("/" + SCHEMA + "/api/csv/members");
     assertEquals(400, response.getStatusCode());
     assertTrue(response.body().asString().contains("Unauthorized"));

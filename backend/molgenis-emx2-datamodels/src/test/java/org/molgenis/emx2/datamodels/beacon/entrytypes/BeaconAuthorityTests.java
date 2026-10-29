@@ -21,10 +21,7 @@ import java.util.HashMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
@@ -32,11 +29,11 @@ import org.molgenis.emx2.datamodels.TestLoaders;
 
 class BeaconAuthorityTests extends TestLoaders {
 
-  static final String VIEWER_TEST_USER = "VIEWER_TEST_USER";
-  static final String AGGREGATOR_TEST_USER = "AGGREGATOR_TEST_USER";
-  static final String COUNT_TEST_USER = "COUNT_TEST_USER";
-  static final String EXISTS_TEST_USER = "EXISTS_TEST_USER";
-  static final String RANGE_TEST_USER = "RANGE_TEST_USER";
+  static final Username VIEWER_TEST_USER = new Username("VIEWER_TEST_USER");
+  static final Username AGGREGATOR_TEST_USER = new Username("AGGREGATOR_TEST_USER");
+  static final Username COUNT_TEST_USER = new Username("COUNT_TEST_USER");
+  static final Username EXISTS_TEST_USER = new Username("EXISTS_TEST_USER");
+  static final Username RANGE_TEST_USER = new Username("RANGE_TEST_USER");
 
   @BeforeAll
   void addTestUsers() {

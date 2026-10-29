@@ -3,8 +3,8 @@ package org.molgenis.emx2.io;
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
 import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -122,7 +123,7 @@ class TestImportExportEmx2DataAndMetadata {
 
     private Schema setupSchema() {
       Schema schema = database.dropCreateSchema(getClass().getSimpleName() + "-members");
-      schema.addMember("test-user", Privileges.OWNER.toString());
+      schema.addMember(new Username("test-user"), Privileges.OWNER.toString());
       return schema;
     }
 
@@ -143,7 +144,7 @@ class TestImportExportEmx2DataAndMetadata {
 
     private Schema setupSchema() {
       Schema schema = database.dropCreateSchema(getClass().getSimpleName() + "-members");
-      schema.addMember("test-user", Privileges.OWNER.toString());
+      schema.addMember(new Username("test-user"), Privileges.OWNER.toString());
       return schema;
     }
 

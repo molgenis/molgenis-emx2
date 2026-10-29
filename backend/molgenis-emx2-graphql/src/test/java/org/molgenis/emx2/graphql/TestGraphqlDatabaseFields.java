@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
@@ -151,25 +152,26 @@ class TestGraphqlDatabaseFields {
 
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
-    if (database.hasUser("pietje")) database.removeUser("pietje");
+    Username pietje = new Username("pietje");
+    if (database.hasUser(pietje)) database.removeUser(pietje);
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
-    assertTrue(database.hasUser("pietje"));
-    assertTrue(database.checkUserPassword("pietje", "blaat123"));
+    assertTrue(database.hasUser(pietje));
+    assertTrue(database.checkUserPassword(pietje, "blaat123"));
 
     assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    assertEquals("pietje", sessionManager.getCurrentUser());
+    assertEquals(pietje, sessionManager.getCurrentUser());
 
-    database.setActiveUser("pietje");
+    database.setActiveUser(pietje);
     assertTrue(
         execute("mutation{changePassword(password:\"blaat124\"){message}}")
             .at("/data/changePassword/message")
             .textValue()
             .contains("Password changed"));
-    assertTrue(database.checkUserPassword("pietje", "blaat124"));
+    assertTrue(database.checkUserPassword(pietje, "blaat124"));
 
     execute("mutation{signout{message}}", sessionManager);
     assertNull(sessionManager.getCurrentUser());
@@ -181,7 +183,8 @@ class TestGraphqlDatabaseFields {
   void testLoginWithWrongPassword() throws IOException {
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
-    if (database.hasUser("jantje")) database.removeUser("jantje");
+    Username jantje = new Username("jantje");
+    if (database.hasUser(jantje)) database.removeUser(jantje);
     execute("mutation{signup(email:\"jantje\",password:\"blaat123\"){message}}");
 
     assertTrue(
@@ -201,10 +204,10 @@ class TestGraphqlDatabaseFields {
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
     GraphqlSessionHandlerInterface sessionManager =
         new GraphqlSessionHandlerInterface() {
-          private String user;
+          private Username user;
 
           @Override
-          public void createSession(String username) {
+          public void createSession(Username username) {
             this.user = username;
           }
 
@@ -214,13 +217,13 @@ class TestGraphqlDatabaseFields {
           }
 
           @Override
-          public String getCurrentUser() {
+          public Username getCurrentUser() {
             return user;
           }
         };
     execute(
         "mutation { signin(email: \""
-            + database.getAdminUserName()
+            + database.getAdminUserName().getValue()
             + "\",password:\""
             + adminPass
             + "\") {message}}",
@@ -243,7 +246,7 @@ class TestGraphqlDatabaseFields {
               .textValue());
 
       // test that we can this only for 'ourselves'
-      database.setActiveUser("pietje");
+      database.setActiveUser(new Username("pietje"));
       execute(
           "mutation{change(users:{email:\"pietje\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
       assertEquals(

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 import static org.pac4j.core.util.Pac4jConstants.USERNAME;
 
@@ -11,10 +10,7 @@ import io.javalin.http.Context;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.DatabaseListener;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -56,9 +52,9 @@ public class ApplicationCachePerUser {
               DEFAULT_APP_CACHE_SIZE,
               LONG);
 
-  private record UserKey(String userName) {
+  private record UserKey(Username userName) {
     public UserKey {
-      if (userName == null || userName.isEmpty()) {
+      if (userName == null) {
         throw new IllegalArgumentException("userName cannot be null or empty");
       }
     }
@@ -173,7 +169,7 @@ public class ApplicationCachePerUser {
         });
   }
 
-  public GraphqlExecutor getSchemaGraphqlForUser(String schemaName, String username) {
+  public GraphqlExecutor getSchemaGraphqlForUser(String schemaName, Username username) {
     UserKey userKey = new UserKey(username);
     return getSchemaGraphqlForUser(schemaName, userKey);
   }
@@ -201,8 +197,8 @@ public class ApplicationCachePerUser {
     if (session != null) {
       String username = (String) session.getAttribute(USERNAME);
       logger.info("found a session for user {}", username);
-      if (username != null && !username.isEmpty()) {
-        return new UserKey(username);
+      if (username != null) {
+        return new UserKey(new Username(username));
       }
     }
 
@@ -214,7 +210,7 @@ public class ApplicationCachePerUser {
     }
 
     // default user
-    return new UserKey(ANONYMOUS);
+    return new UserKey(SqlDatabase.ANONYMOUS);
   }
 
   public String findUsedAuthTokenKey(HttpServletRequest request) {

@@ -42,10 +42,10 @@ class TestGraphqlAdminFields {
 
     sessionManager =
         new GraphqlSessionHandlerInterface() {
-          private String user;
+          private Username user;
 
           @Override
-          public void createSession(String username) {
+          public void createSession(Username username) {
             this.user = username;
           }
 
@@ -55,7 +55,7 @@ class TestGraphqlAdminFields {
           }
 
           @Override
-          public String getCurrentUser() {
+          public Username getCurrentUser() {
             return user;
           }
         };
@@ -102,7 +102,7 @@ class TestGraphqlAdminFields {
           schema.grant(patientViewer, new TablePermission("Patient").select(true).rowLevel(false));
           tdb.addUser(TEST_PERSOON);
           tdb.setEnabledUser(TEST_PERSOON, true);
-          tdb.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON.getValue(), patientViewer);
+          tdb.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, patientViewer);
 
           graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
@@ -128,7 +128,7 @@ class TestGraphqlAdminFields {
             assertFalse(permission.path("insert").asBoolean());
             assertFalse(permission.path("isRowLevel").asBoolean());
             String user = customRole.at("/users/0").asText();
-            assertEquals(TEST_PERSOON, user);
+            assertEquals(TEST_PERSOON.getValue(), user);
 
           } catch (IOException e) {
             throw new RuntimeException(e);
@@ -234,12 +234,12 @@ class TestGraphqlAdminFields {
         }
         """;
 
-    sessionManager.createSession(ANONYMOUS.getValue());
+    sessionManager.createSession(ANONYMOUS);
     MolgenisException exception = assertThrows(MolgenisException.class, () -> executeDb(query));
     assertTrue(
         exception.getMessage().contains("Listing all tasks is only allowed for admin users"));
 
-    sessionManager.createSession(ADMIN_USER.getValue());
+    sessionManager.createSession(ADMIN_USER);
     assertTrue(executeDb(query).contains("\"_tasks\" : [ ]"));
   }
 
@@ -254,10 +254,8 @@ class TestGraphqlAdminFields {
             // setup
             testDatabase.addUser(TEST_PERSOON);
             testDatabase.setEnabledUser(TEST_PERSOON, true);
-            testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON.getValue(), "Owner");
-            testDatabase
-                .getSchema(ANOTHER_SCHEMA_NAME)
-                .addMember(TEST_PERSOON.getValue(), "Viewer");
+            testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, "Owner");
+            testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
             // test
             String query =
@@ -281,7 +279,7 @@ class TestGraphqlAdminFields {
             Member anotherSchemaMember =
                 testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
             assertEquals("Owner", anotherSchemaMember.getRole());
-            assertEquals(TEST_PERSOON.getValue(), anotherSchemaMember.getUser());
+            assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
 
             // clean up
             testDatabase.removeUser(TEST_PERSOON);
@@ -295,7 +293,7 @@ class TestGraphqlAdminFields {
   private static Map<String, Object> createUpdateUserVar() {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
-    updateUser.put("email", TEST_PERSOON);
+    updateUser.put("email", TEST_PERSOON.getValue());
     updateUser.put("password", "12345678");
     updateUser.put("enabled", "false");
 

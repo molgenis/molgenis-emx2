@@ -4,11 +4,12 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Constants.IS_CHANGELOG_ENABLED;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.Constants.ACCEPT_ZIP;
 
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 
 class CsvApiTest extends ApiTestBase {
 
@@ -35,9 +37,9 @@ class CsvApiTest extends ApiTestBase {
 
   public static final String TABLE_NAME_WITH_SPACES = "table with spaces";
 
-  public static final String PET_SHOP_OWNER = "pet_shop_owner";
-  public static final String PET_SHOP_VIEWER = "shopviewer";
-  public static final String PET_SHOP_MANAGER = "shopmanager";
+  public static final Username PET_SHOP_OWNER = new Username("pet_shop_owner");
+  public static final Username PET_SHOP_VIEWER = new Username("shopviewer");
+  public static final Username PET_SHOP_MANAGER = new Username("shopmanager");
 
   @BeforeAll
   static void setupSchema() {
@@ -46,7 +48,7 @@ class CsvApiTest extends ApiTestBase {
     Schema schema = database.getSchema(SCHEMA_NAME);
     schema.create(table(TABLE_NAME_WITH_SPACES, column("name", STRING).setKey(1)));
 
-    login("admin", "admin");
+    login(ADMIN_USER, "admin");
   }
 
   @Test
@@ -145,9 +147,9 @@ class CsvApiTest extends ApiTestBase {
     Schema memberSchema = database.dropCreateSchema(schemaName);
 
     // grant a user permission
-    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
-    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
-    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER.getValue());
+    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER.getValue());
+    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER.getValue());
 
     memberSchema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
     memberSchema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());

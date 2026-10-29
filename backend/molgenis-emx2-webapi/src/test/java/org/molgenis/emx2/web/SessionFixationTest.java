@@ -9,11 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Username;
 
 class SessionFixationTest extends ApiTestBase {
 
-  private static final String DOCTOR = "session-fixation-doctor";
-  private static final String PATIENT = "session-fixation-patient";
+  private static final Username DOCTOR = new Username("session-fixation-doctor");
+  private static final Username PATIENT = new Username("session-fixation-patient");
   private static final String PASSWORD = "testtest";
 
   @BeforeAll
@@ -29,7 +30,7 @@ class SessionFixationTest extends ApiTestBase {
 
     assertNotNull(postLoginSessionId);
     assertNotEquals(preLoginSessionId, postLoginSessionId);
-    assertTrue(sessionEmail(postLoginSessionId).contains(PATIENT));
+    assertTrue(sessionEmail(postLoginSessionId).contains(PATIENT.getValue()));
   }
 
   @Test
@@ -38,7 +39,9 @@ class SessionFixationTest extends ApiTestBase {
     signin(fixedSessionId, PATIENT);
 
     String sessionOfFixedId = sessionEmail(fixedSessionId);
-    assertTrue(!sessionOfFixedId.contains(PATIENT) && !sessionOfFixedId.contains(DOCTOR));
+    assertTrue(
+        !sessionOfFixedId.contains(PATIENT.getValue())
+            && !sessionOfFixedId.contains(DOCTOR.getValue()));
   }
 
   @Test
@@ -53,7 +56,7 @@ class SessionFixationTest extends ApiTestBase {
     assertEquals(gaugeAfterFirstSignin - 1, MolgenisSessionHandler.sessionGauge.get());
   }
 
-  private static String signin(String sessionId, String username) {
+  private static String signin(String sessionId, Username username) {
     RequestSpecification request = given();
     if (sessionId != null) {
       request.sessionId(sessionId);
@@ -63,7 +66,7 @@ class SessionFixationTest extends ApiTestBase {
             """
             {"query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"}
             """
-                .formatted(username, PASSWORD))
+                .formatted(username.getValue(), PASSWORD))
         .post("api/graphql")
         .sessionId();
   }

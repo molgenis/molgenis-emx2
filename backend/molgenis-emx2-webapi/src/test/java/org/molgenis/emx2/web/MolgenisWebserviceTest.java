@@ -5,28 +5,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import java.net.URI;
 import java.net.URL;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 class MolgenisWebserviceTest extends ApiTestBase {
 
   @BeforeAll
   static void setup() {
-    database.setUserPassword("foo", "testtest");
+    database.setUserPassword(new Username("foo"), "testtest");
   }
 
   @BeforeEach
   void login() {
-    login("foo", "testtest");
+    login(new Username("foo"), "testtest");
   }
 
   @Test
@@ -46,10 +43,11 @@ class MolgenisWebserviceTest extends ApiTestBase {
   @Test
   void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
     Schema schema = setupSchema(getClass().getSimpleName() + "no-match");
-    database.addUser("testAnonymous");
-    database.setUserPassword("testAnonymous", "testtest");
+    Username testAnonymous = new Username("testAnonymous");
+    database.addUser(testAnonymous);
+    database.setUserPassword(testAnonymous, "testtest");
     schema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
-    login("testAnonymous", "testtest");
+    login(testAnonymous, "testtest");
     given()
         .redirects()
         .follow(false)
@@ -150,7 +148,7 @@ class MolgenisWebserviceTest extends ApiTestBase {
   private static Schema setupSchema(String schemaName) {
     database.dropCreateSchema(schemaName);
     Schema schema = database.getSchema(schemaName);
-    schema.addMember("foo", Privileges.VIEWER.toString());
+    schema.addMember(new Username("foo"), Privileges.VIEWER.toString());
     return schema;
   }
 

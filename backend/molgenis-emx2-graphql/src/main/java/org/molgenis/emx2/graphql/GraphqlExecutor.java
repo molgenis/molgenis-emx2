@@ -173,14 +173,14 @@ public class GraphqlExecutor {
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
     @Override
-    public void createSession(String username) {}
+    public void createSession(Username username) {}
 
     @Override
     public void destroySession() {}
 
     @Override
-    public String getCurrentUser() {
-      return "";
+    public Username getCurrentUser() {
+      return new Username("-");
     }
   }
 }

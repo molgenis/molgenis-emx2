@@ -132,7 +132,9 @@ public class GraphqlAdminFieldFactory {
   private static List<Map<String, Object>> getCustomRoles(Database db) {
     Map<String, List<String>> usersPerRole =
         db.loadUserRoles().stream()
-            .collect(groupingBy(Member::getRole, mapping(Member::getUser, toList())));
+            .collect(
+                groupingBy(
+                    Member::getRole, mapping(member -> member.getUser().getValue(), toList())));
     List<Map<String, Object>> result = new ArrayList<>();
     for (String schemaName : db.getSchemaNames()) {
       for (Role role : db.getSchema(schemaName).getRoleInfos()) {
@@ -158,7 +160,7 @@ public class GraphqlAdminFieldFactory {
     List<Member> members = db.loadUserRoles();
 
     if (email != null) {
-      return List.of(toGraphqlUser(db.getUser(email), members));
+      return List.of(toGraphqlUser(db.getUser(new Username(email)), members));
     } else {
       return db.getUsers(limit, offset).stream().map(user -> toGraphqlUser(user, members)).toList();
     }
@@ -172,7 +174,7 @@ public class GraphqlAdminFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
-              database.removeUser(email);
+              database.removeUser(new Username(email));
               return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
             })
         .build();
@@ -186,7 +188,7 @@ public class GraphqlAdminFieldFactory {
         .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              Username email = new Username(dataFetchingEnvironment.getArgument(EMAIL));
               boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
               database.setEnabledUser(email, enabled);
               return new GraphqlApiMutationResult(
@@ -209,7 +211,7 @@ public class GraphqlAdminFieldFactory {
 
   private static List<Map<String, String>> getRoles(User user, List<Member> members) {
     return members.stream()
-        .filter(member -> member.getUser().equals(user.getUsername().getValue()))
+        .filter(member -> member.getUser().equals(user.getUsername()))
         .map(GraphqlAdminFieldFactory::getUserRoleMap)
         .toList();
   }
@@ -244,7 +246,7 @@ public class GraphqlAdminFieldFactory {
   private static GraphqlApiMutationResult executeUpdateUser(
       Database database, DataFetchingEnvironment dataFetchingEnvironment) {
     LinkedHashMap<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
-    String userName = (String) updatedUser.get(EMAIL);
+    Username userName = new Username((String) updatedUser.get(EMAIL));
     if (userName == null) {
       return new GraphqlApiMutationResult(FAILED, "No user provided");
     }

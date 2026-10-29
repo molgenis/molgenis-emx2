@@ -9,6 +9,7 @@ import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import java.time.*;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.molgenis.emx2.Username;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class RateLimit {
   private final InstantSource instantSource;
   private final Counter attempts;
 
-  private final Cache<String, Failures> failures =
+  private final Cache<Username, Failures> failures =
       Caffeine.newBuilder().maximumSize(MAX_TRACKED_USERS).expireAfterWrite(FORGET_AFTER).build();
 
   public static synchronized RateLimit getInstance() {
@@ -48,7 +49,7 @@ public class RateLimit {
     Stream.of(SUCCESS, FAILURE, BLOCKED).map(Enum::name).forEach(attempts::labelValues);
   }
 
-  public synchronized void onFailure(String username) {
+  public synchronized void onFailure(Username username) {
     attempts.labelValues(FAILURE.name()).inc();
     Failures previous = failures.getIfPresent(username);
     int count = (previous == null ? 1 : previous.count() + 1);
@@ -61,7 +62,7 @@ public class RateLimit {
         blockedUntil);
   }
 
-  public synchronized void onSuccess(String username) {
+  public synchronized void onSuccess(Username username) {
     attempts.labelValues(SUCCESS.name()).inc();
     failures.invalidate(username);
   }
@@ -70,7 +71,7 @@ public class RateLimit {
     attempts.labelValues(BLOCKED.name()).inc();
   }
 
-  public synchronized Optional<Instant> getRateLimit(String username) {
+  public synchronized Optional<Instant> getRateLimit(Username username) {
     Failures current = failures.getIfPresent(username);
     if (current == null || !current.blockedUntil().isAfter(instantSource.instant())) {
       return Optional.empty();
