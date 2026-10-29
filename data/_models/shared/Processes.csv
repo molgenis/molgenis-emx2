@@ -16,8 +16,8 @@ Experiments,,sample,select,,,,,,Samples,,,,,,obo:NCIT_C25364,"One or more charac
 Experiments,,sample,select,,,,,Staging area ids,Sample identifiers,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a sample",Patient registry staging,
 Experiments,,local experiment id,string,,,,,,,,,,,,obo:NCIT_C25364,"An identifier associated with a particular source, used by the data provider or owner","Patient registry, FAIR Genomes",
 Experiments,,local experiment id,string,,,,TRUE,,,,,,,,obo:NCIT_C25364,"An identifier associated with a particular source, used by the data provider or owner","Patient registry staging",
-Processes,,affiliated networks,multiselect,,,,,CatalogueOntologies,Organisations,,,,,,http://purl.obolibrary.org/obo/NCIT_C211935,"One or more associations between the individual and a network, e.g., an ERN.","Patient registry, FAIR Genomes",
 Processes,,submitter,multiselect,,,,,CatalogueOntologies,Organisations,,,,,,http://purl.obolibrary.org/obo/NCIT_C54269,The data submitter,"Patient registry, FAIR Genomes",
+Processes,,affiliated networks,multiselect,,,,,CatalogueOntologies,Organisations,,,,,,http://purl.obolibrary.org/obo/NCIT_C211935,"One or more associations between the individual and a network, e.g., an ERN.","Patient registry, FAIR Genomes",
 Experiments RNA,,related samples,select,,,,,,Samples,,,,,,obo:NCIT_C25364,"A reference to a related sample (e.g., a srDNA sample) used in this experiment","Patient registry",
 Experiments RNA,,related samples,select,,,,,Staging area ids,Sample identifiers,,,,,,obo:NCIT_C25364,"A reference to a related sample (e.g., a srDNA sample) used in this experiment",Patient registry staging,
 Experiments,,related experiments,multiselect,,,,,,Experiments,,,,,,sio:SIO_000994,A reference to another experiment or parent experiment,"Patient registry, Patient registry staging",false
