@@ -406,8 +406,8 @@ const filterError = computed(() => parsedFilter.value.error);
 function displayFor(layout: Layout): DisplayConfig {
   return {
     layout,
-    titleColumn: titleColumn.value || undefined,
-    subtitleColumn: subtitleColumn.value || undefined,
+    titleColumnId: titleColumn.value || undefined,
+    subtitleColumnId: subtitleColumn.value || undefined,
     descriptionColumnId: descriptionColumnId.value || undefined,
     detailColumnIds: detailColumnIds.value.length
       ? detailColumnIds.value
@@ -476,7 +476,7 @@ const SURFACES: SurfaceDemo[] = [
 
       <div class="flex flex-col gap-1">
         <label class="text-title-contrast" for="ddl-title-column">
-          titleColumn
+          titleColumnId
         </label>
         <InputListbox
           id="ddl-title-column"
@@ -492,7 +492,7 @@ const SURFACES: SurfaceDemo[] = [
 
       <div class="flex flex-col gap-1">
         <label class="text-title-contrast" for="ddl-subtitle-column">
-          subtitleColumn
+          subtitleColumnId
         </label>
         <InputListbox
           id="ddl-subtitle-column"

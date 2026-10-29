@@ -14,7 +14,7 @@ import {
 import type { cellPayload } from "../../../types/types";
 import type {
   ListSeed,
-  RecordConfig,
+  TableConfig,
   RecordList,
 } from "../../../types/recordConfig";
 import type {
@@ -26,6 +26,8 @@ import type {
 import { groupRecordSections } from "../../utils/groupRecordSections";
 import { NESTED_LIST_LIMIT } from "../../utils/deriveRecordQuery";
 import { recordTitle } from "../../utils/recordTitle";
+import { equalsFilter, nestedRecordLink } from "../../utils/recordPath";
+import { listDisplay } from "../../utils/tableConfig";
 import Legend from "../Legend.vue";
 import SidebarLayout from "./SidebarLayout.vue";
 import DisplayRecordSection from "./RecordSection.vue";
@@ -37,7 +39,8 @@ const props = withDefaults(
     showTableOfContents?: boolean;
     layout?: RecordLayout;
     titleTemplate?: string;
-    config?: RecordConfig;
+    config?: TableConfig;
+    recordPath?: string;
     schema?: ISchemaMetaData;
   }>(),
   {
@@ -50,13 +53,10 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
-function listDisplay(column: IColumn) {
-  return props.config?.columns?.[column.id]?.display;
-}
-
 const visibleColumns = computed(() =>
   props.columns.filter(
-    (column) => !(listDisplay(column) && listCount(column) === 0)
+    (column) =>
+      !(listDisplay(props.config, column.id) && listCount(column) === 0)
   )
 );
 
@@ -90,7 +90,7 @@ const sections = computed(() =>
 const lists = computed(() => {
   const resolved: Record<string, RecordList> = {};
   for (const column of visibleColumns.value) {
-    const display = listDisplay(column);
+    const display = listDisplay(props.config, column.id);
     if (display && column.refTableId && column.refSchemaId) {
       resolved[column.id] = {
         displayConfig: display,
@@ -99,11 +99,23 @@ const lists = computed(() => {
         filter: nestedFilter(column),
         pageSize: NESTED_LIST_LIMIT,
         seed: listSeed(column),
+        linkTo: listLink(column),
       };
     }
   }
   return resolved;
 });
+
+function listLink(column: IColumn): ((row: IRow) => string) | undefined {
+  const route = props.config?.columns?.[column.id]?.route;
+  const target = props.schema?.tables.find(
+    (candidate) => candidate.id === column.refTableId
+  );
+  const recordPath = props.recordPath;
+  return route && target && recordPath
+    ? (row) => nestedRecordLink(recordPath, column, route, target, row)
+    : undefined;
+}
 
 function nestedFilter(column: IColumn): Record<string, unknown> {
   if (column.columnType === "REFBACK" && column.refBackId) {
@@ -121,17 +133,6 @@ function nestedFilter(column: IColumn): Record<string, unknown> {
     ? []
     : [value];
   return { _or: values.map(equalsFilter) };
-}
-
-function equalsFilter(value: columnValue): unknown {
-  return isColumnValueObject(value)
-    ? Object.fromEntries(
-        Object.entries(value).map(([key, nested]) => [
-          key,
-          equalsFilter(nested),
-        ])
-      )
-    : { equals: value };
 }
 
 const recordSections = computed<RecordSection[]>(() =>

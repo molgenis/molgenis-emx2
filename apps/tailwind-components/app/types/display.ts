@@ -5,8 +5,8 @@ export type Layout = (typeof LAYOUTS)[number];
 
 export interface DisplayConfig {
   layout: Layout;
-  titleColumn?: string;
-  subtitleColumn?: string;
+  titleColumnId?: string;
+  subtitleColumnId?: string;
   descriptionColumnId?: string;
   detailColumnIds?: string[];
   logoColumnId?: string;

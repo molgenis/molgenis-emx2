@@ -61,7 +61,7 @@ describe("resolveDisplay", () => {
     expect(result.logoColumn?.id).toEqual("name");
   });
 
-  test("an explicit titleColumn, subtitleColumn and descriptionColumn override the defaults", () => {
+  test("an explicit titleColumnId, subtitleColumnId and descriptionColumn override the defaults", () => {
     const columns: IColumn[] = [
       column({ id: "acronym", key: 1, position: 1 }),
       column({ id: "name", position: 2 }),
@@ -70,8 +70,8 @@ describe("resolveDisplay", () => {
 
     const result = resolveDisplay(columns, {
       layout: "CARDS",
-      titleColumn: "name",
-      subtitleColumn: "acronym",
+      titleColumnId: "name",
+      subtitleColumnId: "acronym",
       descriptionColumnId: "name",
     });
 
@@ -169,11 +169,11 @@ describe("resolveDisplay", () => {
     expect(result.titleColumn).toBeUndefined();
   });
 
-  test("an explicit titleColumn or subtitleColumn naming no column resolves to no title, without throwing", () => {
+  test("an explicit titleColumnId or subtitleColumnId naming no column resolves to no title, without throwing", () => {
     const result = resolveDisplay([column({ id: "id", key: 1, position: 1 })], {
       layout: "TABLE",
-      titleColumn: "nope",
-      subtitleColumn: "nope",
+      titleColumnId: "nope",
+      subtitleColumnId: "nope",
     });
 
     expect(result.titleColumn).toBeUndefined();
@@ -187,7 +187,7 @@ describe("resolveDisplay", () => {
         column({ id: "name", position: 2 }),
         column({ id: "email", position: 3 }),
       ],
-      { layout: "TABLE", subtitleColumn: "name" }
+      { layout: "TABLE", subtitleColumnId: "name" }
     );
 
     expect(result.detailColumns.map((c) => c.id)).toEqual(["email"]);

@@ -107,6 +107,7 @@ useIntersectionObserver(
           :displayConfig="block.list.displayConfig"
           :pageSize="block.list.pageSize"
           :seed="block.list.seed"
+          :linkTo="block.list.linkTo"
         />
       </div>
       <DefinitionList v-else :compact="false">

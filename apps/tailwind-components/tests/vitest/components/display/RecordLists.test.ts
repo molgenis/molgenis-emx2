@@ -247,7 +247,7 @@ describe("DisplayRecord nested lists", () => {
       [nameColumn, speciesColumn, petsColumn],
       row,
       "LIST",
-      { layout: "LIST", titleColumn: "name" }
+      { layout: "LIST", titleColumnId: "name" }
     );
     await flushPromises();
 
@@ -255,7 +255,7 @@ describe("DisplayRecord nested lists", () => {
       wrapper.findComponent(DisplayRecords).props("displayConfig")
     ).toEqual({
       layout: "LIST",
-      titleColumn: "name",
+      titleColumnId: "name",
     });
   });
 

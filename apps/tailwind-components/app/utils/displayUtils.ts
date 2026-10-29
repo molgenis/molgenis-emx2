@@ -12,10 +12,10 @@ export function resolveDisplay(
   columns: IColumn[],
   settings?: DisplayConfig
 ): ResolvedDisplay {
-  const titleColumn = settings?.titleColumn
-    ? findColumn(columns, settings.titleColumn)
+  const titleColumn = settings?.titleColumnId
+    ? findColumn(columns, settings.titleColumnId)
     : defaultTitleColumn(columns);
-  const subtitleColumn = findColumn(columns, settings?.subtitleColumn);
+  const subtitleColumn = findColumn(columns, settings?.subtitleColumnId);
   const descriptionColumn = settings?.descriptionColumnId
     ? columns.find((column) => column.id === settings.descriptionColumnId)
     : defaultDescriptionColumn(columns);

@@ -130,7 +130,7 @@ describe("deriveRecordQuery", () => {
         friends: {
           display: {
             layout: "LINKS",
-            titleColumn: "name",
+            titleColumnId: "name",
             detailColumnIds: [],
           },
         },
