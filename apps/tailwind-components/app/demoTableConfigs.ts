@@ -13,7 +13,7 @@ export const tableConfigs: Record<string, TableConfig> = {
         },
       },
       organisationsInvolved: {
-        display: { layout: "LINKS", titleColumnId: "name" },
+        display: { layout: "LINKS", titleColumnId: "organisationName" },
       },
       peopleInvolved: {
         display: {
@@ -36,21 +36,16 @@ export const tableConfigs: Record<string, TableConfig> = {
   },
   Subpopulations: {
     display: {
-      layout: "CARDS",
+      layout: "TABLE",
       titleColumnId: "name",
-      descriptionColumnId: "description",
-      detailColumnIds: [
-        "numberOfParticipants",
-        "inclusionStart",
-        "inclusionEnd",
-      ],
+      detailColumnIds: ["description", "numberOfParticipants"],
     },
   },
   CollectionEvents: {
     display: {
       layout: "TABLE",
       titleColumnId: "name",
-      detailColumnIds: ["numberOfParticipants", "startDate", "endDate"],
+      detailColumnIds: ["description", "numberOfParticipants"],
     },
     columns: { subpopulations: {} },
   },
