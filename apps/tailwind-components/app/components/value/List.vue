@@ -91,7 +91,8 @@ const lastIndex = computed(() => Number(displayedData.value?.length) - 1);
           elementType === 'STRING' ||
           elementType === 'AUTO_ID' ||
           elementType === 'PERIOD' ||
-          elementType === 'UUID'
+          elementType === 'UUID' ||
+          elementType === 'ENUM'
         "
         :metadata="metadata"
         :data="assertStringValue(listElement)"
