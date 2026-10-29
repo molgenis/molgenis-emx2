@@ -1,4 +1,4 @@
-import type { TableConfig } from "../../../../types/recordConfig";
+import type { TableConfig } from "../types/recordConfig";
 
 export const tableConfigs: Record<string, TableConfig> = {
   Collections: {

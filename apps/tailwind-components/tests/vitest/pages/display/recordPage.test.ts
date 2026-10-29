@@ -7,7 +7,7 @@ import type {
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
 import RecordPage from "../../../../app/pages/display/record/[schemaId]/[...path].vue";
-import { tableConfigs } from "../../../../app/pages/display/record/-tableConfigs";
+import { tableConfigs } from "../../../../app/demoTableConfigs";
 import { deriveRecordQuery } from "../../../../app/utils/deriveRecordQuery";
 import { resolveTableConfig } from "../../../../app/utils/tableConfig";
 

@@ -9,7 +9,7 @@ import Message from "../../../../components/Message.vue";
 import { deriveRecordQuery } from "../../../../utils/deriveRecordQuery";
 import { resolveRecordPath } from "../../../../utils/recordPath";
 import { resolveTableConfig } from "../../../../utils/tableConfig";
-import { tableConfigs } from "../-tableConfigs";
+import { tableConfigs } from "../../../../demoTableConfigs";
 
 const route = useRoute();
 const schemaId = String(route.params.schemaId);
