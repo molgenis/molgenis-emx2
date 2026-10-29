@@ -34,7 +34,6 @@ final class ColumnDependencies {
     Set<String> variables = new HashSet<>();
     variables.addAll(JavaScriptParser.getReferencedVariables(column.getComputed()));
     variables.addAll(JavaScriptParser.getReferencedVariables(getDefaultValueExpression(column)));
-    variables.addAll(JavaScriptParser.getReferencedVariables(column.getRequired()));
     variables.addAll(JavaScriptParser.getReferencedVariables(column.getValidation()));
     variables.addAll(JavaScriptParser.getReferencedVariables(column.getVisible()));
     return variables;
