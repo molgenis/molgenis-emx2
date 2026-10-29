@@ -158,7 +158,7 @@
     :refLabel="refLabel!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="false"
+    :isArray="false"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
@@ -175,7 +175,7 @@
     :refLabel="refLabel!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="true"
+    :isArray="true"
   />
   <InputRef
     v-else-if="'SELECT' === typeUpperCase"
@@ -192,7 +192,7 @@
     :refLabel="refLabel!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="false"
+    :isArray="false"
   />
   <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
@@ -210,7 +210,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
-    :is-array="true"
+    :isArray="true"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"
@@ -239,7 +239,7 @@
     :ontologyTableId="refTableId!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="false"
+    :isArray="false"
     :limit="10"
   />
   <InputOntology

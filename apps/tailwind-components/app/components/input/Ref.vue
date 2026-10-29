@@ -144,7 +144,7 @@ async function loadOptions(append: boolean, pageSize = PAGE_SIZE) {
       expandLevel: 1,
     }
   );
-  if (request !== latestRequest) {
+  if (request < latestRequest) {
     return;
   }
   const rows = data.rows ?? [];

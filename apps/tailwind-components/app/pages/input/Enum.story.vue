@@ -29,7 +29,7 @@
 
       <div>
         <h3 class="text-heading-lg mb-2">
-          ENUM_ARRAY: searchable listbox with chips
+          ENUM_ARRAY: searchable listbox with removable values
         </h3>
         <fieldset>
           <legend id="enum-array-legend" class="text-title-contrast mb-1">

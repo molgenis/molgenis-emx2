@@ -271,7 +271,7 @@ function toItems(model: T[] | T | null | undefined): T[] {
   if (Array.isArray(model)) {
     return model;
   }
-  return model == null ? [] : [model];
+  return model === null || model === undefined ? [] : [model];
 }
 
 function toModel(items: T[]): Model {

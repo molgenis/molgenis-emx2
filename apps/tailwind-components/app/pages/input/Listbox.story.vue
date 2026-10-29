@@ -145,7 +145,7 @@ onBeforeMount(() => {
   </div>
   <div class="sm:w-[65%] mt-8">
     <h3 class="text-heading-lg mb-2">
-      Multiple, with chips, Clear and load-more
+      Multiple, with removable values, Clear and load-more
     </h3>
     <InputLabel
       id="listbox-multiple-label"
