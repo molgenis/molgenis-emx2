@@ -26,21 +26,9 @@ const STICKY_SELECT_COLUMN_WIDTH = 48;
 
 const props = withDefaults(
   defineProps<{
-    features: {
-      showSearch?: boolean;
-      showFilters?: boolean;
-      showStickyHeader?: boolean;
-      showDraftColumn?: boolean;
-      showRolesColumn?: boolean;
-    };
+    features: FeatureFlags;
     filters?: UseFilters | null;
-    permissions: {
-      canUpdate: boolean;
-      canInsert: boolean;
-      canDelete: boolean;
-      canModifySelection: boolean;
-      isRowLevel: boolean;
-    };
+    permissions: Permissions;
     rows: TableRow[];
     rowCount: number;
     settings: ITableSettings;
@@ -170,6 +158,22 @@ function handlePageSizeChange(pageSize: string) {
     pageSize: Number.parseInt(pageSize),
     page: 1,
   });
+}
+
+interface FeatureFlags {
+  showSearch?: boolean;
+  showFilters?: boolean;
+  showStickyHeader?: boolean;
+  showDraftColumn?: boolean;
+  showRolesColumn?: boolean;
+}
+
+interface Permissions {
+  canUpdate: boolean;
+  canInsert: boolean;
+  canDelete: boolean;
+  canModifySelection: boolean;
+  isRowLevel: boolean;
 }
 </script>
 

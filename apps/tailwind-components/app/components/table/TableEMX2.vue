@@ -18,6 +18,7 @@
     }"
     :rows="rows"
     :rowCount="data?.count || 0"
+    :searchPlaceholder="`Search ${tableId}`"
     :settings="settings"
     :selectedRows="selectedRows"
     :sortedVisibleColumns="sortedVisibleColumns"
