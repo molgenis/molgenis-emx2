@@ -10,6 +10,8 @@ export default [
   "DECIMAL_ARRAY",
   "EMAIL",
   "EMAIL_ARRAY",
+  "ENUM",
+  "ENUM_ARRAY",
   "FILE",
   "HEADING",
   "HYPERLINK",

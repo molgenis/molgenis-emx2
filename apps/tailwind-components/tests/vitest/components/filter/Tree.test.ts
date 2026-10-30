@@ -64,6 +64,21 @@ function makeOptions(count: number, withZeros = false): CountedOption[] {
 
 describe("FilterTree", () => {
   describe("countable types", () => {
+    it.each(["ENUM", "ENUM_ARRAY"] as const)(
+      "lists every %s value, with no count and none hidden",
+      (columnType) => {
+        const col = { id: "status", label: "Status", columnType } as IColumn;
+        const wrapper = mountTree(col, [
+          { name: "open", count: 0 },
+          { name: "closed", count: 0 },
+        ]);
+        expect(wrapper.findAll("label").map((l) => l.text())).toEqual([
+          "open",
+          "closed",
+        ]);
+      }
+    );
+
     it("renders Tree for ONTOLOGY column type", () => {
       const wrapper = mountTree(ontologyColumn(), sampleOptions);
       expect(wrapper.findComponent(TreeNode).exists()).toBe(true);

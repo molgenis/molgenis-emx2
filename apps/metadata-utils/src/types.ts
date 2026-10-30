@@ -50,7 +50,9 @@ export type CellValueType =
   | "NON_NEGATIVE_INT"
   | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
-  | "MULTISELECT";
+  | "MULTISELECT"
+  | "ENUM"
+  | "ENUM_ARRAY";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -81,6 +83,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  allowedValues?: string[];
 }
 
 export interface IRefColumn extends IColumn {
