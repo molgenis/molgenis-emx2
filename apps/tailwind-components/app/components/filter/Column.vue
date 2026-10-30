@@ -8,11 +8,14 @@ import type {
 import type { CountedOption } from "../../utils/fetchCounts";
 import type { IFilterValue } from "../../../types/filters";
 import {
+  isBoolColumnType,
   isCountableType,
   isEnumColumnType,
   isRangeType,
+  nonEmptyRanges,
   treeSelectionToFilterValue,
 } from "../../utils/filterUtils";
+import FilterBool from "./Bool.vue";
 import FilterTree from "./Tree.vue";
 import FilterRange from "./Range.vue";
 import FilterText from "./Text.vue";
@@ -30,6 +33,7 @@ const emit = defineEmits<{
   "update:modelValue": [value: IFilterValue | undefined];
 }>();
 
+const isBool = computed(() => isBoolColumnType(props.column.columnType));
 const showsTree = computed(
   () =>
     isCountableType(props.column.columnType) ||
@@ -40,19 +44,16 @@ const rangeInputType = computed(
   () => props.column.columnType.replace(/_ARRAY$/, "") as CellValueType
 );
 
-const rangeValue = computed<[columnValue, columnValue]>(() => {
-  if (!props.modelValue || props.modelValue.operator !== "between")
-    return [null, null];
-  return props.modelValue.value;
-});
+const rangeValue = computed<[columnValue, columnValue][]>(() =>
+  props.modelValue?.operator === "between" ? props.modelValue.value : []
+);
 
-function onRangeChange(val: [columnValue, columnValue]) {
-  const [min, max] = val;
-  if (min === null && max === null) {
-    emit("update:modelValue", undefined);
-  } else {
-    emit("update:modelValue", { operator: "between", value: [min, max] });
-  }
+function onRangeChange(ranges: [columnValue, columnValue][]) {
+  const filled = nonEmptyRanges(ranges);
+  emit(
+    "update:modelValue",
+    filled.length > 0 ? { operator: "between", value: filled } : undefined
+  );
 }
 
 function onTreeChange(val: IFilterValue | string[] | undefined) {
@@ -69,8 +70,15 @@ function onTreeChange(val: IFilterValue | string[] | undefined) {
 
 <template>
   <div>
+    <FilterBool
+      v-if="isBool"
+      :column="column"
+      :options="options"
+      :model-value="modelValue"
+      @update:model-value="emit('update:modelValue', $event)"
+    />
     <FilterTree
-      v-if="showsTree"
+      v-else-if="showsTree"
       :column="column"
       :options="options"
       :model-value="modelValue"

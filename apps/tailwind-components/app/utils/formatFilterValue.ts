@@ -1,4 +1,5 @@
 import type { IFilterValue } from "../../types/filters";
+import { nonEmptyRanges } from "./filterUtils";
 
 export function extractDisplayValue(obj: Record<string, unknown>): string {
   if (obj.name) return String(obj.name);
@@ -18,12 +19,10 @@ export function formatFilterValue(
 
   switch (operator) {
     case "between": {
-      const [min, max] = value;
-      if (min != null && max != null)
-        return { displayValue: `${min} - ${max}`, values: [] };
-      if (min != null) return { displayValue: `≥ ${min}`, values: [] };
-      if (max != null) return { displayValue: `≤ ${max}`, values: [] };
-      return { displayValue: "", values: [] };
+      const ranges = nonEmptyRanges(value).map(formatRange);
+      if (ranges.length > 1)
+        return { displayValue: `${ranges.length}`, values: ranges };
+      return { displayValue: ranges[0] ?? "", values: [] };
     }
 
     case "notNull":
@@ -66,4 +65,11 @@ function resolveLabel(
   }
   const strKey = String(value);
   return optionLabels[strKey] ?? strKey;
+}
+
+function formatRange([min, max]: [unknown, unknown]): string {
+  const hasMin = min != null && min !== "";
+  const hasMax = max != null && max !== "";
+  if (hasMin && hasMax) return `${min} - ${max}`;
+  return hasMin ? `≥ ${min}` : `≤ ${max}`;
 }

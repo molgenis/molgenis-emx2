@@ -10,22 +10,12 @@ export interface ActiveFilter {
 }
 
 export type IFilterValue =
-  | {
-      operator: "equals" | "like" | "notNull" | "isNull";
-      value: columnValue;
-    }
-  | { operator: "between"; value: [columnValue, columnValue] };
+  | { operator: "equals" | "notNull" | "isNull"; value: columnValue }
+  | { operator: "like"; value: string[] }
+  | { operator: "between"; value: [columnValue, columnValue][] };
 
 export interface IGraphQLFilterEquals {
   equals: unknown;
-}
-
-export interface IGraphQLFilterLike {
-  like: string;
-}
-
-export interface IGraphQLFilterBetween {
-  between: { min?: unknown; max?: unknown };
 }
 
 export interface IGraphQLFilterNull {
@@ -46,8 +36,6 @@ export interface IGraphQLFilterOr {
 
 export type IGraphQLFilterValue =
   | IGraphQLFilterEquals
-  | IGraphQLFilterLike
-  | IGraphQLFilterBetween
   | IGraphQLFilterNull
   | IGraphQLFilterMatchAny
   | IGraphQLFilterMatchAnyIncludingChildren
@@ -56,7 +44,6 @@ export type IGraphQLFilterValue =
 export interface IGraphQLFilter {
   _search?: string;
   _or?: IGraphQLFilter[];
-  _and?: IGraphQLFilter[];
   [columnId: string]:
     | IGraphQLFilterValue
     | IGraphQLFilter[]
