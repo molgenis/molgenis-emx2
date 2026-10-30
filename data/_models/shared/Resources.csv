@@ -1,9 +1,10 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue,visible
-Resources,,,,,,,,,,,ldp:DirectContainer,"Use Catalogues, Networks or Collections to add metadata, do not use Resources directly.","DataCatalogueFlat,EMA",,,
+Resources,,,,,,,,,,,ldp:DirectContainer,"Use Catalogues, Networks or Collections etc. to add metadata, do not use Resources table to enter metadata directly.","DataCatalogueFlat,EMA",,,
 Networks,Resources,,,,,,,,,,,A network or consortium of data resources,"DataCatalogueFlat,EMA,NetworksStaging",,,
 Catalogues,Networks,,,,,,,,,,dcat:Catalog,A catalogue of data resources,"DataCatalogueFlat,EMA,NetworksStaging",,,
 Collections,Resources,,,,,,,,,,dcat:Dataset,"A collection of data and/or samples such as a cohort, registry or biobank","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Organisational units,Resources,,,,,,,,,,"foaf:Agent,org:Organization","Research organisations, departments, biobanks and other legal entities.","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
+Tools,Resources,,,,,,,,,,,Listing of tools,"DataCatalogueFlat,NetworksStaging",,,
 Resources,,general information,heading,,,,,,,,,General information about this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,hricore,bool,,,,,,,,,"Do you want your metadata to be compatible with HRICore v2.0.1, so that the metadata can be shared with the Dutch National Health Data Catalogue?","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,id,,1,TRUE,,,,,,,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
