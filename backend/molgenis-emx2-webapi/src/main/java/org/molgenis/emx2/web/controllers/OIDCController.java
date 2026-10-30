@@ -91,7 +91,7 @@ public class OIDCController {
       return;
     }
 
-    String email = oidcProfile.get().getAttribute("email").toString();
+    Object email = oidcProfile.get().getAttribute("email");
     if (email == null) {
       logger.error("OIDC sign in failed, email claim is empty");
       ctx.status(500);
@@ -99,7 +99,7 @@ public class OIDCController {
       return;
     }
 
-    Username user = new Username(email);
+    Username user = new Username(email.toString());
     Database database = ApplicationCachePerUser.getInstance().getDatabaseForUser(ctx);
     if (!database.hasUser(user)) {
       logger.info("Add new OIDC user({}) to database", user);

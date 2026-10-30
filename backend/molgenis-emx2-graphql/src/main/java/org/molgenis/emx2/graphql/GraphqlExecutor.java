@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
@@ -180,7 +182,7 @@ public class GraphqlExecutor {
 
     @Override
     public Username getCurrentUser() {
-      return new Username("-");
+      return ANONYMOUS;
     }
   }
 }
