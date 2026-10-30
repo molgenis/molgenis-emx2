@@ -98,7 +98,7 @@ class RowOwnership {
   }
 
   private List<String> rolesInSchema() {
-    if (rolesInSchema == null) rolesInSchema = schema.getRoles();
+    if (rolesInSchema == null) rolesInSchema = schema.getAllRoles();
     return rolesInSchema;
   }
 }
