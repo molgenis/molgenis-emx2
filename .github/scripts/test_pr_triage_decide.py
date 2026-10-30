@@ -235,66 +235,29 @@ class DecideRemovePrCardTest(unittest.TestCase):
 
 
 class DecideIssueCardUpdateTest(unittest.TestCase):
-    """Pure decision for one linked issue's card. mapped_team/current_sprint_title
-    are only ever consulted when a card is being added (existing_issue_item is
-    None); an existing card's Team and Sprint are never touched by any action."""
-
     EXISTING_WORKING = {"id": "ISSUE_ITEM", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 259"}
     EXISTING_BLANK = {"id": "ISSUE_ITEM", "status": None, "team": None, "sprint": None}
     EXISTING_PARKED = {"id": "ISSUE_ITEM", "status": "⛔️ Blocked", "team": "Dev", "sprint": "Sprint 259"}
 
-    # --- opened and the three transitions: Status only on an existing card ---
-
-    def test_opened_and_transitions_set_status_only_on_an_existing_card(self):
-        for action in pr_triage_decide.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage_decide.decide_issue_card_update(action, False, self.EXISTING_WORKING, "Delivery", "Sprint 260")
+    def test_an_existing_card_gets_status_only(self):
+        for existing in (self.EXISTING_WORKING, self.EXISTING_BLANK):
+            with self.subTest(existing=existing):
+                fields = pr_triage_decide.decide_issue_card_update(False, existing, "Delivery", "Sprint 260")
                 self.assertEqual(fields, {"status": "Review", "team": None, "sprint": None})
 
-    def test_opened_and_transitions_fill_status_when_the_existing_card_is_blank(self):
-        for action in pr_triage_decide.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage_decide.decide_issue_card_update(action, False, self.EXISTING_BLANK, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": "Review", "team": None, "sprint": None})
+    def test_a_parked_card_is_not_moved(self):
+        fields = pr_triage_decide.decide_issue_card_update(False, self.EXISTING_PARKED, "Delivery", "Sprint 260")
+        self.assertEqual(fields, {"status": None, "team": None, "sprint": None})
 
-    def test_opened_and_transitions_never_move_a_parked_status(self):
-        for action in pr_triage_decide.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage_decide.decide_issue_card_update(action, False, self.EXISTING_PARKED, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": None, "team": None, "sprint": None})
-
-    def test_opened_and_transitions_add_and_fill_all_three_on_a_missing_card(self):
-        for action in pr_triage_decide.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage_decide.decide_issue_card_update(action, True, None, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": "Working", "team": "Delivery", "sprint": "Sprint 260"})
-
-                fields = pr_triage_decide.decide_issue_card_update(action, False, None, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": "Review", "team": "Delivery", "sprint": "Sprint 260"})
-
-    # --- synchronize: never touches a linked issue's card, existing or missing ---
-
-    def test_synchronize_never_touches_an_existing_card(self):
-        fields = pr_triage_decide.decide_issue_card_update("synchronize", True, self.EXISTING_WORKING, "Delivery", "Sprint 260")
-        self.assertIsNone(fields)
-
-    def test_synchronize_never_touches_a_missing_card_either(self):
-        fields = pr_triage_decide.decide_issue_card_update("synchronize", True, None, "Delivery", "Sprint 260")
-        self.assertIsNone(fields)
-
-    # --- edited: adds and fills Team+Sprint on a missing card, but never
-    # touches an existing one, and never writes Status even on the card it adds ---
-
-    def test_edited_never_touches_an_existing_card(self):
-        fields = pr_triage_decide.decide_issue_card_update("edited", True, self.EXISTING_WORKING, "Delivery", "Sprint 260")
-        self.assertIsNone(fields)
-
-    def test_edited_adds_and_fills_team_and_sprint_on_a_missing_card_but_leaves_status_unwritten(self):
-        fields = pr_triage_decide.decide_issue_card_update("edited", True, None, "Delivery", "Sprint 260")
-        self.assertEqual(fields, {"status": None, "team": "Delivery", "sprint": "Sprint 260"})
-
-        fields = pr_triage_decide.decide_issue_card_update("edited", False, None, "Delivery", "Sprint 260")
-        self.assertEqual(fields, {"status": None, "team": "Delivery", "sprint": "Sprint 260"})
+    def test_a_missing_card_is_added_with_all_three_fields(self):
+        self.assertEqual(
+            pr_triage_decide.decide_issue_card_update(True, None, "Delivery", "Sprint 260"),
+            {"status": "Working", "team": "Delivery", "sprint": "Sprint 260"},
+        )
+        self.assertEqual(
+            pr_triage_decide.decide_issue_card_update(False, None, "Delivery", "Sprint 260"),
+            {"status": "Review", "team": "Delivery", "sprint": "Sprint 260"},
+        )
 
 
 class FindCurrentIterationTest(unittest.TestCase):
