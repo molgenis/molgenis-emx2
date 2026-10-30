@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 withDefaults(defineProps<{ stacked?: boolean }>(), { stacked: false });
 </script>

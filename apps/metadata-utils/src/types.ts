@@ -203,6 +203,12 @@ export type IInputValueLabel = {
 
 export type IRow = Record<columnId, columnValue>;
 
+export type TableRow = IRow & {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+  mg_roles?: string[];
+};
+
 export type DateValue = Date | string | undefined | null;
 
 export type TaskStatus =
