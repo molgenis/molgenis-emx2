@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.emx2;
 
-import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 
@@ -37,8 +36,7 @@ public class Emx2Tables {
                         || isFileType(c, metadata)
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
-            .filter(
-                name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystemColumns)
+            .filter(name -> DownloadColumns.isIncluded(name, includeSystemColumns))
             .toList();
 
     Query query = table.query();

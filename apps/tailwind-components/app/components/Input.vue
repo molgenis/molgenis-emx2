@@ -100,6 +100,7 @@
     :describedBy="describedBy"
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
+    :showClearButton="showClearButton"
     :align="align"
     @focus="emit('focus')"
     @blur="emit('blur')"
@@ -355,6 +356,7 @@ const props = withDefaults(
       required?: boolean;
       trueLabel?: string;
       falseLabel?: string;
+      showClearButton?: boolean;
       align?: "horizontal" | "vertical";
       limit?: number;
       errorMessage?: string | null;
@@ -362,6 +364,8 @@ const props = withDefaults(
   >(),
   {
     limit: 25,
+    // undefined (not Vue's implicit false) so Boolean.vue keeps its own default
+    showClearButton: undefined,
   }
 );
 const emit = defineEmits(["focus", "blur"]);

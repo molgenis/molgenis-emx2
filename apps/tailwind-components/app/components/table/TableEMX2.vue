@@ -36,10 +36,13 @@
           @update:columns="handleColumnsUpdate"
         />
 
-        <DownloadButton
-          v-if="schemaId && tableId"
+        <Download
           :schemaId="schemaId"
           :tableId="tableId"
+          :filters="filters"
+          :columns="defaultSortedColumns"
+          :visibleColumns="sortedVisibleColumns"
+          :selectedRowKeys="[...selectedRows.values()]"
         />
 
         <Truncate
@@ -400,11 +403,11 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
 import TableControlColumns from "./control/Columns.vue";
 import DeleteRows from "./control/DeleteRows.vue";
-import DownloadButton from "./control/DownloadButton.vue";
 import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 import EditModalHeader from "../form/EditModalHeader.vue";
+import Download from "./control/Download.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -691,9 +694,14 @@ watch(
   { immediate: true }
 );
 
+// all columns in backend order, i.e. what a download without column selection gives
+const defaultSortedColumns = computed(() =>
+  sortColumns([...(columns.value ?? [])])
+);
+
 const sortedColumns = computed(() => {
   // sort from backend
-  let sortedColumns = sortColumns([...(columns.value ?? [])]);
+  let sortedColumns = [...defaultSortedColumns.value];
 
   if (settings.value.orderedColumnsIds?.length) {
     // override visibility with user settings
