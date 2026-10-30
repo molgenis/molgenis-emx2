@@ -48,13 +48,14 @@
           @update:columns="handleColumnsUpdate"
         />
 
-        <Button
-          type="outline"
-          icon="download"
-          @click="showDownloadModal = true"
-        >
-          Download
-        </Button>
+        <Download
+          :schemaId="schemaId"
+          :tableId="tableId"
+          :filters="filters"
+          :columns="defaultSortedColumns"
+          :visibleColumns="sortedVisibleColumns"
+          :selectedRowKeys="[...selectedRows.values()]"
+        />
 
         <Truncate
           v-if="canDelete && data?.tableMetadata"
@@ -367,38 +368,6 @@
       />
     </template>
   </EditModal>
-
-  <Modal
-    id="download-modal"
-    v-model:visible="showDownloadModal"
-    type="right"
-    :background-accessible="false"
-    maxWidth="max-w-md"
-    title="Download"
-  >
-    <DownloadRows
-      :schemaId="schemaId"
-      :tableId="tableId"
-      :filters="filters"
-      :columns="defaultSortedColumns"
-      :visibleColumns="sortedVisibleColumns"
-      :selectedRowKeys="[...selectedRows.values()]"
-      v-model:downloadHref="downloadHref"
-    />
-    <template #footer>
-      <div class="flex gap-2 justify-center py-5 h-sidebar-footer items-center">
-        <Button
-          type="primary"
-          icon="download"
-          icon-position="right"
-          @click="showDownloadModal = false"
-          :href="downloadHref"
-        >
-          Download
-        </Button>
-      </div>
-    </template>
-  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -450,7 +419,7 @@ import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 import EditModalHeader from "../form/EditModalHeader.vue";
-import DownloadRows from "./control/DownloadRows.vue";
+import Download from "./control/Download.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -497,8 +466,6 @@ const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const showDeleteMultipleModal = ref<boolean>(false);
-const showDownloadModal = ref<boolean>(false);
-const downloadHref = ref<string>(`/${props.schemaId}/api/csv/${props.tableId}`);
 const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
 const isCopy = ref(false);
