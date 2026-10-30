@@ -13,7 +13,7 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
   let rafId: number | null = null;
   let pendingX = 0;
 
-  function setInitialWidths(columns: { id: string }[], defaultWidth = 240) {
+  function setInitialWidths(columns: { id: string }[], defaultWidth = 160) {
     columns.forEach((col) => {
       if (!columnWidths.value[col.id]) {
         columnWidths.value[col.id] = defaultWidth;
@@ -31,7 +31,7 @@ export function useColumnResize(container: Ref<HTMLElement | null>) {
     resizingColumn.value = columnId;
 
     startX.value = event.clientX;
-    startWidth.value = columnWidths.value[columnId] ?? 240;
+    startWidth.value = columnWidths.value[columnId] ?? 160;
 
     guideX.value = getRelativeX(event.clientX);
 
