@@ -145,6 +145,23 @@ class ImportRowProcessorTest {
   }
 
   @Test
+  void givenUpdateMode_whenImportingNewRow_thenInsertRow() {
+    table.getMetadata().add(column("age").setType(ColumnType.STRING));
+    table.save(row("name", "Lewis", "age", "30"));
+
+    Task task = new Task();
+    ImportRowProcessor processor = new ImportRowProcessor(table, task, UpdateMode.UPDATE);
+    processor.process(
+        List.of(row("name", "Lewis"), row("name", "Marnie", "age", "40")).iterator(),
+        new TableStoreForCsvInMemory());
+
+    List<Row> actual = table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
+    assertEquals(2, actual.size());
+    assertEquals("30", rowOf(actual, "Lewis").getString("age"));
+    assertEquals("40", rowOf(actual, "Marnie").getString("age"));
+  }
+
+  @Test
   void givenMoreRowsThanBatchSize_thenImportAllRows() {
     Schema schema = database.dropCreateSchema(SCHEMA_NAME);
     TableMetadata metadata =

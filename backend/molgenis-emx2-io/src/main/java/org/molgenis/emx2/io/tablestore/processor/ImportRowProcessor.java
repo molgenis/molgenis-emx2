@@ -61,11 +61,7 @@ public class ImportRowProcessor implements RowProcessor {
     if (importBatch.isEmpty()) {
       return;
     }
-    if (updateMode == UpdateMode.OVERWRITE) {
-      table.save(importBatch);
-    } else {
-      table.update(importBatch);
-    }
+    table.save(importBatch, updateMode);
     task.setProgress(index);
     task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
     importBatch.clear();

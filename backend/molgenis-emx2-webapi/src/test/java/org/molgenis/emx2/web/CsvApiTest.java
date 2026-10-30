@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -24,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Privileges;
@@ -474,60 +477,79 @@ class CsvApiTest extends ApiTestBase {
   }
 
   @Test
-  void shouldUpdateTableDataUsingModeParam() {
-    String schemaName = SCHEMA_NAME + "Mode";
-    Schema schema = database.dropCreateSchema(schemaName);
-    schema.create(
-        table(
-            "Person",
-            column("id", STRING).setKey(1),
-            column("name", STRING),
-            column("age", STRING)));
+  void givenNoModeParam_whenUploadingCsv_thenOmittedColumnsArePreserved() {
+    String path = createPatientTable(SCHEMA_NAME + "DefaultMode") + "/api/csv/Patient";
+    postCsv(path, "id,name,birthDate\r\np1,Jane,1980-01-01\r\n");
 
-    String path = "/" + schemaName + "/api/csv/Person";
+    postCsv(path, "id,birthDate\r\np1,1981-02-02\r\np2,1990-03-03\r\n");
 
-    // insert initial row with both 'name' and 'age' set
+    String result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
+    assertTrue(result.contains("p1,Jane,1981-02-02"));
+    assertTrue(result.contains("p2,,1990-03-03"));
+  }
+
+  @Test
+  void givenOverwriteModeParam_whenUploadingCsv_thenOmittedColumnsAreCleared() {
+    String path = createPatientTable(SCHEMA_NAME + "OverwriteMode") + "/api/csv/Patient";
+    postCsv(path, "id,name,birthDate\r\np1,Jane,1980-01-01\r\n");
+
     given()
         .sessionId(sessionId)
-        .body("id,name,age\r\np1,Joop,30\r\n")
-        .when()
-        .post(path)
-        .then()
-        .statusCode(200);
-
-    // default mode is 'overwrite': the omitted 'name' column should be cleared
-    given()
-        .sessionId(sessionId)
-        .body("id,age\r\np1,31\r\n")
+        .queryParam("mode", "overwrite")
+        .body("id,birthDate\r\np1,1981-02-02\r\n")
         .when()
         .post(path)
         .then()
         .statusCode(200);
 
     String result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("p1,,31"));
+    assertTrue(result.contains("p1,,1981-02-02"));
+  }
 
-    // restore the initial row
+  @Test
+  void givenExistingRow_whenUploadingZip_thenOmittedColumnsArePreserved() throws IOException {
+    String schemaPath = createPatientTable(SCHEMA_NAME + "ZipUpdateMode");
+    postCsv(schemaPath + "/api/csv/Patient", "id,name,birthDate\r\np1,Jane,1980-01-01\r\n");
+
+    File zipFile = File.createTempFile("patients", ".zip");
+    zipFile.deleteOnExit();
+    try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFile))) {
+      zip.putNextEntry(new ZipEntry("Patient.csv"));
+      zip.write("id,birthDate\r\np1,1981-02-02\r\np2,1990-03-03\r\n".getBytes(UTF_8));
+      zip.closeEntry();
+    }
     given()
         .sessionId(sessionId)
-        .body("id,name,age\r\np1,Joop,30\r\n")
+        .multiPart(zipFile)
         .when()
-        .post(path)
+        .post(schemaPath + "/api/zip")
         .then()
         .statusCode(200);
 
-    // mode=update should preserve the omitted 'name' column
-    given()
-        .sessionId(sessionId)
-        .queryParam("mode", "update")
-        .body("id,age\r\np1,31\r\n")
-        .when()
-        .post(path)
-        .then()
-        .statusCode(200);
+    String result =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get(schemaPath + "/api/csv/Patient")
+            .asString();
+    assertTrue(result.contains("p1,Jane,1981-02-02"));
+    assertTrue(result.contains("p2,,1990-03-03"));
+  }
 
-    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("p1,Joop,31"));
+  private String createPatientTable(String schemaName) {
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.create(
+        table(
+            "Patient",
+            column("id", STRING).setKey(1),
+            column("name", STRING),
+            column("birthDate", STRING)));
+    return "/" + schemaName;
+  }
+
+  private void postCsv(String path, String csv) {
+    given().sessionId(sessionId).body(csv).when().post(path).then().statusCode(200);
   }
 
   @Test

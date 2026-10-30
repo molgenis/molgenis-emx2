@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public class SqlTable implements Table {
 
   private static final Set<String> INSERT_METADATA_COLUMNS = Set.of(MG_INSERTEDBY, MG_INSERTEDON);
+  private static final String MG_COLUMN_PREFIX = "mg_";
 
   private SqlDatabase db;
   private SqlTableMetadata metadata;
@@ -83,9 +84,14 @@ public class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
+    return save(rows, UpdateMode.OVERWRITE);
+  }
+
+  @Override
+  public int save(Iterable<Row> rows, UpdateMode updateMode) {
     rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
-      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
+      return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE, updateMode);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
@@ -139,6 +145,17 @@ public class SqlTable implements Table {
       String tableName,
       Iterable<Row> rows,
       MutationType transactionType) {
+    return executeTransaction(
+        db, schemaName, tableName, rows, transactionType, UpdateMode.OVERWRITE);
+  }
+
+  private static int executeTransaction(
+      Database db,
+      String schemaName,
+      String tableName,
+      Iterable<Row> rows,
+      MutationType transactionType,
+      UpdateMode updateMode) {
     long start = System.currentTimeMillis();
     final AtomicInteger count = new AtomicInteger(0);
     final Map<String, List<Row>> subclassRows = new LinkedHashMap<>();
@@ -213,6 +230,7 @@ public class SqlTable implements Table {
               executeBatch(
                   (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
                   transactionType,
+                  updateMode,
                   count,
                   subclassRows,
                   subclassName,
@@ -232,6 +250,7 @@ public class SqlTable implements Table {
               executeBatch(
                   (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
                   transactionType,
+                  updateMode,
                   count,
                   subclassRows,
                   batch.getKey(),
@@ -260,6 +279,7 @@ public class SqlTable implements Table {
   private static void executeBatch(
       SqlSchema schema,
       MutationType transactionType,
+      UpdateMode updateMode,
       AtomicInteger count,
       Map<String, List<Row>> subclassRows,
       String subclassName,
@@ -290,12 +310,19 @@ public class SqlTable implements Table {
 
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
+      List<Column> overwriteColumns = insertColumns;
       List<Row> rows = subclassRows.get(subclassName);
+      if (SAVE.equals(transactionType) && UpdateMode.UPDATE.equals(updateMode)) {
+        overwriteColumns = getOverwriteColumns(table, columnsProvided);
+        rows = mergeWithExistingRows(table, rows, columnsProvided, overwriteColumns);
+      }
       SqlRowProcessor rowProcessor = new SqlRowProcessor(schema.getDatabase(), insertColumns);
       rowProcessor.validateAndCompute(rows);
       count.set(
           count.get()
-              + table.insertBatch(rows, SAVE.equals(transactionType), insertColumns).size());
+              + table
+                  .insertBatch(rows, SAVE.equals(transactionType), insertColumns, overwriteColumns)
+                  .size());
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
@@ -304,6 +331,30 @@ public class SqlTable implements Table {
     }
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  private static List<Column> getOverwriteColumns(SqlTable table, Set<String> columnsProvided) {
+    List<Column> overwriteColumns = new ArrayList<>(table.getMetadata().getPrimaryKeyColumns());
+    overwriteColumns.addAll(getUpdateColumns(table, columnsProvided));
+    return overwriteColumns;
+  }
+
+  private static List<Row> mergeWithExistingRows(
+      SqlTable table, List<Row> rows, Set<String> columnsProvided, List<Column> overwriteColumns) {
+    List<Column> primaryKeyColumns = table.getMetadata().getPrimaryKeyColumns();
+    List<Row> existingRows =
+        table.getRowsByRowKey(rows, containsBinaryField(overwriteColumns)).stream()
+            .map(existing -> withoutOmittedMgColumns(existing, columnsProvided))
+            .toList();
+    return merge(pair(rows, existingRows, primaryKeyColumns), primaryKeyColumns);
+  }
+
+  private static Row withoutOmittedMgColumns(Row row, Set<String> columnsProvided) {
+    row.getColumnNames().stream()
+        .filter(name -> name.startsWith(MG_COLUMN_PREFIX) && !columnsProvided.contains(name))
+        .toList()
+        .forEach(row::clear);
+    return row;
   }
 
   private static boolean containsBinaryField(List<Column> updateColumns) {
@@ -439,10 +490,13 @@ public class SqlTable implements Table {
   }
 
   private List<Record> insertBatch(
-      List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
+      List<Row> rows,
+      boolean updateOnConflict,
+      List<Column> updateColumns,
+      List<Column> overwriteColumns) {
     boolean inherit = getMetadata().getInheritName() != null;
     if (inherit) {
-      insertIntoInheritedTable(rows, updateOnConflict, updateColumns);
+      insertIntoInheritedTable(rows, updateOnConflict, updateColumns, overwriteColumns);
     }
 
     List<Column> columns = getLocalStoredColumns(this, updateColumns);
@@ -455,16 +509,21 @@ public class SqlTable implements Table {
     InsertValuesStepN<org.jooq.Record> step = createInsertStep(columns);
     addRowsToInsertStep(step, rows, columns, mgDefaults);
     if (updateOnConflict) {
-      addUpdateOnConflictClause(step, rows, columns, mgDefaults);
+      addUpdateOnConflictClause(
+          step, rows, columns, getLocalStoredColumns(this, overwriteColumns), mgDefaults);
     }
 
     return step.returningResult(getMetadata().getPrimaryKeyFields()).fetch();
   }
 
   private void insertIntoInheritedTable(
-      List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
+      List<Row> rows,
+      boolean updateOnConflict,
+      List<Column> updateColumns,
+      List<Column> overwriteColumns) {
     SqlTable inheritedTable = getInheritedTable();
-    List<Record> records = inheritedTable.insertBatch(rows, updateOnConflict, updateColumns);
+    List<Record> records =
+        inheritedTable.insertBatch(rows, updateOnConflict, updateColumns, overwriteColumns);
 
     List<Column> autoIdColumns =
         inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
@@ -499,11 +558,12 @@ public class SqlTable implements Table {
       InsertValuesStepN<org.jooq.Record> step,
       List<Row> rows,
       List<Column> columns,
+      List<Column> overwriteColumns,
       MgDefaults mgDefaults) {
     InsertOnDuplicateSetStep<org.jooq.Record> onConflict =
         step.onConflict(getMetadata().getPrimaryKeyFields().toArray(new Field[0])).doUpdate();
 
-    for (Column column : getColumnsToOverwriteOnConflict(columns)) {
+    for (Column column : getColumnsToOverwriteOnConflict(columns, overwriteColumns)) {
       onConflict.set(column.getJooqField(), (Object) getExcludedField(column));
     }
     if (mgDefaults != null) {
@@ -551,8 +611,13 @@ public class SqlTable implements Table {
     }
   }
 
-  private static List<Column> getColumnsToOverwriteOnConflict(List<Column> columns) {
+  private static List<Column> getColumnsToOverwriteOnConflict(
+      List<Column> columns, List<Column> overwriteColumns) {
+    Set<String> overwriteColumnNames =
+        overwriteColumns.stream().map(Column::getName).collect(Collectors.toSet());
     return columns.stream()
+        .filter(
+            c -> MG_TABLECLASS.equals(c.getName()) || overwriteColumnNames.contains(c.getName()))
         .filter(c -> MG_TABLECLASS.equals(c.getName()) || !Boolean.TRUE.equals(c.isReadonly()))
         .filter(c -> !INSERT_METADATA_COLUMNS.contains(c.getName()))
         .toList();
