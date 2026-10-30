@@ -40,8 +40,7 @@ class SessionFixationTest extends ApiTestBase {
 
     String sessionOfFixedId = sessionEmail(fixedSessionId);
     assertTrue(
-        !sessionOfFixedId.contains(PATIENT.value())
-            && !sessionOfFixedId.contains(DOCTOR.value()));
+        !sessionOfFixedId.contains(PATIENT.value()) && !sessionOfFixedId.contains(DOCTOR.value()));
   }
 
   @Test
