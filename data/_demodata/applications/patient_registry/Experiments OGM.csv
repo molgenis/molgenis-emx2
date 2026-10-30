@@ -1,4 +1,4 @@
-id,individuals,alternate ids,local experiment id,affiliated organisations,platform,platform model,instrument id,output files,reference genome used,other quality metrics,sample,included in resources,data source,date created at source
+id,individuals,alternate ids,local experiment id,submitter,platform,platform model,instrument id,output files,reference genome used,other quality metrics,sample,included in resources,data source,date created at source
 EXPR-OGM-000001,Case1C,,124512,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,SAMP-OGM-000001,EGAD00001008392,EGAS00001005702,2021-10-22
 EXPR-OGM-000002,Case2C,,346213461,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,SAMP-OGM-000002,EGAD00001008392,EGAS00001005702,2021-10-22
 EXPR-OGM-000003,Case3C,,346134123,University Medical Center Groningen,Illumina platform,Illumina HiSeq Sequencer,,,,,SAMP-OGM-000003,EGAD00001008392,EGAS00001005702,2021-10-22
