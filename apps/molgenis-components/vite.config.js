@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import path from "path";
 import docTagPlugin from "./docs-plugin.js";
 import vue from "@vitejs/plugin-vue";
+do you import { rewriteOrigin } from "../dev-proxy-origin";
 
 const BACKEND_LOCATION =
   process.env.PROXY_API || "https://emx2.dev.molgenis.org";
@@ -16,33 +17,38 @@ let conf = {
         target: BACKEND_LOCATION,
         changeOrigin: true,
         secure: false,
+        configure: rewriteOrigin,
       },
       "^/graphql": {
         target: `${BACKEND_LOCATION}/pet store`,
         changeOrigin: true,
         secure: false,
+        configure: rewriteOrigin,
       },
       "^/.*/graphql$": {
         target: `${BACKEND_LOCATION}`,
         changeOrigin: true,
         secure: false,
+        configure: rewriteOrigin,
       },
       "/apps/central/theme.css": {
         target: `${BACKEND_LOCATION}`,
         changeOrigin: true,
         secure: false,
+        configure: rewriteOrigin,
       },
       "^/apps/resources/webfonts/.*": {
         target: `${BACKEND_LOCATION}`,
         changeOrigin: true,
         secure: false,
+        configure: rewriteOrigin,
       },
     },
   },
   test: {
     globals: true,
     environment: "jsdom",
-  }
+  },
 };
 // In case the SHOW_CASE flag is not set to 'on' build in library mode ( i.e. lib mode is the default)
 if (process.env.SHOW_CASE !== "on") {

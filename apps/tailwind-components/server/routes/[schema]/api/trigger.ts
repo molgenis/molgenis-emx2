@@ -1,4 +1,4 @@
-import { useRuntimeConfig } from "#imports";
+import { useRuntimeConfig, proxyOriginHeaders } from "#imports";
 import { getRouterParam, proxyRequest, defineEventHandler } from "h3";
 import { joinURL } from "ufo";
 export default defineEventHandler((event) => {
@@ -7,5 +7,7 @@ export default defineEventHandler((event) => {
   const schema = getRouterParam(event, "schema") || "";
   const location = joinURL(config.public.apiBase, schema, "api", "trigger");
   console.log("to : ", location);
-  return proxyRequest(event, location);
+  return proxyRequest(event, location, {
+    headers: proxyOriginHeaders(event, location),
+  });
 });

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.jetty.http.HttpCookie;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -61,10 +62,11 @@ public class MolgenisWebservice {
                   new JavalinJackson()
                       .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
               config.jetty.modifyServletContextHandler(
-                  context ->
-                      context.setMaxFormContentSize(
-                          Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
-                  );
+                  context -> {
+                    context.setMaxFormContentSize(Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
+                    // keep the session cookie off cross-site posts (CSRF)
+                    context.getSessionHandler().setSameSite(HttpCookie.SameSite.LAX);
+                  });
             });
     hostUrlFromEnvironment = setServiceUrl();
   }
@@ -86,6 +88,8 @@ public class MolgenisWebservice {
       MetricsController metricsController = new MetricsController();
       app.get("/" + MetricsController.METRICS_PATH, metricsController::handleRequest);
     }
+
+    app.before(CsrfFilter::check);
 
     MessageApi.create(app);
 

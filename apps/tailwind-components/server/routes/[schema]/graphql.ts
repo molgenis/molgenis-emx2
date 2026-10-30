@@ -1,7 +1,7 @@
 import { joinURL } from "ufo";
 import { createConsola } from "consola";
 import { defineEventHandler, readBody, getRouterParam, proxyRequest } from "h3";
-import { useRuntimeConfig } from "#imports";
+import { useRuntimeConfig, proxyOriginHeaders } from "#imports";
 
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);
@@ -25,5 +25,7 @@ export default defineEventHandler((event) => {
 
   logger.info("to : ", target);
 
-  return proxyRequest(event, target);
+  return proxyRequest(event, target, {
+    headers: proxyOriginHeaders(event, target),
+  });
 });

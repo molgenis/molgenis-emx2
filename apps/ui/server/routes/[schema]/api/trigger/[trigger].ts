@@ -1,6 +1,6 @@
 import { joinURL } from "ufo";
 import { proxyRequest, defineEventHandler } from "h3";
-import { useRuntimeConfig } from "#imports";
+import { useRuntimeConfig, proxyOriginHeaders } from "#imports";
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);
   console.log(
@@ -11,5 +11,7 @@ export default defineEventHandler((event) => {
   );
   const location = joinURL(config.public.apiBase, event.path);
   console.log("to : ", location);
-  return proxyRequest(event, location);
+  return proxyRequest(event, location, {
+    headers: proxyOriginHeaders(event, location),
+  });
 });
