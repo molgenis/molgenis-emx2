@@ -17,22 +17,22 @@ public class Emx2TableInheritanceTest extends TableInheritanceTest {
   @Test
   void testColumnsPresent_grandChild() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeA");
-    validateColumnPresence(handler, true, false, false, false);
+    validateEmx2ColumnRdfPresence(handler, true, false, false, false);
   }
 
   @Test
   void testColumnsPresent_child() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Child");
-    validateColumnPresence(handler, true, true, false, false);
+    validateEmx2ColumnRdfPresence(handler, true, true, false, false);
   }
 
   @Test
   void testColumnsPresent_root() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Root");
-    validateColumnPresence(handler, true, true, true, false);
+    validateEmx2ColumnRdfPresence(handler, true, true, true, false);
   }
 
-  void validateColumnPresence(
+  void validateEmx2ColumnRdfPresence(
       InMemoryRDFHandler handler,
       boolean grandChild,
       boolean child,
