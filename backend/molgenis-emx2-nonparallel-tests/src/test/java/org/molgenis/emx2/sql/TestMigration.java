@@ -13,6 +13,7 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
@@ -123,5 +124,21 @@ public class TestMigration {
             .fetch()
             .getValues("udt_name", String.class)
             .get(0));
+  }
+
+  @Test
+  void migration37RestoresDroppedChangelogStampIndex() {
+    SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema("TestMigration37");
+    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
+    DSLContext jooq = database.getJooq();
+    jooq.execute("DROP INDEX \"TestMigration37\".mg_changelog_stamp_idx");
+    String indexQuery =
+        "SELECT 1 FROM pg_indexes WHERE schemaname = 'TestMigration37' AND indexname = 'mg_changelog_stamp_idx'";
+    assertEquals(0, jooq.fetch(indexQuery).size());
+
+    executeMigrationFile(database, "migration37.sql", "index mg_changelog on stamp");
+
+    assertEquals(1, jooq.fetch(indexQuery).size());
   }
 }
