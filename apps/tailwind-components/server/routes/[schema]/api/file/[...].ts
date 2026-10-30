@@ -1,4 +1,5 @@
-import { useRuntimeConfig, proxyOriginHeaders } from "#imports";
+import { proxyOriginHeaders } from "../../../../utils/proxyOriginHeaders";
+import { useRuntimeConfig } from "#imports";
 import { proxyRequest, defineEventHandler } from "h3";
 import { joinURL } from "ufo";
 

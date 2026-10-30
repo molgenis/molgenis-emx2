@@ -1,7 +1,8 @@
+import { proxyOriginHeaders } from "../../utils/proxyOriginHeaders";
 import { joinURL } from "ufo";
 import { createConsola } from "consola";
 import { defineEventHandler, readBody, getRouterParam, proxyRequest } from "h3";
-import { useRuntimeConfig, proxyOriginHeaders } from "#imports";
+import { useRuntimeConfig } from "#imports";
 
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);

@@ -1,6 +1,7 @@
+import { proxyOriginHeaders } from "../../../../../../tailwind-components/server/utils/proxyOriginHeaders";
 import { joinURL } from "ufo";
 import { proxyRequest, defineEventHandler } from "h3";
-import { useRuntimeConfig, proxyOriginHeaders } from "#imports";
+import { useRuntimeConfig } from "#imports";
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);
   console.log(
