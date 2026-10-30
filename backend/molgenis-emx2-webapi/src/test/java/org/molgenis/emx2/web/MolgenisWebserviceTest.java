@@ -99,7 +99,7 @@ class MolgenisWebserviceTest extends ApiTestBase {
   }
 
   @Test
-  void startRefreshesHostUrlForEachService() throws Exception {
+  void startRefreshesHostUrlForEachService() {
     URL hostUrlBeforeSecondService = MolgenisWebservice.hostUrl;
     MolgenisWebservice secondService = null;
     try {
