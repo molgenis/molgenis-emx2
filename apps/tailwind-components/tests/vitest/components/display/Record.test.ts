@@ -262,9 +262,8 @@ describe("DisplayRecord", () => {
     ).toContain("about");
   });
 
-  test("renders each field label and value", () => {
+  test("renders each field value", () => {
     const text = wrapper.get("#about").text();
-    expect(text).toContain("Name");
     expect(text).toContain("spike");
     expect(wrapper.get("#care").text()).toContain("insects");
   });
@@ -557,11 +556,48 @@ describe("DisplayRecord", () => {
     ).toBeTruthy();
   });
 
+  test("renders the value of a section's only field without a label", () => {
+    const single = mount(DisplayRecord, {
+      props: {
+        columns: [
+          column("about", "SECTION", "About"),
+          column("name", "STRING", "Name"),
+        ],
+        row: { name: "spike" },
+      },
+    });
+
+    expect(single.get("#about").text()).toContain("spike");
+    expect(single.find("dt").exists()).toBe(false);
+    expect(single.get("#about").text()).not.toContain("Name");
+  });
+
+  test("keeps the labels when a section has two fields", () => {
+    const two = mount(DisplayRecord, {
+      props: {
+        columns: [
+          column("about", "SECTION", "About"),
+          column("name", "STRING", "Name"),
+          column("diet", "STRING", "Diet"),
+        ],
+        row: { name: "spike", diet: "insects" },
+      },
+    });
+
+    expect(two.findAll("dt").map((term) => term.text())).toEqual([
+      "Name",
+      "Diet",
+    ]);
+  });
+
   test("renders a field label with its first letter uppercase", () => {
     const labels = mount(DisplayRecord, {
       props: {
-        columns: [column("name", "STRING", "local name")],
-        row: { name: "spike" },
+        columns: [
+          column("name", "STRING", "local name"),
+          column("diet", "STRING", "diet"),
+        ],
+        row: { name: "spike", diet: "insects" },
       },
     });
 

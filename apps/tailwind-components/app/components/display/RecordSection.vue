@@ -47,9 +47,7 @@ const blocks = computed(() =>
     return result;
   }, [])
 );
-const isSingleListSection = computed(
-  () => props.section.fields.length === 1 && blocks.value[0]?.kind === "list"
-);
+const isSingleFieldSection = computed(() => props.section.fields.length === 1);
 
 const wrapper = computed(() =>
   props.layout === "CARDS" ? ContentBlock : "div"
@@ -98,7 +96,7 @@ useIntersectionObserver(
     >
       <div v-if="block.kind === 'list'" class="mt-5 first:mt-0">
         <h4
-          v-if="!isSingleListSection"
+          v-if="!isSingleFieldSection"
           class="mb-2.5 font-bold text-body-base first-letter:uppercase"
         >
           {{ block.field.label }}
@@ -115,18 +113,31 @@ useIntersectionObserver(
       </div>
       <DefinitionList v-else :compact="false">
         <template v-for="field in block.fields" :key="field.id">
-          <DefinitionListTerm>
-            <span class="first-letter:uppercase">{{ field.label }}</span>
-          </DefinitionListTerm>
-          <DefinitionListDefinition>
-            <slot name="value" :field="field">
-              <ValueEMX2
-                :metadata="field.metadata"
-                :data="field.value"
-                @valueClick="$emit('valueClick', $event)"
-              />
-            </slot>
-          </DefinitionListDefinition>
+          <template v-if="isSingleFieldSection">
+            <div class="md:col-span-3">
+              <slot name="value" :field="field">
+                <ValueEMX2
+                  :metadata="field.metadata"
+                  :data="field.value"
+                  @valueClick="$emit('valueClick', $event)"
+                />
+              </slot>
+            </div>
+          </template>
+          <template v-else>
+            <DefinitionListTerm>
+              <span class="first-letter:uppercase">{{ field.label }}</span>
+            </DefinitionListTerm>
+            <DefinitionListDefinition>
+              <slot name="value" :field="field">
+                <ValueEMX2
+                  :metadata="field.metadata"
+                  :data="field.value"
+                  @valueClick="$emit('valueClick', $event)"
+                />
+              </slot>
+            </DefinitionListDefinition>
+          </template>
         </template>
       </DefinitionList>
     </template>
