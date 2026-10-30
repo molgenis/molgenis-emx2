@@ -92,7 +92,8 @@ public class GraphqlCustomTypes {
                           "Couldn't read content of the uploaded file");
                     }
                   } else {
-                    return null;
+                    throw new CoercingParseValueException(
+                        "A file value must be null, a file object or an uploaded file part: this request cannot take file content as text");
                   }
                 }
 

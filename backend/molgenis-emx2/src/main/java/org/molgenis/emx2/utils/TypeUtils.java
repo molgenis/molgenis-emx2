@@ -518,9 +518,15 @@ public class TypeUtils {
       TableMetadata metadata, List<Map<String, Object>> map, boolean primaryKeyOnly) {
     List<Row> rows = new ArrayList<>();
     for (Map<String, Object> field : map) {
+      if (field == null) {
+        throw new MolgenisException(
+            "Row %d of table %s is null".formatted(rows.size() + 1, metadata.getTableName()));
+      }
       Row row = new Row();
       List<Column> columns =
-          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
+          primaryKeyOnly
+              ? metadata.getPrimaryKeyColumns()
+              : metadata.getColumnsIncludingSubclassesExcludingHeadings();
       for (Column column : columns) {
         if (field.containsKey(column.getIdentifier())) {
           Object fieldValue = field.get(column.getIdentifier());
@@ -542,8 +548,10 @@ public class TypeUtils {
       BinaryFileWrapper bfw = (BinaryFileWrapper) object;
       if (bfw == null || !bfw.isSkip()) {
         // also necessary in case of 'null' to ensure all file metadata fields are made empty
-        // skip is used when use submitted only metadata (that they received in query)
-        row.setBinary(column.getName(), (BinaryFileWrapper) object);
+        row.setBinary(column.getName(), bfw);
+      } else {
+        // skip is used when user submitted only metadata (that they received in query)
+        row.keepFile(column.getName());
       }
     } else {
       row.set(column.getName(), object);
