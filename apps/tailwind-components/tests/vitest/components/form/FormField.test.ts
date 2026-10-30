@@ -19,24 +19,28 @@ function formFor(column: IColumn, value: unknown) {
 
 describe("FormField.vue", () => {
   it.each([
-    ["ENUM", 'input[type="radio"]'],
-    ["ENUM_ARRAY", 'input[type="checkbox"]'],
-  ] as const)("renders the values of an %s column", (columnType, selector) => {
-    const column: IColumn = {
-      id: "status",
-      label: "Status",
-      columnType,
-      allowedValues: ["open", "closed"],
-    };
+    ["ENUM", undefined],
+    ["ENUM_ARRAY", "true"],
+  ] as const)(
+    "renders the values of an %s column",
+    (columnType, multiselectable) => {
+      const column: IColumn = {
+        id: "status",
+        label: "Status",
+        columnType,
+        allowedValues: ["open", "closed"],
+      };
 
-    const wrapper = mount(FormField, {
-      props: { form: formFor(column, null), column },
-    });
+      const wrapper = mount(FormField, {
+        props: { form: formFor(column, null), column },
+      });
 
-    expect(
-      wrapper
-        .findAll(selector)
-        .map((input) => (input.element as HTMLInputElement).value)
-    ).toEqual(["open", "closed"]);
-  });
+      expect(wrapper.findAll('li[role="option"]').map((o) => o.text())).toEqual(
+        ["open", "closed"]
+      );
+      expect(
+        wrapper.find('ul[role="listbox"]').attributes("aria-multiselectable")
+      ).toBe(multiselectable);
+    }
+  );
 });
