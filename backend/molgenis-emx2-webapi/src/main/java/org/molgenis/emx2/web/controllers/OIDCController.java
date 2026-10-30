@@ -91,14 +91,15 @@ public class OIDCController {
       return;
     }
 
-    Username user = new Username(oidcProfile.get().getAttribute("email").toString());
-    if (user == null) {
+    String email = oidcProfile.get().getAttribute("email").toString();
+    if (email == null) {
       logger.error("OIDC sign in failed, email claim is empty");
       ctx.status(500);
       ctx.redirect("/");
       return;
     }
 
+    Username user = new Username(email);
     Database database = ApplicationCachePerUser.getInstance().getDatabaseForUser(ctx);
     if (!database.hasUser(user)) {
       logger.info("Add new OIDC user({}) to database", user);

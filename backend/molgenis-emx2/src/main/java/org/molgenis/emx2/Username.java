@@ -19,4 +19,9 @@ public record Username(String value) {
 
     return newValue;
   }
+
+  @Override
+  public String toString() {
+    return value;
+  }
 }

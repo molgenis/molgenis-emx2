@@ -28,11 +28,12 @@ public class SigninDataFetcher implements DataFetcher<Object> {
 
   @Override
   public Object get(DataFetchingEnvironment dataFetchingEnvironment) throws Exception {
-    if (!dataFetchingEnvironment.containsArgument(EMAIL)) {
+    String email = dataFetchingEnvironment.getArgument(EMAIL);
+    if (email == null) {
       return new GraphqlApiMutationResult(FAILED, "Sign in failed: user or password not provided");
     }
 
-    Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
+    Username userName = new Username(email);
     String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
 
     Optional<Instant> blockedUntil = rateLimit.getRateLimit(userName);

@@ -246,10 +246,12 @@ public class GraphqlAdminFieldFactory {
   private static GraphqlApiMutationResult executeUpdateUser(
       Database database, DataFetchingEnvironment dataFetchingEnvironment) {
     LinkedHashMap<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
-    Username userName = new Username((String) updatedUser.get(EMAIL));
-    if (userName == null) {
+    String email = (String) updatedUser.get(EMAIL);
+    if (email == null) {
       return new GraphqlApiMutationResult(FAILED, "No user provided");
     }
+
+    Username userName = new Username(email);
     database.tx(
         db -> {
           String password = (String) updatedUser.get(PASSWORD);

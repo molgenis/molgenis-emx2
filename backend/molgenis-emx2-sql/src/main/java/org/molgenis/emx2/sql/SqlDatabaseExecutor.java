@@ -28,8 +28,7 @@ class SqlDatabaseExecutor {
         // non-system users get role 'user' as way to identify all users
         jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER.value()), name(userName));
         // all users can see what anonymous can see
-        jooq.execute(
-            "GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS.value()), name(userName));
+        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS.value()), name(userName));
       }
       // session_user has all roles, needed for 'set role'
       jooq.execute(
