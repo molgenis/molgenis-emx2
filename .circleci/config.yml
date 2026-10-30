@@ -503,6 +503,10 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
+        name: check build.gradle formatting
+        command: |
+          ./gradlew checkBuildFilesVersionFormat
+    - run:
         name: <backend> check code format
         command: |
           ./gradlew --continue spotlessCheck
