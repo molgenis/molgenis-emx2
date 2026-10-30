@@ -22,18 +22,18 @@ class SqlDatabaseExecutor {
     }
     try {
       DSLContext jooq = db.getJooq();
-      String userName = MG_USER_PREFIX + user.getValue();
+      String userName = MG_USER_PREFIX + user.value();
       executeCreateRole(jooq, userName);
       if (!ADMIN_USER.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
         // non-system users get role 'user' as way to identify all users
-        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER.getValue()), name(userName));
+        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER.value()), name(userName));
         // all users can see what anonymous can see
         jooq.execute(
-            "GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS.getValue()), name(userName));
+            "GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS.value()), name(userName));
       }
       // session_user has all roles, needed for 'set role'
       jooq.execute(
-          "GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user.getValue()));
+          "GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user.value()));
       // save metadata
       MetadataUtils.saveUserMetadata(jooq, new User(db, user));
     } catch (DataAccessException dae) {
@@ -46,7 +46,7 @@ class SqlDatabaseExecutor {
       String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
       jooq.execute(
           "GRANT CREATE ON DATABASE {0} TO {1}",
-          name(databaseName), name(MG_USER_PREFIX + user.getValue()));
+          name(databaseName), name(MG_USER_PREFIX + user.value()));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(dae);
     }

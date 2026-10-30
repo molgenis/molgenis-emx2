@@ -96,7 +96,7 @@ public abstract class ApiTestBase {
                   "query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"
                 }
                 """
-                    .formatted(username.getValue(), password))
+                    .formatted(username.value(), password))
             .when()
             .post("api/graphql")
             .sessionId();

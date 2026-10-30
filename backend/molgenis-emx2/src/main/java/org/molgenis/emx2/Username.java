@@ -1,20 +1,8 @@
 package org.molgenis.emx2;
 
-import java.util.Objects;
-
-public class Username {
-
-  private String value;
+public record Username(String value) {
 
   public Username(String value) {
-    this.value = normalize(value);
-  }
-
-  public String getValue() {
-    return value;
-  }
-
-  public void setValue(String value) {
     this.value = normalize(value);
   }
 
@@ -30,23 +18,5 @@ public class Username {
     }
 
     return newValue;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == null || getClass() != o.getClass()) return false;
-
-    Username that = (Username) o;
-    return Objects.equals(value, that.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(value);
-  }
-
-  @Override
-  public String toString() {
-    return "CaseInsensitiveString{" + "value='" + value + '\'' + '}';
   }
 }

@@ -40,7 +40,7 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
 
     String sessionId = request.changeSessionId();
     session.setMaxInactiveInterval(30 * 60); // 30 minutes
-    session.setAttribute(USERNAME, username.getValue());
+    session.setAttribute(USERNAME, username.value());
     registerSession(username, sessionId);
 
     logger.info(

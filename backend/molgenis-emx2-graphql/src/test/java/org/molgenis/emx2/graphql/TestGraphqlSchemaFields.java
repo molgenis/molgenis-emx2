@@ -44,10 +44,10 @@ class TestGraphqlSchemaFields {
     final Username customer = new Username("customer");
 
     // initialize users
-    database.setUserPassword(shopmanager, shopmanager.getValue());
-    database.setUserPassword(shopviewer, shopviewer.getValue());
-    database.setUserPassword(shopowner, shopowner.getValue());
-    database.setUserPassword(customer, customer.getValue());
+    database.setUserPassword(shopmanager, shopmanager.value());
+    database.setUserPassword(shopviewer, shopviewer.value());
+    database.setUserPassword(shopowner, shopowner.value());
+    database.setUserPassword(customer, customer.value());
 
     database.dropSchemaIfExists(schemaName);
     DataModels.getImportTask(database, schemaName, "", PET_STORE.name(), true).run();

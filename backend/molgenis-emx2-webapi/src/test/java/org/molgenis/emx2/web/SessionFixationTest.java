@@ -30,7 +30,7 @@ class SessionFixationTest extends ApiTestBase {
 
     assertNotNull(postLoginSessionId);
     assertNotEquals(preLoginSessionId, postLoginSessionId);
-    assertTrue(sessionEmail(postLoginSessionId).contains(PATIENT.getValue()));
+    assertTrue(sessionEmail(postLoginSessionId).contains(PATIENT.value()));
   }
 
   @Test
@@ -40,8 +40,8 @@ class SessionFixationTest extends ApiTestBase {
 
     String sessionOfFixedId = sessionEmail(fixedSessionId);
     assertTrue(
-        !sessionOfFixedId.contains(PATIENT.getValue())
-            && !sessionOfFixedId.contains(DOCTOR.getValue()));
+        !sessionOfFixedId.contains(PATIENT.value())
+            && !sessionOfFixedId.contains(DOCTOR.value()));
   }
 
   @Test
@@ -66,7 +66,7 @@ class SessionFixationTest extends ApiTestBase {
             """
             {"query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"}
             """
-                .formatted(username.getValue(), PASSWORD))
+                .formatted(username.value(), PASSWORD))
         .post("api/graphql")
         .sessionId();
   }

@@ -92,7 +92,7 @@ public class JWTgenerator {
       // Prepare JWT with claims set
       JWTClaimsSet claimsSet =
           new JWTClaimsSet.Builder()
-              .subject(user.getValue())
+              .subject(user.value())
               .jwtID(tokenId)
               .issueTime(new Date())
               .expirationTime(expirationTime)

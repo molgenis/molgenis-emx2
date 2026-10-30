@@ -495,7 +495,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               db.setActiveUser(currentUser);
             }
           });
-      log(start, "created user " + username.getValue());
+      log(start, "created user " + username.value());
     }
     return getUser(username);
   }
@@ -533,7 +533,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public boolean hasUser(Username username) {
     return jooq.fetchExists(
-        DSL.selectOne().from(USERS_METADATA).where(USER_NAME.eq(username.getValue())));
+        DSL.selectOne().from(USERS_METADATA).where(USER_NAME.eq(username.value())));
   }
 
   @Override
@@ -558,7 +558,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         db ->
             ((SqlDatabase) db)
                 .getJooq()
-                .execute("DROP ROLE {0}", name(MG_USER_PREFIX + user.getValue())));
+                .execute("DROP ROLE {0}", name(MG_USER_PREFIX + user.value())));
     log(start, "removed user " + user);
 
     tx(
@@ -566,7 +566,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             ((SqlDatabase) db)
                 .getJooq()
                 .deleteFrom(USERS_METADATA)
-                .where(USER_NAME.eq(user.getValue()))
+                .where(USER_NAME.eq(user.value()))
                 .execute());
     log(start, "removed metadata from user " + user);
   }
@@ -588,7 +588,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 .getJooq()
                 .update(USERS_METADATA)
                 .set(USER_ENABLED, enabled)
-                .where(USER_NAME.eq(user.getValue()))
+                .where(USER_NAME.eq(user.value()))
                 .execute());
     log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
@@ -614,7 +614,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 .getJooq()
                 .update(USERS_METADATA)
                 .set(USER_ADMIN, admin)
-                .where(USER_NAME.eq(user.getValue()))
+                .where(USER_NAME.eq(user.value()))
                 .execute());
     log(start, (admin ? "Granting" : "Revoking") + " admin rights to user " + user);
     listener.onSchemaChange();
@@ -647,7 +647,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           jooq.execute("RESET ROLE;");
         } else {
           // any other user should be set
-          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username.getValue()));
+          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username.value()));
         }
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Set active user failed", dae);
@@ -936,7 +936,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 Constants.MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
             jooq.execute(
                 "REVOKE {0} FROM {1}",
-                name(prefixedRole), name(Constants.MG_USER_PREFIX + username.getValue()));
+                name(prefixedRole), name(Constants.MG_USER_PREFIX + username.value()));
           });
       listener.onSchemaChange();
     } catch (DataAccessException dae) {
@@ -956,11 +956,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             String schemaId = member.get("schemaId");
             String role = member.get(ROLE);
             String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
-            String prefixedName = MG_USER_PREFIX + username.getValue();
+            String prefixedName = MG_USER_PREFIX + username.value();
 
             List<Member> existingUserRoles =
                 this.getSchema(schemaId).getMembers().stream()
-                    .filter(mem -> mem.getUser().equals(username.getValue()))
+                    .filter(mem -> mem.getUser().equals(username.value()))
                     .toList();
             if (existingUserRoles.iterator().hasNext()) {
               existingUserRoles.forEach(

@@ -35,7 +35,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
                 "RESET ROLE; SET jit='off'; SET ROLE {0}",
-                name(MG_USER_PREFIX + getActiveUser().getValue()));
+                name(MG_USER_PREFIX + getActiveUser().value()));
       }
       return connection;
     } catch (DataAccessException dae) {

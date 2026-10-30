@@ -107,7 +107,7 @@ class TestGraphqlSigninRateLimit {
   }
 
   private String signin(Username email, String password) throws IOException {
-    String query = SIGNIN_QUERY.formatted(email.getValue(), password);
+    String query = SIGNIN_QUERY.formatted(email.value(), password);
     ExecutionResult result =
         graphql.execute(query, Map.of(), new GraphqlExecutor.DummySessionHandler());
 

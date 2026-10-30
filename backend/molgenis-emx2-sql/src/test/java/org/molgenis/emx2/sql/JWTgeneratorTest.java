@@ -241,7 +241,7 @@ class JWTgeneratorTest {
     // Signed token, known user, and not-expired token, but temporary token expiry is > 30 minutes.
     JWTClaimsSet claimsSet =
         new JWTClaimsSet.Builder()
-            .subject(TEST_USER.getValue())
+            .subject(TEST_USER.value())
             .jwtID("temporary")
             .issueTime(new Date())
             .expirationTime(Date.from(Instant.now().plus(31, ChronoUnit.MINUTES)))

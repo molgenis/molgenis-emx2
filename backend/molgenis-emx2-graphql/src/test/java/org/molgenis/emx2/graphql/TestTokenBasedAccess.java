@@ -25,7 +25,7 @@ public class TestTokenBasedAccess {
     JWTgenerator gen = new JWTgenerator();
     String result = gen.createTemporaryToken(db, tokentest1);
     System.out.println(result);
-    assertNotEquals(result, tokentest1.getValue());
+    assertNotEquals(result, tokentest1.value());
     Username user = gen.getUserFromToken(db, result);
     assertEquals(user, tokentest1);
 

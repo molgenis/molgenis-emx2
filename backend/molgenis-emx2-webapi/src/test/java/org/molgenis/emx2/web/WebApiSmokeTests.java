@@ -77,9 +77,9 @@ class WebApiSmokeTests extends ApiTestBase {
     schema = database.getSchema(PET_STORE_SCHEMA);
 
     // grant a user permission
-    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER.getValue());
-    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER.getValue());
-    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER.getValue());
+    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER.value());
+    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER.value());
+    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER.value());
     schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
     schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
@@ -155,7 +155,7 @@ class WebApiSmokeTests extends ApiTestBase {
                   given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
 
               assertFalse(
-                  sessionResult.contains(ADMIN_USER.getValue()),
+                  sessionResult.contains(ADMIN_USER.value()),
                   "ADMIN_USER present in thread: " + Thread.currentThread().getName());
 
               try {
@@ -483,7 +483,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .filter(sessionFilter)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + database.getAdminUserName().getValue()
+                    + database.getAdminUserName().value()
                     + "\\\",password:\\\""
                     + ADMIN_PASS
                     + "\\\"){message}}\"}")
@@ -499,7 +499,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains(database.getAdminUserName().getValue()));
+    assertTrue(result.contains(database.getAdminUserName().value()));
 
     // if admin then should  be able to see users
     result =
@@ -586,7 +586,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + database.getAdminUserName().getValue()
+                    + database.getAdminUserName().value()
                     + "\\\",password:\\\""
                     + ADMIN_PASS
                     + "\\\"){message}}\"}")

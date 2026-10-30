@@ -147,9 +147,9 @@ class CsvApiTest extends ApiTestBase {
     Schema memberSchema = database.dropCreateSchema(schemaName);
 
     // grant a user permission
-    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER.getValue());
-    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER.getValue());
-    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER.getValue());
+    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER.value());
+    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER.value());
+    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER.value());
 
     memberSchema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
     memberSchema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());

@@ -161,7 +161,7 @@ public class GraphqlSessionFieldFactory {
               result.put(
                   EMAIL,
                   database.getActiveUser() != null
-                      ? database.getActiveUser().getValue()
+                      ? database.getActiveUser().value()
                       : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {

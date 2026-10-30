@@ -509,7 +509,7 @@ public class SqlRoleManager {
         db -> {
           SqlDatabase txDb = (SqlDatabase) db;
           List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
-          String username = MG_USER_PREFIX + member.getUser().getValue();
+          String username = MG_USER_PREFIX + member.getUser().value();
           String roleName = fullRoleName(schemaName, member.getRole());
           Username memberUsername = member.getUser();
 
@@ -543,7 +543,7 @@ public class SqlRoleManager {
                 revoke(
                     jooq,
                     name(rolePrefix + m.getRole()),
-                    name(MG_USER_PREFIX + m.getUser().getValue()));
+                    name(MG_USER_PREFIX + m.getUser().value()));
               }
             }
           } catch (DataAccessException dae) {

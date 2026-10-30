@@ -12,45 +12,27 @@ class UsernameTest {
 
   @Test
   void whenCreating_thenMapToLowercase() {
-    assertEquals("hello world", new Username("Hello WORLD").getValue());
-  }
-
-  @Test
-  void whenSettingValue_thenMapToLowerCase() {
-    Username string = new Username("first");
-
-    string.setValue("SECOND");
-
-    assertEquals("second", string.getValue());
+    assertEquals("hello world", new Username("Hello WORLD").value());
   }
 
   @Test
   void givenNonAscii_thenMapToLowerCase() {
-    assertEquals("äöü éclair", new Username("ÄÖÜ Éclair").getValue());
+    assertEquals("äöü éclair", new Username("ÄÖÜ Éclair").value());
   }
 
   @Test
   void givenSurroundingWhitespace_thenTrim() {
-    assertEquals("hello", new Username("  hello  ").getValue());
+    assertEquals("hello", new Username("  hello  ").value());
   }
 
   @Test
   void givenTabsAndNewlines_thenTrim() {
-    assertEquals("hello", new Username("\thello\n").getValue());
+    assertEquals("hello", new Username("\thello\n").value());
   }
 
   @Test
   void givenInnerWhitespace_thenKeep() {
-    assertEquals("hello world", new Username("hello world").getValue());
-  }
-
-  @Test
-  void whenSettingValue_thenTrim() {
-    Username username = new Username("first");
-
-    username.setValue("  SECOND  ");
-
-    assertEquals("second", username.getValue());
+    assertEquals("hello world", new Username("hello world").value());
   }
 
   private static Stream<Arguments> invalidUsernameValues() {
@@ -66,18 +48,6 @@ class UsernameTest {
     MolgenisException exception = assertThrows(MolgenisException.class, () -> new Username(input));
 
     assertEquals(expectedMessage, exception.getMessage());
-  }
-
-  @ParameterizedTest
-  @MethodSource("invalidUsernameValues")
-  void whenSettingNull_thenThrow(String input, String expectedMessage) {
-    Username username = new Username("first");
-
-    MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> username.setValue(input));
-
-    assertEquals(expectedMessage, exception.getMessage());
-    assertEquals("first", username.getValue());
   }
 
   @Test

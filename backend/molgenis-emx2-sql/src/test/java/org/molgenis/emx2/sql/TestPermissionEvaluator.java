@@ -184,7 +184,7 @@ class TestPermissionEvaluator {
       for (Username user : List.of(USER_COUNT, USER_VIEWER)) {
         Schema s = schemaFor(user);
         TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
-        assertTrue(PermissionEvaluator.canCount(s, tableA), user.getValue());
+        assertTrue(PermissionEvaluator.canCount(s, tableA), user.value());
       }
     }
 
@@ -193,7 +193,7 @@ class TestPermissionEvaluator {
       for (Username user : List.of(USER_EXISTS, USER_RANGE, USER_AGGREGATOR)) {
         Schema s = schemaFor(user);
         TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
-        assertFalse(PermissionEvaluator.canCount(s, tableA), user.getValue());
+        assertFalse(PermissionEvaluator.canCount(s, tableA), user.value());
       }
     }
 

@@ -223,7 +223,7 @@ class TestGraphqlDatabaseFields {
         };
     execute(
         "mutation { signin(email: \""
-            + database.getAdminUserName().getValue()
+            + database.getAdminUserName().value()
             + "\",password:\""
             + adminPass
             + "\") {message}}",

@@ -41,8 +41,8 @@ class CsvApiAuthorizationTest extends ApiTestBase {
     Schema schema = database.getSchema(SCHEMA);
     schema.getMetadata().setSetting(IS_CHANGELOG_ENABLED, "true");
 
-    database.setUserPassword(VIEWER, VIEWER.getValue());
-    database.setUserPassword(MANAGER, MANAGER.getValue());
+    database.setUserPassword(VIEWER, VIEWER.value());
+    database.setUserPassword(MANAGER, MANAGER.value());
     schema.addMember(VIEWER, Privileges.VIEWER.toString());
     schema.addMember(MANAGER, Privileges.MANAGER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
@@ -62,13 +62,13 @@ class CsvApiAuthorizationTest extends ApiTestBase {
 
   @Test
   void changelogAsManager_succeeds() {
-    login(MANAGER, MANAGER.getValue());
+    login(MANAGER, MANAGER.value());
     assertEquals(200, getCsv("/" + SCHEMA + "/api/csv/changelog").getStatusCode());
   }
 
   @Test
   void changelogAsViewer_isRejected() {
-    login(VIEWER, VIEWER.getValue());
+    login(VIEWER, VIEWER.value());
     Response response = getCsv("/" + SCHEMA + "/api/csv/changelog");
     assertEquals(400, response.getStatusCode());
     assertTrue(
@@ -87,13 +87,13 @@ class CsvApiAuthorizationTest extends ApiTestBase {
 
   @Test
   void membersAsManager_succeeds() {
-    login(MANAGER, MANAGER.getValue());
+    login(MANAGER, MANAGER.value());
     assertEquals(200, getCsv("/" + SCHEMA + "/api/csv/members").getStatusCode());
   }
 
   @Test
   void membersAsViewer_isRejected() {
-    login(VIEWER, VIEWER.getValue());
+    login(VIEWER, VIEWER.value());
     Response response = getCsv("/" + SCHEMA + "/api/csv/members");
     assertEquals(400, response.getStatusCode());
     assertTrue(response.body().asString().contains("Unauthorized"));

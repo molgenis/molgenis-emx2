@@ -245,7 +245,7 @@ public class SqlTable implements Table {
         });
 
     log(
-        db.getActiveUser().getValue(),
+        db.getActiveUser().value(),
         table.getJooqTable().getName(),
         start,
         count,
@@ -573,9 +573,9 @@ public class SqlTable implements Table {
   }
 
   private static String getActiveUser(SqlTable table) {
-    String user = table.getSchema().getDatabase().getActiveUser().getValue();
+    String user = table.getSchema().getDatabase().getActiveUser().value();
     if (user == null) {
-      user = ADMIN_USER.getValue();
+      user = ADMIN_USER.value();
     }
     return user;
   }
@@ -732,7 +732,7 @@ public class SqlTable implements Table {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
-    log(db.getActiveUser().getValue(), getName(), start, nrDeleted, "deleted");
+    log(db.getActiveUser().value(), getName(), start, nrDeleted, "deleted");
     return nrDeleted.get();
   }
 

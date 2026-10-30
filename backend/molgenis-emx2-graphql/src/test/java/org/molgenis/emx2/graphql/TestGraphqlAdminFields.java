@@ -128,7 +128,7 @@ class TestGraphqlAdminFields {
             assertFalse(permission.path("insert").asBoolean());
             assertFalse(permission.path("isRowLevel").asBoolean());
             String user = customRole.at("/users/0").asText();
-            assertEquals(TEST_PERSOON.getValue(), user);
+            assertEquals(TEST_PERSOON.value(), user);
 
           } catch (IOException e) {
             throw new RuntimeException(e);
@@ -293,7 +293,7 @@ class TestGraphqlAdminFields {
   private static Map<String, Object> createUpdateUserVar() {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
-    updateUser.put("email", TEST_PERSOON.getValue());
+    updateUser.put("email", TEST_PERSOON.value());
     updateUser.put("password", "12345678");
     updateUser.put("enabled", "false");
 

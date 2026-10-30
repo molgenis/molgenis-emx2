@@ -678,7 +678,7 @@ public class MetadataUtils {
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_ENABLED, USER_PASS)
         .values(
-            field("{0}", String.class, user.getValue()),
+            field("{0}", String.class, user.value()),
             field("{0}", Boolean.class, Boolean.TRUE),
             field("crypt({0}, gen_salt('bf'))", String.class, password))
         .onConflict(USER_NAME)
@@ -691,7 +691,7 @@ public class MetadataUtils {
     org.jooq.Record result =
         jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as(MATCHES))
             .from(USERS_METADATA)
-            .where(field(USER_NAME).eq(username.getValue()))
+            .where(field(USER_NAME).eq(username.value()))
             .fetchOne();
 
     return result != null && result.get(MATCHES) != null && result.get(MATCHES, Boolean.class);
@@ -738,7 +738,7 @@ public class MetadataUtils {
     // don't update password via this route
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_ENABLED, SETTINGS)
-        .values(user.getUsername().getValue(), true, user.getSettings())
+        .values(user.getUsername().value(), true, user.getSettings())
         .onConflict(USER_NAME)
         .doUpdate()
         .set(SETTINGS, user.getSettings())
@@ -747,7 +747,7 @@ public class MetadataUtils {
 
   public static User loadUserMetadata(SqlDatabase db, Username userName) {
     org.jooq.Record userRecord =
-        db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName.getValue())).fetchOne();
+        db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName.value())).fetchOne();
     if (userRecord != null) {
       User result = new User(db, userName);
       result.setEnabled(userRecord.get(USER_ENABLED));

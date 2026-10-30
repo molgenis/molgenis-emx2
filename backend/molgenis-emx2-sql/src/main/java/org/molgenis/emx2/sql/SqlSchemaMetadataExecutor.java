@@ -109,7 +109,7 @@ class SqlSchemaMetadataExecutor {
     List<Record> roles =
         jooq.fetch(
             "SELECT a.oid, a.rolname FROM pg_roles a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname LIKE {1}",
-            Constants.MG_USER_PREFIX + user.getValue(), roleFilter + "%");
+            Constants.MG_USER_PREFIX + user.value(), roleFilter + "%");
     return roles.stream()
         .map(r -> r.get("rolname", String.class).substring(roleFilter.length()))
         .collect(Collectors.toList());

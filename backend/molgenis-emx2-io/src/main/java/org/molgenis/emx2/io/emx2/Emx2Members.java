@@ -24,7 +24,7 @@ public class Emx2Members {
 
     List<Row> members = new ArrayList<>();
     for (Member m : schema.getMembers()) {
-      members.add(row(USER, m.getUser().getValue(), ROLE, m.getRole()));
+      members.add(row(USER, m.getUser().value(), ROLE, m.getRole()));
     }
     if (!members.isEmpty()) {
       store.writeTable(MEMBERS_TABLE, List.of(USER, ROLE), members);
