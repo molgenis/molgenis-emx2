@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useDebounceFn } from "@vueuse/core";
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import { getCountMessage } from "~/utils/getCountMessage";
 import type {
   columnValue,
   IColumn,
@@ -12,6 +11,7 @@ import type { UseFilters } from "../../../types/filters.ts";
 import type { cellPayload, ITableSettings } from "../../../types/types.ts";
 import { useColumnResize } from "../../composables/useColumnResize";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
+import { getCountMessage } from "../../utils/getCountMessage";
 import ActiveFilters from "../filter/ActiveFilters.vue";
 import FilterSidebarContent from "../filter/SidebarContent.vue";
 import Checkbox from "../input/Checkbox.vue";
