@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 /** Tests specific for {@link org.molgenis.emx2.rdf.generators.Emx2RdfGenerator} */
-class Emx2RdfsOntologyTest extends OntologyTest {
+class Emx2OntologyTest extends OntologyTest {
   @Test
   void testThatOntologyTermsUseRDFSchema() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
