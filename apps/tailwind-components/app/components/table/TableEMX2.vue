@@ -1,6 +1,6 @@
 <template>
   <TableInteractive
-    v-if="tableMetadata && rows"
+    v-if="tableMetadata"
     :features="{
       showSearch: !hideSearch,
       showFilters: enableFilters && !!filters,
@@ -16,7 +16,7 @@
       canModifySelection: selectionIsModifiable,
       isRowLevel: isRowLevel,
     }"
-    :rows="rows"
+    :rows="rows || []"
     :rowCount="data?.count || 0"
     :searchPlaceholder="`Search ${tableId}`"
     :settings="settings"
@@ -306,7 +306,9 @@ const { data, refresh } = useAsyncData(
         searchTerms: settings.value.search,
         filter: effectiveFilter.value,
       }
-    );
+    ).catch(() => {
+      return { rows: [], count: 0 };
+    });
 
     const rows: TableRow[] = await addIdentifiersToRows(tableData.rows || []);
 
