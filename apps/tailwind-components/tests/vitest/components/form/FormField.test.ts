@@ -6,8 +6,10 @@ import type { UseForm } from "../../../../app/composables/useForm";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
 function formFor(column: IColumn, value: unknown) {
+  const values = ref({ [column.id]: value });
   return {
-    values: ref({ [column.id]: value }),
+    values,
+    getValue: (id: string) => values.value[id],
     requiredFields: ref([]),
     rowKey: ref(null),
     metadata: ref({ schemaId: "s", id: "t" }),

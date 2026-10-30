@@ -551,4 +551,124 @@ describe("useForm", () => {
       expect(requiredMap["col6"].value).toBe(true);
     });
   });
+
+  describe("computed columns", () => {
+    const computedMetadata = ref<ITableMetaData>({
+      id: "persons",
+      label: "persons",
+      schemaId: "test",
+      tableType: "DATA",
+      columns: [
+        { columnType: "STRING", id: "firstName", label: "first name" },
+        { columnType: "STRING", id: "lastName", label: "last name" },
+        {
+          columnType: "STRING",
+          id: "fullName",
+          label: "full name",
+          required: true,
+          computed: "firstName && lastName ? firstName + ' ' + lastName : null",
+        },
+        {
+          columnType: "STRING",
+          id: "greeting",
+          label: "greeting",
+          computed: "fullName ? 'hello ' + fullName : null",
+        },
+        {
+          columnType: "STRING",
+          id: "multiLine",
+          label: "multi line",
+          computed: "let initials = firstName ? firstName[0] : '';\ninitials",
+        },
+        {
+          columnType: "STRING",
+          id: "broken",
+          label: "broken",
+          computed: "firstName.does.not.exist",
+        },
+      ],
+    });
+
+    test("should compute the value from the referenced fields", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(getValue("fullName")).toBe("Jane Doe");
+    });
+
+    test("should compute values that depend on other computed columns", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(getValue("greeting")).toBe("hello Jane Doe");
+    });
+
+    test("should count a required computed column as filled once it has a value", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { emptyRequiredFields } = useForm(computedMetadata, formValues);
+      expect(emptyRequiredFields.value.map((c) => c.id)).toEqual(["fullName"]);
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(emptyRequiredFields.value.map((c) => c.id)).toEqual([]);
+    });
+
+    test("should pass validation when a required computed column has a value", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { isValid, visibleColumnErrors } = useForm(
+        computedMetadata,
+        formValues
+      );
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      isValid();
+      expect(visibleColumnErrors.value.fullName).toBeUndefined();
+    });
+
+    test("should support multi-line expressions", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      formValues.value.firstName = "Jane";
+      expect(getValue("multiLine")).toBe("J");
+    });
+
+    test("should return null when the expression fails", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      expect(getValue("broken")).toBe(null);
+    });
+
+    test("should show an error on the field when the expression is invalid", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue, visibleColumnErrors, isValid } = useForm(
+        ref<ITableMetaData>({
+          id: "persons",
+          label: "persons",
+          schemaId: "test",
+          tableType: "DATA",
+          columns: [
+            { columnType: "STRING", id: "firstName", label: "first name" },
+            { columnType: "STRING", id: "lastName", label: "last name" },
+            {
+              columnType: "STRING",
+              id: "fullName",
+              label: "full name",
+              required: true,
+              // typographic quotes are not valid javascript
+              computed: "firstName + \u201c \u201c + lastName",
+            },
+          ],
+        }),
+        formValues
+      );
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(getValue("fullName")).toBe(null);
+      expect(visibleColumnErrors.value.fullName).toContain(
+        "Computed expression failed: SyntaxError"
+      );
+      expect(isValid()).toBe(false);
+    });
+  });
 });
