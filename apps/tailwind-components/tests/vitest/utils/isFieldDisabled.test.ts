@@ -27,6 +27,19 @@ describe("isFieldDisabled", () => {
     expect(isFieldDisabled(rowKey, column)).toBe(true);
   });
 
+  it("should return true if column is computed", () => {
+    const rowKey = {};
+    const column = {
+      id: "fullName",
+      readonly: "false",
+      key: 0,
+      columnType: "STRING",
+      label: "col label",
+      computed: "firstName + ' ' + lastName",
+    } as IColumn;
+    expect(isFieldDisabled(rowKey, column)).toBe(true);
+  });
+
   it("should return true if column is the primary key of the column", () => {
     const rowKey = { rowId: "1" };
     const column = {

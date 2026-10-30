@@ -6,6 +6,7 @@ OntologySmall,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with limited option
 OntologySmallTree,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with options and parents to test the small tree ontology like columns
 OntologyLarge,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with options to test the large ontology like columns
 OntologyLargeTree,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with options and parents to test the large tree ontology like columns
+    Computed expressions,,,,,,,,,,,,,,,,,,,,TypeTest,,A table to test computed expressions
 Options,,,option key,,string,1,true,,,,,,,,,,,,,TypeTest,,
 Options,,,option value,,string,,,,,,,,,,,,,,,TypeTest,,
 Types,,,String types,,section,,,,,,,,,,,,,,,TypeTest,,
@@ -79,3 +80,7 @@ Types,,,code,,string,,,,,,,,,,if(code.length<4 || code.length>12)'Code should be
 Types,,,additionalInfo,,ontology,,,,,YesNoUnknown,,,${label},,,,,,,TypeTest,"Additional info, if yes a new header will appear.",
 Types,,,additionalInfoHeader,,heading,,,,,,,,,,,"additionalInfo?.name === ""yes""",,,,TypeTest,Additional Information (header visible if additional info known is yes),
 Types,,,dateStart,,date,,,,,,,,,,"var today =new Date(); var dateFormat=today.toISOString().split('T')[0]; var minDate = new Date('1900-01-01'); var minDateFormat=minDate.toISOString().split('T')[0]; if (dateStart>dateFormat || dateStart<minDateFormat)""It appears you have entered a date that is not within the allowed range. Please enter a date that is between 01-01-1900 and today.""","additionalInfo?.name === ""yes""",,,,TypeTest,Date Start (validation between 01-01-1900 and today),
+Computed expressions,,,id,,auto_id,1,true,,,,,,,,,,,,,TypeTest,,
+Computed expressions,,,first name,,string,,true,,,,,,,,,,,,,TypeTest,,
+Computed expressions,,,last name,,string,,true,,,,,,,,,,,,,TypeTest,,
+Computed expressions,,,full name,,string,,true,,,,,,,,,,firstName + ' ' + lastName,,,TypeTest,,Concatenation of first and last name (computed)
