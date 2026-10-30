@@ -51,7 +51,25 @@ MOLGENIS enables metrics api for example to use with prometheus. By default this
 * `MOLGENIS_METRICS_PATH=/api/metric` enables the metrics path to be customized
 
 For example:
+```shell
 java -DMOLGENIS_METRICS_ENABLED=true -jar molgenis-emx2-<version>-all.jar
+```
+
+# Matomo AI chatbot tracking
+
+MOLGENIS can report visits from AI chatbots (such as ChatGPT, Claude, Gemini, Mistral, Perplexity and NotebookLM) to a 
+[Matomo](https://matomo.org/) instance. Requests are recognized by their User-Agent header, see Matomo's 
+[AI chatbot tracking](https://matomo.org/faq/how-to/install-ai-chatbot-tracking/). Other requests are not tracked. By 
+default, this is disabled.
+
+* `MATOMO_URL` enables tracking and sets the base URL of the Matomo instance, e.g. `https://matomo.example.org`. Tracking requests are sent to `<MATOMO_URL>/matomo.php`.
+* `MATOMO_SITE_ID` sets the ID of the Matomo website the visits are recorded under. Defaults to `1`.
+
+For example:
+
+```shell
+java -DMATOMO_URL=https://matomo.example.org -DMATOMO_SITE_ID=3 -jar molgenis-emx2-<version>-all.jar
+```
 
 # Tips
 

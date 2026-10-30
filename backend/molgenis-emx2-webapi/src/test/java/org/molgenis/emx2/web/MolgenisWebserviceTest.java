@@ -3,19 +3,18 @@ package org.molgenis.emx2.web;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mockStatic;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
+import static org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL;
 
 import java.net.URI;
 import java.net.URL;
 import org.junit.jupiter.api.*;
-import org.mockito.MockedStatic;
-import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.utils.EnvironmentProperty;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 class MolgenisWebserviceTest extends ApiTestBase {
 
@@ -100,7 +99,7 @@ class MolgenisWebserviceTest extends ApiTestBase {
   }
 
   @Test
-  void startRefreshesHostUrlForEachService() throws Exception {
+  void startRefreshesHostUrlForEachService() {
     URL hostUrlBeforeSecondService = MolgenisWebservice.hostUrl;
     MolgenisWebservice secondService = null;
     try {
@@ -117,34 +116,27 @@ class MolgenisWebserviceTest extends ApiTestBase {
 
   @Test
   void shouldUseConfiguredServiceUrl() throws Exception {
-    try (MockedStatic<EnvironmentProperty> envMock = mockStatic(EnvironmentProperty.class)) {
-      envMock
-          .when(
-              () ->
-                  EnvironmentProperty.getParameter(
-                      org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING))
-          .thenReturn("https://example.org");
-
-      assertEquals(new URI("https://example.org").toURL(), new MolgenisWebservice().hostUrl);
+    URL hostUrlBefore = MolgenisWebservice.hostUrl;
+    try {
+      new EnvironmentVariables(MOLGENIS_SERVICE_URL, "https://example.org")
+          .execute(
+              () -> {
+                new MolgenisWebservice();
+                assertEquals(new URI("https://example.org").toURL(), MolgenisWebservice.hostUrl);
+              });
+    } finally {
+      MolgenisWebservice.hostUrl = hostUrlBefore;
     }
   }
 
   @Test
   void malformedServiceUrlShouldThrowException() throws Exception {
-    try (MockedStatic<EnvironmentProperty> envMock = mockStatic(EnvironmentProperty.class)) {
-      envMock
-          .when(
-              () ->
-                  EnvironmentProperty.getParameter(
-                      org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING))
-          .thenReturn("\"http://example.com/foo bar\""); // contains a spave in the host name
-
-      Assertions.assertThrows(
-          MolgenisException.class,
-          () -> {
-            URL url = new MolgenisWebservice().hostUrl;
-          });
-    }
+    // a space is not allowed in a URI
+    new EnvironmentVariables(MOLGENIS_SERVICE_URL, "http://example.com/foo bar")
+        .execute(
+            () -> {
+              assertThrows(MolgenisException.class, MolgenisWebservice::new);
+            });
   }
 
   private static Schema setupSchema(String schemaName) {
