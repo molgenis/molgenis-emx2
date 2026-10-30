@@ -189,7 +189,7 @@ function handlePageSizeChange(pageSize: string) {
 
       <InputSearch
         v-if="features.showSearch"
-        class="shrink-0 w-80 xl:w-96 lg:-ml-[30px] px-5"
+        class="w-3/5 xl:w-2/5 2xl:w-1/5"
         id="search-input"
         size="medium"
         :modelValue="settings.search"
