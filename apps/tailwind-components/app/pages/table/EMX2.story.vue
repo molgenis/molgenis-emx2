@@ -19,6 +19,7 @@ const route = useRoute();
 const canInsert = ref(false);
 const canUpdate = ref(false);
 const canDelete = ref(false);
+const enableFilters = ref(true);
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>((route.query.schema as string) || "");
 const tableId = ref<string>((route.query.table as string) || "");
@@ -59,17 +60,27 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
         </label>
         <InputCheckbox id="can-delete" v-model="canDelete" name="can-delete" />
       </div>
+      <div>
+        <label class="text-title font-bold" for="enable-filters">
+          Enable filters:
+        </label>
+        <InputCheckbox
+          id="enable-filters"
+          v-model="enableFilters"
+          name="enable-filters"
+        />
+      </div>
       <div class="py-10" />
 
       <TableEMX2
         v-model:settings="tableSettings"
-        :key="`${schemaId}-${tableId}`"
+        :key="`${schemaId}-${tableId}-${enableFilters}`"
         :schemaId="schemaId"
         :tableId="tableId ?? ''"
         :canInsert="canInsert"
         :canUpdate="canUpdate"
         :canDelete="canDelete"
-        :enableFilters="true"
+        :enableFilters="enableFilters"
       />
     </div>
   </div>

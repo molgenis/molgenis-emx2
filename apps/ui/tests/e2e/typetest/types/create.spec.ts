@@ -19,7 +19,9 @@ const arrayField = `${SCHEMA}-Types-stringArrayType-form-field`;
 let api: APIRequestContext;
 
 test.beforeAll(async () => {
-  api = await apiRequest.newContext();
+  api = await apiRequest.newContext({
+    storageState: { cookies: [], origins: [] },
+  });
   await signinAdmin(api, route);
   await createSchemaFromTemplate(api, route, SCHEMA, "TYPE_TEST");
 });

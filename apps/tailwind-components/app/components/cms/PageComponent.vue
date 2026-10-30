@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { hideAllPoppers } from "floating-vue";
+import { useDebounceFn } from "@vueuse/core";
 
 import Paragraph from "./paragraph/Paragraph.vue";
 import Heading from "./heading/Heading.vue";
@@ -16,6 +17,7 @@ import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadIte
 import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 import EditableColumnChart from "./columnChart/EditableColumnChart.vue";
+import EditableButton from "./button/EditableButton.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -26,6 +28,7 @@ import {
   moveBlockUp,
   moveComponentDown,
   moveBlockDown,
+  updateCMSfield,
 } from "../../utils/cms";
 import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
@@ -194,6 +197,19 @@ function asSingularName(value: string | undefined): string | undefined {
   }
   return value;
 }
+
+const debouncedUpdateText = useDebounceFn((text: string) => {
+  updateCMSfield(
+    componentMetadata.value?.schemaId || "",
+    schemaTableName.value as "Paragraphs" | "Headings",
+    props.component.id,
+    text
+  );
+}, 1000);
+
+function updateText(text: string) {
+  debouncedUpdateText(text);
+}
 </script>
 
 <template>
@@ -223,6 +239,7 @@ function asSingularName(value: string | undefined): string | undefined {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateText="updateText"
   />
   <EditableParagraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
@@ -231,6 +248,7 @@ function asSingularName(value: string | undefined): string | undefined {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateText="updateText"
   />
   <EditableImage
     v-else-if="mg_tableclass.endsWith('.Images')"
@@ -287,6 +305,14 @@ function asSingularName(value: string | undefined): string | undefined {
       mg_tableclass.endsWith('.Statistical charts') &&
       component.chartType?.name === 'Column chart'
     "
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableButton
+    v-else-if="mg_tableclass.endsWith('.Buttons')"
     v-bind="component"
     :isEditable="editingIsEnabled"
     @edit="onShowEdit"

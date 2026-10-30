@@ -111,6 +111,13 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         # Filelist
                         showFilesWithTag
 
+                        #Buttons
+                        buttonLabel
+                        buttonLink
+                        buttonType
+                        buttonSize
+                        buttonIsCentered
+
                         # navigation cards
                         id
                         title
@@ -129,7 +136,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         }
                         chartTitle
                         chartDescription
-                        chartData {
+                        chartData (orderby: { sortOrder: ASC }){
                             id
                             xValue
                             xLabel

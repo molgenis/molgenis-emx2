@@ -1,4 +1,5 @@
-"""Decides what to do with a pull request on open/reopen, and does the
+"""Decides what to do with a pull request on open, a draft/ready flip, a
+reopen or a body edit, and does the
 writes: main(), the event handlers, the apply/orchestration functions that
 mix a decision with I/O, and the step summary.
 
@@ -111,13 +112,9 @@ def write_step_summary(rows):
             handle.write(f"| {name} | {value} |\n")
 
 
-# Every event that touches the board (the three transitions, synchronize,
-# edited, and opened) applies the one rule in decide_board_update -- to the
-# PR's OWN card when it closes no issue: Status per decide_status, Team and
-# Sprint fill-only. Sprint's mutation shape differs from a single-select
-# (iterationId, not singleSelectOptionId), which is why it is written separately
-# below rather than through SINGLE_SELECT_FIELD_SPECS; a real fourth field would
-# still touch this table, current_values, FIELD_LABELS, and the write loop below.
+# Sprint's mutation shape differs from a single-select (iterationId, not
+# singleSelectOptionId), which is why it is written separately below rather
+# than through SINGLE_SELECT_FIELD_SPECS.
 SINGLE_SELECT_FIELD_SPECS = (
     ("status", pr_triage_github.STATUS_FIELD_ID, True, "Status"),
     ("team", pr_triage_github.TEAM_FIELD_ID, False, "Team"),
@@ -180,28 +177,19 @@ def _record_verdict(summary_rows, insert_at, verdict):
 
 
 def apply_redirected_board_write(action, is_draft, mapped_team, pr_item, closing_issues, board_token, summary_rows):
-    """Aim 6, for an action in PR_CARD_REMOVAL_ACTIONS: the PR closes at
-    least one issue, so it gets no card of its own -- an existing one is
-    removed from board 15, unconditionally -- and each linked issue's card
-    is written instead, per decide_issue_card_update. synchronize never
-    reaches this function; see apply_board_write.
+    """The PR closes at least one issue, so each story's card is kept on the
+    board in the right column, per decide_issue_card_update. On opened and a
+    body edit the PR's own card is then removed.
 
-    Order matters, owner ruling: every linked issue's card is written FIRST,
-    and the PR's own card is removed LAST. If an issue write fails partway
-    (a GraphQL error, a timeout), the PR's card survives -- a transient
-    duplicate, which the spec explicitly prefers over the alternative this
-    ordering rules out: the PR's card gone and no issue card written, i.e.
-    zero cards for the same piece of work."""
+    Every issue card is written FIRST and the PR's card removed LAST: a failed
+    issue write then leaves a transient duplicate rather than zero cards."""
     current_iteration = resolve_current_iteration(board_token)
     current_sprint_title = current_iteration["title"] if current_iteration else None
 
     for issue_ref in closing_issues:
         issue_lookup = find_board_item_for_pr(issue_ref["id"], board_token)
         existing_issue_item = issue_lookup["item"]
-        fields = pr_triage_decide.decide_issue_card_update(action, is_draft, existing_issue_item, mapped_team, current_sprint_title)
-        if fields is None:
-            summary_rows.append((f"Issue #{issue_ref['number']}", "left untouched"))
-            continue
+        fields = pr_triage_decide.decide_issue_card_update(is_draft, existing_issue_item, mapped_team, current_sprint_title)
         current_values = {
             "status": existing_issue_item["status"] if existing_issue_item else None,
             "team": existing_issue_item["team"] if existing_issue_item else None,
@@ -212,11 +200,9 @@ def apply_redirected_board_write(action, is_draft, mapped_team, pr_item, closing
         )
         summary_rows.append((f"Issue #{issue_ref['number']}", f"item {item_id}"))
 
-    if pr_triage_decide.decide_remove_pr_card(closing_issues, pr_item):
+    if action in pr_triage_decide.PR_CARD_REMOVAL_ACTIONS and pr_triage_decide.decide_remove_pr_card(closing_issues, pr_item):
         was = f"Status {pr_item['status']!r}, Team {pr_item['team']!r}, Sprint {pr_item['sprint']!r}"
-        # Recorded BEFORE the mutation runs -- this row is the one place a
-        # person can recover the values from, so a timeout after GitHub has
-        # already committed the removal must not lose it.
+        # Recorded BEFORE the mutation runs: a timeout after GitHub committed the removal must not lose these values.
         summary_rows.append(("PR card removed", f"{pr_item['id']} (was: {was})"))
         pr_triage_github.remove_item_from_board(pr_item["id"], board_token)
     else:
@@ -224,27 +210,24 @@ def apply_redirected_board_write(action, is_draft, mapped_team, pr_item, closing
 
 
 def apply_board_write(action, pr_node_id, is_draft, mapped_team, board_token, summary_rows, verdict_prefix, insert_verdict_at=None):
-    """The redirect-aware board write shared by every board-writing action --
-    opened, the three transitions, synchronize, and edited. Reads the PR's
-    own item and the issues it closes in one round trip (find_board_item_for_pr),
-    then either redirects to those issues' cards (aim 6, decide_redirect_to_issues)
-    or writes the PR's own card exactly as before this ticket. For a closing
-    PR, synchronize is a special case: it is not in PR_CARD_REMOVAL_ACTIONS,
-    so it writes nothing anywhere -- not the PR's card, not any issue's."""
+    """Only opened adds the PR's own card. Every later action moves Status on
+    a card that exists, except the story card a closing PR keeps on the board."""
     lookup = find_board_item_for_pr(pr_node_id, board_token)
     pr_item = lookup["item"]
     closing_issues = lookup["closing_issues"]
 
     if pr_triage_decide.decide_redirect_to_issues(closing_issues):
-        if action not in pr_triage_decide.PR_CARD_REMOVAL_ACTIONS:
-            _record_verdict(
-                summary_rows, insert_verdict_at, f"{verdict_prefix} -> closes {len(closing_issues)} issue(s), {action} writes nothing"
-            )
-            return
         _record_verdict(
             summary_rows, insert_verdict_at, f"{verdict_prefix} -> closes {len(closing_issues)} issue(s), no PR card"
         )
         apply_redirected_board_write(action, is_draft, mapped_team, pr_item, closing_issues, board_token, summary_rows)
+        return
+
+    if action == "edited":
+        _record_verdict(summary_rows, insert_verdict_at, f"{verdict_prefix} -> closes no issue, nothing to write")
+        return
+    if action != "opened" and pr_item is None:
+        _record_verdict(summary_rows, insert_verdict_at, f"{verdict_prefix} -> no PR card on the board, {action} adds none")
         return
 
     current_values = {
@@ -253,18 +236,19 @@ def apply_board_write(action, pr_node_id, is_draft, mapped_team, board_token, su
         "sprint": pr_item["sprint"] if pr_item else None,
     }
     current_iteration = None
-    if pr_triage_decide.is_blank(current_values["sprint"]):
-        current_iteration = resolve_current_iteration(board_token)
-    current_sprint_title = current_iteration["title"] if current_iteration else None
-
-    fields = pr_triage_decide.decide_board_update(
-        is_draft,
-        current_values["status"],
-        current_values["team"],
-        mapped_team,
-        current_sprint=current_values["sprint"],
-        current_sprint_title=current_sprint_title,
-    )
+    if action == "opened":
+        if pr_triage_decide.is_blank(current_values["sprint"]):
+            current_iteration = resolve_current_iteration(board_token)
+        fields = pr_triage_decide.decide_board_update(
+            is_draft,
+            current_values["status"],
+            current_values["team"],
+            mapped_team,
+            current_sprint=current_values["sprint"],
+            current_sprint_title=current_iteration["title"] if current_iteration else None,
+        )
+    else:
+        fields = {"status": pr_triage_decide.decide_status(is_draft, current_values["status"]), "team": None, "sprint": None}
 
     _record_verdict(summary_rows, insert_verdict_at, board_verdict(verdict_prefix, fields, current_values))
 
@@ -303,11 +287,9 @@ def handle_board_update(action, pull_request):
         write_step_summary(summary_rows)
 
 
-def handle_unrecognized_action(action, pull_request):
+def handle_ignored_action(action, pull_request, verdict):
     author_login = pull_request["user"]["login"]
     head_branch = pull_request["head"]["ref"]
-
-    verdict = f"unrecognized action '{action}' -> no action taken"
 
     print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
     print(f"verdict: {verdict}")
@@ -418,12 +400,16 @@ def main():
     action = event["action"]
     pull_request = event["pull_request"]
 
+    if action == "edited" and "body" not in event.get("changes", {}):
+        handle_ignored_action(action, pull_request, "edited, body unchanged -> no action taken")
+        return
+
     if action in pr_triage_decide.BOARD_UPDATE_ACTIONS:
         handle_board_update(action, pull_request)
         return
 
     if action != "opened":
-        handle_unrecognized_action(action, pull_request)
+        handle_ignored_action(action, pull_request, f"unrecognized action '{action}' -> no action taken")
         return
 
     repo = event["repository"]["full_name"]

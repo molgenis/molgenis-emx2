@@ -319,7 +319,7 @@
     --text-color-label-available: var(--color-black);
 
     /** tooltips */
-    --text-color-icon-neutral: var(--color-blue-500);
+    --text-color-icon-neutral: var(--color-blue-200);
 
     /* visualisations: need css and svg defintions */
     --chart-text: var(--color-gray-900);

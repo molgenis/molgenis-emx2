@@ -3,6 +3,10 @@ import { ref } from "vue";
 import Paragraph from "./Paragraph.vue";
 import ComponentActions from "../ComponentActions.vue";
 import type { IParagraphs } from "../../../../types/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IParagraphs & { isEditable?: boolean }>(),
@@ -11,7 +15,7 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-const emit = defineEmits(["edit", "delete", "move"]);
+const emit = defineEmits(["edit", "delete", "move", "updateText"]);
 const showMenu = ref<boolean>(false);
 </script>
 
@@ -22,8 +26,8 @@ const showMenu = ref<boolean>(false);
     showGroup="component-menu"
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 50 }"
-    :placement="paragraphIsCentered ? 'bottom-auto' : 'bottom-start'"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
+    :placement="paragraphIsCentered ? 'bottom' : 'bottom-start'"
     noAutoFocus
   >
     <template #popper>
@@ -36,7 +40,11 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <Paragraph v-bind="props" />
+    <Paragraph
+      v-bind="props"
+      :contenteditable="props.isEditable"
+      @input="props.isEditable && emit('updateText', $el.innerHTML)"
+    />
   </VMenu>
   <Paragraph v-else v-bind="props" />
 </template>

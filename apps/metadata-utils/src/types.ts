@@ -1,4 +1,4 @@
-import type { ComputedRef } from "vue";
+import type { ComputedRef, MaybeRef } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -50,7 +50,9 @@ export type CellValueType =
   | "NON_NEGATIVE_INT"
   | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
-  | "MULTISELECT";
+  | "MULTISELECT"
+  | "ENUM"
+  | "ENUM_ARRAY";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -81,6 +83,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  allowedValues?: string[];
 }
 
 export interface IRefColumn extends IColumn {
@@ -96,6 +99,7 @@ export interface ITableMetaData {
   schemaId: string;
   name: string;
   label: string;
+  rowLabelTemplate?: string;
   description?: string;
   tableType: TableType;
   columns: IColumn[];
@@ -118,9 +122,9 @@ interface LegendItem {
   id: string;
   label: string;
   type: HeadingType;
-  errorCount: ComputedRef<number>;
-  isVisible: ComputedRef<boolean>;
-  isActive: ComputedRef<boolean> | boolean;
+  errorCount?: MaybeRef<number>;
+  isVisible?: MaybeRef<boolean>;
+  isActive?: ComputedRef<boolean> | boolean;
 }
 export interface LegendSection extends LegendItem {
   type: "SECTION";

@@ -9,6 +9,7 @@ export default gql`
         schemaId
         name
         label
+        rowLabelTemplate
         tableType
         description
         semantics
@@ -36,6 +37,7 @@ export default gql`
           computed
           visible
           validation
+          allowedValues
         }
       }
     }

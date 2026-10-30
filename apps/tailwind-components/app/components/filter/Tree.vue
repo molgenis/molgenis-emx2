@@ -10,6 +10,7 @@ import type {
 } from "../../../types/types";
 import {
   filterValueToTreeSelection,
+  isEnumColumnType,
   treeSelectionToFilterValue,
 } from "../../utils/filterUtils";
 import TreeNode from "../input/TreeNode.vue";
@@ -58,12 +59,14 @@ const showMoreLabel = computed(() =>
   isFullyExpanded.value ? "Show less" : "Show more"
 );
 
+const showsCounts = computed(() => !isEnumColumnType(props.column.columnType));
+
 const visibleOptions = computed<CountedOption[]>(() => {
   if (localSearch.value) {
     return filterOptionsBySearch(props.options, localSearch.value);
   }
   return applyCollapseView(props.options, {
-    hideZero: !hasUserExpanded.value,
+    hideZero: showsCounts.value && !hasUserExpanded.value,
     limit: isFullyExpanded.value ? null : visibleRootCount.value,
   });
 });
@@ -76,7 +79,7 @@ const treeSelection = computed(() =>
 
 const treeNodes = computed<ITreeNode[]>(() =>
   visibleOptions.value.map((opt) =>
-    countedOptionToTreeNode(opt, treeSelection.value)
+    countedOptionToTreeNode(opt, treeSelection.value, showsCounts.value)
   )
 );
 
@@ -336,17 +339,16 @@ function displayCount(option: CountedOption, selected: string[]): number {
 
 function countedOptionToTreeNode(
   option: CountedOption,
-  selected: string[]
+  selected: string[],
+  withCount: boolean
 ): ITreeNode {
-  const count = displayCount(option, selected);
+  const text = option.label || option.name;
   return {
     ...option,
-    label: option.label
-      ? `${option.label} (${count})`
-      : `${option.name} (${count})`,
+    label: withCount ? `${text} (${displayCount(option, selected)})` : text,
     children:
       option.children?.map((child) =>
-        countedOptionToTreeNode(child, selected)
+        countedOptionToTreeNode(child, selected, withCount)
       ) ?? [],
   };
 }
