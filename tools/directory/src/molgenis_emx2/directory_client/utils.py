@@ -2,6 +2,24 @@ import csv
 from collections import OrderedDict
 from typing import List
 
+data_categories_mapping = {
+    "NATIONAL_REGISTRIES": "NATIONAL_REGISTRIES",
+    "IMAGING_DATA": "IMAGING_DATA",
+    "PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS": ["Physiological dataset","Biochemical dataset"],
+    "GENEALOGICAL_RECORDS": "Genealogical records",
+    "MEDICAL_RECORDS": "Clinical dataset",
+    "SURVEY_DATA": "SURVEY_DATA",
+    "OTHER": "Other sample-derived dataset",
+    "BIOLOGICAL_SAMPLES": "Biological samples",
+    "ANTIBODIES": "Antibodies",
+    "BLOOD": "Blood",
+    "NAV": "Not available",
+    "TREATMENT_PROTOCOL": "Treatment protocol",
+    "DiseaseDuration": "Disease duration",
+    "CLINICAL_SYMPTOMS": "Clinical dataset",
+    "CT": "Body image",
+}
+
 
 def to_ordered_dict(rows: List[dict], id_attribute: str) -> OrderedDict:
     rows_by_id = OrderedDict()
@@ -21,3 +39,29 @@ def create_csv(table: List[dict], file_name: str, meta_attributes: List[str]):
                 if isinstance(value, list):
                     row[key] = ",".join(value)
             writer.writerow(row)
+
+def apply_mapping(mapping, element):
+    """
+    Take a value and apply the ontology mapping
+    If value is not present in mapping, return the original value
+    """
+    if isinstance(element, list):
+        mapped_element = []
+        for value in element:
+            if value not in mapping:
+                mapped_element.append(value)
+            else:
+                if isinstance(mapping[value], list):
+                    mapped_element += mapping[value]
+                elif isinstance(mapping[value], str):
+                    mapped_element.append(mapping[value])
+                else:
+                    raise ValueError
+        return mapped_element
+    elif isinstance(element, str):
+        if element in mapping:
+            return mapping[element]
+        else:
+            return element
+    else:
+        raise ValueError
