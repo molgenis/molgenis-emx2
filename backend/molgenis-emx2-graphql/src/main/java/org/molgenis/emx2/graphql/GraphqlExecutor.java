@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
@@ -173,14 +175,14 @@ public class GraphqlExecutor {
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
     @Override
-    public void createSession(String username) {}
+    public void createSession(Username username) {}
 
     @Override
     public void destroySession() {}
 
     @Override
-    public String getCurrentUser() {
-      return "";
+    public Username getCurrentUser() {
+      return ANONYMOUS;
     }
   }
 }

@@ -18,22 +18,22 @@ class TestPermissionEvaluator {
   private static final String TABLE_B = "TableB";
   private static final String ONTOLOGY_TABLE = "OntologyTable";
 
-  private static final String USER_EXISTS = "pe_user_exists";
-  private static final String USER_RANGE = "pe_user_range";
-  private static final String USER_AGGREGATOR = "pe_user_aggregator";
-  private static final String USER_COUNT = "pe_user_count";
-  private static final String USER_VIEWER = "pe_user_viewer";
-  private static final String USER_EDITOR = "pe_user_editor";
-  private static final String USER_MANAGER = "pe_user_manager";
-  private static final String USER_CUSTOM = "pe_user_custom";
-  private static final String USER_NO_ROLE = "pe_user_norole";
+  private static final Username USER_EXISTS = new Username("pe_user_exists");
+  private static final Username USER_RANGE = new Username("pe_user_range");
+  private static final Username USER_AGGREGATOR = new Username("pe_user_aggregator");
+  private static final Username USER_COUNT = new Username("pe_user_count");
+  private static final Username USER_VIEWER = new Username("pe_user_viewer");
+  private static final Username USER_EDITOR = new Username("pe_user_editor");
+  private static final Username USER_MANAGER = new Username("pe_user_manager");
+  private static final Username USER_CUSTOM = new Username("pe_user_custom");
+  private static final Username USER_NO_ROLE = new Username("pe_user_norole");
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user :
+    for (Username user :
         List.of(
             USER_EXISTS,
             USER_RANGE,
@@ -66,7 +66,7 @@ class TestPermissionEvaluator {
     schema.addMember(USER_CUSTOM, "CustomReader");
   }
 
-  private static Schema schemaFor(String user) {
+  private static Schema schemaFor(Username user) {
     database.becomeAdmin();
     database.setActiveUser(user);
     return database.getSchema(SCHEMA);
@@ -181,19 +181,19 @@ class TestPermissionEvaluator {
 
     @Test
     void countAndViewerCanCount() {
-      for (String user : List.of(USER_COUNT, USER_VIEWER)) {
+      for (Username user : List.of(USER_COUNT, USER_VIEWER)) {
         Schema s = schemaFor(user);
         TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
-        assertTrue(PermissionEvaluator.canCount(s, tableA), user);
+        assertTrue(PermissionEvaluator.canCount(s, tableA), user.value());
       }
     }
 
     @Test
     void lowerAggregateRolesCannotCount() {
-      for (String user : List.of(USER_EXISTS, USER_RANGE, USER_AGGREGATOR)) {
+      for (Username user : List.of(USER_EXISTS, USER_RANGE, USER_AGGREGATOR)) {
         Schema s = schemaFor(user);
         TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
-        assertFalse(PermissionEvaluator.canCount(s, tableA), user);
+        assertFalse(PermissionEvaluator.canCount(s, tableA), user.value());
       }
     }
 

@@ -18,16 +18,16 @@ class TestTablePermissionEnforcement {
   private static final String TABLE_B = "TableB";
   private static final String ONTOLOGY_TABLE = "OntologyTable";
 
-  private static final String USER_VIEWER = "tpe_user_viewer";
-  private static final String USER_EDITOR = "tpe_user_editor";
-  private static final String USER_NO_ACCESS = "tpe_user_noaccess";
+  private static final Username USER_VIEWER = new Username("tpe_user_viewer");
+  private static final Username USER_EDITOR = new Username("tpe_user_editor");
+  private static final Username USER_NO_ACCESS = new Username("tpe_user_noaccess");
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
+    for (Username user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 

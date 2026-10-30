@@ -94,7 +94,6 @@ public class Constants {
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
-  public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
   public static final String MOLGENIS_SERVICE_URL = "MOLGENIS_SERVICE_URL";

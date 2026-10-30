@@ -9,13 +9,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,9 +54,9 @@ class WebApiSmokeTests extends ApiTestBase {
   private static final String ADMIN_PASS =
       (String) EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
 
-  public static final String PET_SHOP_OWNER = "pet_shop_owner";
-  public static final String PET_SHOP_VIEWER = "shopviewer";
-  public static final String PET_SHOP_MANAGER = "shopmanager";
+  public static final Username PET_SHOP_OWNER = new Username("pet_shop_owner");
+  public static final Username PET_SHOP_VIEWER = new Username("shopviewer");
+  public static final Username PET_SHOP_MANAGER = new Username("shopmanager");
 
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static final String TABLE_WITH_SPACES = "table with spaces";
@@ -77,9 +77,9 @@ class WebApiSmokeTests extends ApiTestBase {
     schema = database.getSchema(PET_STORE_SCHEMA);
 
     // grant a user permission
-    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
-    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
-    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER.value());
+    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER.value());
+    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER.value());
     schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
     schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
@@ -155,7 +155,7 @@ class WebApiSmokeTests extends ApiTestBase {
                   given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
 
               assertFalse(
-                  sessionResult.contains(ADMIN_USER),
+                  sessionResult.contains(ADMIN_USER.value()),
                   "ADMIN_USER present in thread: " + Thread.currentThread().getName());
 
               try {
@@ -483,7 +483,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .filter(sessionFilter)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + database.getAdminUserName()
+                    + database.getAdminUserName().value()
                     + "\\\",password:\\\""
                     + ADMIN_PASS
                     + "\\\"){message}}\"}")
@@ -499,7 +499,7 @@ class WebApiSmokeTests extends ApiTestBase {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains(database.getAdminUserName()));
+    assertTrue(result.contains(database.getAdminUserName().value()));
 
     // if admin then should  be able to see users
     result =
@@ -586,7 +586,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
-                    + database.getAdminUserName()
+                    + database.getAdminUserName().value()
                     + "\\\",password:\\\""
                     + ADMIN_PASS
                     + "\\\"){message}}\"}")

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 
 public class JavaScriptBindings {
@@ -16,7 +17,7 @@ public class JavaScriptBindings {
 
   private static final String SIMPLE_POST_CLIENT = "simplePostClient";
 
-  private static ProxyExecutable createSimplePostClient(String username) {
+  private static ProxyExecutable createSimplePostClient(Username username) {
     return arguments -> {
       String query = arguments.length > 0 ? arguments[0].asString() : null;
       Map<String, Object> variables = arguments.length > 1 ? asMap(arguments[1]) : new HashMap<>();
@@ -59,7 +60,7 @@ public class JavaScriptBindings {
     return value.toString();
   }
 
-  public static Map<String, Supplier<Object>> getBindingsForUser(String username) {
+  public static Map<String, Supplier<Object>> getBindingsForUser(Username username) {
     Map<String, Supplier<Object>> bindings = new HashMap<>();
     bindings.put(SIMPLE_POST_CLIENT, () -> createSimplePostClient(username));
     // Add more bindings here in a similar way if needed

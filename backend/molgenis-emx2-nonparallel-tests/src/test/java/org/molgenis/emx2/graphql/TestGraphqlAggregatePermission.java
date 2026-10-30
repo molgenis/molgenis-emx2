@@ -2,10 +2,10 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,11 +15,15 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqlAggregatePermission {
+
+  private static final Username AGGREGATE_TEST_USER = new Username("AGGREGATE_TEST_USER");
+
   private static GraphqlExecutor grapql;
   private static Database database;
   private static final String schemaName = TestGraphqlAggregatePermission.class.getSimpleName();
@@ -33,8 +37,8 @@ public class TestGraphqlAggregatePermission {
     PET_STORE.getImportTask(database, schemaName, "", true).run();
     schema = database.getSchema(schemaName);
     schema.removeMember(ANONYMOUS);
-    schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
-    database.setActiveUser("AGGREGATE_TEST_USER");
+    schema.addMember(AGGREGATE_TEST_USER, AGGREGATOR.toString());
+    database.setActiveUser(AGGREGATE_TEST_USER);
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
   }

@@ -22,6 +22,7 @@ import java.util.*;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ public class CafeVariomeApi {
     }
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode jsonResponse = objectMapper.readTree(response.body());
-    String user = String.valueOf(jsonResponse.get("email"));
+    Username user = new Username(String.valueOf(jsonResponse.get("email")));
 
     if (!database.hasUser(user)) {
       logger.info("Add new user({}) to database", user);

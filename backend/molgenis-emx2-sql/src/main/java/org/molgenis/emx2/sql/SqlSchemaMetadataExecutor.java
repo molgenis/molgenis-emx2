@@ -104,12 +104,12 @@ class SqlSchemaMetadataExecutor {
     return Constants.MG_ROLE_PREFIX + name + "/";
   }
 
-  static List<String> getInheritedRoleForUser(DSLContext jooq, String schemaName, String user) {
+  static List<String> getInheritedRoleForUser(DSLContext jooq, String schemaName, Username user) {
     String roleFilter = getRolePrefix(schemaName);
     List<Record> roles =
         jooq.fetch(
             "SELECT a.oid, a.rolname FROM pg_roles a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname LIKE {1}",
-            Constants.MG_USER_PREFIX + user, roleFilter + "%");
+            Constants.MG_USER_PREFIX + user.value(), roleFilter + "%");
     return roles.stream()
         .map(r -> r.get("rolname", String.class).substring(roleFilter.length()))
         .collect(Collectors.toList());

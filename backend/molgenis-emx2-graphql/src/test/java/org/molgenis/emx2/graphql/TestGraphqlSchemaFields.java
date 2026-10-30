@@ -38,16 +38,16 @@ class TestGraphqlSchemaFields {
   @BeforeAll
   static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    final String shopviewer = "shopviewer";
-    final String shopmanager = "shopmanager";
-    final String shopowner = "shopowner";
-    final String customer = "customer";
+    final Username shopviewer = new Username("shopviewer");
+    final Username shopmanager = new Username("shopmanager");
+    final Username shopowner = new Username("shopowner");
+    final Username customer = new Username("customer");
 
     // initialize users
-    database.setUserPassword(shopmanager, shopmanager);
-    database.setUserPassword(shopviewer, shopviewer);
-    database.setUserPassword(shopowner, shopowner);
-    database.setUserPassword(customer, customer);
+    database.setUserPassword(shopmanager, shopmanager.value());
+    database.setUserPassword(shopviewer, shopviewer.value());
+    database.setUserPassword(shopowner, shopowner.value());
+    database.setUserPassword(customer, customer.value());
 
     database.dropSchemaIfExists(schemaName);
     DataModels.getImportTask(database, schemaName, "", PET_STORE.name(), true).run();
@@ -174,7 +174,7 @@ class TestGraphqlSchemaFields {
   @Test
   void testSession() throws IOException {
     try {
-      database.setActiveUser("shopmanager");
+      database.setActiveUser(new Username("shopmanager"));
       graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
       graphqlExecutor = new GraphqlExecutor(database.getSchema(schemaName), taskService);
       assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));

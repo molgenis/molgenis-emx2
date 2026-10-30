@@ -24,7 +24,7 @@ public class Emx2Members {
 
     List<Row> members = new ArrayList<>();
     for (Member m : schema.getMembers()) {
-      members.add(row(USER, m.getUser(), ROLE, m.getRole()));
+      members.add(row(USER, m.getUser().value(), ROLE, m.getRole()));
     }
     if (!members.isEmpty()) {
       store.writeTable(MEMBERS_TABLE, List.of(USER, ROLE), members);
@@ -41,7 +41,7 @@ public class Emx2Members {
     if (store.containsTable(MEMBERS_TABLE)) {
       for (Row row : store.readTable(MEMBERS_TABLE)) {
         count++;
-        schema.addMember(row.getString(USER), row.getString(ROLE));
+        schema.addMember(new Username(row.getString(USER)), row.getString(ROLE));
       }
     }
     return count;

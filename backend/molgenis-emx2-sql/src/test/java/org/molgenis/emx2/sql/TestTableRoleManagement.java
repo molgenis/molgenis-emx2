@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,16 +22,16 @@ class TestTableRoleManagement {
   private static final String TABLE_A = "TableA";
   private static final String TABLE_B = "TableB";
 
-  private static final String USER_VIEWER = "trm_user_viewer";
-  private static final String USER_EDITOR = "trm_user_editor";
-  private static final String USER_NO_ACCESS = "trm_user_noaccess";
+  private static final Username USER_VIEWER = new Username("trm_user_viewer");
+  private static final Username USER_EDITOR = new Username("trm_user_editor");
+  private static final Username USER_NO_ACCESS = new Username("trm_user_noaccess");
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
+    for (Username user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -358,7 +359,7 @@ class TestTableRoleManagement {
     Schema schema = database.getSchema(SCHEMA);
 
     // anonymous gets Viewer, so select on all tables
-    schema.addMember("anonymous", "Viewer");
+    schema.addMember(ANONYMOUS, "Viewer");
 
     // custom role only grants insert on TABLE_A
     schema.createRole("InsertOnly");
@@ -381,7 +382,7 @@ class TestTableRoleManagement {
 
     // clean up to avoid leaking anonymous Viewer into other tests
     database.becomeAdmin();
-    schema.removeMember("anonymous");
+    schema.removeMember(ANONYMOUS);
     schema.removeMember(USER_VIEWER);
     schema.deleteRole("InsertOnly");
   }

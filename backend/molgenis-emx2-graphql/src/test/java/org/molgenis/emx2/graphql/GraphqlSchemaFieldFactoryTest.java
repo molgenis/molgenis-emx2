@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class GraphqlSchemaFieldFactoryTest {
@@ -30,9 +31,10 @@ class GraphqlSchemaFieldFactoryTest {
   void whenAuthorizedForMembers_thenIncludeInSchema() {
     for (Privileges privilege : AUTHORIZED_PRIVILEGES) {
       schema.getDatabase().becomeAdmin();
-      schema.removeMember("test-user");
-      schema.addMember("test-user", privilege.toString());
-      schema.getDatabase().setActiveUser("test-user");
+      Username testUser = new Username("test-user");
+      schema.removeMember(testUser);
+      schema.addMember(testUser, privilege.toString());
+      schema.getDatabase().setActiveUser(testUser);
 
       GraphQLFieldDefinition.Builder builder = new GraphqlSchemaFieldFactory().schemaQuery(schema);
       GraphQLFieldDefinition definition = builder.build();
@@ -46,9 +48,10 @@ class GraphqlSchemaFieldFactoryTest {
   void whenNotAuthorizedForMembers_thenExcludeFromSchema() {
     for (Privileges privilege : unauthorizedPrivileges()) {
       schema.getDatabase().becomeAdmin();
-      schema.removeMember("test-user");
-      schema.addMember("test-user", privilege.toString());
-      schema.getDatabase().setActiveUser("test-user");
+      Username testUser = new Username("test-user");
+      schema.removeMember(testUser);
+      schema.addMember(testUser, privilege.toString());
+      schema.getDatabase().setActiveUser(testUser);
 
       GraphQLFieldDefinition.Builder builder = new GraphqlSchemaFieldFactory().schemaQuery(schema);
       GraphQLFieldDefinition definition = builder.build();

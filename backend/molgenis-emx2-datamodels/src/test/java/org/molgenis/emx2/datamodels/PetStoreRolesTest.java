@@ -2,6 +2,7 @@ package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.MG_ROLES;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +14,7 @@ class PetStoreRolesTest {
 
   private static final String SCHEMA = PetStoreRolesTest.class.getSimpleName();
   private static final String DRAGON_KEEPER = "DragonKeeper";
-  private static final String DRAGON_KEEPER_USER = "dragonkeeper";
+  private static final Username DRAGON_KEEPER_USER = new Username("dragonkeeper");
 
   private static Database database;
 
@@ -69,7 +70,7 @@ class PetStoreRolesTest {
 
   @Test
   void everyoneSeesSmaugBecausePetStoreGrantsAnonymousViewer() {
-    for (String user : List.of(DRAGON_KEEPER_USER, "shopviewer", "anonymous")) {
+    for (Username user : List.of(DRAGON_KEEPER_USER, new Username("shopviewer"), ANONYMOUS)) {
       database.setActiveUser(user);
       List<String> names =
           database.getSchema(SCHEMA).getTable("Pet").retrieveRows().stream()
@@ -83,14 +84,14 @@ class PetStoreRolesTest {
   @Test
   void aggregatorAggregatesOverAllRowsOfRowLevelSecuredTable() {
     String aggregatorSchema = SCHEMA + "Agg";
-    String aggregator = "petstore_roles_aggregator";
+    Username aggregator = new Username("petstore_roles_aggregator");
     database.becomeAdmin();
     database.dropSchemaIfExists(aggregatorSchema);
     DataModels.Profile.PET_STORE
         .getImportTask(database, aggregatorSchema, "petstore aggregator", true)
         .run();
     Schema schema = database.getSchema(aggregatorSchema);
-    schema.removeMember(Constants.ANONYMOUS);
+    schema.removeMember(ANONYMOUS);
     if (!database.hasUser(aggregator)) database.addUser(aggregator);
     schema.addMember(aggregator, Privileges.AGGREGATOR.toString());
 

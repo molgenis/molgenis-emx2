@@ -12,12 +12,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Tag("slow")
@@ -29,9 +24,9 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   private static final String TABLE_ONTOLOGY = "TagOntology";
   private static final String TABLE_WITH_REF = "ArticleWithRef";
 
-  private static final String OWNER_USER = "tpgql_owner";
-  private static final String CUSTOM_USER = "tpgql_custom";
-  private static final String VIEWER_USER = "tpgql_viewer";
+  private static final Username OWNER_USER = new Username("tpgql_owner");
+  private static final Username CUSTOM_USER = new Username("tpgql_custom");
+  private static final Username VIEWER_USER = new Username("tpgql_viewer");
 
   private static final String OWNER_PASS = "ownerpass1";
   private static final String CUSTOM_PASS = "custompass1";
@@ -43,7 +38,7 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   static void setup() {
     database.becomeAdmin();
 
-    for (String user : List.of(OWNER_USER, CUSTOM_USER, VIEWER_USER)) {
+    for (Username user : List.of(OWNER_USER, CUSTOM_USER, VIEWER_USER)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
     database.setUserPassword(OWNER_USER, OWNER_PASS);

@@ -437,8 +437,8 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private static void log(SqlTableMetadata tableMetadata, long start, String message) {
-    String user = tableMetadata.getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
+    Username user = tableMetadata.getDatabase().getActiveUser();
+    if (user == null) user = new Username("molgenis");
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms",
@@ -450,8 +450,8 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private void log(long start, String message) {
-    String user = getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
+    Username user = getDatabase().getActiveUser();
+    if (user == null) user = new Username("molgenis");
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms", user, message, getJooqTable(), (System.currentTimeMillis() - start));

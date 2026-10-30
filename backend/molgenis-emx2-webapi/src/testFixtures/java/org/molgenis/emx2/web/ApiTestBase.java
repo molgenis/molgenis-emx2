@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
@@ -86,7 +87,7 @@ public abstract class ApiTestBase {
     service.stop();
   }
 
-  protected static void login(String username, String password) {
+  protected static void login(Username username, String password) {
     sessionId =
         given()
             .body(
@@ -95,7 +96,7 @@ public abstract class ApiTestBase {
                   "query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"
                 }
                 """
-                    .formatted(username, password))
+                    .formatted(username.value(), password))
             .when()
             .post("api/graphql")
             .sessionId();

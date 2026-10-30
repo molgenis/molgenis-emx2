@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +16,7 @@ class BeaconApiTest extends ApiTestBase {
 
   @BeforeAll
   static void setup() {
-    login("admin", "admin");
+    login(ADMIN_USER, "admin");
   }
 
   @Test

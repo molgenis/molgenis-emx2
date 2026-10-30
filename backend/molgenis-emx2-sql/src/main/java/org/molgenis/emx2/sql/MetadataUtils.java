@@ -413,7 +413,8 @@ public class MetadataUtils {
               .limit(limit)
               .offset(offset)
               .fetchArray()) {
-        User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
+        User newUser =
+            new User(db, new Username(user.get(USER_NAME)), user.get(SETTINGS, Map.class));
         newUser.setEnabled(user.get(USER_ENABLED));
         newUser.setAdmin(user.get(USER_ADMIN));
         users.add(newUser);
@@ -672,12 +673,12 @@ public class MetadataUtils {
     return c;
   }
 
-  public static void setUserPassword(DSLContext jooq, String user, String password) {
+  public static void setUserPassword(DSLContext jooq, Username user, String password) {
     // TODO BEFORE MERGE: set USER_ACTIVE to current value and not to "TRUE"
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_ENABLED, USER_PASS)
         .values(
-            field("{0}", String.class, user),
+            field("{0}", String.class, user.value()),
             field("{0}", Boolean.class, Boolean.TRUE),
             field("crypt({0}, gen_salt('bf'))", String.class, password))
         .onConflict(USER_NAME)
@@ -686,11 +687,11 @@ public class MetadataUtils {
         .execute();
   }
 
-  public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
+  public static boolean checkUserPassword(DSLContext jooq, Username username, String password) {
     org.jooq.Record result =
         jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as(MATCHES))
             .from(USERS_METADATA)
-            .where(field(USER_NAME).eq(username))
+            .where(field(USER_NAME).eq(username.value()))
             .fetchOne();
 
     return result != null && result.get(MATCHES) != null && result.get(MATCHES, Boolean.class);
@@ -737,16 +738,16 @@ public class MetadataUtils {
     // don't update password via this route
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_ENABLED, SETTINGS)
-        .values(user.getUsername(), true, user.getSettings())
+        .values(user.getUsername().value(), true, user.getSettings())
         .onConflict(USER_NAME)
         .doUpdate()
         .set(SETTINGS, user.getSettings())
         .execute();
   }
 
-  public static User loadUserMetadata(SqlDatabase db, String userName) {
+  public static User loadUserMetadata(SqlDatabase db, Username userName) {
     org.jooq.Record userRecord =
-        db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName)).fetchOne();
+        db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName.value())).fetchOne();
     if (userRecord != null) {
       User result = new User(db, userName);
       result.setEnabled(userRecord.get(USER_ENABLED));

@@ -245,7 +245,7 @@ public class SqlTable implements Table {
         });
 
     log(
-        db.getActiveUser(),
+        db.getActiveUser().value(),
         table.getJooqTable().getName(),
         start,
         count,
@@ -530,7 +530,7 @@ public class SqlTable implements Table {
         field(name(MG_UPDATEDBY)),
         insertedColumnNames.contains(MG_UPDATEDBY)
             ? getExcludedField(MG_UPDATEDBY)
-            : mgDefaults.user());
+            : mgDefaults.user().value());
     onConflict.set(
         field(name(MG_UPDATEDON)),
         insertedColumnNames.contains(MG_UPDATEDON)
@@ -538,15 +538,15 @@ public class SqlTable implements Table {
             : mgDefaults.now());
   }
 
-  private record MgDefaults(String user, LocalDateTime now, boolean mayOverride) {
+  private record MgDefaults(Username user, LocalDateTime now, boolean mayOverride) {
     static MgDefaults of(SqlTable table) {
       return new MgDefaults(getActiveUser(table), LocalDateTime.now(), mayOverrideMgValues(table));
     }
 
     void applyToInsert(Map<String, Object> values) {
-      putMgValue(values, MG_INSERTEDBY, mayOverride, user);
+      putMgValue(values, MG_INSERTEDBY, mayOverride, user.value());
       putMgValue(values, MG_INSERTEDON, mayOverride, now);
-      putMgValue(values, MG_UPDATEDBY, mayOverride, user);
+      putMgValue(values, MG_UPDATEDBY, mayOverride, user.value());
       putMgValue(values, MG_UPDATEDON, mayOverride, now);
     }
   }
@@ -572,8 +572,8 @@ public class SqlTable implements Table {
     }
   }
 
-  private static String getActiveUser(SqlTable table) {
-    String user = table.getSchema().getDatabase().getActiveUser();
+  private static Username getActiveUser(SqlTable table) {
+    Username user = table.getSchema().getDatabase().getActiveUser();
     if (user == null) {
       user = ADMIN_USER;
     }
@@ -595,12 +595,12 @@ public class SqlTable implements Table {
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
     LocalDateTime now = LocalDateTime.now();
-    String activeUser = getActiveUser(table);
+    Username activeUser = getActiveUser(table);
     boolean mayOverrideMgValues = mayOverrideMgValues(table);
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, activeUser);
+        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, activeUser.value());
         putMgValue(values, MG_UPDATEDON, mayOverrideMgValues, now);
         if (mayOverrideMgValues) {
           // insert metadata is only updated when supplied, never cleared
@@ -732,7 +732,7 @@ public class SqlTable implements Table {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
-    log(db.getActiveUser(), getName(), start, nrDeleted, "deleted");
+    log(db.getActiveUser().value(), getName(), start, nrDeleted, "deleted");
     return nrDeleted.get();
   }
 
