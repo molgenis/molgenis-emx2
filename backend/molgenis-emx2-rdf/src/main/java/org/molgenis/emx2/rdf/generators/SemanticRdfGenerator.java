@@ -4,6 +4,7 @@ import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.IriGenerator.*;
 
 import java.util.List;
+import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
@@ -33,6 +34,16 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   @Override
   public void generate(Table table) {
     generate(table, (PrimaryKey) null);
+  }
+
+  @Override
+  public void generate(Table table, PrimaryKey primaryKey) {
+    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+
+    generatePrefixes(table.getSchema());
+    generateCustomRdf(table.getSchema());
+    tables.forEach(i -> processRows(rdfMapData, i, primaryKey));
   }
 
   /**
