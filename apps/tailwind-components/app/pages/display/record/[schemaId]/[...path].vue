@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useAsyncData } from "#app";
 import { useRoute } from "vue-router";
 import fetchGraphql from "../../../../composables/fetchGraphql";
 import fetchMetadata from "../../../../composables/fetchMetadata";
 import BreadCrumbs from "../../../../components/BreadCrumbs.vue";
 import DisplayRecord from "../../../../components/display/Record.vue";
+import Button from "../../../../components/Button.vue";
 import Message from "../../../../components/Message.vue";
 import { deriveRecordQuery } from "../../../../utils/deriveRecordQuery";
 import { resolveRecordPath } from "../../../../utils/recordPath";
@@ -34,6 +36,7 @@ const { data, error } = await useAsyncData(
       { filter: path.filter }
     );
     return {
+      tableId: path.tableId,
       schema,
       columns: table.columns,
       row: response[path.tableId][0] ?? null,
@@ -42,6 +45,18 @@ const { data, error } = await useAsyncData(
     };
   }
 );
+
+const intro = computed(() => {
+  const row = data.value?.row;
+  if (data.value?.tableId !== "Collections" || !row) {
+    return null;
+  }
+  const { website, contactEmail } = row;
+  return {
+    website: typeof website === "string" ? website : null,
+    contactEmail: typeof contactEmail === "string" ? contactEmail : null,
+  };
+});
 </script>
 
 <template>
@@ -61,6 +76,26 @@ const { data, error } = await useAsyncData(
   >
     <template #header>
       <BreadCrumbs :crumbs="data.crumbs" align="left" class="mb-7.5" />
+    </template>
+    <template v-if="intro" #intro>
+      <div
+        data-testid="record-intro"
+        class="bg-content text-title-contrast shadow-primary rounded-base p-5 flex flex-wrap items-center justify-between gap-5"
+      >
+        <a
+          v-if="intro.website"
+          :href="intro.website"
+          class="text-link underline break-all"
+          >{{ intro.website }}</a
+        >
+        <Button
+          v-if="intro.contactEmail"
+          type="primary"
+          size="medium"
+          label="Contact"
+          :href="`mailto:${intro.contactEmail}`"
+        />
+      </div>
     </template>
   </DisplayRecord>
 </template>

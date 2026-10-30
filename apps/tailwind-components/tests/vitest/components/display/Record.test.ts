@@ -542,6 +542,32 @@ describe("DisplayRecord", () => {
     expect(withHeader.get("header").text()).toBe("Home / Pets");
   });
 
+  test("renders the intro slot's content above the first section", () => {
+    const withIntro = mount(DisplayRecord, {
+      props: { columns: twoSections, row: twoSectionsRow },
+      slots: { intro: '<p id="intro">Welcome</p>' },
+    });
+
+    const main = withIntro.get("main");
+    const intro = main.get("#intro").element;
+    const firstSection = main.get("#about").element;
+    expect(
+      intro.compareDocumentPosition(firstSection) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  test("renders a field label with its first letter uppercase", () => {
+    const labels = mount(DisplayRecord, {
+      props: {
+        columns: [column("name", "STRING", "local name")],
+        row: { name: "spike" },
+      },
+    });
+
+    expect(labels.get("dt span").classes()).toContain("first-letter:uppercase");
+  });
+
   test("renders no header element when the caller gives no header slot", () => {
     expect(wrapper.find("header").exists()).toBe(false);
   });

@@ -118,6 +118,31 @@ describe("record page", () => {
     ]);
   });
 
+  it("shows a Collections record's website and a contact button linking to its contact email, above the sections", async () => {
+    fetchGraphqlMock.mockResolvedValue({
+      Collections: [
+        {
+          id: "c1",
+          name: "Cohort one",
+          website: "https://example.org",
+          contactEmail: "contact@example.org",
+        },
+      ],
+    });
+    const wrapper = await mountAt("Collections/c1");
+
+    const intro = wrapper.get("[data-testid=record-intro]");
+    expect(intro.get("a[href='https://example.org']").text()).toBe(
+      "https://example.org"
+    );
+    expect(intro.get("a[href='mailto:contact@example.org']").text()).toContain(
+      "Contact"
+    );
+    expect(wrapper.get("main").element.firstElementChild).toBe(
+      intro.element.parentElement
+    );
+  });
+
   it("opens a nested record by the parent key and its own, with one crumb per path segment", async () => {
     fetchGraphqlMock.mockResolvedValue({
       Subpopulations: [{ resource: { id: "c1" }, name: "pop1" }],

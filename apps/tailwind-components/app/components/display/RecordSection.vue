@@ -97,7 +97,10 @@ useIntersectionObserver(
       :key="block.kind === 'list' ? block.field.id : block.fields[0]?.id"
     >
       <div v-if="block.kind === 'list'" class="mt-5 first:mt-0">
-        <h4 v-if="!isSingleListSection" class="mb-2.5 font-bold text-body-base">
+        <h4
+          v-if="!isSingleListSection"
+          class="mb-2.5 font-bold text-body-base first-letter:uppercase"
+        >
           {{ block.field.label }}
         </h4>
         <DisplayRecords
@@ -112,7 +115,9 @@ useIntersectionObserver(
       </div>
       <DefinitionList v-else :compact="false">
         <template v-for="field in block.fields" :key="field.id">
-          <DefinitionListTerm>{{ field.label }}</DefinitionListTerm>
+          <DefinitionListTerm>
+            <span class="first-letter:uppercase">{{ field.label }}</span>
+          </DefinitionListTerm>
           <DefinitionListDefinition>
             <slot name="value" :field="field">
               <ValueEMX2

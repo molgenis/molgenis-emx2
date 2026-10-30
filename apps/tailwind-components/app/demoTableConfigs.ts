@@ -13,12 +13,19 @@ export const tableConfigs: Record<string, TableConfig> = {
         },
       },
       organisationsInvolved: {
-        display: { layout: "LINKS", titleColumnId: "organisationName" },
+        display: {
+          layout: "CARDS",
+          titleColumnId: "organisationName",
+          logoColumnId: "logo",
+          detailColumnIds: ["organisationWebsite"],
+        },
       },
       peopleInvolved: {
         display: {
-          layout: "LIST",
+          layout: "CARDS",
           titleColumnId: "displayName",
+          descriptionColumnId: "roleDescription",
+          logoColumnId: "photo",
           detailColumnIds: ["role", "email"],
         },
       },

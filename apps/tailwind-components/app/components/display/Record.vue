@@ -260,6 +260,9 @@ const title = computed(() =>
     </template>
 
     <template #main>
+      <div v-if="$slots.intro" class="mb-7.5">
+        <slot name="intro" />
+      </div>
       <div
         class="grid"
         :class="layout === 'CARDS' ? 'lg:gap-2.5 gap-0' : 'gap-7.5'"
