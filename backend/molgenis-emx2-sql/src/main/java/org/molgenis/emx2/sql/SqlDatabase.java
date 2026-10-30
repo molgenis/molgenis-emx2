@@ -960,8 +960,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
             List<Member> existingUserRoles =
                 this.getSchema(schemaId).getMembers().stream()
-                    .filter(mem -> mem.getUser().equals(username.value()))
+                    .filter(mem -> mem.getUser().equals(username))
                     .toList();
+
             if (existingUserRoles.iterator().hasNext()) {
               existingUserRoles.forEach(
                   existingRole -> {

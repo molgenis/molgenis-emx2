@@ -3,54 +3,60 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.collect.Maps;
+import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.*;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 @ExtendWith(SystemStubsExtension.class)
 class SqlDatabaseTest {
-  @SystemStub private static EnvironmentVariables environmentVariables;
-  static SqlDatabase sqlDatabase;
 
-  @BeforeEach
-  void setUp() {
-    sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
-  }
+  @SystemStub private static EnvironmentVariables env;
+
+  private static final Database DATABASE = TestDatabaseFactory.getTestDatabase();
 
   @Test
   void OIDCFlagDefaultsFalse() {
     Map<String, String> settings = Maps.newHashMap();
-    sqlDatabase.setSettings(settings);
-    assertFalse(sqlDatabase.isOidcEnabled());
+    DATABASE.setSettings(settings);
+    assertFalse(DATABASE.isOidcEnabled());
   }
 
   @Test
   void enableOIDCFlagViaSettings() {
-    environmentVariables.set(Constants.MOLGENIS_OIDC_CLIENT_ID, "id");
-    environmentVariables.set(Constants.MOLGENIS_OIDC_CLIENT_SECRET, "ssst");
+    env.set(Constants.MOLGENIS_OIDC_CLIENT_ID, "id");
+    env.set(Constants.MOLGENIS_OIDC_CLIENT_SECRET, "ssst");
     Map<String, String> settings = Maps.newHashMap();
     settings.put(Constants.IS_OIDC_ENABLED, "true");
-    sqlDatabase.setSettings(settings);
-    assertTrue(sqlDatabase.isOidcEnabled());
+    DATABASE.setSettings(settings);
+    assertTrue(DATABASE.isOidcEnabled());
     settings.put(Constants.IS_OIDC_ENABLED, "false");
-    sqlDatabase.setSettings(settings);
-    assertFalse(sqlDatabase.isOidcEnabled());
+    DATABASE.setSettings(settings);
+    assertFalse(DATABASE.isOidcEnabled());
   }
 
   @Test
   void whenSchemaMetadataDoesNotExist_thenThrowMolgenisException() {
-    assertThrows(
-        MolgenisException.class, () -> sqlDatabase.getSchemaMetadata("non-existent-schema"));
+    assertThrows(MolgenisException.class, () -> DATABASE.getSchemaMetadata("non-existent-schema"));
   }
 
   @Test
   void whenSchemaDoesNotExist_thenReturnNull() {
-    assertNull(sqlDatabase.getSchema("non-existent-schema"));
+    assertNull(DATABASE.getSchema("non-existent-schema"));
+  }
+
+  @Test
+  void givenUsername_thenUpdateRoles() {
+    Username foo = new Username("foo");
+    Schema schema = DATABASE.dropCreateSchema(SqlDatabase.class.getSimpleName());
+    schema.addMember(foo, "Count");
+
+    DATABASE.updateRoles(
+        foo, List.of(Map.of("schemaId", schema.getName(), Constants.ROLE, "Editor")));
+    assertEquals(List.of(new Member(foo, "Editor")), schema.getMembers());
   }
 }
