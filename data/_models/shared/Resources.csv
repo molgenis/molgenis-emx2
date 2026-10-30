@@ -37,6 +37,8 @@ Collections,,internal identifiers,refback,,,,Internal identifiers,,resource,,,In
 Collections,,external identifiers,refback,,,,External identifiers,,resource,,,External identifier(s) for this resource (e.g. EUPASS number or BBMRI persistent identifer),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE",,,
 Networks,,data resources,ref_array,,,,Collections,,,,dcat:dataset,"List of other data collections included in this network, e.g. cohorts, biobanks or real world data sources. Do not list other networks or catalogues here","DataCatalogueFlat,EMA",,,
 Networks,,data resources,ref_array,,,catalogue,Collections,,,,dcat:dataset,"List of other data collections included in this network, e.g. cohorts, biobanks or real world data sources. Do not list other networks or catalogues here",NetworksStaging,,,
+Networks,,tools,ref_array,,,,Tools,,resource,,,List of tools associated with this network,DataCatalogueFlat,,,
+Networks,,tools,ref_array,,,catalogue,Tools,,resource,,,List of tools associated with this network,NetworksStaging,,,
 Organisational units,,collections,ref_array,,,,Collections,,,,,Collections held in custody by this organisational unit or biobank,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Organisational units,,services,refback,,,,Services,,provider,,,Services provided by this organisational unit or biobank,DataCatalogueFlat,,,
 Collections,,design and structure,heading,,,,,,,,,Structure of the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
