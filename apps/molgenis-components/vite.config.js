@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import path from "path";
 import docTagPlugin from "./docs-plugin.js";
 import vue from "@vitejs/plugin-vue";
-do you import { rewriteOrigin } from "../dev-proxy-origin";
+import { rewriteOrigin } from "../dev-proxy-origin";
 
 const BACKEND_LOCATION =
   process.env.PROXY_API || "https://emx2.dev.molgenis.org";
