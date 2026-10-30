@@ -17,57 +17,40 @@ public class Emx2TableInheritanceTest extends TableInheritanceTest {
   @Test
   void testColumnsPresent_grandChild() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeA");
-    new RdfValidator()
-        .add(
-            getIri(SCHEMA_NAME, "GrandchildTypeA/column/grandchildColumn"),
-            RDF.TYPE,
-            OWL.DATATYPEPROPERTY,
-            true)
-        .add(getIri(SCHEMA_NAME, "Child/column/childColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, false)
-        .add(getIri(SCHEMA_NAME, "Root/column/rootColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, false)
-        .add(
-            getIri(EXTERNAL_SCHEMA_NAME, "ExternalChild/column/externalChildColumn"),
-            RDF.TYPE,
-            OWL.DATATYPEPROPERTY,
-            false)
-        .validate(handler);
+    validateColumnPresence(handler, true, false, false, false);
   }
 
   @Test
   void testColumnsPresent_child() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Child");
-    new RdfValidator()
-        .add(
-            getIri(SCHEMA_NAME, "GrandchildTypeA/column/grandchildColumn"),
-            RDF.TYPE,
-            OWL.DATATYPEPROPERTY,
-            true)
-        .add(getIri(SCHEMA_NAME, "Child/column/childColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, true)
-        .add(getIri(SCHEMA_NAME, "Root/column/rootColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, false)
-        .add(
-            getIri(EXTERNAL_SCHEMA_NAME, "ExternalChild/column/externalChildColumn"),
-            RDF.TYPE,
-            OWL.DATATYPEPROPERTY,
-            false)
-        .validate(handler);
+    validateColumnPresence(handler, true, true, false, false);
   }
 
   @Test
   void testColumnsPresent_root() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Root");
+    validateColumnPresence(handler, true, true, true, false);
+  }
+
+  void validateColumnPresence(
+      InMemoryRDFHandler handler,
+      boolean grandChild,
+      boolean child,
+      boolean root,
+      boolean externalChild) {
     new RdfValidator()
         .add(
             getIri(SCHEMA_NAME, "GrandchildTypeA/column/grandchildColumn"),
             RDF.TYPE,
             OWL.DATATYPEPROPERTY,
-            true)
-        .add(getIri(SCHEMA_NAME, "Child/column/childColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, true)
-        .add(getIri(SCHEMA_NAME, "Root/column/rootColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, true)
+            grandChild)
+        .add(getIri(SCHEMA_NAME, "Child/column/childColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, child)
+        .add(getIri(SCHEMA_NAME, "Root/column/rootColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, root)
         .add(
             getIri(EXTERNAL_SCHEMA_NAME, "ExternalChild/column/externalChildColumn"),
             RDF.TYPE,
             OWL.DATATYPEPROPERTY,
-            false)
+            externalChild)
         .validate(handler);
   }
 }
