@@ -31,7 +31,7 @@ Medication,ONTOLOGIES,edam:data_3103,
 Metabolomic analysis type,ONTOLOGIES,obo:IAO_0000030,
 Metabolomic assay type,ONTOLOGIES,obo:OBI_0000070,
 Metabolomic processing type,ONTOLOGIES,obo:OBI_0000094,
-Organisations,ONTOLOGIES,"sio:SIO_000688,obo:NCIT_C25412",
+ROR,ONTOLOGIES,"sio:SIO_000688,obo:NCIT_C25412",
 Pathological state,ONTOLOGIES,"obo:NCIT_C164617,obo:GO_0001894",
 Phenotypes,ONTOLOGIES,"https://www.wikidata.org/wiki/Property:P3841,obo:NCIT_C16977","The Human Phenotype Ontology (HPO); Human Phenotype Ontology Consortium; v2026-02-16"
 Sequencing enrichment kits,ONTOLOGIES,obo:GENEPIO_0000081,

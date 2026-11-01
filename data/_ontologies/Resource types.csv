@@ -1,5 +1,5 @@
 name,label,parent,tags,codesystem,code,ontologyTermURI,definition,
-Biobank,,,collection,EDAM,EDAM:3337,http://edamontology.org/topic_3337,Repositories of biological samples and associated databases,
+Sample collection,,,collection,EDAM,EDAM:3277,http://edamontology.org/topic_3277,"Biological samples and specimens",
 Preclinical study,,,collection,,,,Preclinical scientific studies, e.g. studies on cell cultures or laboratory and animal studies generated prior to human testing
 Clinical trial,,,collection,SIO,SIO:001000,http://semanticscience.org/resource/SIO_001000,Studies testing medical interventions in humans, including clinical studies and clinical investigations
 Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,"An observational (often longitudinal) study of a defined population, including the use of e.g. questionnaires and surveys",
