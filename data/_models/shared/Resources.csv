@@ -234,7 +234,7 @@ Collections,,study design classification,ontology_array,,,CatalogueOntologies,St
 Collections,,study design classification other,text,,,,,,,,,Further details on design,EMA,,,
 Collections,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,EMA,,,
 Collections,,study scope other,text,,,,,,,,,If scope 'other',EMA,,,
-Catalogues,,FDP information,heading,,,,,,,,,Information needed to produce a Fair Data Point for this resource,,,,
+Catalogues,,FDP information,heading,,,,,,,,,Information needed to produce a Fair Data Point for this resource,"DataCatalogueFlat,NetworksStaging",,,
 Catalogues,,fdp endpoint,ref,,,,Endpoint,,,,ldp:membershipResource,FDP endpoint associated with the catalogue,"DataCatalogueFlat,EMA",,,
 Catalogues,,ldp membership relation,hyperlink,,,,,,,,ldp:hasMemberRelation,LDP membership relation,"DataCatalogueFlat,EMA",,https://w3id.org/fdp/fdp-o#metadataCatalog,
 Catalogues,,has member relation,hyperlink,,,,,,,,"ldp:hasMemberRelation,dcat:record",This relation points to the URI of the custom relation/predicate used to relate the FAIR Data Point with its member catalogs. The object of this property MUST be fdp-o:metadataCatalog.,DataCatalogueFlat,,,
