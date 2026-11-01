@@ -1,0 +1,13 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,defaultValue,semantics,description,profiles,computed,label,refLabel
+Variable value mappings,,,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,source,ref,1,TRUE,,Resources,,,,,,,Resource the source variable belongs to,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,source table,ref,1,TRUE,,Tables,source,,,,,,Table the source variable belongs to,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,source variable,ref,1,TRUE,,Variables,source table,,,,,,Source variable name,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,source value,,1,TRUE,,,,,,,,,"Source variable value, e.g. '1'","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,target,ref,1,TRUE,,Resources,,,,,,,Resource the target variable belongs to,DataCatalogueFlat,,,
+Variable value mappings,,target table,ref,1,TRUE,,Tables,target,,,,,,Table the target  variable belongs to,DataCatalogueFlat,,,
+Variable value mappings,,target variable,ref,1,TRUE,,Variables,target table,,,,,,Target variable name,DataCatalogueFlat,,,
+Variable value mappings,,target value,,,,,,,,,,,,"Target variable value, e.g. '1'","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,target,ref,1,TRUE,catalogue,Resources,,,,,,,Resource the target variable belongs to,"RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,target table,ref,1,TRUE,catalogue,Tables,target,,,,,,Table the target  variable belongs to,"RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,target variable,ref,1,TRUE,catalogue,Variables,target table,,,,,,Target variable name,"RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",,,
