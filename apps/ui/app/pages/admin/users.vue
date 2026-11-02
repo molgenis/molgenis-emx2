@@ -14,7 +14,16 @@
       >
         Create User
       </Button>
-
+      <TableInteractive
+        :features="tableFeatures"
+        :permissions="tablePermissions"
+        :rows="adminSettings.users"
+        :rowCount="adminSettings.userCount"
+        :settings="tableSettings"
+        searchPlaceholder="Search users"
+        :tableMetadata="tableMetadata"
+      >
+      </TableInteractive>
       <Table>
         <template #head>
           <TableHeadRow>
@@ -132,10 +141,12 @@ import Container from "../../../../tailwind-components/app/components/Container.
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
 import Table from "../../../../tailwind-components/app/components/Table.vue";
+import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
 import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
 import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
+import type { ITableSettings } from "../../../../tailwind-components/types/types.ts";
 import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
 import EditUserModal from "../../components/EditUserModal.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
@@ -143,6 +154,7 @@ import TokenManagement from "../../components/TokenManagement.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
 import { getRoles, getSchemas } from "../../util/adminUtils";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types.ts";
 
 /**
  * Todo:
@@ -157,6 +169,53 @@ definePageMeta({
   middleware: "admin-only",
 });
 
+const tableFeatures = {
+  showSearch: true,
+  showStickyHeader: true,
+};
+
+const tablePermissions = {
+  canInsert: true,
+  canUpdate: true,
+  canDelete: true,
+  canModifySelection: true,
+  isRowLevel: false,
+};
+
+const tableMetadata: ITableMetaData = {
+  id: "users",
+  schemaId: "users",
+  name: "users",
+  label: "Users",
+  tableType: "DATA",
+  columns: [
+    {
+      columnType: "BOOL",
+      id: "enabled",
+      name: "enabled",
+      label: "Enabled",
+    },
+    {
+      columnType: "STRING",
+      id: "email",
+      name: "email",
+      label: "Name / Email",
+    },
+    {
+      columnType: "STRING",
+      id: "roles",
+      name: "roles",
+      label: "Roles",
+    },
+    {
+      columnType: "STRING",
+      id: "tokens",
+      name: "tokens",
+      label: "Tokens",
+    },
+  ],
+};
+
 const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const showTokenModal = ref(false);
@@ -168,6 +227,15 @@ const schemas = ref<SchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const schema = ref<string>("");
 
+const tableSettings = ref<ITableSettings>({
+  page: 1,
+  pageSize: 50,
+  orderby: {
+    column: "email",
+    direction: "ASC",
+  },
+  search: "",
+});
 const adminSettings = useAdminSettings();
 
 schemas.value = await getSchemas();

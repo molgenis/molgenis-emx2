@@ -1,6 +1,7 @@
 import type { ISetting } from "../../../metadata-utils/src";
+import type { TableRow } from "../../../metadata-utils/src/types";
 
-export interface User {
+export type User = TableRow & {
   //TODO split into communication and internal interface
   email: string;
   settings: ISetting[];
@@ -9,7 +10,7 @@ export interface User {
   roles?: Role[];
   revokedRoles?: Role[];
   password?: string;
-}
+};
 
 export interface SchemaInfo {
   id: string;
