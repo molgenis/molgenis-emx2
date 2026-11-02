@@ -23,6 +23,8 @@ const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>((route.query.schema as string) || "");
 const tableId = ref<string>((route.query.table as string) || "");
 
+const generatedId = useId();
+
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({
     query: {
@@ -83,7 +85,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
       >
         <template #additional-row-actions="{ row }">
           <Button
-            :id="useId()"
+            :id="generatedId"
             :iconOnly="true"
             type="inline"
             icon="info"

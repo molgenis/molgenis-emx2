@@ -10,7 +10,9 @@ defineProps<{
     label: string;
   };
   isResizing?: boolean;
+  schemaId: string;
   settings: ITableSettings;
+  tableId: string;
 }>();
 
 const mgAriaSortMappings: Record<string, string> = {
@@ -27,7 +29,7 @@ const emit = defineEmits<{
 <template>
   <div class="flex justify-start items-center gap-1">
     <button
-      :id="`table-emx2-${id}-${column.label}-sort-btn`"
+      :id="`table-emx2-${id}-${schemaId}-${tableId}-${column.label}-sort-btn`"
       type="button"
       @click.prevent
       class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"

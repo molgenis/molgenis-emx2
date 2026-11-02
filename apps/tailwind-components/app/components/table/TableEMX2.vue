@@ -13,7 +13,7 @@
       canUpdate: canUpdate,
       canDelete: canDelete,
       canInsert: canInsert,
-      canModifySelection: selectionIsModifiable,
+      canModifySelection: hasRightsToModifySelectedRows,
       isRowLevel: isRowLevel,
     }"
     :rows="rows || []"
@@ -31,7 +31,7 @@
     <template #buttons>
       <div class="flex gap-[10px]">
         <Button
-          v-if="canInsert && tableMetadata"
+          v-if="canInsert"
           type="primary"
           size="medium"
           icon="add-circle"
@@ -363,7 +363,7 @@ const filters: UseFilters | null = props.enableFilters
     })
   : null;
 
-if (props.enableFilters && filters) {
+if (filters) {
   watch(
     () => filters.searchValue.value,
     (value) => {
@@ -446,7 +446,7 @@ watch(
   { deep: true }
 );
 
-const selectionIsModifiable = computed(
+const hasRightsToModifySelectedRows = computed(
   () =>
     !props.isRowLevel ||
     rows.value
