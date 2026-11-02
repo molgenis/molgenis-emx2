@@ -37,6 +37,12 @@ const menu = [
     label: "Add data",
     link: "/" + config.public.schema + "/pages/#/data-manager-portal",
   },
+  config.public.isPaperExtractingEnabled
+    ? {
+        label: "Import data from papers",
+        link: "/paper-extracting",
+      }
+    : undefined,
   {
     label: "Manuals",
     link: "/apps/docs/#/catalogue/",
