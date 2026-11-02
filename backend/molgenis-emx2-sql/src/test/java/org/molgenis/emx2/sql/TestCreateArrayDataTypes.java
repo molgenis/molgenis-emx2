@@ -111,8 +111,9 @@ public class TestCreateArrayDataTypes {
     List<Row> result = tableA.query().where(f(aFieldName, EQUALS, values[0])).retrieveRows();
     assertEquals(1, result.size());
     for (Row r : result) {
-      // TODO fix test for DATETIME_ARRAY
-      if (!DATETIME_ARRAY.equals(columnType)) {
+      if (DATETIME_ARRAY.equals(columnType)) {
+        // TODO fix test for DATETIME_ARRAY
+      } else {
         assertEquals(
             Arrays.copyOfRange(values, 0, 2)[0].toString(),
             ((Object[]) r.get(aFieldName, columnType))[0].toString());
