@@ -120,6 +120,10 @@
     </template>
   </TableInteractive>
 
+  <div v-else class="flex justify-center items-center h-96">
+    <p class="text-table-row">Loading table...</p>
+  </div>
+
   <CellDetailModal
     v-if="cellDetailPayload"
     :payload="cellDetailPayload"
