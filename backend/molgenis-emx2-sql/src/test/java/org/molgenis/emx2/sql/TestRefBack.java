@@ -221,7 +221,7 @@ public class TestRefBack {
     assertTrue(query.retrieveJSON().contains("\"count\": 2"));
 
     query =
-        users`
+        users
             .select(s("username"), s("posts", s("title")))
             .where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("jacks post"));
