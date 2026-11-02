@@ -66,8 +66,8 @@ public class FilteringTermsFetcher {
   public Set<FilteringTerm> getFilteringTermsFromOneTable(
       String schemaName, String tableToQuery, Collection<String> tableNamesInSchema) {
     Set<FilteringTerm> filteringTerms = new HashSet<>();
-    // any non-atomic, non-ontology fields are ignored, which are headings, files and regular
-    // (non-ontological) references
+    // Any non-atomic, non-ontology fields, which are headings, files and regular (non-ontological)
+    // references are ignored.
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata =
           database.getSchemaMetadata(schemaName).getTableMetadata(tableToQuery);
