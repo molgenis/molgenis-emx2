@@ -5,6 +5,8 @@ import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGr
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.ASYNC;
+import static org.molgenis.emx2.graphql.GraphqlConstants.DESCRIPTION;
 import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
@@ -208,7 +210,7 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition().name(HEADING).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.DESCRIPTION)
+                  .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -328,7 +330,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.DESCRIPTION)
+                  .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -601,7 +603,7 @@ public class GraphqlSchemaFieldFactory {
   private static DataFetcher<?> truncateFetcher(Schema schema, TaskService taskService) {
     return environment -> {
       List<String> tables = environment.getArgument(TABLES);
-      boolean async = environment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
+      boolean async = environment.getArgumentOrDefault(ASYNC, false);
       GraphqlApiMutationResult result =
           new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
 
@@ -1005,10 +1007,7 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(TABLES)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.ASYNC)
-                .type(Scalars.GraphQLBoolean));
+        .argument(GraphQLArgument.newArgument().name(ASYNC).type(Scalars.GraphQLBoolean));
   }
 
   public GraphQLFieldDefinition schemaReportsField(Schema schema) {
