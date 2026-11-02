@@ -343,15 +343,17 @@ const defaultSortedColumns = computed<IColumn[]>(() =>
 
 const sortedColumns = computed<IColumn[]>(() => {
   const backEndSortedColumns = [...defaultSortedColumns.value];
+  const visibleIds = settings.value.orderedVisibleColumnsIds;
 
-  if (settings.value.orderedVisibleColumnsIds?.length) {
-    return backEndSortedColumns.sort((a, b) => {
-      const indexA =
-        settings.value.orderedVisibleColumnsIds?.indexOf(a.id) ?? -1;
-      const indexB =
-        settings.value.orderedVisibleColumnsIds?.indexOf(b.id) ?? -1;
-      return indexA - indexB;
-    });
+  if (visibleIds?.length) {
+    // mark hidden columns, so the column selection reflects the current table
+    return backEndSortedColumns
+      .sort((a, b) => visibleIds.indexOf(a.id) - visibleIds.indexOf(b.id))
+      .map((column) =>
+        visibleIds.includes(column.id)
+          ? column
+          : { ...column, visible: "false" }
+      );
   }
 
   return backEndSortedColumns;
