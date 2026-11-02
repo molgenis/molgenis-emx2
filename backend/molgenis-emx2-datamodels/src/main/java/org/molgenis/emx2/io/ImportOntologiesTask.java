@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -92,8 +93,8 @@ public class ImportOntologiesTask extends Task {
           keepRows.add(row);
         }
       }
-    } catch (java.io.IOException e) {
-      throw new MolgenisException("Import failed: " + e.getMessage(), e);
+    } catch (IOException e) {
+      throw new MolgenisException("Import ontologies task failed: " + e.getMessage(), e);
     }
     schema.migrate(Emx2.fromRowList(keepRows));
   }
@@ -113,7 +114,7 @@ public class ImportOntologiesTask extends Task {
         }
       }
       return HexFormat.of().formatHex(digest.digest());
-    } catch (NoSuchAlgorithmException | java.io.IOException e) {
+    } catch (NoSuchAlgorithmException | IOException e) {
       throw new MolgenisException("Checksum computation failed: " + e.getMessage(), e);
     }
   }
