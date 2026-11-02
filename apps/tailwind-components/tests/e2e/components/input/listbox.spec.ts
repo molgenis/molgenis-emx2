@@ -25,13 +25,13 @@ test.describe(
         tag: "@keyboard-events",
       },
       async ({ page }) => {
-        const combobox = await page.getByRole("combobox");
-        const listbox = await page.getByRole("listbox");
+        const combobox = page.locator("#listbox-input");
+        const listbox = page.locator("#listbox-listbox-input-options");
 
         await combobox.focus();
         await page.keyboard.press("ArrowDown");
         await expect(combobox).toHaveAttribute("aria-expanded", "true");
-        await expect(listbox).toHaveAttribute("aria-expanded", "true");
+        await expect(listbox).toBeVisible();
       }
     );
 
@@ -41,13 +41,13 @@ test.describe(
         tag: "@keyboard-events",
       },
       async ({ page }) => {
-        const combobox = await page.getByRole("combobox");
-        const listbox = await page.getByRole("listbox");
+        const combobox = page.locator("#listbox-input");
+        const listbox = page.locator("#listbox-listbox-input-options");
 
         await combobox.focus();
         await page.keyboard.press("Enter");
         await expect(combobox).toHaveAttribute("aria-expanded", "true");
-        await expect(listbox).toHaveAttribute("aria-expanded", "true");
+        await expect(listbox).toBeVisible();
 
         await page.keyboard.press("Enter");
         await expect(combobox).toHaveAttribute("aria-expanded", "false");
@@ -61,13 +61,13 @@ test.describe(
         tag: "@keyboard-events",
       },
       async ({ page }) => {
-        const combobox = await page.getByRole("combobox");
-        const listbox = await page.getByRole("listbox");
+        const combobox = page.locator("#listbox-input");
+        const listbox = page.locator("#listbox-listbox-input-options");
 
         await combobox.focus();
         await page.keyboard.press("Space");
         await expect(combobox).toHaveAttribute("aria-expanded", "true");
-        await expect(listbox).toHaveAttribute("aria-expanded", "true");
+        await expect(listbox).toBeVisible();
 
         await page.keyboard.press("Space");
         await expect(combobox).toHaveAttribute("aria-expanded", "false");
@@ -81,17 +81,18 @@ test.describe(
         tag: "@keyboard-events",
       },
       async ({ page }) => {
-        const combobox = await page.getByRole("combobox");
+        const combobox = page.locator("#listbox-input");
+        const listbox = page.locator("#listbox-listbox-input-options");
 
         await combobox.focus();
         await page.keyboard.press("Enter");
         await page.keyboard.press("End");
 
-        const lastOption = await page.getByRole("option").last();
+        const lastOption = listbox.getByRole("option").last();
         await expect(lastOption).toBeFocused();
 
         await page.keyboard.press("Home");
-        const firstOption = await page.getByRole("option").first();
+        const firstOption = listbox.getByRole("option").first();
         await expect(firstOption).toBeFocused();
       }
     );
@@ -102,12 +103,13 @@ test.describe(
         tag: "@keyboard-events",
       },
       async ({ page }) => {
-        const combobox = await page.getByRole("combobox");
+        const combobox = page.locator("#listbox-input");
+        const listbox = page.locator("#listbox-listbox-input-options");
 
         await combobox.focus();
         await page.keyboard.press("Enter");
         await page.keyboard.press("ArrowDown");
-        const secondOption = await page.getByRole("option").nth(1);
+        const secondOption = listbox.getByRole("option").nth(1);
         await expect(secondOption).toBeFocused();
       }
     );
