@@ -7,6 +7,8 @@ import graphql.Scalars;
 import graphql.schema.GraphQLEnumType;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @SuppressWarnings("PMD.UnusedPrivateField") // fields are read by graphql-java
 public class GraphqlApiMutationResult {
@@ -19,6 +21,7 @@ public class GraphqlApiMutationResult {
   private String message;
   private Status status;
   private String taskId;
+  private Map<String, String> details = new LinkedHashMap<>();
 
   public GraphqlApiMutationResult(Status status, String message, Object... formatValues) {
     this.status = status;
