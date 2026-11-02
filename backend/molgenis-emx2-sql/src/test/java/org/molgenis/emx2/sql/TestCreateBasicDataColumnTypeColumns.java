@@ -64,19 +64,19 @@ public class TestCreateBasicDataColumnTypeColumns {
     t2.insert(row);
 
     // check not null expects exception
-    Row nullableOnlyRow = new Row();
-    nullableOnlyRow.setString("id", "test2");
-    nullableOnlyRow.setUuid("Test uuid nillable", java.util.UUID.randomUUID());
-    nullableOnlyRow.setString("Test string nillable", "test");
-    nullableOnlyRow.setBool("Test bool nillable", true);
-    nullableOnlyRow.setInt("Test int nillable", 1);
-    nullableOnlyRow.setDecimal("Test decimal nillable", 1.1);
-    nullableOnlyRow.setText("Test text nillable", "testtext");
-    nullableOnlyRow.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
-    nullableOnlyRow.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
-    nullableOnlyRow.setPeriod("Test period nillable", Period.of(23, 2, 14));
+    Row nonNullRow = new Row();
+    nonNullRow.setString("id", "test2");
+    nonNullRow.setUuid("Test uuid nillable", java.util.UUID.randomUUID());
+    nonNullRow.setString("Test string nillable", "test");
+    nonNullRow.setBool("Test bool nillable", true);
+    nonNullRow.setInt("Test int nillable", 1);
+    nonNullRow.setDecimal("Test decimal nillable", 1.1);
+    nonNullRow.setText("Test text nillable", "testtext");
+    nonNullRow.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
+    nonNullRow.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
+    nonNullRow.setPeriod("Test period nillable", Period.of(23, 2, 14));
     // should fail on all non nillable columns, because all not null are null
-    assertThrows(MolgenisException.class, () -> t2.insert(nullableOnlyRow));
+    assertThrows(MolgenisException.class, () -> t2.insert(nonNullRow));
 
     StopWatch.print("inserted rows");
 
