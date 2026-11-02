@@ -20,10 +20,10 @@ public final class NCITToGSSOSexMapping {
     // no instances
   }
 
-  public static String[] toGSSO(String[] ncitt) {
-    String[] gsso = new String[ncitt.length];
-    for (int i = 0; i < ncitt.length; i++) {
-      gsso[i] = MAPPING.containsKey(ncitt[i]) ? MAPPING.get(ncitt[i]) : ncitt[i];
+  public static String[] toGSSO(String[] ncit) {
+    String[] gsso = new String[ncit.length];
+    for (int i = 0; i < ncit.length; i++) {
+      gsso[i] = MAPPING.containsKey(ncit[i]) ? MAPPING.get(ncit[i]) : ncit[i];
     }
     return gsso;
   }
