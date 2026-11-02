@@ -11,16 +11,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 class UsernameTest {
 
   @Test
-  void whenCreating_thenMapToLowercase() {
-    assertEquals("hello world", new Username("Hello WORLD").value());
-  }
-
-  @Test
-  void givenNonAscii_thenMapToLowerCase() {
-    assertEquals("äöü éclair", new Username("ÄÖÜ Éclair").value());
-  }
-
-  @Test
   void givenSurroundingWhitespace_thenTrim() {
     assertEquals("hello", new Username("  hello  ").value());
   }
@@ -48,23 +38,6 @@ class UsernameTest {
     MolgenisException exception = assertThrows(MolgenisException.class, () -> new Username(input));
 
     assertEquals(expectedMessage, exception.getMessage());
-  }
-
-  @Test
-  void givenDifferentCases_thenEquals() {
-    Username lower = new Username("hello");
-    Username upper = new Username("HELLO");
-
-    assertEquals(lower, upper);
-  }
-
-  @Test
-  void givenWhitespaceAndDifferentCases_thenEquals() {
-    Username plain = new Username("hello");
-    Username padded = new Username("  HELLO ");
-
-    assertEquals(plain, padded);
-    assertEquals(plain.hashCode(), padded.hashCode());
   }
 
   @Test

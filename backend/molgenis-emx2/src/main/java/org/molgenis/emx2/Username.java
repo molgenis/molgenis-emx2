@@ -11,7 +11,7 @@ public record Username(String value) {
       throw new MolgenisException("Username cannot be null");
     }
 
-    String newValue = value.trim().toLowerCase();
+    String newValue = value.trim();
 
     if (newValue.isBlank()) {
       throw new MolgenisException("Username cannot be blank");
