@@ -178,105 +178,88 @@ interface Permissions {
 </script>
 
 <template>
-  <div>
-    <div class="flex mb-[30px] justify-between h-50px">
-      <RowControls
-        :numberOfSelectedRows="numberOfSelectedRows"
-        :allRowsSelected="
-          numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
-        "
-        :canUpdate="permissions.canUpdate"
-        :canDelete="permissions.canDelete"
-        :canModifySelection="permissions.canModifySelection"
-        @rowAction="handleRowAction"
-      />
+  <div class="flex mb-[30px] justify-between h-50px">
+    <RowControls
+      :numberOfSelectedRows="numberOfSelectedRows"
+      :allRowsSelected="
+        numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
+      "
+      :canUpdate="permissions.canUpdate"
+      :canDelete="permissions.canDelete"
+      :canModifySelection="permissions.canModifySelection"
+      @rowAction="handleRowAction"
+    />
 
-      <InputSearch
-        v-if="features.showSearch"
-        class="w-3/5 xl:w-2/5 2xl:w-1/5"
-        id="search-input"
-        size="medium"
-        :modelValue="settings.search"
-        :placeholder="searchPlaceholder"
-        @update:modelValue="handleSearchChange($event)"
-      />
+    <InputSearch
+      v-if="features.showSearch"
+      class="w-3/5 xl:w-2/5 2xl:w-1/5"
+      id="search-input"
+      size="medium"
+      :modelValue="settings.search"
+      :placeholder="searchPlaceholder"
+      @update:modelValue="handleSearchChange($event)"
+    />
 
-      <slot name="buttons" />
-    </div>
+    <slot name="buttons" />
+  </div>
 
-    <div
-      :class="{
-        flex: features.showFilters,
-        'overflow-hidden': features.showFilters,
-        'gap-6': features.showFilters,
-        'lg:-ml-[30px]': features.showFilters,
-      }"
+  <div
+    :class="{
+      flex: features.showFilters,
+      'overflow-hidden': features.showFilters,
+      'gap-6': features.showFilters,
+      'lg:-ml-[30px]': features.showFilters,
+    }"
+  >
+    <Sidebar
+      v-if="features.showFilters && filters"
+      :collapsed="sidebarCollapsed"
+      :activeFilterCount="filters.activeFilters.value.length"
+      @update:collapsed="sidebarCollapsed = $event"
     >
-      <Sidebar
+      <FilterSidebarContent
+        :filters="filters"
+        :columns="filters.columns.value"
+        :schemaId="tableMetadata.schemaId"
+        :tableId="tableMetadata.id"
+      />
+    </Sidebar>
+
+    <div class="flex-1 min-w-0">
+      <ActiveFilters
         v-if="features.showFilters && filters"
-        :collapsed="sidebarCollapsed"
-        :activeFilterCount="filters.activeFilters.value.length"
-        @update:collapsed="sidebarCollapsed = $event"
+        :filters="filters.activeFilters.value"
+        :searchValue="filters.searchValue.value"
+        @remove="filters.removeFilter"
+        @clearAll="filters.clearFilters"
+        @clearSearch="filters.setSearch('')"
+      />
+      <slot v-else name="active-filters" />
+
+      <div
+        ref="tableContainer"
+        class="relative overflow-auto overflow-y-hidden rounded-t-base rounded-b-alt border border-theme border-color-theme"
       >
-        <FilterSidebarContent
-          :filters="filters"
-          :columns="filters.columns.value"
-          :schemaId="tableMetadata.schemaId"
-          :tableId="tableMetadata.id"
-        />
-      </Sidebar>
-
-      <div class="flex-1 min-w-0">
-        <ActiveFilters
-          v-if="features.showFilters && filters"
-          :filters="filters.activeFilters.value"
-          :searchValue="filters.searchValue.value"
-          @remove="filters.removeFilter"
-          @clearAll="filters.clearFilters"
-          @clearSearch="filters.setSearch('')"
-        />
-        <slot v-else name="active-filters" />
-
         <div
-          ref="tableContainer"
-          class="relative overflow-auto overflow-y-hidden rounded-t-base rounded-b-alt border border-theme border-color-theme"
+          v-if="guideX !== null"
+          class="absolute top-0 bottom-0 w-[2px] bg-button-primary pointer-events-none z-50"
+          :style="{ left: guideX + 'px' }"
+        />
+
+        <ScrollAreaHorizontal
+          class="bg-table rounded-t-base"
+          :startInset="STICKY_SELECT_COLUMN_WIDTH"
+          @scroll="handleStickyHeaderOffset"
         >
           <div
-            v-if="guideX !== null"
-            class="absolute top-0 bottom-0 w-[2px] bg-button-primary pointer-events-none z-50"
-            :style="{ left: guideX + 'px' }"
-          />
-
-          <ScrollAreaHorizontal
-            class="bg-table rounded-t-base"
-            :startInset="STICKY_SELECT_COLUMN_WIDTH"
-            @scroll="handleStickyHeaderOffset"
+            v-if="features.showStickyHeader"
+            class="fixed top-0 z-[36] overflow-hidden aria-hidden=true"
+            :class="{ hidden: !showStickyHeader }"
           >
-            <div
-              v-if="features.showStickyHeader"
-              class="fixed top-0 z-[36] overflow-hidden aria-hidden=true"
-              :class="{ hidden: !showStickyHeader }"
+            <table
+              ref="tableHeaderFixed"
+              class="border-0 text-left w-full table-fixed bg-table"
             >
-              <table
-                ref="tableHeaderFixed"
-                class="border-0 text-left w-full table-fixed bg-table"
-              >
-                <TableEMX2Head
-                  :schemaId="tableMetadata.schemaId"
-                  :tableId="tableMetadata.id"
-                  :settings="settings"
-                  :columns="columns"
-                  :showDraftColumn="features.showDraftColumn"
-                  :showRolesColumn="features.showRolesColumn"
-                  :isResizing="isResizing"
-                  :columnWidths="columnWidths"
-                  :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
-                  @sortRequested="handleSortRequest"
-                  @startResize="startResize($event.event, $event.id)"
-                />
-              </table>
-            </div>
-            <table ref="table" class="text-left w-full table-fixed">
               <TableEMX2Head
                 :schemaId="tableMetadata.schemaId"
                 :tableId="tableMetadata.id"
@@ -290,99 +273,114 @@ interface Permissions {
                 @sortRequested="handleSortRequest"
                 @startResize="startResize($event.event, $event.id)"
               />
-              <tbody class="mb-3 [&_tr:last-child_td]:after:hidden">
-                <tr
-                  v-if="rows"
-                  v-for="row in rows"
-                  class="group h-13"
-                  :class="{
-                    'hover:cursor-pointer':
-                      permissions.canInsert ||
-                      permissions.canUpdate ||
-                      permissions.canDelete,
-                  }"
-                >
-                  <td
-                    class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
-                    :style="selectColumnStyle"
-                  >
-                    <Checkbox
-                      class="block mx-auto"
-                      :modelValue="selectedRows?.has(row._rowIdString)"
-                      @update:modelValue="toggleRowSelection(row)"
-                    />
-                    <div
-                      class="absolute left-full top-0 bottom-px flex flex-row text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none items-center justify-start flex-nowrap gap-1"
-                    >
-                      <slot name="row-action" :row="row" />
-                    </div>
-                  </td>
-
-                  <TableCellEMX2
-                    v-if="features.showRolesColumn"
-                    class="text-table-row group-hover:bg-hover w-48 h-13 py-0 pl-2 pr-2.5"
-                  >
-                    {{ row.mg_roles?.[0] ?? "" }}
-                  </TableCellEMX2>
-
-                  <TableCellEMX2
-                    v-if="features.showDraftColumn"
-                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
-                  >
-                    <DraftLabel v-if="row?.mg_draft === true" type="inline" />
-                  </TableCellEMX2>
-
-                  <TableCellEMX2
-                    v-for="column in columns"
-                    :style="{ width: columnWidths[column.id] + 'px' }"
-                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
-                    :class="{
-                      'w-60 lg:w-full': columns.length <= 5,
-                      'w-60': columns.length > 5,
-                    }"
-                    :scope="column.key === 1 ? 'row' : null"
-                    :metadata="column"
-                    :data="row[column.id]"
-                    @cellClicked="handleCellClick"
-                  />
-
-                  <!-- Matches the filler column in the header -->
-                  <td
-                    aria-hidden="true"
-                    class="relative after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none after:z-[35] group-hover:bg-hover"
-                  />
-                </tr>
-              </tbody>
             </table>
-            <div
-              class="sticky left-0 flex justify-center items-center py-2.5"
-              v-if="!rows?.length"
-            >
-              <TextNoResultsMessage
-                class="w-full text-center"
-                :label="emptyRowsLabel"
-              />
-            </div>
-          </ScrollAreaHorizontal>
-        </div>
+          </div>
+          <table ref="table" class="text-left w-full table-fixed">
+            <TableEMX2Head
+              :schemaId="tableMetadata.schemaId"
+              :tableId="tableMetadata.id"
+              :settings="settings"
+              :columns="columns"
+              :showDraftColumn="features.showDraftColumn"
+              :showRolesColumn="features.showRolesColumn"
+              :isResizing="isResizing"
+              :columnWidths="columnWidths"
+              :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
+              @sortRequested="handleSortRequest"
+              @startResize="startResize($event.event, $event.id)"
+            />
+            <tbody class="mb-3 [&_tr:last-child_td]:after:hidden">
+              <tr
+                v-if="rows"
+                v-for="row in rows"
+                class="group h-13"
+                :class="{
+                  'hover:cursor-pointer':
+                    permissions.canInsert ||
+                    permissions.canUpdate ||
+                    permissions.canDelete,
+                }"
+              >
+                <td
+                  class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                  :style="selectColumnStyle"
+                >
+                  <Checkbox
+                    class="block mx-auto"
+                    :modelValue="selectedRows?.has(row._rowIdString)"
+                    @update:modelValue="toggleRowSelection(row)"
+                  />
+                  <div
+                    class="absolute left-full top-0 bottom-px flex flex-row text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none items-center justify-start flex-nowrap gap-1"
+                  >
+                    <slot name="row-action" :row="row" />
+                  </div>
+                </td>
 
-        <div
-          class="p-2.5 text-right font-normal align-middle text-table-column-header"
-        >
-          {{ countMessage }}
-        </div>
+                <TableCellEMX2
+                  v-if="features.showRolesColumn"
+                  class="text-table-row group-hover:bg-hover w-48 h-13 py-0 pl-2 pr-2.5"
+                >
+                  {{ row.mg_roles?.[0] ?? "" }}
+                </TableCellEMX2>
 
-        <Pagination
-          class="pt-0 pb-[30px]"
-          :currentPage="settings.page"
-          :totalPages="totalPages"
-          :jumpToEdge="true"
-          :pageSize="settings.pageSize"
-          :showPageSizeSelector="true"
-          @update="handlePagingRequest($event)"
-          @update:pageSize="handlePageSizeChange($event)"
-        />
+                <TableCellEMX2
+                  v-if="features.showDraftColumn"
+                  class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
+                >
+                  <DraftLabel v-if="row?.mg_draft === true" type="inline" />
+                </TableCellEMX2>
+
+                <TableCellEMX2
+                  v-for="column in columns"
+                  :style="{ width: columnWidths[column.id] + 'px' }"
+                  class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
+                  :class="{
+                    'w-60 lg:w-full': columns.length <= 5,
+                    'w-60': columns.length > 5,
+                  }"
+                  :scope="column.key === 1 ? 'row' : null"
+                  :metadata="column"
+                  :data="row[column.id]"
+                  @cellClicked="handleCellClick"
+                />
+
+                <!-- Matches the filler column in the header -->
+                <td
+                  aria-hidden="true"
+                  class="relative after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none after:z-[35] group-hover:bg-hover"
+                />
+              </tr>
+            </tbody>
+          </table>
+          <div
+            class="sticky left-0 flex justify-center items-center py-2.5"
+            v-if="!rows?.length"
+          >
+            <TextNoResultsMessage
+              class="w-full text-center"
+              :label="emptyRowsLabel"
+            />
+          </div>
+        </ScrollAreaHorizontal>
       </div>
+
+      <div
+        class="p-2.5 text-right font-normal align-middle text-table-column-header"
+      >
+        {{ countMessage }}
+      </div>
+
+      <Pagination
+        class="pt-0 pb-[30px]"
+        :currentPage="settings.page"
+        :totalPages="totalPages"
+        :jumpToEdge="true"
+        :pageSize="settings.pageSize"
+        :showPageSizeSelector="true"
+        @update="handlePagingRequest($event)"
+        @update:pageSize="handlePageSizeChange($event)"
+      />
     </div>
   </div>
 </template>
