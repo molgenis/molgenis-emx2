@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
@@ -21,28 +22,28 @@ public class DownloadColumns {
   }
 
   public static List<String> resolve(
-      TableMetadata metadata, List<String> requested, boolean includeSystemColumns) {
+      TableMetadata metadata, List<String> requestedColumnNames, boolean includeSystemColumns) {
     List<String> downloadNames =
         metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
-    if (requested == null || requested.isEmpty()) {
+    if (requestedColumnNames == null || requestedColumnNames.isEmpty()) {
       return downloadNames.stream().filter(name -> isIncluded(name, includeSystemColumns)).toList();
     }
 
-    List<String> dotted =
-        requested.stream()
-            .filter(name -> name.contains(".") && !downloadNames.contains(name))
-            .toList();
-    if (!dotted.isEmpty()) {
+    Predicate<String> isInvalidDottedColumnName =
+        name -> name.contains(".") && !downloadNames.contains(name);
+    boolean hasInvalidDotted = requestedColumnNames.stream().anyMatch(isInvalidDottedColumnName);
+    if (hasInvalidDotted) {
       throw new MolgenisException(
           "Cannot download dot-separated column(s) "
-              + String.join(", ", dotted)
+              + String.join(
+                  ", ", requestedColumnNames.stream().filter(isInvalidDottedColumnName).toList())
               + "; only key parts of composite key references, such as owner.firstName, are"
               + " allowed");
     }
 
     List<String> unknownRequestedColumnIdentifiers = new ArrayList<>();
     Set<String> result = new LinkedHashSet<>();
-    for (String nameOrId : requested) {
+    for (String nameOrId : requestedColumnNames) {
       if (nameOrId.contains(".")) {
         result.add(nameOrId);
         continue;
