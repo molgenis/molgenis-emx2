@@ -26,11 +26,6 @@ class PetStoreRolesTest {
   }
 
   @Test
-  void ciRedRun0159() {
-    fail("revert before merge");
-  }
-
-  @Test
   void dragonKeeperRoleIsCreatedWithRowLevelPermissionOnPet() {
     database.becomeAdmin();
     Role role = database.getSchema(SCHEMA).getRoleInfo(DRAGON_KEEPER);
