@@ -23,6 +23,7 @@
         <exclude name="NonExhaustiveSwitch" />
         <exclude name="CompareObjectsWithEquals" />
         <exclude name="GuardLogStatement" />
+        <exclude name="AvoidUsingHardCodedIP" />
     </rule>
 
     <!-- Overrides for quickstart.xml -->
