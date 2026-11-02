@@ -3,7 +3,8 @@ on:
   pull_request:
     types: [ opened, reopened, ready_for_review, converted_to_draft, synchronize, edited ]
 concurrency:
-  group: pr-triage-${{ github.event.pull_request.number }}
+  # A push or non-body edit triages nothing, so it gets its own group: in the PR's group it would cancel a pending run that does.
+  group: pr-triage-${{ (github.event.action == 'synchronize' || (github.event.action == 'edited' && !github.event.changes.body)) && format('noop-{0}', github.run_id) || github.event.pull_request.number }}
 jobs:
   validate:
     if: github.event.pull_request.head.repo.full_name == github.repository
@@ -21,6 +22,7 @@ jobs:
   triage:
     needs: validate
     if: >-
+      github.event.action != 'synchronize' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == github.event.repository.default_branch
     runs-on: ubuntu-latest

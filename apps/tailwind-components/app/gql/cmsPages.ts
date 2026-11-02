@@ -136,7 +136,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         }
                         chartTitle
                         chartDescription
-                        chartData {
+                        chartData (orderby: { sortOrder: ASC }){
                             id
                             xValue
                             xLabel
