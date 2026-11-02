@@ -125,7 +125,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   }
 
   void describeColumns(final Table table, final String columnName) {
-    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+    if (table.getMetadata().getTableType() != TableType.DATA) {
       return;
     }
 
