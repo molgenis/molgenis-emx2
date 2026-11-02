@@ -25,6 +25,13 @@
         <exclude name="GuardLogStatement" />
         <exclude name="AvoidUsingHardCodedIP" />
         <exclude name="NonThreadSafeSingleton" />
+        <exclude name="EmptyControlStatement" />
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/EmptyControlStatement">
+        <properties>
+            <property name="allowCommentedBlocks" value="true" />
+        </properties>
     </rule>
 
     <!-- Overrides for quickstart.xml -->

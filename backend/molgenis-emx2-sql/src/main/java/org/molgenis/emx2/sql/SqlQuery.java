@@ -662,7 +662,6 @@ public class SqlQuery extends QueryBean {
       } else if (column.isHeading()) {
         // Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
         // unsure if this can cause any problems elsewhere.
-        continue;
       } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
         fields.add(intervalField(tableAlias, column));
       } else if (column.getColumnType().getBaseType() == ColumnType.PERIOD_ARRAY) {
