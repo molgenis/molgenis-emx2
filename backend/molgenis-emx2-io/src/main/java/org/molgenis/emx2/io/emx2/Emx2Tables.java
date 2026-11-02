@@ -56,7 +56,8 @@ public final class Emx2Tables {
   }
 
   private static boolean isFileType(Column c, TableMetadata metadata) {
-    return (metadata.getColumn(c.getName()) == null && c.getName().endsWith("_filename"))
-        || !metadata.getColumn(c.getName()).isFile();
+    Column metaDataColumn = metadata.getColumn(c.getName());
+    return (metaDataColumn == null && c.getName().endsWith("_filename"))
+        || (metaDataColumn != null && !metaDataColumn.isFile());
   }
 }

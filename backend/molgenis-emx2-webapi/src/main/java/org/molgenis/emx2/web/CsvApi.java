@@ -5,6 +5,7 @@ import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFil
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -119,17 +120,27 @@ public final class CsvApi {
   }
 
   private static void discardMetadata(Context ctx) {
-    SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-    getSchema(ctx).discard(schema);
+    SchemaMetadata schemaMetadata = Emx2.fromRowList(getRowList(ctx));
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
+    schema.discard(schemaMetadata);
     ctx.status(200);
     ctx.result("remove metadata items success");
   }
 
   static void mergeMetadata(Context ctx) {
     String fileName = ctx.header("fileName");
-    boolean fileNameMatchesTable = getSchema(ctx).hasTableWithNameOrIdCaseInsensitive(fileName);
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
 
-    if (fileNameMatchesTable) { // so we assume it isn't meta data
+    boolean fileNameMatchesTable = schema.hasTableWithNameOrIdCaseInsensitive(fileName);
+
+    if (fileNameMatchesTable) { // so we assume it isn't metadata
       Table table = MolgenisWebservice.getTableByIdOrName(ctx, fileName);
       if (ctx.queryParam("async") != null) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
@@ -145,8 +156,8 @@ public final class CsvApi {
         ctx.result("{ \"message\": \"imported number of rows: \" + " + count + " }");
       }
     } else {
-      SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-      getSchema(ctx).migrate(schema);
+      SchemaMetadata schemaMetadata = Emx2.fromRowList(getRowList(ctx));
+      schema.migrate(schemaMetadata);
       ctx.status(200);
       ctx.result("{ \"message\": \"add/update metadata success\" }");
     }
@@ -154,6 +165,10 @@ public final class CsvApi {
 
   static void getMetadata(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
         Emx2.toRowList(schema.getMetadata()),
@@ -198,6 +213,9 @@ public final class CsvApi {
 
   private static void getSettings(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
 
     StringWriter writer = new StringWriter();
     Character separator = getSeparator(ctx);

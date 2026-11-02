@@ -33,6 +33,8 @@ class CsvApiTest extends ApiTestBase {
 
   private static final String SCHEMA_NAME = CsvApiTest.class.getSimpleName();
 
+  private static final String NON_EXISTING_SCHEMA = "nonexisting";
+
   public static final String TABLE_NAME_WITH_SPACES = "table with spaces";
 
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
@@ -602,5 +604,45 @@ class CsvApiTest extends ApiTestBase {
     acceptFileUpload(addUpdateTableFile, schemaName, "molgenis", false);
     String actual = getContentAsString(schemaName + "/api/csv");
     assertEquals(header + expected, actual);
+  }
+
+  @Test
+  void getMetadataForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void mergeMetadataForUnknownSchema_isRejected() {
+    Response response =
+        given().body("tableName\nPet\n").when().post("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void discardMetadataForUnknownSchema_isRejected() {
+    Response response =
+        given().body("tableName\nPet\n").when().delete("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void getSettingsForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/settings");
+    assertUnknownSchema(response);
+  }
+
+  private static void assertUnknownSchema(Response response) {
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Schema nonexisting unknown"
+            }
+          ]
+        }""",
+        response.getBody().asString());
   }
 }

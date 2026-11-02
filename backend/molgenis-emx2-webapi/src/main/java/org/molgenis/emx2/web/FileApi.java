@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import io.javalin.Javalin;
@@ -27,6 +28,10 @@ public final class FileApi {
     String columnName = ctx.pathParam("column");
     String id = ctx.pathParam("id");
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
     Table t = schema.getTable(tableName);
     if (t == null) {
       throw new MolgenisException(
