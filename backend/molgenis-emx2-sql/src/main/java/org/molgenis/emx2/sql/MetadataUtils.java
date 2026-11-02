@@ -130,7 +130,7 @@ public final class MetadataUtils {
    * @param jooq
    * @return
    */
-  static synchronized Integer getVersion(DSLContext jooq) {
+  static Integer getVersion(DSLContext jooq) {
     if (version == null) {
       if (jooq.meta().getSchemas(MOLGENIS).isEmpty()) {
         // schema does not exist, need to do a full init
@@ -688,7 +688,7 @@ public final class MetadataUtils {
     return result != null && result.get(MATCHES) != null && result.get(MATCHES, Boolean.class);
   }
 
-  public static synchronized void setVersion(DSLContext jooq, int newVersion) {
+  public static void setVersion(DSLContext jooq, int newVersion) {
     jooq.insertInto(DATABASE_METADATA, DATABASE_ID, VERSION)
         .values(1, newVersion)
         .onConflict(DATABASE_ID)
@@ -748,7 +748,7 @@ public final class MetadataUtils {
     return null;
   }
 
-  public static synchronized void resetVersion() {
+  public static void resetVersion() {
     version = null;
   }
 

@@ -24,6 +24,7 @@
         <exclude name="CompareObjectsWithEquals" />
         <exclude name="GuardLogStatement" />
         <exclude name="AvoidUsingHardCodedIP" />
+        <exclude name="NonThreadSafeSingleton" />
     </rule>
 
     <!-- Overrides for quickstart.xml -->

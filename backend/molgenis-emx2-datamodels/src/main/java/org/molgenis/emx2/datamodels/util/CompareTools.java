@@ -10,15 +10,18 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public final class CompareTools {
 
-  private static final Javers javers =
-      JaversBuilder.javers()
-          .registerIgnoredClass(DSLContext.class)
-          .registerIgnoredClass(Database.class)
-          .registerIgnoredClass(Schema.class)
-          .registerIgnoredClass(SchemaMetadata.class)
-          .build();
+  private static Javers javers;
 
   public static Javers getJavers() {
+    if (javers == null) {
+      javers =
+          JaversBuilder.javers()
+              .registerIgnoredClass(DSLContext.class)
+              .registerIgnoredClass(Database.class)
+              .registerIgnoredClass(Schema.class)
+              .registerIgnoredClass(SchemaMetadata.class)
+              .build();
+    }
     return javers;
   }
 

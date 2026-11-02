@@ -44,10 +44,6 @@ public class TestLoaders {
 
   @BeforeAll
   public void setup() {
-    loadOnce();
-  }
-
-  private static synchronized void loadOnce() {
     if (database == null) {
 
       database = TestDatabaseFactory.getTestDatabase();
