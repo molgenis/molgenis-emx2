@@ -32,7 +32,7 @@ public class TestTokenBasedAccess {
     // check cannot make token for user if not authorized
     db.setActiveUser("tokentest1");
     try {
-      result = JWTgenerator.createNamedTokenForUser(db, "tokentest2", "mytoken");
+      JWTgenerator.createNamedTokenForUser(db, "tokentest2", "mytoken");
       fail("should not be able to make token for other user, unless admin");
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("Cannot"));
