@@ -632,6 +632,23 @@ class CsvApiTest extends ApiTestBase {
     assertUnknownSchema(response);
   }
 
+  @Test
+  void getChangelogForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/changelog");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Schema 'nonexisting' unknown. Might you need to sign in or ask permission?"
+            }
+          ]
+        }""",
+        response.getBody().asString());
+  }
+
   private static void assertUnknownSchema(Response response) {
     assertEquals(400, response.getStatusCode());
     assertEquals(

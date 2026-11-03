@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.settings.ReportUtils.getReportAsRows;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import io.javalin.Javalin;
@@ -178,6 +179,10 @@ public final class ZipApi {
   static void generateReportsToStore(Context ctx, TableStore store) {
     String reports = ctx.queryParam("id");
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
     Map<String, ?> parameters = getReportParameters(ctx);
     for (String reportId : reports.split(",")) {
       List<Row> rows = getReportAsRows(reportId, schema, parameters);

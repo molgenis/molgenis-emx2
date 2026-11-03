@@ -72,8 +72,11 @@ public final class CsvApi {
 
   private static void getChangelog(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!PermissionEvaluator.canManage(schema)) {
-      throw new MolgenisException("Unauthorized to get schema changelog");
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException(
+          "Schema '"
+              + ctx.pathParam(SCHEMA)
+              + "' unknown. Might you need to sign in or ask permission?");
     }
 
     int limit = parseIntParam(ctx, "limit").orElse(DEFAULT_CHANGELOG_LIMIT);
