@@ -1,3 +1,149 @@
+<script setup lang="ts">
+import { definePageMeta } from "#imports";
+import { computed, ref } from "vue";
+import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
+import Container from "../../../../tailwind-components/app/components/Container.vue";
+import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
+import Table from "../../../../tailwind-components/app/components/Table.vue";
+import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
+import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
+import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
+import type { ITableSettings } from "../../../../tailwind-components/types/types.ts";
+import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
+import EditUserModal from "../../components/EditUserModal.vue";
+import NewUserModal from "../../components/NewUserModal.vue";
+import TokenManagement from "../../components/TokenManagement.vue";
+import useAdminSettings from "../../composables/useAdminSettings.ts";
+import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
+import { getRoles, getSchemas } from "../../util/adminUtils";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types.ts";
+
+/**
+ * Todo:
+ *
+ * Add confirmation dialog to delete user / updating of passwords
+ * Add search bar for users
+ * Make buttons double click safe
+ * Implement pagination
+ */
+
+definePageMeta({
+  middleware: "admin-only",
+});
+
+const tableFeatures = {
+  showSearch: true,
+  showStickyHeader: true,
+};
+
+const tablePermissions = {
+  canInsert: true,
+  canUpdate: true,
+  canDelete: true,
+  canModifySelection: true,
+  isRowLevel: false,
+};
+
+const tableMetadata: ITableMetaData = {
+  id: "users",
+  schemaId: "users",
+  name: "users",
+  label: "Users",
+  tableType: "DATA",
+  columns: [
+    {
+      columnType: "BOOL",
+      id: "enabled",
+      name: "enabled",
+      label: "Enabled",
+    },
+    {
+      columnType: "STRING",
+      id: "email",
+      name: "email",
+      label: "Name / Email",
+    },
+    {
+      columnType: "STRING",
+      id: "roles",
+      name: "roles",
+      label: "Roles",
+    },
+    {
+      columnType: "STRING",
+      id: "tokens",
+      name: "tokens",
+      label: "Tokens",
+    },
+  ],
+};
+
+const showEditUserModal = ref(false);
+const showNewUserModal = ref(false);
+const showTokenModal = ref(false);
+const showDeleteUserModal = ref(false);
+const selectedUser = ref<User | null>(null);
+
+const schemas = ref<SchemaInfo[]>([]);
+const roles = ref<string[]>([]);
+const schema = ref<string>("");
+
+const tableSettings = ref<ITableSettings>({
+  page: 1,
+  pageSize: 50,
+  orderby: {
+    column: "email",
+    direction: "ASC",
+  },
+  search: "",
+});
+const adminSettings = useAdminSettings();
+
+schemas.value = await getSchemas();
+schema.value = schemas.value[0]?.id || "";
+roles.value = await getRoles(schemas.value);
+
+const usernames = computed(() => {
+  return adminSettings.users.map((user: User) => user.email);
+});
+
+async function updateCurrentPage(settings: ITableSettings) {
+  await adminSettings.retrieveUsers(settings);
+}
+
+function openEditUserModal(user: User) {
+  selectedUser.value = user;
+  showEditUserModal.value = true;
+}
+
+function showDeleteUserConfirmation(user: User) {
+  selectedUser.value = user;
+  showDeleteUserModal.value = true;
+}
+
+function openManageTokensModal(user: User) {
+  selectedUser.value = user;
+  showTokenModal.value = true;
+}
+
+function canDelete(user: User) {
+  return (
+    user.email !== "anonymous" &&
+    user.email !== "admin" &&
+    user.email !== "user"
+  );
+}
+
+function handleUpdateSettings(newSettings: ITableSettings) {
+  tableSettings.value = newSettings;
+  updateCurrentPage(newSettings);
+}
+</script>
+
 <template>
   <Container class="flex flex-col items-center">
     <ContentBlock
@@ -22,6 +168,7 @@
         :settings="tableSettings"
         searchPlaceholder="Search users"
         :tableMetadata="tableMetadata"
+        @update:settings="handleUpdateSettings"
       >
       </TableInteractive>
       <Table>
@@ -131,146 +278,3 @@
     </ContentBlock>
   </Container>
 </template>
-
-<script setup lang="ts">
-import { definePageMeta } from "#imports";
-import { computed, ref } from "vue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
-import Button from "../../../../tailwind-components/app/components/Button.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
-import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import Table from "../../../../tailwind-components/app/components/Table.vue";
-import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
-import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
-import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
-import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
-import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
-import type { ITableSettings } from "../../../../tailwind-components/types/types.ts";
-import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
-import EditUserModal from "../../components/EditUserModal.vue";
-import NewUserModal from "../../components/NewUserModal.vue";
-import TokenManagement from "../../components/TokenManagement.vue";
-import useAdminSettings from "../../composables/useAdminSettings.ts";
-import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
-import { getRoles, getSchemas } from "../../util/adminUtils";
-import type { ITableMetaData } from "../../../../metadata-utils/src/types.ts";
-
-/**
- * Todo:
- *
- * Add confirmation dialog to delete user / updating of passwords
- * Add search bar for users
- * Make buttons double click safe
- * Implement pagination
- */
-
-definePageMeta({
-  middleware: "admin-only",
-});
-
-const tableFeatures = {
-  showSearch: true,
-  showStickyHeader: true,
-};
-
-const tablePermissions = {
-  canInsert: true,
-  canUpdate: true,
-  canDelete: true,
-  canModifySelection: true,
-  isRowLevel: false,
-};
-
-const tableMetadata: ITableMetaData = {
-  id: "users",
-  schemaId: "users",
-  name: "users",
-  label: "Users",
-  tableType: "DATA",
-  columns: [
-    {
-      columnType: "BOOL",
-      id: "enabled",
-      name: "enabled",
-      label: "Enabled",
-    },
-    {
-      columnType: "STRING",
-      id: "email",
-      name: "email",
-      label: "Name / Email",
-    },
-    {
-      columnType: "STRING",
-      id: "roles",
-      name: "roles",
-      label: "Roles",
-    },
-    {
-      columnType: "STRING",
-      id: "tokens",
-      name: "tokens",
-      label: "Tokens",
-    },
-  ],
-};
-
-const showEditUserModal = ref(false);
-const showNewUserModal = ref(false);
-const showTokenModal = ref(false);
-const showDeleteUserModal = ref(false);
-const selectedUser = ref<User | null>(null);
-
-const currentPage = ref(1);
-const schemas = ref<SchemaInfo[]>([]);
-const roles = ref<string[]>([]);
-const schema = ref<string>("");
-
-const tableSettings = ref<ITableSettings>({
-  page: 1,
-  pageSize: 50,
-  orderby: {
-    column: "email",
-    direction: "ASC",
-  },
-  search: "",
-});
-const adminSettings = useAdminSettings();
-
-schemas.value = await getSchemas();
-schema.value = schemas.value[0]?.id || "";
-roles.value = await getRoles(schemas.value);
-
-const usernames = computed(() => {
-  return adminSettings.users.map((user: User) => user.email);
-});
-
-async function updateCurrentPage(newPage: number) {
-  currentPage.value = newPage;
-  await adminSettings.retrieveUsers(newPage);
-}
-
-function openEditUserModal(user: User) {
-  selectedUser.value = user;
-  showEditUserModal.value = true;
-}
-
-function showDeleteUserConfirmation(user: User) {
-  selectedUser.value = user;
-  showDeleteUserModal.value = true;
-}
-
-function openManageTokensModal(user: User) {
-  selectedUser.value = user;
-  showTokenModal.value = true;
-}
-
-function canDelete(user: User) {
-  return (
-    user.email !== "anonymous" &&
-    user.email !== "admin" &&
-    user.email !== "user"
-  );
-}
-</script>
