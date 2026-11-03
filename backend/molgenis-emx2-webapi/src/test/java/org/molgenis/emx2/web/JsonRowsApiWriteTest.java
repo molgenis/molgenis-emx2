@@ -292,6 +292,8 @@ class JsonRowsApiWriteTest extends ApiTestBase {
           POST   | Pet    | {"name":"b1"}                                                    | must be a JSON array
           POST   | Pet    | "text"                                                           | must be a JSON array
           POST   | Pet    | null                                                             | must be a JSON array
+          POST   | Pet    | [{"name":                                                        | Unexpected end
+          POST   | _data  | {not json                                                        | Unexpected character
           POST   | _data  | [{"name":"b2"}]                                                  | must be a JSON object
           POST   | _data  | {"Pet":{"name":"b3"}}                                            | must be a JSON array
           POST   | _data  | {"Pet":[{"name":"b4"}],"Tag":"t"}                                | must be a JSON array

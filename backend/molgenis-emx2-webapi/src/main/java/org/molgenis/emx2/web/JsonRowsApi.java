@@ -7,6 +7,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.sanitize;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import graphql.ExecutionResult;
@@ -46,6 +47,10 @@ public class JsonRowsApi {
   private static final String OFFSET = "offset";
   private static final String LINK = "Link";
   private static final int DEFAULT_PAGE = 1000;
+  private static final String TABLE_READ =
+      """
+      query($filter:%1$sFilter,$orderby:[%1$sorderby],$search:String,$limit:Int,$offset:Int)\
+      {%1$s(filter:$filter,orderby:$orderby,search:$search,limit:$limit,offset:$offset)%2$s}""";
 
   private JsonRowsApi() {}
 
@@ -90,8 +95,10 @@ public class JsonRowsApi {
         ctx.queryParam(QUERY) != null
             ? ctx.queryParam(QUERY)
             : GraphqlTableFragmentGenerator.rowSelection(getSchema(ctx), table.getMetadata());
+
     int pageSize = intParam(ctx, LIMIT, DEFAULT_PAGE);
     int offset = intParam(ctx, OFFSET, 0);
+
     Map<String, Object> variables = new LinkedHashMap<>();
     putIfPresent(variables, FILTER, jsonParam(ctx, FILTER));
     Object orderby = jsonParam(ctx, ORDERBY);
@@ -99,10 +106,8 @@ public class JsonRowsApi {
     putIfPresent(variables, SEARCH, ctx.queryParam(SEARCH));
     variables.put(LIMIT, pageSize + 1);
     variables.put(OFFSET, offset);
-    String query =
-        ("query($filter:%1$sFilter,$orderby:[%1$sorderby],$search:String,$limit:Int,$offset:Int)"
-                + "{%1$s(filter:$filter,orderby:$orderby,search:$search,limit:$limit,offset:$offset)%2$s}")
-            .formatted(id, selection);
+
+    String query = TABLE_READ.formatted(id, selection);
     List<?> rows = rowsOf(execute(ctx, query, variables, true), id);
     if (rows.size() > pageSize) {
       rows = rows.subList(0, pageSize);
@@ -110,6 +115,7 @@ public class JsonRowsApi {
       parameters.put(OFFSET, List.of(String.valueOf(offset + pageSize)));
       ctx.header(LINK, nextLink(tablePath(table.getSchema().getName(), id), parameters));
     }
+
     respond(ctx, rows);
   }
 
@@ -143,13 +149,14 @@ public class JsonRowsApi {
 
   private static void readData(Context ctx) throws JsonProcessingException {
     if (ctx.queryParam(QUERY) != null) {
-      respond(ctx, execute(ctx, ctx.queryParam(QUERY), null, true).getData());
+      respond(ctx, execute(ctx, ctx.queryParam(QUERY), Map.of(), true).getData());
       return;
     }
     Schema schema = getSchema(ctx);
     if (schema == null) {
       throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
     }
+
     StringBuilder query = new StringBuilder("{");
     List<String> ids = new ArrayList<>();
     for (TableMetadata table : schema.getMetadata().getTables()) {
@@ -162,11 +169,14 @@ public class JsonRowsApi {
             .append(GraphqlTableFragmentGenerator.rowSelection(schema, table));
       }
     }
+
     if (ids.isEmpty()) {
       respond(ctx, Map.of());
       return;
     }
-    ExecutionResult result = execute(ctx, query.append("}").toString(), null, true);
+
+    ExecutionResult result = execute(ctx, query.append("}").toString(), Map.of(), true);
+
     Map<String, Object> body = new LinkedHashMap<>();
     for (String id : ids) {
       List<?> rows = rowsOf(result, id);
@@ -180,6 +190,7 @@ public class JsonRowsApi {
       }
       body.put(id, rows);
     }
+
     respond(ctx, body);
   }
 
@@ -233,12 +244,13 @@ public class JsonRowsApi {
 
   private static Handler data(String operation) {
     return ctx -> {
-      Map<String, Object> rowsByTable = new LinkedHashMap<>();
-      if (!(readBody(ctx) instanceof Map<?, ?> body)) {
+      Map<String, JsonNode> rowsByTable = new LinkedHashMap<>();
+      JsonNode body = readBody(ctx);
+      if (!body.isObject()) {
         throw new MolgenisException("Body must be a JSON object of arrays of rows, by table id");
       }
-      for (Map.Entry<?, ?> entry : body.entrySet()) {
-        Table table = getTableByIdOrName(ctx, String.valueOf(entry.getKey()));
+      for (Map.Entry<String, JsonNode> entry : body.properties()) {
+        Table table = getTableByIdOrName(ctx, entry.getKey());
         String identifier = table.getMetadata().getIdentifier();
         if (rowsByTable.containsKey(identifier)) {
           throw new MolgenisException("Table " + identifier + " is given more than once");
@@ -259,33 +271,36 @@ public class JsonRowsApi {
     };
   }
 
-  private static void mutate(Context ctx, String operation, Map<String, Object> rowsByTable) {
+  private static void mutate(Context ctx, String operation, Map<String, JsonNode> rowsByTable) {
     StringBuilder declarations = new StringBuilder();
     StringBuilder arguments = new StringBuilder();
     Map<String, Object> variables = new LinkedHashMap<>();
-    for (Map.Entry<String, Object> entry : rowsByTable.entrySet()) {
-      if (!(entry.getValue() instanceof List)) {
+    for (Map.Entry<String, JsonNode> entry : rowsByTable.entrySet()) {
+      if (!entry.getValue().isArray()) {
         throw new MolgenisException("Rows of table " + entry.getKey() + " must be a JSON array");
       }
       declarations.append(",$%1$s:[%1$sInput]".formatted(entry.getKey()));
       arguments.append(",%1$s:$%1$s".formatted(entry.getKey()));
-      variables.put(entry.getKey(), entry.getValue());
+      variables.put(entry.getKey(), MAPPER.convertValue(entry.getValue(), List.class));
     }
+
     if ("delete".equals(operation)) {
       declarations.append(",$strict:Boolean");
       arguments.append(",strict:$strict");
       variables.put(STRICT, Boolean.parseBoolean(ctx.queryParam(STRICT)));
     }
+
     String query =
         arguments.isEmpty()
             ? "mutation{%s{status message}}".formatted(operation)
             : "mutation(%s){%s(%s){status message}}"
                 .formatted(declarations.substring(1), operation, arguments.substring(1));
+
     ExecutionResult result = execute(ctx, query, variables);
     ctx.json(((Map<?, ?>) ((Map<?, ?>) result.getData()).get(operation)));
   }
 
-  private static Object readBody(Context ctx) throws IOException {
-    return MAPPER.readValue(ctx.body(), Object.class);
+  private static JsonNode readBody(Context ctx) throws IOException {
+    return MAPPER.readTree(ctx.body());
   }
 }

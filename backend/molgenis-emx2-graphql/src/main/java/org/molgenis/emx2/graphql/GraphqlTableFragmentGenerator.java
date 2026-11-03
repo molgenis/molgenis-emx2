@@ -26,7 +26,7 @@ public class GraphqlTableFragmentGenerator {
   public static String rowSelection(Schema schema, TableMetadata table) {
     GraphqlTableFragmentGenerator generator = new GraphqlTableFragmentGenerator(schema, true);
     return AstPrinter.printAstCompact(
-        generator.buildFragment(table, 1, 1, table.getIdentifier()).getSelectionSet());
+        generator.buildFragment(table, 1, table.getIdentifier()).getSelectionSet());
   }
 
   public static Map<String, String> generate(Schema schema) {
@@ -46,20 +46,16 @@ public class GraphqlTableFragmentGenerator {
 
   private String toFragmentString(TableMetadata table, int depth) {
     String fragmentName = table.getIdentifier() + "AllFields" + depth;
-    return AstPrinter.printAst(buildFragment(table, depth, depth, fragmentName)) + "\n";
+    return AstPrinter.printAst(buildFragment(table, depth, fragmentName)) + "\n";
   }
 
   private String toFragmentString(TableMetadata table, int depth, String fragmentName) {
-    return AstPrinter.printAst(buildFragment(table, depth, depth, fragmentName)) + "\n";
+    return AstPrinter.printAst(buildFragment(table, depth, fragmentName)) + "\n";
   }
 
-  private FragmentDefinition buildFragment(
-      TableMetadata table, int depth, int maxDepth, String fragmentName) {
+  private FragmentDefinition buildFragment(TableMetadata table, int depth, String fragmentName) {
     String nestedFragmentName = depth == 0 ? table.getIdentifier() + "KeyFields" : fragmentName;
-    List<Column> columns = depth == 0 ? table.getPrimaryKeyColumns() : table.getStoredColumns();
-    if (rowShape) {
-      columns = rowColumns(table, depth);
-    }
+    List<Column> columns = selectedColumns(table, depth);
 
     String typeName = getTableTypeName(table);
     List<Selection<?>> selections = new ArrayList<>();
@@ -85,7 +81,7 @@ public class GraphqlTableFragmentGenerator {
             selections.add(
                 Field.newField(column.getIdentifier())
                     .selectionSet(
-                        buildFragment(column.getRefTable(), nextDepth, maxDepth, nestedName)
+                        buildFragment(column.getRefTable(), nextDepth, nestedName)
                             .getSelectionSet())
                     .build());
           } else {
@@ -100,6 +96,13 @@ public class GraphqlTableFragmentGenerator {
         .typeCondition(TypeName.newTypeName(typeName).build())
         .selectionSet(selectionSet)
         .build();
+  }
+
+  private List<Column> selectedColumns(TableMetadata table, int depth) {
+    if (rowShape) {
+      return rowColumns(table, depth);
+    }
+    return depth == 0 ? table.getPrimaryKeyColumns() : table.getStoredColumns();
   }
 
   public static List<Column> rowColumns(TableMetadata table) {
