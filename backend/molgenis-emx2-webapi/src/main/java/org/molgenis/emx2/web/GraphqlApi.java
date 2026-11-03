@@ -117,6 +117,7 @@ public final class GraphqlApi {
     String query;
     if (HandlerType.POST.equals(ctx.method())) {
       if (ctx.header("Content-Type").startsWith("multipart/form-data")) {
+        @SuppressWarnings("java:S5443")
         File tempFile = File.createTempFile(TEMPFILES_DELETE_ON_EXIT, ".tmp");
         tempFile.deleteOnExit();
         ctx.attribute(
