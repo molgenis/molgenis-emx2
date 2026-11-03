@@ -2,6 +2,8 @@
 
 The EMX2 APIs can be used in various environments to retrieve, add, manipulate or replace data.
 
+Each schema describes its own routes in a generated OpenAPI document. `/{schema}/api/openapi.yaml` is the document. `/{schema}/api/openapi` shows it in a browser.
+
 
 
 ## Python
@@ -30,7 +32,7 @@ library(httr)
 Table data can be retrieved using GET and should be converted to a data frame before it can be used. Here we assume that the data has 'View' permissions for anonymous users.
 
 ```
-pets <- GET(url = "https://joeri.molgeniscloud.org/pet%20store/api/csv/Pet")
+pets <- GET(url = "https://emx2.dev/pet%20store/api/csv/Pet")
 petsdf <- read.csv(textConnection(content(pets, 'text', encoding = "UTF-8")))
 ```
 
@@ -62,13 +64,13 @@ The data can be uploaded to replace the original data using POST. Here we assume
 ```
 token <- "<your token here>"
 header <- add_headers("x-molgenis-token" = token)
-POST(url = "https://joeri.molgeniscloud.org/pet%20store/api/csv/Pet", body = newPetWeight, config = header)
+POST(url = "https://emx2.dev/pet%20store/api/csv/Pet", body = newPetWeight, config = header)
 ```
 
 If everything went well, a HTTP status code 200 (meaning [OK](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)) is returned:
 
 ```
-Response [https://joeri.molgeniscloud.org/pet%20store/api/csv/Pet]
+Response [https://emx2.dev/pet%20store/api/csv/Pet]
   Date: 2023-04-05 09:38
   Status: 200
   Content-Type: text/csv
@@ -78,7 +80,7 @@ Response [https://joeri.molgeniscloud.org/pet%20store/api/csv/Pet]
 Re-download the data to see if the weight value has been updated in the database.
 
 ```
-newPets <- GET(url = "https://joeri.molgeniscloud.org/pet%20store/api/csv/Pet")
+newPets <- GET(url = "https://emx2.dev/pet%20store/api/csv/Pet")
 newPetsdf <- read.csv(textConnection(content(pets, 'text', encoding = "UTF-8")))
 newPetsdf[1,]
 ```
@@ -100,6 +102,7 @@ The routes below work with any HTTP client. The examples use `curl`.
 ### Rows as JSON
 
 The routes under `/{schema}/api/json` read and write table rows as JSON. You do not need to know GraphQL to use them.
+A row uses the column identifiers of GraphQL, not the column names of a CSV upload. For example, the column `owner name` is `ownerName`. The OpenAPI document lists them per table.
 The examples use the `pet store` schema. They set these variables first:
 
 ```
@@ -222,7 +225,7 @@ curl -X POST "$S/_data" -H "x-molgenis-token: $TOKEN" -H 'Content-Type: applicat
 
 `limit` below 1 and `offset` below 0 answer 400.
 
-Without `query`, a row has the shape that a write takes. A reference is the key of the row it points to, for example `"category":{"name":"ant"}`. A file is an object with `id`, `size`, `filename`, `extension` and `url`. Refbacks and `mg_` columns are left out, except `mg_tableclass`.
+Without `query`, a row has the shape that a write takes. A reference is the key of the row it points to, for example `"category":{"name":"ant"}`. A file is an object with `id`, `size`, `filename`, `extension` and `url`. Refbacks and `mg_` columns are left out, except `mg_tableclass` and `mg_draft`. So a draft row that you read can be written back.
 
 The read examples ran while the rows `docs-example-1` and `docs-example-2` from the write examples existed.
 
@@ -359,8 +362,6 @@ Content-Type: application/json
 }
 ```
 
-#### Schema metadata and the API document
+#### Schema metadata
 
 `/{schema}/api/json/_schema` answers GET, POST and DELETE as `/{schema}/api/json` does. It reads, changes and drops the schema metadata.
-
-`/{schema}/api/openapi.yaml` is the generated OpenAPI document of all routes of the schema. `/{schema}/api/openapi` shows it in a browser.
