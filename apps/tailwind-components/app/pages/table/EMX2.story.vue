@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, useId, watch } from "vue";
 import type { ITableSettings } from "../../../types/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src/types";
@@ -10,7 +10,6 @@ const tableSettings = ref<ITableSettings>({
   pageSize: 10,
   orderby: { column: "", direction: "ASC" },
   search: "",
-  orderedColumnsIds: [],
 });
 
 const router = useRouter();
@@ -23,6 +22,8 @@ const enableFilters = ref(true);
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>((route.query.schema as string) || "");
 const tableId = ref<string>((route.query.table as string) || "");
+
+const generatedId = useId();
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({
@@ -81,7 +82,17 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
         :canUpdate="canUpdate"
         :canDelete="canDelete"
         :enableFilters="enableFilters"
-      />
+      >
+        <template #additional-row-actions="{ row }">
+          <Button
+            :id="generatedId"
+            :iconOnly="true"
+            type="inline"
+            icon="info"
+            label="view row details"
+          />
+        </template>
+      </TableEMX2>
     </div>
   </div>
 </template>

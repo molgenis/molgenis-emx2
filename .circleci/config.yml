@@ -818,6 +818,7 @@ workflows:
          - test-apps
          - test-backend
          - test-data
+         - test-e2e
          - sonar
        filters:
          branches:
