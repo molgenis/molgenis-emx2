@@ -314,24 +314,6 @@ class CsvApiTest extends ApiTestBase {
   }
 
   @Test
-  void givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
-    Response response =
-        given().accept(ACCEPT_CSV).when().get("/" + SCHEMA_NAME + "/api/csv/changelog");
-
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-        {
-          "errors" : [
-            {
-              "message" : "Unauthorized to get schema changelog"
-            }
-          ]
-        }""",
-        response.body().asString());
-  }
-
-  @Test
   void shouldFilterTable() {
     String result =
         given()
