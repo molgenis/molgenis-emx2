@@ -18,7 +18,7 @@ public class Generator {
   private static final String MG_TABLECLASS_INTERFACE =
       """
                     export interface IMgTableClass {
-                        mg_tableclass: string;
+                        mg_tableclass?: string;
                     }
                     """;
 
@@ -28,6 +28,7 @@ public class Generator {
                         id?: string;
                         size?: number;
                         extension?: string;
+                        filename?: string;
                         url?: string;
                     }
                     """;
