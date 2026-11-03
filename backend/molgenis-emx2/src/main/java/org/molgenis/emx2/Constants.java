@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 public class Constants {
 
-  public static final String CI_COLD_RUN_0159 = "revert before merge, third cold run";
   public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER_PREFIX = "MG_USER_";
