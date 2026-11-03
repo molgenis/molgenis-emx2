@@ -137,19 +137,12 @@ public class GraphqlExecutor {
     }
 
     // tests show overhead of this step is about 20ms (jooq takes the rest)
-    ExecutionResult executionResult = null;
-    if (variables != null) {
-      executionResult =
-          graphql.execute(
-              ExecutionInput.newExecutionInput(query)
-                  .graphQLContext(graphQLContext)
-                  .variables(variables)
-                  .build());
-    } else {
-      executionResult =
-          graphql.execute(
-              ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
-    }
+    ExecutionResult executionResult =
+        graphql.execute(
+            ExecutionInput.newExecutionInput(query)
+                .graphQLContext(graphQLContext)
+                .variables(variables == null ? Map.of() : variables)
+                .build());
 
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
