@@ -47,8 +47,9 @@ public class OpenApiUiFactory {
         version, version, version, schemaName);
   }
 
-  static String getOpenApiUserInterface(Context context) {
+  static void getOpenApiUserInterface(Context context) {
     context.status(200);
-    return createSwaggerUI(getSchema(context).getMetadata().getName());
+    context.contentType("text/html");
+    context.result(createSwaggerUI(getSchema(context).getMetadata().getName()));
   }
 }

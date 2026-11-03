@@ -1,5 +1,10 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
+import static org.molgenis.emx2.Constants.FILE_SIZE;
 import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 
@@ -14,8 +19,10 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class Row {
   private Map<String, Object> values = new LinkedHashMap<>();
+  private final Set<String> keptFiles = new LinkedHashSet<>();
 
   public Row(Row row) {
+    keptFiles.addAll(row.keptFiles);
     for (Map.Entry<String, Object> e : row.getValueMap().entrySet()) {
       values.put(e.getKey(), e.getValue());
     }
@@ -238,6 +245,15 @@ public class Row {
     return this;
   }
 
+  public Row keepFile(String name) {
+    keptFiles.add(name);
+    return this;
+  }
+
+  public Set<String> getKeptFiles() {
+    return Collections.unmodifiableSet(keptFiles);
+  }
+
   public Row setBinary(String name, File value) {
     this.setBinary(name, new BinaryFileWrapper(value));
     return this;
@@ -247,24 +263,24 @@ public class Row {
     if (value == null) {
       // fix: this is needed to also empty all file metadata fields
       this.values.put(name, null);
-      this.values.put(name + "_filename", null);
-      this.values.put(name + "_extension", null);
-      this.values.put(name + "_mimetype", null);
-      this.values.put(name + "_size", null);
-      this.values.put(name + "_contents", null);
+      this.values.put(name + FILE_FILENAME, null);
+      this.values.put(name + FILE_EXTENSION, null);
+      this.values.put(name + FILE_MIMETYPE, null);
+      this.values.put(name + FILE_SIZE, null);
+      this.values.put(name + FILE_CONTENTS, null);
     } else {
       String id = UUID.randomUUID().toString().replace("-", "");
       this.values.put(name, id);
       String filename = value.getFileName();
       if (filename != null && !filename.isEmpty()) {
-        this.values.put(name + "_filename", filename);
+        this.values.put(name + FILE_FILENAME, filename);
       } else {
-        this.values.put(name + "_filename", id + "." + value.getExtension());
+        this.values.put(name + FILE_FILENAME, id + "." + value.getExtension());
       }
-      this.values.put(name + "_extension", value.getExtension());
-      this.values.put(name + "_mimetype", value.getMimeType());
-      this.values.put(name + "_size", value.getSize());
-      this.values.put(name + "_contents", value.getContents());
+      this.values.put(name + FILE_EXTENSION, value.getExtension());
+      this.values.put(name + FILE_MIMETYPE, value.getMimeType());
+      this.values.put(name + FILE_SIZE, value.getSize());
+      this.values.put(name + FILE_CONTENTS, value.getContents());
     }
     return this;
   }

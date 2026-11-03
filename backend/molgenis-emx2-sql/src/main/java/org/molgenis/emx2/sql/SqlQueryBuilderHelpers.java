@@ -3,6 +3,11 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.ColumnType.TEXT;
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
+import static org.molgenis.emx2.Constants.FILE_SIZE;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -87,11 +92,11 @@ class SqlQueryBuilderHelpers {
         if (c.isFile()
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())
-                || columnName.endsWith("_mimetype")
-                || columnName.endsWith("_filename")
-                || columnName.endsWith("_extension")
-                || columnName.endsWith("_size")
-                || columnName.endsWith("_contents"))) {
+                || columnName.endsWith(FILE_MIMETYPE)
+                || columnName.endsWith(FILE_FILENAME)
+                || columnName.endsWith(FILE_EXTENSION)
+                || columnName.endsWith(FILE_SIZE)
+                || columnName.endsWith(FILE_CONTENTS))) {
           return new Column(table, columnName);
         }
       }

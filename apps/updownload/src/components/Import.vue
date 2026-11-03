@@ -85,13 +85,20 @@
               </ul>
             </div>
 
+            <p>
+              Export the first 1000 rows of every table as
+              <a :href="`/${schema}/api/json/_data`">json</a>.
+            </p>
+
             <div v-if="visibleTables?.length" :key="tablesHash">
-              Export specific tables:
+              Export specific tables (json gives the first 1000 rows, csv and
+              excel give all rows):
               <ul>
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
                   <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
-                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a> /
+                  <a :href="`/${schema}/api/json/` + table.id">json</a>
                 </li>
               </ul>
             </div>

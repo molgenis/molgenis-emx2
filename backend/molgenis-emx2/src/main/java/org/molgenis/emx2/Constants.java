@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.Operator.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class Constants {
@@ -164,6 +165,13 @@ public class Constants {
   public static final String API_TTL = "/api/ttl";
   public static final String API_JSONLD = "/api/jsonld";
   public static final String API_FILE = "/api/file";
+  public static final String FILE_FILENAME = "_filename";
+  public static final String FILE_EXTENSION = "_extension";
+  public static final String FILE_MIMETYPE = "_mimetype";
+  public static final String FILE_SIZE = "_size";
+  public static final String FILE_CONTENTS = "_contents";
+  public static final List<String> FILE_COLUMN_SUFFIXES =
+      List.of("", FILE_FILENAME, FILE_EXTENSION, FILE_MIMETYPE, FILE_SIZE, FILE_CONTENTS);
   public static final String MG_TOP_OF_FORM = "mg_top_of_form";
 
   private Constants() {

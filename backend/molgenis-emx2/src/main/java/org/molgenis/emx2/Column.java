@@ -485,11 +485,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   public List<Field> getJooqFileFields() {
     return List.of(
         field(name(getName()), SQLDataType.VARCHAR),
-        field(name(getName() + "_mimetype"), SQLDataType.VARCHAR),
-        field(name(getName() + "_filename"), SQLDataType.VARCHAR),
-        field(name(getName() + "_extension"), SQLDataType.VARCHAR),
-        field(name(getName() + "_size"), SQLDataType.INTEGER),
-        field(name(getName() + "_contents"), SQLDataType.BINARY));
+        field(name(getName() + FILE_MIMETYPE), SQLDataType.VARCHAR),
+        field(name(getName() + FILE_FILENAME), SQLDataType.VARCHAR),
+        field(name(getName() + FILE_EXTENSION), SQLDataType.VARCHAR),
+        field(name(getName() + FILE_SIZE), SQLDataType.INTEGER),
+        field(name(getName() + FILE_CONTENTS), SQLDataType.BINARY));
   }
 
   public boolean isArray() {
