@@ -4,11 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.ColumnType.REFBACK;
-import static org.molgenis.emx2.Constants.FILE_CONTENTS;
-import static org.molgenis.emx2.Constants.FILE_EXTENSION;
-import static org.molgenis.emx2.Constants.FILE_FILENAME;
-import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
-import static org.molgenis.emx2.Constants.FILE_SIZE;
+import static org.molgenis.emx2.Constants.FILE_COLUMN_SUFFIXES;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
@@ -79,10 +75,7 @@ public class SqlColumnExecutor {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
       if (newColumn.isFile()) {
-        for (String suffix :
-            new String[] {
-              "", FILE_FILENAME, FILE_EXTENSION, FILE_SIZE, FILE_CONTENTS, FILE_MIMETYPE
-            }) {
+        for (String suffix : FILE_COLUMN_SUFFIXES) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),

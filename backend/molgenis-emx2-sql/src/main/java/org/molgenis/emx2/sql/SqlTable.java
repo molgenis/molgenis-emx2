@@ -309,9 +309,6 @@ public class SqlTable implements Table {
     subclassRows.get(subclassName).clear();
   }
 
-  private static final List<String> FILE_COLUMN_SUFFIXES =
-      List.of("", FILE_FILENAME, FILE_EXTENSION, FILE_MIMETYPE, FILE_SIZE, FILE_CONTENTS);
-
   private static void copyKeptFiles(SqlTable table, List<Row> rows) {
     List<Row> flagged = rows.stream().filter(row -> !row.getKeptFiles().isEmpty()).toList();
     if (flagged.isEmpty()) {
