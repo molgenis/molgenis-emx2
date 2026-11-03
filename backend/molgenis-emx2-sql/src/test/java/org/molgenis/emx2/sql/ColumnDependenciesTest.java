@@ -20,8 +20,8 @@ class ColumnDependenciesTest {
   }
 
   @Test
-  void findsVariablesOfRequired() {
-    assertEquals(Set.of("b"), getExpressionVariables(column("a").setRequired("b != null")));
+  void ignoresVariablesOfRequired() {
+    assertEquals(Set.of(), getExpressionVariables(column("a").setRequired("b != null")));
   }
 
   @Test

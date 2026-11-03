@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import ArrowUp from "../global/icons/ArrowUp.vue";
-import ArrowDown from "../global/icons/ArrowDown.vue";
 import { useId } from "vue";
+import type { ITableSettings } from "../../../types/types.ts";
+import ArrowDown from "../global/icons/ArrowDown.vue";
+import ArrowUp from "../global/icons/ArrowUp.vue";
 
 defineProps<{
   column: {
     id: string;
     label: string;
   };
-  schemaId: string;
-  tableId: string;
   isResizing?: boolean;
-  settings: {
-    orderby: {
-      column: string;
-      direction: "ASC" | "DESC";
-    };
-  };
+  schemaId: string;
+  settings: ITableSettings;
+  tableId: string;
 }>();
 
 const mgAriaSortMappings: Record<string, string> = {
