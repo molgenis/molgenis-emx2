@@ -631,6 +631,23 @@ class CsvApiTest extends ApiTestBase {
         response.getBody().asString());
   }
 
+  @Test
+  void getMembersForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/members");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Unauthorized to get schema members"
+            }
+          ]
+        }""",
+        response.getBody().asString());
+  }
+
   private static void assertUnknownSchema(Response response) {
     assertEquals(400, response.getStatusCode());
     assertEquals(
