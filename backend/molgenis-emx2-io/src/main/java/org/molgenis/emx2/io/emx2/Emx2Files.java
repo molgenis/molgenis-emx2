@@ -1,5 +1,7 @@
 package org.molgenis.emx2.io.emx2;
 
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 
@@ -44,8 +46,8 @@ public class Emx2Files {
                   "_files/"
                       + f.getString(c.getName())
                       + "."
-                      + f.getString(c.getName() + "_extension"),
-                  f.getBinary(c.getName() + "_contents"));
+                      + f.getString(c.getName() + FILE_EXTENSION),
+                  f.getBinary(c.getName() + FILE_CONTENTS));
             }
           }
         }

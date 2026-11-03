@@ -1,5 +1,9 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
@@ -58,10 +62,10 @@ public class FileApi {
   }
 
   public static void addFileColumnToResponse(Context ctx, String columnName, Row row) {
-    String fileName = row.getString(columnName + "_filename");
-    String extension = row.getString(columnName + "_extension");
-    String mimetype = row.getString(columnName + "_mimetype");
-    byte[] contents = row.getBinary(columnName + "_contents");
+    String fileName = row.getString(columnName + FILE_FILENAME);
+    String extension = row.getString(columnName + FILE_EXTENSION);
+    String mimetype = row.getString(columnName + FILE_MIMETYPE);
+    byte[] contents = row.getBinary(columnName + FILE_CONTENTS);
     ctx.header(
         "Content-Disposition",
         "inline; filename=" + (fileName != null ? fileName : columnName + "." + extension));

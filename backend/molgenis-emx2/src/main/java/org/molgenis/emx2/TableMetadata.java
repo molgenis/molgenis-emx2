@@ -4,6 +4,11 @@ import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
+import static org.molgenis.emx2.Constants.FILE_SIZE;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
@@ -216,7 +221,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (!column.isHeading()) {
         if (column.isFile()) {
           list.add(column(column.getName()));
-          list.add(column(column.getName() + "_filename"));
+          list.add(column(column.getName() + FILE_FILENAME));
         } else {
           list.add(column);
         }
@@ -237,14 +242,17 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (c.isFile()) {
         result.put(c.getName(), new Column(c.getTable(), c.getName()));
         result.put(
-            c.getName() + "_contents",
-            new Column(c.getTable(), c.getName() + "_contents").setType(FILE));
-        result.put(c.getName() + "_mimetype", new Column(c.getTable(), c.getName() + "_mimetype"));
-        result.put(c.getName() + "_filename", new Column(c.getTable(), c.getName() + "_filename"));
+            c.getName() + FILE_CONTENTS,
+            new Column(c.getTable(), c.getName() + FILE_CONTENTS).setType(FILE));
         result.put(
-            c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
+            c.getName() + FILE_MIMETYPE, new Column(c.getTable(), c.getName() + FILE_MIMETYPE));
         result.put(
-            c.getName() + "_size", new Column(c.getTable(), c.getName() + "_size").setType(INT));
+            c.getName() + FILE_FILENAME, new Column(c.getTable(), c.getName() + FILE_FILENAME));
+        result.put(
+            c.getName() + FILE_EXTENSION, new Column(c.getTable(), c.getName() + FILE_EXTENSION));
+        result.put(
+            c.getName() + FILE_SIZE,
+            new Column(c.getTable(), c.getName() + FILE_SIZE).setType(INT));
       } else
       // expand composite keys if necessary
       if (c.isReference()) {

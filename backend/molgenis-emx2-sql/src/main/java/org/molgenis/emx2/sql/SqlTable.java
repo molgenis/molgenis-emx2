@@ -310,19 +310,21 @@ public class SqlTable implements Table {
   }
 
   private static final List<String> FILE_COLUMN_SUFFIXES =
-      List.of("", "_filename", "_extension", "_mimetype", "_size", "_contents");
+      List.of("", FILE_FILENAME, FILE_EXTENSION, FILE_MIMETYPE, FILE_SIZE, FILE_CONTENTS);
 
   private static void copyKeptFiles(SqlTable table, List<Row> rows) {
     List<Row> flagged = rows.stream().filter(row -> !row.getKeptFiles().isEmpty()).toList();
     if (flagged.isEmpty()) {
       return;
     }
+
     List<Column> primaryKeyColumns = table.getMetadata().getPrimaryKeyColumns();
     for (UpdatePair pair :
         pair(flagged, table.getRowsByRowKey(flagged, false), primaryKeyColumns)) {
       if (pair.existing() == null) {
         continue;
       }
+
       for (String file : pair.row().getKeptFiles()) {
         for (String suffix : FILE_COLUMN_SUFFIXES) {
           pair.row().set(file + suffix, pair.existing().getValueMap().get(file + suffix));

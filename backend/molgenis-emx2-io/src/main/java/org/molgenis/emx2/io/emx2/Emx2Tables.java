@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
 import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
@@ -56,7 +57,7 @@ public class Emx2Tables {
   }
 
   private static boolean isFileType(Column c, TableMetadata metadata) {
-    if (metadata.getColumn(c.getName()) == null && c.getName().endsWith("_filename")) {
+    if (metadata.getColumn(c.getName()) == null && c.getName().endsWith(FILE_FILENAME)) {
       return true;
     } else return !metadata.getColumn(c.getName()).isFile();
   }
