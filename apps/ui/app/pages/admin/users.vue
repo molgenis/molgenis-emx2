@@ -20,7 +20,10 @@ import TokenManagement from "../../components/TokenManagement.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
 import { getRoles, getSchemas } from "../../util/adminUtils";
-import type { ITableMetaData } from "../../../../metadata-utils/src/types.ts";
+import type {
+  ITableMetaData,
+  TableRow as TableRowData,
+} from "../../../../metadata-utils/src/types.ts";
 
 /**
  * Todo:
@@ -68,13 +71,13 @@ const tableMetadata: ITableMetaData = {
       label: "Name / Email",
     },
     {
-      columnType: "STRING",
-      id: "roles",
-      name: "roles",
+      columnType: "STRING_ARRAY",
+      id: "roleLabels",
+      name: "roleLabels",
       label: "Roles",
     },
     {
-      columnType: "STRING",
+      columnType: "STRING_ARRAY",
       id: "tokens",
       name: "tokens",
       label: "Tokens",
@@ -141,8 +144,29 @@ const usersShown = computed(() => {
     (tableSettings.value.page - 1) * tableSettings.value.pageSize,
     tableSettings.value.page * tableSettings.value.pageSize
   );
-  return paginatedUsers;
+  return paginatedUsers.map(toUserTableRow);
 });
+
+const usersByEmail = computed(
+  () => new Map(adminSettings.users.map((user: User) => [user.email, user]))
+);
+
+function userOf(row: TableRowData): User {
+  return usersByEmail.value.get(row._rowIdString)!;
+}
+
+function toUserTableRow(user: User): TableRowData {
+  return {
+    _rowId: { email: user.email },
+    _rowIdString: user.email,
+    email: user.email,
+    enabled: user.enabled,
+    roleLabels: (user.roles ?? []).map(
+      (role) => `${role.schemaId} (${role.role})`
+    ),
+    tokens: user.tokens ?? [],
+  };
+}
 
 async function updateCurrentPage() {}
 
@@ -201,6 +225,34 @@ function handleUpdateSettings(newSettings: ITableSettings) {
         :tableMetadata="tableMetadata"
         @update:settings="handleUpdateSettings"
       >
+        <template #row-action="{ row }">
+          <Button
+            :id="`edit-user-${row.email}`"
+            iconOnly
+            type="inline"
+            icon="edit"
+            :label="`Edit user: ${row.email}`"
+            @click="openEditUserModal(userOf(row))"
+          />
+          <Button
+            v-if="canDelete(userOf(row))"
+            :id="`delete-user-${row.email}`"
+            iconOnly
+            type="inline"
+            icon="trash"
+            :label="`Delete user: ${row.email}`"
+            @click="showDeleteUserConfirmation(userOf(row))"
+          />
+          <Button
+            v-if="userOf(row).tokens?.length"
+            :id="`manage-tokens-${row.email}`"
+            type="inline"
+            size="tiny"
+            @click="openManageTokensModal(userOf(row))"
+          >
+            {{ userOf(row).tokens?.length }} tokens
+          </Button>
+        </template>
       </TableInteractive>
       <Table>
         <template #head>
