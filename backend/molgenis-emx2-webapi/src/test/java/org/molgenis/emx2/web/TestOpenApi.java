@@ -68,6 +68,7 @@ public class TestOpenApi {
                 .add(Column.column("weight").setType(ColumnType.DECIMAL))
                 .add(Column.column("tags").setType(ColumnType.STRING_ARRAY))
                 .add(Column.column("mg_tableclass"))
+                .add(Column.column("mg_draft").setType(ColumnType.BOOL))
                 .add(Column.column("mg_insertedOn")));
     schema.create(
         TableMetadata.table("Pet Owner")
@@ -130,7 +131,7 @@ public class TestOpenApi {
     assertTablePath(
         api,
         "Pet",
-        List.of("name", "weight", "tags", "mg_tableclass", "breed"),
+        List.of("name", "weight", "tags", "mg_tableclass", "mg_draft", "breed"),
         List.of("ownerName", "age"));
     assertTablePath(
         api, "Pet Owner", List.of("ownerName", "age"), List.of("name", "weight", "tags"));

@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 
 import graphql.language.*;
@@ -107,7 +108,9 @@ public class GraphqlTableFragmentGenerator {
             column ->
                 !column.isHeading()
                     && !column.isRefback()
-                    && (!column.isSystemColumn() || MG_TABLECLASS.equals(column.getName())))
+                    && (!column.isSystemColumn()
+                        || MG_TABLECLASS.equals(column.getName())
+                        || MG_DRAFT.equals(column.getName())))
         .collect(
             Collectors.toMap(
                 Column::getName, c -> c, (first, ignored) -> first, LinkedHashMap::new))

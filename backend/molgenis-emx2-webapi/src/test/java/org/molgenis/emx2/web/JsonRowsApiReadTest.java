@@ -48,6 +48,9 @@ class JsonRowsApiReadTest extends ApiTestBase {
   private static final String NAME = "name";
   private static final String PET = "Pet";
   private static final String BIG = "Big";
+  private static final String DRAFTABLE = "Draftable";
+  private static final String BARE = "Bare";
+  private static final String DRAFT_STATE = "{Draftable(orderby:{name:ASC}){name label mg_draft}}";
   private static final String ITEM = "Item";
   private static final String EMPTY = "Empty";
   private static final String QUERY = "query";
@@ -94,6 +97,9 @@ class JsonRowsApiReadTest extends ApiTestBase {
             column("pet").setType(REF).setRefTable(PET).setPkey(),
             column("day").setPkey()),
         table("Bill", column(NAME).setPkey(), column("visit").setType(REF).setRefTable("Visit")));
+    if (ROUND_TRIP.equals(name)) {
+      createDrafts(schema);
+    }
     schema.getTable("Color").insert(new Row().setString(NAME, "red"));
     schema.getTable("Owner").insert(new Row().setString(NAME, "o1"));
     schema.getTable("Tag").insert(new Row().setString(NAME, "t1"), new Row().setString(NAME, "t2"));
@@ -118,6 +124,16 @@ class JsonRowsApiReadTest extends ApiTestBase {
             List.of(Map.of("pet", Map.of(NAME, "p1"), "day", "mon")),
             "b",
             List.of(Map.of(NAME, "b1", "visit", Map.of("pet", Map.of(NAME, "p1"), "day", "mon")))));
+  }
+
+  private static void createDrafts(Schema schema) {
+    schema.create(table(BARE));
+    schema.create(table(DRAFTABLE, column(NAME).setPkey(), column("label").setRequired(true)));
+    schema
+        .getTable(DRAFTABLE)
+        .insert(
+            new Row().setString(NAME, "n1").setString("label", "x"),
+            new Row().setString(NAME, "d1").setBool("mg_draft", true));
   }
 
   private static void createPages() {
@@ -253,6 +269,39 @@ class JsonRowsApiReadTest extends ApiTestBase {
             .put("/" + ROUND_TRIP + "/api/json/" + PET);
     assertEquals(200, put.statusCode(), put.asString());
     assertEquals(before, graphql(ROUND_TRIP, ANIMAL_STATE, null));
+  }
+
+  @Test
+  void getDeletePostOfADraftTableStoresTheSameRows() throws JsonProcessingException {
+    String before = graphql(ROUND_TRIP, DRAFT_STATE, null);
+    assertTrue(MAPPER.readTree(before).at("/data/Draftable/0/mg_draft").asBoolean(), before);
+    String rows = get(ROUND_TRIP, DRAFTABLE, Map.of()).asString();
+    JsonNode read = MAPPER.readTree(rows);
+    assertTrue(read.get(0).get("mg_draft").asBoolean(), rows);
+    assertFalse(read.get(1).has("mg_draft"), rows);
+    Response delete = send(ROUND_TRIP, DRAFTABLE, rows, "DELETE");
+    assertEquals(200, delete.statusCode(), delete.asString());
+    assertFalse(graphql(ROUND_TRIP, DRAFT_STATE, null).contains("\"n1\""));
+    Response post = send(ROUND_TRIP, DRAFTABLE, rows, "POST");
+    assertEquals(200, post.statusCode(), post.asString());
+    assertEquals(before, graphql(ROUND_TRIP, DRAFT_STATE, null));
+  }
+
+  private static Response send(String schema, String path, String rows, String method) {
+    return given()
+        .sessionId(sessionId)
+        .contentType("application/json")
+        .body(rows)
+        .request(method, "/" + schema + "/api/json/" + path);
+  }
+
+  @Test
+  void tableWithOnlySystemColumnsReadsOverItsRouteAndOverData() {
+    Response table = get(ROUND_TRIP, BARE, Map.of());
+    assertEquals(200, table.statusCode(), table.asString());
+    Response data = get(ROUND_TRIP, "_data", Map.of());
+    assertEquals(200, data.statusCode(), data.asString());
+    assertTrue(body(data).has(BARE), data.asString());
   }
 
   @Test
