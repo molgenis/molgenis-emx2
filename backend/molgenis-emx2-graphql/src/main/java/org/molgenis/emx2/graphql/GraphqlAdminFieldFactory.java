@@ -152,7 +152,7 @@ public class GraphqlAdminFieldFactory {
 
   private static Object getUsers(SelectedField selectedField, Database db) {
     Map<String, Object> args = selectedField.getArguments();
-    int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 100;
+    int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 0;
     int offset = args.containsKey(OFFSET) ? (int) args.get(OFFSET) : 0;
     String email = args.containsKey(EMAIL) ? (String) args.get(EMAIL) : null;
     List<Member> members = db.loadUserRoles();
