@@ -1,4 +1,4 @@
-// Generated (on: 2026-11-03T13:07:19.492230) from Generator.java for schema: cms
+// Generated (on: 2026-11-03T13:34:59.872778) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -8,6 +8,7 @@ export interface IFile {
   id?: string;
   size?: number;
   extension?: string;
+  filename?: string;
   url?: string;
 }
 
