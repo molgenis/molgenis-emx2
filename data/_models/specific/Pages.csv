@@ -179,6 +179,8 @@ Charts,,enable click events,bool,,,,,,,,,,FALSE,,"If enabled, chart elements can
 Sections,,columns,int,,,,,,,,,,,,The number of columns to create within a section (1-4),pages
 Blocks,,enable full screen width,bool,,,,,,,,,,FALSE,,"If true, content will be expanded to fit the entire width of the screen",pages
 Sections,,apply shaded background,bool,,,,,,,,,,FALSE,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
+Blocks,,enable top padding,bool,,,,,,,,,,TRUE,,"If false, the extra white space above the content will be removed",pages
+Blocks,,enable bottom padding,bool,,,,,,,,,,TRUE,,"If false, the extra white space below the content will be removed",pages
 Blocks,,in container,select,,,,Configurable pages,,,,,,,,"The container that displays this block (i.e., page)",pages
 Blocks,,components,refback,,,,Components,in block,,,,,,,The components that are displayed in the block,pages
 Blocks,,component order,refback,,,,Component orders,block,,,,,,sio:SIO_001316,Components that are displayed in the block and the order in which they are displayed,pages
