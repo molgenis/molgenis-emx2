@@ -97,13 +97,13 @@ export function getSchemas() {
     });
 }
 
-export async function getUsers(
-  settings: ITableSettings
-): Promise<{ newUsers: User[]; newUserCount: number }> {
-  const offset = (settings.page - 1) * settings.pageSize;
+export async function getUsers(): Promise<{
+  newUsers: User[];
+  newUserCount: number;
+}> {
   const query = `
   { _admin 
-    { users (limit: ${settings.pageSize}, offset: ${offset})
+    { users
       { email,
         settings {key, value}, 
         enabled, 

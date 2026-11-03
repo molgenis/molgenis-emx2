@@ -111,9 +111,40 @@ const usernames = computed(() => {
   return adminSettings.users.map((user: User) => user.email);
 });
 
-async function updateCurrentPage(settings: ITableSettings) {
-  await adminSettings.retrieveUsers(settings);
-}
+const usersShown = computed(() => {
+  const search = tableSettings.value.search?.toLowerCase() || "";
+  const filteredUsers = adminSettings.users.filter((user: User) => {
+    return (
+      user.email.toLowerCase().includes(search) ||
+      user.roles?.some((role) =>
+        role.schemaId.toLowerCase().includes(search)
+      ) ||
+      user.roles?.some((role) => role.role.toLowerCase().includes(search))
+    );
+  });
+  const sortedUsers = filteredUsers.sort((a, b) => {
+    const column = tableSettings.value.orderby?.column || "email";
+    const direction = tableSettings.value.orderby?.direction || "ASC";
+    const aValue = a[column as keyof User];
+    const bValue = b[column as keyof User];
+    if (aValue === undefined || bValue === undefined) {
+      return 0;
+    }
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return direction === "ASC"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+    return 0;
+  });
+  const paginatedUsers = sortedUsers.slice(
+    (tableSettings.value.page - 1) * tableSettings.value.pageSize,
+    tableSettings.value.page * tableSettings.value.pageSize
+  );
+  return paginatedUsers;
+});
+
+async function updateCurrentPage() {}
 
 function openEditUserModal(user: User) {
   selectedUser.value = user;
@@ -140,7 +171,7 @@ function canDelete(user: User) {
 
 function handleUpdateSettings(newSettings: ITableSettings) {
   tableSettings.value = newSettings;
-  updateCurrentPage(newSettings);
+  updateCurrentPage();
 }
 </script>
 
@@ -163,7 +194,7 @@ function handleUpdateSettings(newSettings: ITableSettings) {
       <TableInteractive
         :features="tableFeatures"
         :permissions="tablePermissions"
-        :rows="adminSettings.users"
+        :rows="usersShown"
         :rowCount="adminSettings.userCount"
         :settings="tableSettings"
         searchPlaceholder="Search users"
