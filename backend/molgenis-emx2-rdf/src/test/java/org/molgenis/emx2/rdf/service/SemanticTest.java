@@ -241,7 +241,7 @@ class SemanticTest extends RdfServiceTestRunner {
   }
 
   @Test
-  void semantic_prefixedNamesValidRow() throws IOException {
+  void semanticGenerator_prefixedNamesValidRow() throws IOException {
     Set<IRI> expectedPredicates =
         Set.of(
             Values.iri("http://purl.org/dc/terms/title"),
@@ -255,12 +255,14 @@ class SemanticTest extends RdfServiceTestRunner {
   }
 
   @Test
-  void semantic_prefixedNamesRowUsingUndefinedPrefix() {
-    assertThrows(MolgenisException.class, () -> parseRowRdf(semanticTest, "SemanticTable", "id=2"));
+  void semanticGenerator_prefixedNamesRowUsingUndefinedPrefix() {
+    assertThrows(
+        MolgenisException.class,
+        () -> parseRowRdf(RdfApiGeneratorFactory.SEMANTIC, semanticTest, "SemanticTable", "id=2"));
   }
 
   @Test
-  void emx2_anyRowWhenUndefinedPrefixIsDefined() {
+  void emx2Generator_anyRowWhenUndefinedPrefixIsDefined() {
     // Columns are described, therefore fails.
     assertThrows(
         MolgenisException.class,
