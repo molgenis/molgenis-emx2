@@ -1,17 +1,17 @@
 # Local Matomo for development
 
-The docker compose file in this directory starts a Matomo instance with a MariaDB database. Use it during development
+The [docker compose file](https://github.com/molgenis/molgenis-emx2/blob/master/docs/molgenis/matomo/docker-compose.yml) in `docs/molgenis/matomo` starts a Matomo instance with a MariaDB database. Use it during development
 to check that EMX2 sends AI chatbot visits to Matomo. Once started, Matomo is available on <http://localhost:8081>.
 
-## 1. Start Matomo
+## Start Matomo
 
-Spin up the containers in the docker compose file in this directory:
+From the root of the repository, spin up the containers in the docker compose file:
 
 ```bash
-docker compose up -d
+docker compose -f docs/molgenis/matomo/docker-compose.yml up -d
 ```
 
-## 2. Install Matomo
+## Install Matomo
 
 The first time Matomo starts, it has to be installed through its setup wizard.
 
@@ -24,7 +24,7 @@ The first time Matomo starts, it has to be installed through its setup wizard.
 
 The website created in the wizard gets site ID `1`.
 
-## 3. Connect EMX2 to Matomo
+## Connect EMX2 to Matomo
 
 Start EMX2 with the following settings (as environment variables or JVM options):
 
