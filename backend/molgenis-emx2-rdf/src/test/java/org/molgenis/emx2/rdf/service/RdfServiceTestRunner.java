@@ -157,6 +157,12 @@ abstract class RdfServiceTestRunner {
   }
 
   InMemoryRDFHandler parseRowRdf(Schema schema, String tableName, String rowId) throws IOException {
+    return parseRowRdf(RdfApiGeneratorFactory.EMX2, schema, tableName, rowId);
+  }
+
+  InMemoryRDFHandler parseRowRdf(
+      RdfApiGeneratorFactory generatorFactory, Schema schema, String tableName, String rowId)
+      throws IOException {
     Table table = schema.getTable(tableName);
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, rowId);
 
@@ -164,7 +170,7 @@ abstract class RdfServiceTestRunner {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfOutputStreamWriter writer =
           OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
-        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        RdfApiGenerator generator = generatorFactory.create(writer, BASE_URL);
         generator.generate(table, primaryKey);
       }
       parseString(handler, outputStream.toString());

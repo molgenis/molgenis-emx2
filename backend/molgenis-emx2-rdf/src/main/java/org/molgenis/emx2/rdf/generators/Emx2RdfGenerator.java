@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
@@ -25,6 +26,7 @@ import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
+import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
@@ -44,8 +46,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     describeRoot();
     describeSchema(schema);
     tables.forEach(this::describeTable);
-    tables.forEach(i -> describeColumns(i, null));
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
   }
 
   @Override
@@ -56,8 +58,19 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     describeTable(table);
-    describeColumns(table, null);
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
+  }
+
+  @Override
+  public void generate(Table table, PrimaryKey primaryKey) {
+    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+
+    generatePrefixes(table.getSchema());
+    generateCustomRdf(table.getSchema());
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t, primaryKey));
   }
 
   @Override
@@ -124,7 +137,11 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
-  void describeColumns(final Table table, final String columnName) {
+  void describeColumns(final Table table) {
+    describeColumns(table, null);
+  }
+
+  void describeColumns(final Table table, @Nullable final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns that refer to specific users
