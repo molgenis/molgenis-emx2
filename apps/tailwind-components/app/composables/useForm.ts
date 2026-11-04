@@ -91,13 +91,19 @@ export default function useForm(
     const params: string[] = extractParamsFromExpression(
       column.computed
     ).filter((param) => param !== column.id);
-    const expression = column.computed;
+    let computedFunction: Function;
+    try {
+      computedFunction = new Function(
+        params.join(", "),
+        "return eval(`" + column.computed.replaceAll("`", "\\`") + "`)"
+      );
+    } catch (e) {
+      const error = "Computed expression failed: " + e;
+      acc[column.id] = computed(() => ({ value: null, error }));
+      return acc;
+    }
     acc[column.id] = computed(() => {
       try {
-        const computedFunction = new Function(
-          params.join(", "),
-          "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
-        );
         return { value: computedFunction.apply(null, params.map(getValue)) };
       } catch (e) {
         return { value: null, error: "Computed expression failed: " + e };
