@@ -30,6 +30,8 @@ import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
+import javax.annotation.Nullable;
+
 public class Emx2RdfGenerator extends RdfRowsGenerator {
   public Emx2RdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
@@ -45,8 +47,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     describeRoot();
     describeSchema(schema);
     tables.forEach(this::describeTable);
-    tables.forEach(i -> describeColumns(i, null));
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
   }
 
   @Override
@@ -57,8 +59,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     describeTable(table);
-    tables.forEach(i -> describeColumns(i, null));
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
   }
 
   @Override
@@ -68,8 +70,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
-    tables.forEach(i -> describeColumns(i, null));
-    tables.forEach(i -> processRows(rdfMapData, i, primaryKey));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t, primaryKey));
   }
 
   @Override
@@ -136,7 +138,11 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
-  void describeColumns(final Table table, final String columnName) {
+  void describeColumns(final Table table) {
+    describeColumns(table, null);
+  }
+
+  void describeColumns(final Table table, @Nullable final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns that refer to specific users

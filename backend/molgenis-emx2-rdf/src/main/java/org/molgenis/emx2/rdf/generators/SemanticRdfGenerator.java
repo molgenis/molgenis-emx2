@@ -15,6 +15,8 @@ import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
+import javax.annotation.Nullable;
+
 public class SemanticRdfGenerator extends RdfRowsGenerator {
   public SemanticRdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
@@ -28,7 +30,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
     generatePrefixes(schema);
     generateCustomRdf(schema);
     describeRoot();
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(t -> processRows(rdfMapData, t));
   }
 
   @Override
@@ -37,13 +39,13 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   }
 
   @Override
-  public void generate(Table table, PrimaryKey primaryKey) {
+  public void generate(Table table, @Nullable PrimaryKey primaryKey) {
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
-    tables.forEach(i -> processRows(rdfMapData, i, primaryKey));
+    tables.forEach(t -> processRows(rdfMapData, t, primaryKey));
   }
 
   /**

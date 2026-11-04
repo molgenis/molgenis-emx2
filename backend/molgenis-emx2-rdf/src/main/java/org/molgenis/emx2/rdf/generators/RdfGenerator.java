@@ -21,6 +21,8 @@ import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
+import javax.annotation.Nullable;
+
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
 
@@ -41,7 +43,7 @@ public abstract class RdfGenerator {
   }
 
   protected void processRows(
-      final Consumer<Row> consumer, final Table table, final PrimaryKey primaryKey) {
+      final Consumer<Row> consumer, final Table table, @Nullable final PrimaryKey primaryKey) {
     Query query = table.query();
 
     if (primaryKey != null) {

@@ -13,6 +13,8 @@ import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 
+import javax.annotation.Nullable;
+
 public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGenerator {
 
   public RdfRowsGenerator(RdfWriter writer, String baseURL) {
@@ -26,7 +28,11 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
         .forEach(object -> getWriter().processTriple(subject, RDF.TYPE, object));
   }
 
-  protected void processRows(RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
+  protected void processRows(RdfMapData rdfMapData, Table table) {
+    processRows(rdfMapData, table, null);
+  }
+
+  protected void processRows(RdfMapData rdfMapData, Table table, @Nullable PrimaryKey primaryKey) {
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES -> processRows(ontologyRowConsumer(rdfMapData, table), table, primaryKey);
       case DATA -> processRows(dataRowConsumer(rdfMapData, table), table, primaryKey);
