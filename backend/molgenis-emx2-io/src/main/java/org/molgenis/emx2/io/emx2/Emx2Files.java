@@ -10,7 +10,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 
-public class Emx2Files {
+public final class Emx2Files {
 
   private Emx2Files() {
     // prevent

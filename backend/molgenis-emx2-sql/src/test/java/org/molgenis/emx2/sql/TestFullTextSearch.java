@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
@@ -106,14 +107,14 @@ public class TestFullTextSearch {
     String json =
         schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveJSON();
     // would exclude approved order
-    assertTrue(!json.contains("approved"));
+    assertFalse(json.contains("approved"));
 
     // test term1 AND term2
     json = schema.query("Pet").where(f(Operator.TEXT_SEARCH, "red", "green")).retrieveJSON();
     // would be spike and fire ant
     assertTrue(json.contains("spike"));
     assertTrue(json.contains("fire ant"));
-    assertTrue(!json.contains("tweety"));
+    assertFalse(json.contains("tweety"));
 
     json =
         schema

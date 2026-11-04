@@ -23,7 +23,7 @@ import org.molgenis.emx2.web.actions.SendMessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MessageApi {
+public final class MessageApi {
 
   private static final Logger logger = LoggerFactory.getLogger(MessageApi.class);
 

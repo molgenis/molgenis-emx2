@@ -23,14 +23,11 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 class TestTableQueriesWithInheritance {
   private static final String schemaName = TestTableQueriesWithInheritance.class.getSimpleName();
   private static GraphqlExecutor grapql;
-  private static Database database;
-  private static TaskService taskService;
-  private static Schema schema;
 
   @BeforeAll
   static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(schemaName);
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(schemaName);
     schema.create(table("Person", column("name").setPkey()));
     schema.create(
         table("Employee", column("salary").setType(ColumnType.INT)).setInheritName("Person"));
@@ -41,7 +38,7 @@ class TestTableQueriesWithInheritance {
         table("Document", column("title").setPkey(), column("file").setType(ColumnType.FILE)));
     schema.getTable("Document").insert(row("title", "hello"));
 
-    taskService = new TaskServiceInMemory();
+    TaskService taskService = new TaskServiceInMemory();
     grapql = new GraphqlExecutor(schema, taskService);
   }
 

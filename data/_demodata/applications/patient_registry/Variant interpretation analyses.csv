@@ -1,4 +1,4 @@
-id,date started,date completed,individuals,affiliated organisations,experiment,status,solved,date solved
+id,date started,date completed,individuals,submitter,experiment,status,solved,date solved
 VIA_Case1C,2025-03-01,2025-03-04,Case1C,University Medical Center Groningen,EGAX00002583867,completed,TRUE,2025-03-04
 VIA_Case2C,2025-04-01,2025-04-20,Case2C,University Medical Center Groningen,EGAX00002583865,completed,TRUE,2025-04-20
 VIA_Case3C,2025-06-01,,Case3C,University Medical Center Groningen,EGAX00002583871,ongoing,,
