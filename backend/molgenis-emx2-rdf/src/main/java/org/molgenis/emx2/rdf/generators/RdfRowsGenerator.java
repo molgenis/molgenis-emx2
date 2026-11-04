@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf.generators;
 
 import java.util.List;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.molgenis.emx2.Column;
@@ -12,8 +13,6 @@ import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
-
-import javax.annotation.Nullable;
 
 public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGenerator {
 

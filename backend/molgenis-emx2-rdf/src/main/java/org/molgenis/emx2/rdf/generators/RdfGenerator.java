@@ -7,6 +7,7 @@ import static org.molgenis.emx2.rdf.RdfUtils.*;
 
 import java.util.*;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -20,8 +21,6 @@ import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
-
-import javax.annotation.Nullable;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
