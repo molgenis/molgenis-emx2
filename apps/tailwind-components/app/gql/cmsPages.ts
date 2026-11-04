@@ -41,6 +41,8 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 columns
                 enableFullScreenWidth
                 applyShadedBackground
+                enableTopPadding
+                enableBottomPadding
                 
                 # page headings
                 title
