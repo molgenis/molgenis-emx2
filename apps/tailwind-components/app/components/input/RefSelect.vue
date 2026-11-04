@@ -429,6 +429,7 @@ watch(
               :options="namesForOrderByInput"
               @update:model-value="handleSortChange"
               :enable-search="false"
+              showClearButton
               placeholder="Sort by"
             />
           </div>

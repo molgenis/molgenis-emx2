@@ -154,9 +154,21 @@ export default {
         this.session?.email !== "anonymous"
       ) {
         return true;
+      } else if (this.session?.roles?.includes(item.role)) {
+        return true;
+      } else if (item.role === "Viewer") {
+        return this.hasTablePermission((permission) => permission.canView);
+      } else if (item.role === "Editor") {
+        return this.hasTablePermission(
+          (permission) =>
+            permission.canInsert || permission.canUpdate || permission.canDelete
+        );
       } else {
-        return this.session?.roles?.includes(item.role);
+        return false;
       }
+    },
+    hasTablePermission(permissionFunction) {
+      return this.session?.tablePermissions?.some(permissionFunction) ?? false;
     },
   },
 };

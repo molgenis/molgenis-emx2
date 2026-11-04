@@ -9,7 +9,13 @@
     }"
     :aria-selected="isSelected"
   >
+    <InputCheckboxIcon
+      v-if="multiple"
+      aria-hidden="true"
+      :checked="isSelected"
+    />
     <BaseIcon
+      v-else
       name="Check"
       class="fill-check invisible"
       :class="{
@@ -24,10 +30,12 @@
 <script lang="ts" setup>
 import { useTemplateRef } from "vue";
 import BaseIcon from "../../BaseIcon.vue";
+import InputCheckboxIcon from "../CheckboxIcon.vue";
 
 defineProps<{
   isSelected?: boolean;
-  label: string | number | boolean;
+  multiple?: boolean;
+  label: string;
 }>();
 
 const li = useTemplateRef<HTMLLIElement>("li");
