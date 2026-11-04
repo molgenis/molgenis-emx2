@@ -25,9 +25,13 @@ import org.molgenis.emx2.DefaultNamespace;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 
-public class SparqlQueryTestUtils {
+public final class SparqlQueryTestUtils {
 
   private static final TableQueryGenerator GENERATOR = new TableQueryGenerator();
+
+  private SparqlQueryTestUtils() {
+    // private constructor
+  }
 
   @SafeVarargs
   public static void assertQueryAndResults(
