@@ -18,7 +18,7 @@ public class FilterBean implements Filter {
   }
 
   public static Filter or(List<Filter> filters) {
-    return new FilterBean(Operator.OR, filters.toArray(new Filter[filters.size()]));
+    return new FilterBean(Operator.OR, filters.toArray(new Filter[0]));
   }
 
   public static Filter and(Filter... filters) {
@@ -26,7 +26,7 @@ public class FilterBean implements Filter {
   }
 
   public static Filter and(List<Filter> filters) {
-    return new FilterBean(Operator.AND, filters.toArray(new Filter[filters.size()]));
+    return new FilterBean(Operator.AND, filters.toArray(new Filter[0]));
   }
 
   public static Filter f(String columnName, Filter... filters) {
@@ -34,7 +34,7 @@ public class FilterBean implements Filter {
   }
 
   public static Filter f(String columnName, List<Filter> filters) {
-    return new FilterBean(columnName, filters.toArray(new Filter[filters.size()]));
+    return new FilterBean(columnName, filters.toArray(new Filter[0]));
   }
 
   public static Filter f(String columnName, Operator operator, Object... values) {
@@ -62,8 +62,9 @@ public class FilterBean implements Filter {
 
   public FilterBean(String columnName, Operator operator, Object[] values) {
     if (IS_NULL.equals(operator)) {
-      if (values.length != 1 || !(values[0] instanceof Boolean))
+      if (values.length != 1 || !(values[0] instanceof Boolean)) {
         throw new MolgenisException("IS_NULL operator requires as value either true or false");
+      }
     }
     this.column = columnName;
     this.operator = operator;
@@ -72,9 +73,10 @@ public class FilterBean implements Filter {
 
   public FilterBean(Operator operator, Filter... childFilters) {
     this.operator = operator;
-    if (!Operator.OR.equals(operator) && !Operator.AND.equals(operator))
+    if (!Operator.OR.equals(operator) && !Operator.AND.equals(operator)) {
       throw new MolgenisException(
           "Invalid filter: subquery filters without column name should have operator OR or AND. Other operators not yet supported");
+    }
     for (Filter f : childFilters) {
       this.subFilters.add(f);
     }

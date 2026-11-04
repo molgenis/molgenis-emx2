@@ -15,26 +15,22 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
   public static final String CSV_EXTENSION = ".csv";
-  private static final Logger log = LoggerFactory.getLogger(TableStoreForCsvFilesClasspath.class);
   private final String directoryPath;
-  private final Character separator;
   private static final ConcurrentMap<String, Object> locks = new ConcurrentHashMap<>();
   private final List<String> storefiles;
 
-  public TableStoreForCsvFilesClasspath(String directoryPath, Character separator) {
+  public TableStoreForCsvFilesClasspath(String directoryPath) {
     if (!directoryPath.startsWith("/")) {
       directoryPath = "/" + directoryPath;
     }
     this.directoryPath = directoryPath;
-    if (getClass().getResource(directoryPath) == null)
+    if (getClass().getResource(directoryPath) == null) {
       throw new MolgenisException(
           "Import failed: Directory " + directoryPath + " doesn't exist in classpath");
-    this.separator = separator;
+    }
     try {
       storefiles = jarSaveListFiles(directoryPath + "/_files/");
     } catch (Exception e) {
@@ -42,15 +38,12 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
     }
   }
 
-  public TableStoreForCsvFilesClasspath(String directoryPath) {
-    this(directoryPath, ',');
-  }
-
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     throw new UnsupportedOperationException("Cannot write to classpath");
   }
 
+  @Override
   public void writeFile(String filePath, byte[] contents) {
     throw new UnsupportedOperationException("Cannot write to classpath");
   }

@@ -21,9 +21,9 @@ public interface FilterParser {
     String id = null;
     String entryTypeId = null;
     for (BeaconRequestParameters param : beaconQuery.getRequestParameters()) {
-      if (param.getRef().equals("id")) {
+      if ("id".equals(param.getRef())) {
         id = param.getDescription();
-      } else if (param.getRef().equals("entry_type_id")) {
+      } else if ("entry_type_id".equals(param.getRef())) {
         entryTypeId = param.getDescription();
       }
     }

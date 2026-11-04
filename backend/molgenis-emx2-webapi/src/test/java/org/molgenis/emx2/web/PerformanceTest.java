@@ -113,7 +113,7 @@ public class PerformanceTest {
   }
 
   private String doDemoRequest() {
-    return RestAssured.given()
+    return given()
         .body("{\"query\":\"{Contacts{lastName}}\"}")
         .post("/" + SCHEMA_NAME + "/graphql")
         .asString();
