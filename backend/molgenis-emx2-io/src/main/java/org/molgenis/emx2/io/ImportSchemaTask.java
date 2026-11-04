@@ -2,6 +2,7 @@ package org.molgenis.emx2.io;
 
 import java.util.Objects;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.UpdateMode;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
@@ -10,6 +11,7 @@ public class ImportSchemaTask extends Task {
   private Schema schema;
   private String[] includeTableNames;
   private Filter filter = Filter.ALL;
+  private UpdateMode updateMode = UpdateMode.DEFAULT_MODE;
 
   public enum Filter {
     METADATA_ONLY,
@@ -42,6 +44,11 @@ public class ImportSchemaTask extends Task {
     return this;
   }
 
+  public ImportSchemaTask setUpdateMode(UpdateMode updateMode) {
+    this.updateMode = Objects.requireNonNull(updateMode, "updateMode cannot be null");
+    return this;
+  }
+
   @Override
   public void run() {
     this.start();
@@ -59,7 +66,9 @@ public class ImportSchemaTask extends Task {
             }
 
             if (!filter.equals(Filter.METADATA_ONLY)) {
-              Task dataTask = new ImportDataTask(s, tableStore, isStrict(), includeTableNames);
+              Task dataTask =
+                  new ImportDataTask(s, tableStore, isStrict(), includeTableNames)
+                      .setUpdateMode(updateMode);
               this.addSubTask(dataTask);
               dataTask.run();
             }

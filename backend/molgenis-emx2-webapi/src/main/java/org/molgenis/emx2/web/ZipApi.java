@@ -23,6 +23,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.UpdateMode;
 import org.molgenis.emx2.io.FileUtils;
 import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
@@ -93,14 +94,15 @@ public class ZipApi {
       String fileName = ctx.req().getPart("file").getSubmittedFileName();
 
       if (fileName.endsWith(".zip")) {
-        Task task = new ImportCsvZipTask(tempFile.toPath(), schema, false);
+        Task task =
+            new ImportCsvZipTask(tempFile.toPath(), schema, false).setUpdateMode(UpdateMode.UPDATE);
         if (ctx.queryParam("async") != null) {
           String parentTaskId = ctx.queryParam("parentJob");
           String id = TaskApi.submit(task, parentTaskId);
           ctx.json(new TaskReference(id, schema));
           return;
         } else {
-          MolgenisIO.fromZipFile(tempFile.toPath(), schema, false);
+          task.run();
         }
       } else if (fileName.endsWith(".xlsx")) {
         MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);

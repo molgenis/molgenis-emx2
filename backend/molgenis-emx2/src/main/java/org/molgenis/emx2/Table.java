@@ -23,6 +23,8 @@ public interface Table {
 
   int save(Iterable<Row> rows);
 
+  int save(Iterable<Row> rows, UpdateMode updateMode);
+
   default int delete(Row... rows) {
     return delete(Arrays.asList(rows));
   }

@@ -8,6 +8,7 @@ import static org.molgenis.emx2.io.emx2.Emx2Roles.ROLES_TABLE;
 import java.util.*;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.UpdateMode;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
@@ -19,6 +20,7 @@ public class ImportDataTask extends Task {
   private final TableStore tableStore;
   private final Schema schema;
   private Set<String> includeTableNames;
+  private UpdateMode updateMode = UpdateMode.DEFAULT_MODE;
 
   public ImportDataTask(
       String description,
@@ -42,6 +44,11 @@ public class ImportDataTask extends Task {
     this("Import from store", store, schema, strict, includeTableNames);
   }
 
+  public ImportDataTask setUpdateMode(UpdateMode updateMode) {
+    this.updateMode = Objects.requireNonNull(updateMode, "updateMode cannot be null");
+    return this;
+  }
+
   @Override
   public void run() {
     this.start();
@@ -53,7 +60,8 @@ public class ImportDataTask extends Task {
     for (Table table : schema.getTablesSorted()) {
       if (tableStore.containsTable(table.getName())
           && (includeTableNames == null || includeTableNames.contains(table.getName()))) {
-        ImportTableTask importTableTask = new ImportTableTask(tableStore, table, isStrict());
+        ImportTableTask importTableTask =
+            new ImportTableTask(tableStore, table, isStrict(), updateMode);
         this.addSubTask(importTableTask);
         importTableTask.run();
         skipped = false;
