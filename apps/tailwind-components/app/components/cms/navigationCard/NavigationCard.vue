@@ -10,7 +10,13 @@ withDefaults(defineProps<INavigationCards>(), {
 <template>
   <div
     :id="id"
-    class="relative w-full grid grid-cols-1 gap-1.5 p-5 text-title-contrast text-center rounded-base border border-current"
+    class="relative grid grid-cols-1 gap-1.5 m-auto p-5 mb-2.5 text-title-contrast text-center rounded-base border border-current"
+    :class="{
+      'w-1/3': navigationCardWidth?.name === 'small',
+      'w-1/2': navigationCardWidth?.name === 'medium',
+      'w-2/3': navigationCardWidth?.name === 'large',
+      'w-full': navigationCardWidth?.name === 'full',
+    }"
   >
     <h3 v-if="title" class="text-title text-heading-lg font-bold">
       {{ title }}
