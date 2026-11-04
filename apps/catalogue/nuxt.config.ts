@@ -24,8 +24,6 @@ export default defineNuxtConfig({
       analyticsProvider: "",
       analyticsDomain: "",
       cohortOnly: false,
-      isPaperExtractingEnabled: false,
-      paperExtractingSchema: "extractJobs",
       schema: "catalogue-demo",
       apiBase: apiBase("https://emx2.dev.molgenis.org/"),
     },
