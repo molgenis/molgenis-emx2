@@ -13,4 +13,4 @@ Tables,,mapped from,refback,,,,Table mappings,,target table,,,Source tables that
 Tables,,variables,refback,,,,Variables,,table,,csvw:column,Listing of variables in this table,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,
 Tables,,since version,,,,,,,,,,"When this table was introduced, if applicable","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,
 Tables,,until version,,,,,,,,,,"When this table was removed, if applicable","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,
-Tables,,table in table group,ref,,,,Tables,resource,,,,Needed for RDF reference from csvw:TableGroup to csvw:Table ,DataCatalogueFlat,,name
+Tables,,table in table group,ref,,,,Tables,resource,,,csvw:table,Needed for RDF reference from csvw:TableGroup to csvw:Table ,DataCatalogueFlat,,name
