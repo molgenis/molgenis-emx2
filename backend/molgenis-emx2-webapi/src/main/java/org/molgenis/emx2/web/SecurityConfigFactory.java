@@ -17,7 +17,6 @@ import org.pac4j.oidc.config.OidcConfiguration;
 
 public class SecurityConfigFactory {
 
-  private String oidcClientId;
   private final String oidcClientSecret =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
@@ -42,7 +41,7 @@ public class SecurityConfigFactory {
 
   public Config build() {
     final OidcConfiguration oidcConfiguration = new OidcConfiguration();
-    oidcClientId =
+    String oidcClientId =
         (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
     oidcConfiguration.setClientId(oidcClientId);
     oidcConfiguration.setSecret(oidcClientSecret);
@@ -53,7 +52,7 @@ public class SecurityConfigFactory {
     final OidcClient oidcClient = new OidcClient(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
 
-    final Clients clients = new Clients(callbackUrl + ("/" + OIDC_CALLBACK_PATH), oidcClient);
+    final Clients clients = new Clients(callbackUrl + "/" + OIDC_CALLBACK_PATH, oidcClient);
 
     Config config = new Config(clients);
     config.setHttpActionAdapter(JavalinCustomHttpActionAdapter.INSTANCE);

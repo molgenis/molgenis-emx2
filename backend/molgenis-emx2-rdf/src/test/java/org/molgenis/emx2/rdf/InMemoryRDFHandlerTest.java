@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 class InMemoryRDFHandlerTest {
   // See text behind "#" for inline explanations
-  private final String rdfInput =
+  private static final String RDF_INPUT =
 """
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -30,7 +30,7 @@ class InMemoryRDFHandlerTest {
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
 """;
 
-  private final String rdfFixed =
+  private static final String RDF_FIXED =
 """
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -53,25 +53,25 @@ class InMemoryRDFHandlerTest {
 
   // As there is no extra data is present for "a11ac033b28f42dd9760547d622e5eea", dynamic part of
   // the object will be replaced with "identicalFileIRI" instead.
-  private final String rdfNoFileLabelInput =
+  private static final String RDF_NO_FILE_LABEL_INPUT =
 """
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea> .
 """;
 
-  private final String rdfNoFileLabelFixed =
+  private static final String RDF_NO_FILE_LABEL_FIXED =
 """
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/identicalFileIRI> .
 """;
 
-  private final String rdfBNode =
+  private static final String RDF_BNODE =
 """
 [] a <http://xmlns.com/foaf/0.1/Person> .
 [] a <http://xmlns.com/foaf/0.1/Organization> .
 """;
 
-  private final String rdfBNodeFixed =
+  private static final String RDF_BNODE_FIXED =
 """
 _:0 a <http://xmlns.com/foaf/0.1/Person> .
 _:1 a <http://xmlns.com/foaf/0.1/Organization> .
@@ -80,33 +80,33 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
   @Test
   void testRdfComparisonFixes() throws IOException {
     InMemoryRDFHandler handlerFixedString = new InMemoryRDFHandler(false);
-    RdfParser.parseString(handlerFixedString, rdfFixed);
+    RdfParser.parseString(handlerFixedString, RDF_FIXED);
 
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
-    RdfParser.parseString(handlerWithFix, rdfInput);
+    RdfParser.parseString(handlerWithFix, RDF_INPUT);
 
-    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+    CustomAssertions.assertRdfEquals(handlerFixedString, handlerWithFix);
   }
 
   @Test
   void testRdfComparisonFixesWithNoFileLabel() throws IOException {
     InMemoryRDFHandler handlerFixedString = new InMemoryRDFHandler(false);
-    RdfParser.parseString(handlerFixedString, rdfNoFileLabelFixed);
+    RdfParser.parseString(handlerFixedString, RDF_NO_FILE_LABEL_FIXED);
 
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
-    RdfParser.parseString(handlerWithFix, rdfNoFileLabelInput);
+    RdfParser.parseString(handlerWithFix, RDF_NO_FILE_LABEL_INPUT);
 
-    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+    CustomAssertions.assertRdfEquals(handlerFixedString, handlerWithFix);
   }
 
   @Test
   void testRdfComparisonFixesBlankNode() throws IOException {
     InMemoryRDFHandler handlerFixedString = new InMemoryRDFHandler(false);
-    RdfParser.parseString(handlerFixedString, rdfBNodeFixed);
+    RdfParser.parseString(handlerFixedString, RDF_BNODE_FIXED);
 
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
-    RdfParser.parseString(handlerWithFix, rdfBNode);
+    RdfParser.parseString(handlerWithFix, RDF_BNODE);
 
-    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+    CustomAssertions.assertRdfEquals(handlerFixedString, handlerWithFix);
   }
 }

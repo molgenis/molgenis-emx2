@@ -22,12 +22,16 @@ class RowOwnership {
   }
 
   void validateAndAssignOwnerWhenOmitted(Iterable<Row> rows) {
-    if (!hasMgRoleColumn()) return;
+    if (!hasMgRoleColumn()) {
+      return;
+    }
     apply(rows, defaultRoleForActiveUser());
   }
 
   void validateOwners(Iterable<Row> rows) {
-    if (!hasMgRoleColumn()) return;
+    if (!hasMgRoleColumn()) {
+      return;
+    }
     apply(rows, null);
   }
 
@@ -40,7 +44,9 @@ class RowOwnership {
         }
       } else {
         validateRoleIsAssignable(owner);
-        if (PermissionEvaluator.isRowLevelRestricted(schema, table)) validateUserMayAssign(owner);
+        if (PermissionEvaluator.isRowLevelRestricted(schema, table)) {
+          validateUserMayAssign(owner);
+        }
       }
     }
   }
@@ -51,7 +57,9 @@ class RowOwnership {
 
   private static String ownerOf(Row row) {
     String[] mgRoles = row.getStringArray(MG_ROLES);
-    if (mgRoles == null || mgRoles.length == 0) return null;
+    if (mgRoles == null || mgRoles.length == 0) {
+      return null;
+    }
     if (mgRoles.length > 1) {
       throw new MolgenisException(
           "mg_roles can only contain a single role, multiple were provided: "
@@ -85,12 +93,16 @@ class RowOwnership {
   }
 
   private String defaultRoleForActiveUser() {
-    if (!PermissionEvaluator.isRowLevelRestricted(schema, table)) return null;
+    if (!PermissionEvaluator.isRowLevelRestricted(schema, table)) {
+      return null;
+    }
     List<String> roles =
         schema.getInheritedRolesForActiveUser().stream()
             .filter(SqlRoleManager::isUserAssignableRole)
             .toList();
-    if (roles.isEmpty()) return null;
+    if (roles.isEmpty()) {
+      return null;
+    }
     if (roles.size() > 1) {
       throw new MolgenisException("Cannot determine row owner: multiple roles found: " + roles);
     }
@@ -98,7 +110,9 @@ class RowOwnership {
   }
 
   private List<String> rolesInSchema() {
-    if (rolesInSchema == null) rolesInSchema = schema.getRoles();
+    if (rolesInSchema == null) {
+      rolesInSchema = schema.getRoles();
+    }
     return rolesInSchema;
   }
 }

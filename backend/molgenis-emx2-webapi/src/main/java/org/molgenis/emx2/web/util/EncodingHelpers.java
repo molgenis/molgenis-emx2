@@ -3,7 +3,7 @@ package org.molgenis.emx2.web.util;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-public class EncodingHelpers {
+public final class EncodingHelpers {
 
   private EncodingHelpers() {}
 

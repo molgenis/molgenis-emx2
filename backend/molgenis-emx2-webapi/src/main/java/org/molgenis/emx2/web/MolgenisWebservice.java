@@ -115,7 +115,7 @@ public class MolgenisWebservice {
         });
 
     // documentation operations
-    app.get("/api/openapi", ctx -> ctx.result(MolgenisWebservice.listSchemas(ctx)));
+    app.get("/api/openapi", ctx -> ctx.result(listSchemas(ctx)));
     // docs per schema
     app.get("/{schema}/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
     app.get("/{schema}/api/openapi.yaml", MolgenisWebservice::openApiYaml);
@@ -173,9 +173,7 @@ public class MolgenisWebservice {
     String serviceUrlParameter = null;
     try {
       serviceUrlParameter =
-          (String)
-              EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING);
+          (String) EnvironmentProperty.getParameter(MOLGENIS_SERVICE_URL, null, ColumnType.STRING);
 
       if (serviceUrlParameter == null || serviceUrlParameter.isBlank()) {
         return false;

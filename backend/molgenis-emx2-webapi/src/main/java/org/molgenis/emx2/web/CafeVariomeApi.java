@@ -4,6 +4,7 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.web.Constants.ACCEPT_FORM_URL_ENC;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,13 +22,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CafeVariomeApi {
+public final class CafeVariomeApi {
   private static final Logger logger = LoggerFactory.getLogger(CafeVariomeApi.class);
 
   private static final String CV_CLIENT_SECRET =
@@ -43,6 +45,10 @@ public class CafeVariomeApi {
   public static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
 
+  private CafeVariomeApi() {
+    // no instances
+  }
+
   public static void create(Javalin app) {
     app.before("/{schema}/api/cafevariome/record", CafeVariomeApi::checkAuth);
     app.post("/{schema}/api/cafevariome/record", CafeVariomeApi::postRecord);
@@ -55,7 +61,9 @@ public class CafeVariomeApi {
     if (!database.isAnonymous()) {
       return;
     }
-    if (!hasKeycloakConfiguration()) return;
+    if (!hasKeycloakConfiguration()) {
+      return;
+    }
     HttpResponse<String> response;
     try (HttpClient client = HttpClient.newHttpClient()) {
 
@@ -98,7 +106,12 @@ public class CafeVariomeApi {
   }
 
   private static void postRecord(Context ctx) throws JsonProcessingException {
-    ctx.json(QueryRecord.post(getSchema(ctx), ctx.body()));
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
+    ctx.json(QueryRecord.post(schema, ctx.body()));
   }
 
   private static void getRecordIndex(Context ctx) {
