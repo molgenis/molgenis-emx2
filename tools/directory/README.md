@@ -6,7 +6,7 @@ MOLGENIS EMX2 Python tooling for a BBMRI Biobank Directory
 
 This library contains tools for the MOLGENIS EMX2 BBMRI Biobank Directory that help with
 staging and publishing the data of the national nodes. **Staging** is the process of copying
-data from a national node's external server (for example [BBMRI-NL](https://catalogue.bbmri.nl/menu/main/home)) to
+data from a national node's external server (for example [BBMRI-NL](https://catalogue.bbmri.nl)) to
 the staging area on the Directory server. Not all national nodes have external servers; these
 do not need to be staged. **Publishing** is the process of copying and combining the data from the staging areas
 to the public combined tables of the Directory.

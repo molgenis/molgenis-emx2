@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.7.0
+
+- Handle external servers using older versions of the DataCategories ontology
+
 ## Version 1.6.1
 
 - Fix bug which caused false deletion warnings to be displayed
