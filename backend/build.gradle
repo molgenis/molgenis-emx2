@@ -46,6 +46,7 @@ subprojects {
         dependsOn spotlessApply
         dependsOn pmdMain
         dependsOn pmdTest
+        dependsOn pmdTestFixtures
     }
 
     /* default dependencies for all projects*/
