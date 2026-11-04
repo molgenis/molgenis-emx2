@@ -6,6 +6,7 @@ import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 
+@SuppressWarnings("PMD.UnusedPrivateField") // fields are read by graphql-java
 public class GraphqlApiMutationResultWithToken {
   private final String message;
   private final GraphqlApiMutationResult.Status status;

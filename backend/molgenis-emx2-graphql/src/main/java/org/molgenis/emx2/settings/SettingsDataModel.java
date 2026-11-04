@@ -6,7 +6,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
 
-public class SettingsDataModel {
+public final class SettingsDataModel {
 
   private SettingsDataModel() {
     // hide constructor

@@ -17,7 +17,7 @@ import org.molgenis.emx2.io.tablestore.*;
 import org.molgenis.emx2.tasks.Task;
 
 /** Short hands for running the tasks */
-public class MolgenisIO {
+public final class MolgenisIO {
 
   private MolgenisIO() {
     // hide constructor

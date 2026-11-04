@@ -10,6 +10,7 @@ import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@SuppressWarnings("PMD.UnusedPrivateField") // fields are read by graphql-java
 public class GraphqlApiMutationResult {
   public enum Status {
     SUCCESS,
