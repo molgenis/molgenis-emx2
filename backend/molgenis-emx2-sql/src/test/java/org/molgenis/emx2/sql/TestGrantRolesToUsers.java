@@ -38,7 +38,7 @@ public class TestGrantRolesToUsers {
             "Editor",
             "Manager",
             "Owner");
-    List<String> second = schema.getRoles();
+    List<String> second = schema.getAllRoles();
     assertTrue(
         first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
 
