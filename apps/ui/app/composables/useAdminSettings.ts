@@ -1,8 +1,8 @@
 import { reactive, ref } from "vue";
 import type { User } from "../interfaces/interfaces";
 import { createUser, deleteUser, getUsers } from "../util/adminUtils";
+import type { ITableSettings } from "../../../tailwind-components/types/types";
 
-const LIMIT = 100;
 
 export default function useAdminSettings() {
   const users = ref<User[]>([]);
@@ -11,14 +11,16 @@ export default function useAdminSettings() {
 
   retrieveUsers();
 
-  async function retrieveUsers(currentPage: number = 1) {
-    const offset = (currentPage - 1) * LIMIT;
-    const { newUsers, newUserCount } = await getUsers(offset, LIMIT);
+  async function retrieveUsers() {
+    const { newUsers, newUserCount } = await getUsers();
     users.value = newUsers;
     userCount.value = newUserCount;
-    const divided = userCount.value / LIMIT;
-    totalUserPages.value =
-      userCount.value % LIMIT > 0 ? Math.floor(divided) + 1 : divided;
+  // const offset = (settings.page - 1) * settings.pageSize;
+    // const divided = userCount.value / settings.pageSize;
+    // totalUserPages.value =
+    //   userCount.value % settings.pageSize > 0
+    //     ? Math.floor(divided) + 1
+    //     : divided;
   }
 
   async function addUser(userName: string, password: string) {

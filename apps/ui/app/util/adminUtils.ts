@@ -1,5 +1,6 @@
 import { $fetch } from "ofetch";
 import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
+import type { ITableSettings } from "../../../tailwind-components/types/types";
 
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
@@ -96,13 +97,13 @@ export function getSchemas() {
     });
 }
 
-export async function getUsers(
-  userOffset: number,
-  userLimit: number
-): Promise<{ newUsers: User[]; newUserCount: number }> {
+export async function getUsers(): Promise<{
+  newUsers: User[];
+  newUserCount: number;
+}> {
   const query = `
   { _admin 
-    { users (limit: ${userLimit}, offset: ${userOffset})
+    { users
       { email,
         settings {key, value}, 
         enabled, 
