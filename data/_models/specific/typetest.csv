@@ -6,7 +6,7 @@ OntologySmall,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with limited option
 OntologySmallTree,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with options and parents to test the small tree ontology like columns
 OntologyLarge,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with options to test the large ontology like columns
 OntologyLargeTree,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,A table with options and parents to test the large tree ontology like columns
-    Computed expressions,,,,,,,,,,,,,,,,,,,,TypeTest,,A table to test computed expressions
+Computed expressions,,,,,,,,,,,,,,,,,,,,TypeTest,,A table to test computed expressions
 Options,,,option key,,string,1,true,,,,,,,,,,,,,TypeTest,,
 Options,,,option value,,string,,,,,,,,,,,,,,,TypeTest,,
 Types,,,String types,,section,,,,,,,,,,,,,,,TypeTest,,
