@@ -34,6 +34,7 @@ public class TaskReference {
     }
   }
 
+  @Override
   public String toString() {
     try {
       return mapper.writeValueAsString(this);

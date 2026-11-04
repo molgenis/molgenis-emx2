@@ -19,12 +19,11 @@ class TestImportOntologiesTask {
   private static final String SEMANTICS_LOCATION = ONTOLOGY_LOCATION + "/_semantics.csv";
   private static final String SCHEMA_NAME = "TestImportOntologiesTask";
 
-  private Database db;
   private Schema schema;
 
   @BeforeAll
   void setup() {
-    db = TestDatabaseFactory.getTestDatabase();
+    Database db = TestDatabaseFactory.getTestDatabase();
     db.dropSchemaIfExists(SCHEMA_NAME);
     // create schema with PetStore profile to get ontology table definitions
     ImportProfileTask profileTask =

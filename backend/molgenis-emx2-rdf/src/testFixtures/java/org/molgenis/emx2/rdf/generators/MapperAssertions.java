@@ -6,7 +6,11 @@ import java.util.List;
 import org.eclipse.rdf4j.sparqlbuilder.core.QueryElement;
 import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
 
-public class MapperAssertions {
+public final class MapperAssertions {
+
+  private MapperAssertions() {
+    // no instances
+  }
 
   public static void assertHasSelectors(
       ColumnSparqlQueryGenerator mapper, String... expectedSelectors) {

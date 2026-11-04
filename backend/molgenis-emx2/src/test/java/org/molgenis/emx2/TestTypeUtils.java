@@ -195,10 +195,10 @@ class TestTypeUtils {
     for (ColumnType columnType : EXCLUDE_FILE_REFERENCE_HEADING) {
       try {
         TypeUtils.getTypedValue(object, columnType);
+      } catch (UnsupportedOperationException e) {
+        fail("ColumnType not covered: " + columnType);
       } catch (RuntimeException e) {
-        if (e instanceof UnsupportedOperationException) {
-          fail("ColumnType not covered: " + columnType);
-        }
+        // other conversion errors are fine here
       }
     }
   }

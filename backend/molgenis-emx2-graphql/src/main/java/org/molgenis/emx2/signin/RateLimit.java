@@ -51,7 +51,7 @@ public class RateLimit {
   public synchronized void onFailure(String username) {
     attempts.labelValues(FAILURE.name()).inc();
     Failures previous = failures.getIfPresent(username);
-    int count = (previous == null ? 1 : previous.count() + 1);
+    int count = previous == null ? 1 : previous.count() + 1;
     Instant blockedUntil = instantSource.instant().plus(delayFor(count));
     failures.put(username, new Failures(count, blockedUntil));
     logger.warn(

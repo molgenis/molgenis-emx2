@@ -112,7 +112,7 @@ public class TestCreateArrayDataTypes {
     assertEquals(1, result.size());
     for (Row r : result) {
       if (DATETIME_ARRAY.equals(columnType)) {
-        // TODO fix test
+        // TODO fix test for DATETIME_ARRAY
       } else {
         assertEquals(
             Arrays.copyOfRange(values, 0, 2)[0].toString(),

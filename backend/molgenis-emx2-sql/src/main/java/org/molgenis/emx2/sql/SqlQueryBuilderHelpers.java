@@ -19,41 +19,40 @@ import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.TableMetadata;
 
-class SqlQueryBuilderHelpers {
+final class SqlQueryBuilderHelpers {
 
   private SqlQueryBuilderHelpers() {
     // hide constructor
   }
 
   static SelectConnectByStep<Record> orderBy(
-      TableMetadata table,
-      SelectColumn select,
-      SelectConnectByStep<org.jooq.Record> query,
-      String tableAlias) {
+      TableMetadata table, SelectColumn select, SelectConnectByStep<Record> query) {
     for (Map.Entry<String, Order> orderEntry : select.getOrderBy().entrySet()) {
       Column column = getColumnByName(table, orderEntry.getKey());
-      query = setOrderByForColumn(column, orderEntry.getValue(), query, tableAlias);
+      query = setOrderByForColumn(column, orderEntry.getValue(), query);
     }
     return query;
   }
 
   private static SelectJoinStep<Record> setOrderByForColumn(
-      Column column, Order order, SelectConnectByStep<org.jooq.Record> query, String tableAlias) {
+      Column column, Order order, SelectConnectByStep<Record> query) {
     if (column.isRefback()) {
       // Not supported. Feature request: https://github.com/molgenis/molgenis-emx2/issues/4021
-    } else if (column.isReference()) {
+      return (SelectJoinStep<Record>) query;
+    }
+    if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         final Column refColumn = ref.toPrimitiveColumn();
-        query = setOrderByForColumn(refColumn, order, query);
+        query = setOrderByForPrimitiveColumn(refColumn, order, query);
       }
     } else {
-      query = setOrderByForColumn(column, order, query);
+      query = setOrderByForPrimitiveColumn(column, order, query);
     }
-    return (SelectJoinStep<org.jooq.Record>) query;
+    return (SelectJoinStep<Record>) query;
   }
 
-  private static SelectJoinStep<Record> setOrderByForColumn(
-      Column column, Order order, SelectConnectByStep<org.jooq.Record> query) {
+  private static SelectJoinStep<Record> setOrderByForPrimitiveColumn(
+      Column column, Order order, SelectConnectByStep<Record> query) {
     final Field<?> field =
         isCaseSensitiveField(column) ? lower(column.getJooqField()) : column.getJooqField();
     Field<?> collatedField =
@@ -61,7 +60,7 @@ class SqlQueryBuilderHelpers {
             ? field.collate(unquotedName("\"MOLGENIS\".numeric"))
             : field;
     final SortField<?> sortField = ASC.equals(order) ? collatedField.asc() : collatedField.desc();
-    return (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
+    return (SelectJoinStep<Record>) query.orderBy(sortField);
   }
 
   static Column getColumnByName(TableMetadata table, String columnName) {

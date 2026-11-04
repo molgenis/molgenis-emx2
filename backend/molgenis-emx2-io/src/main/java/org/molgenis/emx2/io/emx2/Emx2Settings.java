@@ -9,7 +9,7 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-public class Emx2Settings {
+public final class Emx2Settings {
 
   private static final String INTERNAL_SETTING_PREFIX = "mg_";
 
@@ -42,15 +42,14 @@ public class Emx2Settings {
     }
 
     if (!settings.isEmpty()) {
-      store.writeTable(
-          Constants.SETTINGS_TABLE, List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE), settings);
+      store.writeTable(SETTINGS_TABLE, List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE), settings);
     }
   }
 
   public static void inputSettings(TableStore store, Schema schema) {
     int row = 1;
-    if (store.containsTable(Constants.SETTINGS_TABLE)) {
-      for (Row setting : store.readTable(Constants.SETTINGS_TABLE)) {
+    if (store.containsTable(SETTINGS_TABLE)) {
+      for (Row setting : store.readTable(SETTINGS_TABLE)) {
         String settingName = setting.getString(SETTINGS_NAME);
         if (settingName.startsWith(INTERNAL_SETTING_PREFIX)) {
           continue;

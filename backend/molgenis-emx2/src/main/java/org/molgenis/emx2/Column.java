@@ -285,7 +285,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public boolean isRequired() {
-    return required != null && required.equalsIgnoreCase("true");
+    return required != null && "true".equalsIgnoreCase(required);
   }
 
   public Column setRequired(Boolean required) {
@@ -350,6 +350,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     return indexed;
   }
 
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
@@ -362,7 +363,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     if (getKey() > 0) {
       builder.append(" key" + getKey());
     }
-    if (Boolean.TRUE.equals(isRequired())) builder.append(" required");
+    if (Boolean.TRUE.equals(isRequired())) {
+      builder.append(" required");
+    }
     return builder.toString();
   }
 
@@ -375,7 +378,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public String getTableName() {
-    if (this.table != null) return this.table.getTableName();
+    if (this.table != null) {
+      return this.table.getTableName();
+    }
     return null;
   }
 
@@ -417,7 +422,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
 
   public List<Field> getCompositeFields() {
     if (this.isReference()) {
-      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+      return getReferences().stream().map(Reference::getJooqField).toList();
     } else {
       return List.of(getJooqField());
     }
@@ -509,7 +514,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     List<Reference> refColumns = new ArrayList<>();
 
     // check if primary key exists
-    if (pkeys.size() == 0) {
+    if (pkeys.isEmpty()) {
       throw new MolgenisException(
           "Error in column '"
               + getName()
@@ -541,7 +546,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
           if (name == null) {
             name = getName();
             // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
-            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
+            if (pkeys.size() > 1 || !keyPart.getReferences().isEmpty()) {
               name += COMPOSITE_REF_SEPARATOR + ref.getColumnName();
             }
           }
@@ -593,7 +598,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     }
 
     // remove duplicates
-    HashSet<Object> seen = new HashSet<>();
+    Set<Object> seen = new HashSet<>();
     refColumns.removeIf(e -> !seen.add(e.getColumnName()));
     return refColumns;
   }
@@ -611,7 +616,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
                 + getName()
                 + "': composite key");
       }
-    } else return getColumnType().getBaseType();
+    } else {
+      return getColumnType().getBaseType();
+    }
   }
 
   public String getRefLabel() {
@@ -619,7 +626,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public String getRefLabelDefault() {
-    if (!isReference()) return null;
+    if (!isReference()) {
+      return null;
+    }
     List<Column> allPk = getRefTable().getPrimaryKeyColumns();
     Set<String> excludedPkeyFields =
         allPk.stream()
@@ -729,7 +738,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public boolean isSystemAddUpdateByUserColumn() {
-    return this.getName().equals(MG_INSERTEDBY) || this.getName().equals(MG_UPDATEDBY);
+    return MG_INSERTEDBY.equals(this.getName()) || MG_UPDATEDBY.equals(this.getName());
   }
 
   public boolean isHeading() {
@@ -771,7 +780,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public String getLabel() {
-    if (getLabels().get("en") != null && !getLabels().get("en").trim().equals("")) {
+    if (getLabels().get("en") != null && !"".equals(getLabels().get("en").trim())) {
       return getLabels().get("en");
     } else {
       return getName();

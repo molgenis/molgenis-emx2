@@ -5,7 +5,7 @@ import java.util.Map;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 
-public class ValidateAllowedValues {
+public final class ValidateAllowedValues {
 
   private ValidateAllowedValues() {
     // hide constructor
