@@ -23,7 +23,9 @@ public class OntologyIriMapper {
     add(table);
   }
 
-  public OntologyIriMapper() {}
+  private OntologyIriMapper() {
+    // needed for json parsing
+  }
 
   private void addAll(Collection<Table> tables) {
     for (Table table : tables) {
@@ -77,9 +79,13 @@ public class OntologyIriMapper {
    */
   public IRI get(String schemaName, String ontologyTableName, String value) {
     Map<String, Map<String, IRI>> schemaIris = irisPerSchema.get(schemaName);
-    if (schemaIris == null) return null;
+    if (schemaIris == null) {
+      return null;
+    }
     Map<String, IRI> ontologyIris = schemaIris.get(ontologyTableName);
-    if (ontologyIris == null) return null;
+    if (ontologyIris == null) {
+      return null;
+    }
     return ontologyIris.get(value);
   }
 

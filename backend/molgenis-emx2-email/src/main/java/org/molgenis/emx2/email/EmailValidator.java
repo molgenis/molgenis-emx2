@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import org.molgenis.emx2.MolgenisException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class EmailValidator {
+public final class EmailValidator {
 
-  private static final Logger logger = LoggerFactory.getLogger(EmailValidator.class);
+  private EmailValidator() {
+    // no instances
+  }
 
   public static InternetAddress toInternetAddress(String email) {
     try {
@@ -33,7 +33,7 @@ public class EmailValidator {
 
   public static List<String> validationResponseToReceivers(Map<String, Object> validationResponse) {
     List<String> receivers = flattenAllowTree(validationResponse);
-    receivers.removeIf((e) -> !EmailValidator.isValidEmail(e));
+    receivers.removeIf((e) -> !isValidEmail(e));
     return receivers;
   }
 
@@ -65,7 +65,7 @@ public class EmailValidator {
   }
 
   private static List<String> flatten(List deepList) {
-    ArrayList<String> allowedList = new ArrayList<>();
+    List<String> allowedList = new ArrayList<>();
 
     for (Object o : deepList) {
       if (o instanceof List<?>) {

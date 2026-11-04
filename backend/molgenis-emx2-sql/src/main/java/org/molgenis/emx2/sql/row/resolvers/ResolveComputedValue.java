@@ -11,7 +11,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.sql.JavascriptContextBuilder;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ResolveComputedValue {
+public final class ResolveComputedValue {
 
   private ResolveComputedValue() {
     // hide constructor

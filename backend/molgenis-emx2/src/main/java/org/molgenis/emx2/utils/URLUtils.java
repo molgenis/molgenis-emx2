@@ -6,8 +6,12 @@ import io.javalin.http.Context;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class URLUtils {
+public final class URLUtils {
   private static final Pattern pattern = Pattern.compile(HYPERLINK_REGEX);
+
+  private URLUtils() {
+    // no instances
+  }
 
   public static String extractBaseURL(Context ctx) {
     String host = Objects.requireNonNull(ctx.host());
@@ -24,13 +28,14 @@ public class URLUtils {
   }
 
   public static boolean isDefaultPort(String scheme, String port) {
-    return (scheme.equals("http") && port.equals("80"))
-        || (scheme.equals("https") && port.equals("443"));
+    return ("http".equals(scheme) && "80".equals(port))
+        || ("https".equals(scheme) && "443".equals(port));
   }
 
   public static String validateUrl(String urlString) {
-    if (!pattern.matcher(urlString).matches())
+    if (!pattern.matcher(urlString).matches()) {
       throw new IllegalArgumentException(urlString + " is not valid");
+    }
     return urlString;
   }
 }

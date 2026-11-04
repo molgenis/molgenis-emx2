@@ -7,13 +7,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class Mapper {
+public final class Mapper {
 
   private Mapper() {
     // hides public constructor
@@ -21,7 +22,7 @@ public class Mapper {
 
   public static Row[] map(Object... beans)
       throws InvocationTargetException, IllegalAccessException {
-    ArrayList<Row> rows = new ArrayList<>();
+    List<Row> rows = new ArrayList<>();
     for (Object b : beans) {
       Class<?> c = b.getClass();
       Method[] methods = c.getDeclaredMethods();
@@ -35,7 +36,7 @@ public class Mapper {
 
       rows.add(new Row(values));
     }
-    return rows.toArray(new Row[rows.size()]);
+    return rows.toArray(new Row[0]);
   }
 
   public static <E> E map(Class<E> klazz, Row row)
