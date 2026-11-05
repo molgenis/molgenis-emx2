@@ -3,6 +3,7 @@ import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
+import CellDetailModal from "../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
@@ -12,7 +13,10 @@ import TableCell from "../../../../tailwind-components/app/components/TableCell.
 import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
-import type { ITableSettings } from "../../../../tailwind-components/types/types.ts";
+import type {
+  cellPayload,
+  ITableSettings,
+} from "../../../../tailwind-components/types/types.ts";
 import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
 import EditUserModal from "../../components/EditUserModal.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
@@ -37,6 +41,8 @@ import type {
 definePageMeta({
   middleware: "admin-only",
 });
+
+const USER_SCHEMA_ID = "users";
 
 const tableFeatures = {
   showSearch: true,
@@ -85,6 +91,8 @@ const tableMetadata: ITableMetaData = {
   ],
 };
 
+const showCellInfoSideModal = ref(false);
+const cellDetailPayload = ref<cellPayload>();
 const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const showTokenModal = ref(false);
@@ -197,6 +205,11 @@ function handleUpdateSettings(newSettings: ITableSettings) {
   tableSettings.value = newSettings;
   updateCurrentPage();
 }
+
+function handleCellClicked(payload: cellPayload) {
+  cellDetailPayload.value = payload;
+  showCellInfoSideModal.value = true;
+}
 </script>
 
 <template>
@@ -224,6 +237,7 @@ function handleUpdateSettings(newSettings: ITableSettings) {
         searchPlaceholder="Search users"
         :tableMetadata="tableMetadata"
         @update:settings="handleUpdateSettings"
+        @cellClicked="handleCellClicked"
       >
         <template #row-action="{ row }">
           <Button
@@ -329,6 +343,14 @@ function handleUpdateSettings(newSettings: ITableSettings) {
           </TableRow>
         </template>
       </Table>
+
+      <CellDetailModal
+        v-if="cellDetailPayload"
+        :payload="cellDetailPayload"
+        :schemaId="USER_SCHEMA_ID"
+        v-model:showModal="showCellInfoSideModal"
+      />
+
       <NewUserModal
         v-if="showNewUserModal"
         v-model:visible="showNewUserModal"
