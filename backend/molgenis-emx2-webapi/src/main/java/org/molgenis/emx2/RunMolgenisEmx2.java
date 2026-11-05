@@ -75,7 +75,7 @@ public class RunMolgenisEmx2 {
 
     logger.info(
         "with "
-            + org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT
+            + Constants.MOLGENIS_HTTP_PORT
             + "="
             + port
             + " (change either via java properties or via ENV variables)");

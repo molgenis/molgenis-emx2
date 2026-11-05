@@ -33,6 +33,7 @@ public interface Database extends HasSettingsInterface<Database>, SchemaMetadata
 
   Schema getSchema(String name);
 
+  @Override
   default SchemaMetadata getSchemaMetadata(String schemaName) {
     Schema schema = getSchema(schemaName);
     if (schema == null) {

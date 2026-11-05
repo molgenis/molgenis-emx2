@@ -18,7 +18,6 @@ public class TestValidationWithJavaScriptBindings {
   private static final String schemaName =
       TestValidationWithJavaScriptBindings.class.getSimpleName();
   private static Schema schema;
-  private static Table table1;
   private static Table table2;
 
   @BeforeAll
@@ -52,7 +51,7 @@ public class TestValidationWithJavaScriptBindings {
         """
             .formatted(schemaName);
 
-    table1 =
+    Table table1 =
         schema.create(
             table(
                 "Test1",

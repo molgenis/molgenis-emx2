@@ -20,7 +20,7 @@ class SqlDatabaseTest {
   private static final Database DATABASE = TestDatabaseFactory.getTestDatabase();
 
   @Test
-  void OIDCFlagDefaultsFalse() {
+  void oidcFlagDefaultsFalse() {
     Map<String, String> settings = Maps.newHashMap();
     DATABASE.setSettings(settings);
     assertFalse(DATABASE.isOidcEnabled());

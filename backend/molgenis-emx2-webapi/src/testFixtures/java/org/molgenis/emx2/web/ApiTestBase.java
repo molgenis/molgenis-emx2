@@ -1,7 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
-import static org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED;
+import static org.molgenis.emx2.Constants.*;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterAll;
@@ -12,6 +12,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /**
@@ -52,6 +53,10 @@ public abstract class ApiTestBase {
   protected static int port;
   private static MolgenisWebservice service;
 
+  @SystemStub
+  protected static EnvironmentVariables env =
+      new EnvironmentVariables(MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString());
+
   @BeforeAll
   static void setupService() throws Exception {
     database = TestDatabaseFactory.getTestDatabase();
@@ -69,16 +74,9 @@ public abstract class ApiTestBase {
     ApplicationCachePerUser.getInstance().clearAllCaches();
   }
 
-  static MolgenisWebservice startWebservice() throws Exception {
+  static MolgenisWebservice startWebservice() {
     MolgenisWebservice startedService = new MolgenisWebservice();
-
-    // start web service for testing, including env variables
-    new EnvironmentVariables(MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
-        .execute(
-            () -> {
-              startedService.start(OS_ASSIGNED_PORT);
-            });
-
+    startedService.start(OS_ASSIGNED_PORT);
     return startedService;
   }
 

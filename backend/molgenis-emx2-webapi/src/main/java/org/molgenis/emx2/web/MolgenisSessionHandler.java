@@ -89,9 +89,13 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   @Override
   public Username getCurrentUser() {
     HttpSession session = request.getSession(false);
-    if (session == null) return ANONYMOUS;
+    if (session == null) {
+      return ANONYMOUS;
+    }
     String attribute = (String) session.getAttribute(USERNAME);
-    if (attribute == null) return ANONYMOUS;
+    if (attribute == null) {
+      return ANONYMOUS;
+    }
     return new Username(attribute);
   }
 }

@@ -47,7 +47,7 @@ public class TestMapPojoToTable {
     assertEquals("firstName", firstName.getName());
     assertEquals("lastName", lastName.getName());
 
-    assertEquals(ColumnType.UUID, molgenisid.getColumnType());
+    assertEquals(UUID, molgenisid.getColumnType());
     assertEquals(STRING, firstName.getColumnType());
 
     assertTrue(firstName.isRequired());

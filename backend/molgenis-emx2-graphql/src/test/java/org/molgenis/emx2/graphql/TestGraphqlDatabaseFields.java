@@ -153,7 +153,9 @@ class TestGraphqlDatabaseFields {
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
     Username pietje = new Username("pietje");
-    if (database.hasUser(pietje)) database.removeUser(pietje);
+    if (database.hasUser(pietje)) {
+      database.removeUser(pietje);
+    }
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     assertTrue(database.hasUser(pietje));
     assertTrue(database.checkUserPassword(pietje, "blaat123"));
@@ -184,7 +186,9 @@ class TestGraphqlDatabaseFields {
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
     Username jantje = new Username("jantje");
-    if (database.hasUser(jantje)) database.removeUser(jantje);
+    if (database.hasUser(jantje)) {
+      database.removeUser(jantje);
+    }
     execute("mutation{signup(email:\"jantje\",password:\"blaat123\"){message}}");
 
     assertTrue(

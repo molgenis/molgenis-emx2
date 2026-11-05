@@ -44,7 +44,9 @@ class TestPermissionEvaluator {
             USER_MANAGER,
             USER_CUSTOM,
             USER_NO_ROLE)) {
-      if (!database.hasUser(user)) database.addUser(user);
+      if (!database.hasUser(user)) {
+        database.addUser(user);
+      }
     }
 
     Schema schema = database.dropCreateSchema(SCHEMA);

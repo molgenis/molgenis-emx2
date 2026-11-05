@@ -92,7 +92,9 @@ class PetStoreRolesTest {
         .run();
     Schema schema = database.getSchema(aggregatorSchema);
     schema.removeMember(ANONYMOUS);
-    if (!database.hasUser(aggregator)) database.addUser(aggregator);
+    if (!database.hasUser(aggregator)) {
+      database.addUser(aggregator);
+    }
     schema.addMember(aggregator, Privileges.AGGREGATOR.toString());
 
     database.setActiveUser(aggregator);

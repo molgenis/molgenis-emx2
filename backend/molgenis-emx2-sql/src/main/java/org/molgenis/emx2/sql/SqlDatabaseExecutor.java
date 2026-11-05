@@ -11,7 +11,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.User;
 import org.molgenis.emx2.Username;
 
-class SqlDatabaseExecutor {
+final class SqlDatabaseExecutor {
   private SqlDatabaseExecutor() {
     // hide
   }
