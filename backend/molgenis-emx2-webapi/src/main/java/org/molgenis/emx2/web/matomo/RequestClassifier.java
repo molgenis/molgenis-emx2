@@ -3,7 +3,7 @@ package org.molgenis.emx2.web.matomo;
 import io.javalin.http.Context;
 import java.util.List;
 
-public class RequestClassifier {
+public final class RequestClassifier {
 
   private RequestClassifier() {
     // Utility class
@@ -25,10 +25,6 @@ public class RequestClassifier {
 
   public static boolean isAiChatBotRequest(Context ctx) {
     String userAgent = ctx.userAgent();
-    if (userAgent == null) {
-      return false;
-    }
-
-    return AI_CHATBOT_UA.stream().anyMatch(userAgent::contains);
+    return userAgent != null && AI_CHATBOT_UA.stream().anyMatch(userAgent::contains);
   }
 }
