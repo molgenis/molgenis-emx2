@@ -84,3 +84,5 @@ Computed expressions,,,id,,auto_id,1,true,,,,,,,,,,,,,TypeTest,,
 Computed expressions,,,first name,,string,,true,,,,,,,,,,,,,TypeTest,,
 Computed expressions,,,last name,,string,,true,,,,,,,,,,,,,TypeTest,,
 Computed expressions,,,full name,,string,,true,,,,,,,,,,firstName + ' ' + lastName,,,TypeTest,,Concatenation of first and last name (computed)
+Computed expressions,,,country code,,string,,,,,,,,,,,,,,,TypeTest,,Option key used by the simplePostClient lookup (e.g. AT)
+Computed expressions,,,country name,,string,,,,,,,,,,,,"countryCode ? simplePostClient('query($filter:OptionsFilter){Options(filter:$filter){optionValue}}', {filter:{optionKey:{equals:countryCode}}}, 'type test')?.Options?.[0]?.optionValue : null",,,TypeTest,,Option value looked up via simplePostClient in the 'type test' schema (computed)
