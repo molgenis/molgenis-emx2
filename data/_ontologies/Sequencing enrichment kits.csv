@@ -1,4 +1,4 @@
-name,definition,codesystem,code,ontologyTermURI
+name,definition,codesystem,code,ontologyTermURI,tags
 "NEXTFLEX Unique Dual Index Barcodes by PerkinElmer","NEXTFLEX Unique Dual Index Barcodes by PerkinElmer sourced from https://www.biocompare.com, accessed May 2020.","FG","0000125","https://w3id.org/fair-genomes/resource/FG_0000125"
 "SEQuoia Complete Stranded RNA Library Prep Kit by Bio-Rad","SEQuoia Complete Stranded RNA Library Prep Kit by Bio-Rad sourced from https://www.biocompare.com, accessed May 2020.","FG","0000126","https://w3id.org/fair-genomes/resource/FG_0000126"
 "KAPA HyperPlus Kits by Roche","KAPA HyperPlus Kits by Roche sourced from https://www.biocompare.com, accessed May 2020.","FG","0000127","https://w3id.org/fair-genomes/resource/FG_0000127"
@@ -615,3 +615,5 @@ name,definition,codesystem,code,ontologyTermURI
 "ClearSeq Inherited Disease Plus, 96, XT2 by Agilent Technologies","ClearSeq Inherited Disease Plus, 96, XT2 by Agilent Technologies sourced from https://www.biocompare.com, accessed May 2020.","FG","0000738","https://w3id.org/fair-genomes/resource/FG_0000738"
 "ClearSeq Inherited Disease, 16, XT by Agilent Technologies","ClearSeq Inherited Disease, 16, XT by Agilent Technologies sourced from https://www.biocompare.com, accessed May 2020.","FG","0000739","https://w3id.org/fair-genomes/resource/FG_0000739"
 "Illumina TruSeq DNA PCR-Free","Illumina TruSeq DNA PCR-Free provides simple, all-inclusive library preparation for whole-genome sequencing applications.","Illumina","truseq-dna-pcr-free","https://www.illumina.com/products/by-type/sequencing-kits/library-prep-kits/truseq-dna-pcr-free.html"
+"Polaris Depletion Kit - rRNA/Globin (HMR)",,,,,"erdera,RNA"
+"NEBNext Poly(A) mRNA Magnetic Isolation Module",,,,,"erdera,RNA"
