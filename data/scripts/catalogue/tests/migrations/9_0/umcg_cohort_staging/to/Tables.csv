@@ -1,0 +1,2 @@
+resource,name,label,table type,unit of observation,keywords,description,number of rows,since version,until version
+testUMCG,lab,Lab results,,person,,,500,1.0,

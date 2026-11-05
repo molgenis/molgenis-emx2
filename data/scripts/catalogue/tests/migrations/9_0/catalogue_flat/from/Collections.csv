@@ -1,0 +1,4 @@
+id,name,type,datasets.resource,datasets.name,mappings to common data models.source dataset,mappings to common data models.target dataset
+RAINE,The West Australian Pregnancy Cohort,Cohort study,,,,
+SPA,SPA,Health records,SPA,SPA,"SPA,SPA","PROCEDURES,VISIT_OCCURRENCE"
+testCohort3,testCohort3C,Cohort study,testCohort3,test dataset for testCohort3,,

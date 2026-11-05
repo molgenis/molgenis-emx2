@@ -1,0 +1,2 @@
+id,name,tables.resource,tables.name,mappings to common data models.source,mappings to common data models.source table,mappings to common data models.target,mappings to common data models.target table
+testDatabank,Test databank,testDatabank,table1,"testDatabank,testDatabank","table1,table1","OOM,OOM","MEDICAL_OBSERVATIONS,VISIT_OCCURRENCE"

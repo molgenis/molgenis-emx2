@@ -1,0 +1,2 @@
+resource,dataset,name,label,collection event,format,permitted values.resource,permitted values.dataset,permitted values.variable,permitted values.value,mappings.source,mappings.source dataset,mappings.target,mappings.target dataset,mappings.target variable,mappings.repeats
+testUMCG,lab,glucose,Glucose,"visit1,visit2",decimal,,,,,,,,,,

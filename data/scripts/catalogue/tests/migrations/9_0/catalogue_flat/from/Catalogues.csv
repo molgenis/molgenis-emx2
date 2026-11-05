@@ -1,0 +1,4 @@
+id,name,datasets.resource,datasets.name,mappings to common data models.source dataset,mappings to common data models.target dataset
+testNetworkofNetworks,name for test network of networks,,,,
+UMCG,UMCG,,,,
+testNetwork1,name for test network1,testNetwork1,cdm_1,,

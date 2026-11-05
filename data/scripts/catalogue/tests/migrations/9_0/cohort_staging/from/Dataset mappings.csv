@@ -1,0 +1,4 @@
+source,source dataset,target,target dataset,order,description,syntax,mg_draft
+DHL,CPA1,OOM,EVENTS,,,,
+DHL,CPA2,OOM,EVENTS,,,,
+ARS_ANAG_MED_RES_storico,ARS_ANAG_MED_RES_storico,OOM,PERSONS,,Select all the distinct values of IDUNI having at least one record with COD_REGIONE=’090’; for each of them select the values as follows,,

@@ -1,0 +1,4 @@
+id,name,tables.resource,tables.name,mappings to common data models.source table,mappings to common data models.target table
+testNetworkofNetworks,name for test network of networks,,,,
+UMCG,UMCG,,,,
+testNetwork1,name for test network1,testNetwork1,cdm_1,,

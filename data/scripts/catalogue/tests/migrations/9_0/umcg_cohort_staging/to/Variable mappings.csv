@@ -1,0 +1,2 @@
+source,source table,source variables,source variables other tables.table,source variables other tables.name,target,target table,target variable,repeats,match,description,syntax,comments
+testUMCG,lab,glucose,,,Lifelines,lab,glucose_mmol,"1, 2",complete,,,

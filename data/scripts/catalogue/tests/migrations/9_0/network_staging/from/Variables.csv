@@ -1,0 +1,4 @@
+resource,dataset,name,useExternalDefinition.resource,useExternalDefinition.dataset,useExternalDefinition.name,label,description,original language description,format,unit,ontology term URI,since version,until version,repeat unit,repeat min,repeat max,example values,permitted values.resource,permitted values.dataset,permitted values.variable,permitted values.value,keywords,vocabularies,notes,mg_draft
+LifeCycle,core,SCL_anx_score_t,,,,SCL anxiety score first trimester,,,integer,numeric,,1.0.0,,,,,,,,,,Psychological distress and emotions,,,
+ATHLETE,outcome_ath,edR_eval_,,,,,"How was the eating disorder medical diagnosis reported for edR_10, edR_11, etc assessed.",,binary,,,,,,,,,"ATHLETE,ATHLETE","outcome_ath,outcome_ath","edR_eval_,edR_eval_","1,2",Behavioral problem domains,,,
+MBRN,MBRN_child,FDATO,,,,Date of delivery,Difference date variable. Renamed “diff_fdato” in dataset.,,,,,1,,,,,,,,,,,,,

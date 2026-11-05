@@ -1,0 +1,4 @@
+id,name,type,tables.resource,tables.name
+RAINE,The West Australian Pregnancy Cohort,Cohort study,,
+SPA,SPA,Health records,SPA,SPA
+testCohort3,testCohort3C,Cohort study,testCohort3,test dataset for testCohort3

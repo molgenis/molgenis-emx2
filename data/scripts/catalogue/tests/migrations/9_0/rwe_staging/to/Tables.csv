@@ -1,0 +1,2 @@
+resource,name,label,table type,unit of observation,keywords,description,number of rows,mapped to.source,mapped to.source table,mapped to.target,mapped to.target table,since version,until version
+testDatabank,table1,Table 1,,,,,,"testDatabank,testDatabank","table1,table1","OOM,OOM","MEDICAL_OBSERVATIONS,VISIT_OCCURRENCE",,

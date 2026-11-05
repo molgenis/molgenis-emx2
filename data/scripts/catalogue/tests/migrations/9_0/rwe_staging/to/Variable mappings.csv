@@ -1,0 +1,3 @@
+source,source table,source variables,source variables other tables.table,source variables other tables.name,target,target table,target variable,repeats,match,description,syntax,comments
+testDatabank,table1,,,,OOM,MEDICAL_OBSERVATIONS,mo_source_table,NA,na,AP,,
+testDatabank,table1,iduni,,,OOM,VISIT_OCCURRENCE,person_id,NA,complete,Leave empty,,

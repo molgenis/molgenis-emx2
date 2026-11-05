@@ -1,0 +1,3 @@
+resource,dataset,name,label
+testDatabank,table1,iduni,Unique id
+testDatabank,table1,dat_acc,Date of access

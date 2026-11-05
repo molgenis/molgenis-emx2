@@ -2,9 +2,6 @@ import shutil
 import os
 from pathlib import Path
 import pandas as pd
-from decouple import config
-
-CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
 def get_data_model(profile_path, path_to_write, profile):
     # get data model from profile and write to file
@@ -25,9 +22,10 @@ class Transform:
     """General functions to update catalogue data model.
     """
 
-    def __init__(self, schema_name):
+    def __init__(self, schema_name, data_dir=None, model_dir=None):
         self.schema_name = schema_name
-        self.path = self.schema_name + '_data/'
+        self.path = os.path.join(data_dir, '') if data_dir else self.schema_name + '_data/'
+        self.model_dir = model_dir
         self.profile = self.get_profile()
 
     def get_profile(self):
@@ -44,7 +42,10 @@ class Transform:
     def update_data_model_file(self):
         """Get data model from profile and copy molgenis.csv to appropriate folder
         """
-        profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
+        if self.model_dir:
+            profile_path = Path(self.model_dir)
+        else:
+            profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
         path_to_write = self.path
         get_data_model(profile_path, path_to_write, self.profile)
 
@@ -97,14 +98,18 @@ class Transform:
                                                     'mapped from.source dataset': 'mapped from.source table',
                                                     'mapped from.target dataset': 'mapped from.target table'})
         df_datasets.to_csv(self.path + 'Tables.csv', index=False)
+        os.remove(self.path + 'Datasets.csv')
 
     def dataset_mappings(self):
         """ Transform Dataset mappings and rename
         """
+        if not os.path.exists(self.path + 'Dataset mappings.csv'):
+            return
         df_dataset_mappings = pd.read_csv(self.path + 'Dataset mappings.csv', dtype='object', keep_default_na=False)
         df_dataset_mappings = df_dataset_mappings.rename(columns = {'source dataset': 'source table',
                                                                     'target dataset': 'target table'})
         df_dataset_mappings.to_csv(self.path + 'Table mappings.csv', index=False)
+        os.remove(self.path + 'Dataset mappings.csv')
 
     def variables(self):
         """ Transform Variables

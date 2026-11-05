@@ -1,0 +1,3 @@
+source,source dataset,source variables,source variables other datasets.dataset,source variables other datasets.name,target,target dataset,target variable,repeats,match,description,syntax,comments
+testDatabank,table1,,,,OOM,MEDICAL_OBSERVATIONS,mo_source_table,NA,na,AP,,
+testDatabank,table1,iduni,,,OOM,VISIT_OCCURRENCE,person_id,NA,complete,Leave empty,,

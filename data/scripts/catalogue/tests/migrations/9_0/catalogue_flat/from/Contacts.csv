@@ -1,0 +1,4 @@
+resource,role,role description,first name,last name,display name
+MOLGENIS,,,Morris,Swertz,Morris Swertz
+testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name
+main catalogue,Principal Investigator,,Rob,Boss,Rob Boss

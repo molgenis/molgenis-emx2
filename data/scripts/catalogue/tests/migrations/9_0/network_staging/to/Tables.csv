@@ -1,0 +1,4 @@
+resource,name,label,table type,unit of observation,keywords,description,number of rows,since version,until version,mg_draft
+AVOHILMO,avo_toimenpide,,,,,,,1.0,,
+COD_FARMACI_SPF,COD_FARMACI_SPF,,,,,,,1.0,,
+testCohort3,test dataset for testCohort3,,,,,,,,,

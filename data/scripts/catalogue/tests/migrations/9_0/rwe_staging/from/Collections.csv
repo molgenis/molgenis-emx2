@@ -1,0 +1,2 @@
+id,name,datasets.resource,datasets.name,mappings to common data models.source,mappings to common data models.source dataset,mappings to common data models.target,mappings to common data models.target dataset
+testDatabank,Test databank,testDatabank,table1,"testDatabank,testDatabank","table1,table1","OOM,OOM","MEDICAL_OBSERVATIONS,VISIT_OCCURRENCE"

@@ -1,0 +1,4 @@
+source,source table,source variables,source variables other tables.table,source variables other tables.name,target,target table,target variable,match,description,syntax,comments,repeats
+NFBC1966,core,,,,LifeCycle,core,agebirth_m_y,complete,,,,
+PELAGIE,pelagie_q0,V4,maj_ddn_2021,DDN_2021,LifeCycle,core,recruit_age,complete,,recruit_age = v4 - ddn_2021;,,
+testCohort3,test dataset for testCohort3,var7,,,testNetwork1,cdm_1,testVarRepeats_,complete,some description,some syntax,,7
