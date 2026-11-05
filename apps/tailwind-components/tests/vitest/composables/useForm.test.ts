@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
@@ -669,6 +669,101 @@ describe("useForm", () => {
         "Computed expression failed: SyntaxError"
       );
       expect(isValid()).toBe(false);
+    });
+  });
+
+  describe("computed columns using simplePostClient", () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    test("should expose simplePostClient in the computed expression scope", () => {
+      const requests: {
+        method: string;
+        url: string;
+        async: boolean;
+        body: string;
+      }[] = [];
+      class MockXMLHttpRequest {
+        responseText = "";
+        private request = { method: "", url: "", async: true, body: "" };
+        open(method: string, url: string, async: boolean) {
+          this.request = { method, url, async, body: "" };
+        }
+        send(body: string) {
+          this.request.body = body;
+          requests.push(this.request);
+          this.responseText = JSON.stringify({
+            data: {
+              SourceTable: [
+                {
+                  clinCharacteristic1: { name: "HP:1", label: "one" },
+                  clinCharacteristic2: null,
+                  clinCharacteristicsPresent: [{ name: "HP:2", label: "two" }],
+                },
+              ],
+            },
+          });
+        }
+      }
+      vi.stubGlobal("XMLHttpRequest", MockXMLHttpRequest);
+
+      const metadata = ref<ITableMetaData>({
+        id: "LinkedTable",
+        label: "LinkedTable",
+        schemaId: "issue5446",
+        tableType: "DATA",
+        columns: [
+          {
+            columnType: "REF",
+            id: "id",
+            label: "id",
+          },
+          {
+            columnType: "ONTOLOGY_ARRAY",
+            id: "allClinCharacteristics",
+            label: "all clin characteristics",
+            computed: `(function () {
+  if (!id) return;
+  let response = simplePostClient(
+    \`query SourceTable($filter:SourceTableFilter) { SourceTable(filter:$filter) { clinCharacteristic1{name, label}, clinCharacteristic2{name, label}, clinCharacteristicsPresent{name, label} }}\`,
+    { filter: { id: { equals: id.id } } },
+    'issue5446'
+  );
+  const row = response.SourceTable[0];
+  const result = [];
+  if (row.clinCharacteristic1) result.push(row.clinCharacteristic1);
+  if (row.clinCharacteristic2) result.push(row.clinCharacteristic2);
+  return row.clinCharacteristicsPresent
+    ? result.concat(row.clinCharacteristicsPresent)
+    : result;
+})()`,
+          },
+        ],
+      });
+
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue, visibleColumnErrors } = useForm(metadata, formValues);
+
+      expect(getValue("allClinCharacteristics")).toBeUndefined();
+      expect(requests).toHaveLength(0);
+
+      formValues.value.id = { id: "source1" };
+
+      expect(getValue("allClinCharacteristics")).toEqual([
+        { name: "HP:1", label: "one" },
+        { name: "HP:2", label: "two" },
+      ]);
+      expect(visibleColumnErrors.value.allClinCharacteristics).toBeUndefined();
+      expect(requests).toHaveLength(1);
+      expect(requests[0]?.method).toBe("POST");
+      expect(requests[0]?.url).toBe("/issue5446/graphql");
+      expect(requests[0]?.async).toBe(false);
+      const body = JSON.parse(requests[0]!.body);
+      expect(body.query).toContain("SourceTable(filter:$filter)");
+      expect(body.variables).toEqual({
+        filter: { id: { equals: "source1" } },
+      });
     });
   });
 });

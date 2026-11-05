@@ -9,6 +9,7 @@ import {
   type Ref,
 } from "vue";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
+import { simplePostClient } from "../../../metadata-utils/src/simplePostClient";
 import type {
   columnId,
   columnValue,
@@ -84,33 +85,42 @@ export default function useForm(
   };
 
   // setup computed value signals, only re-evaluated when a referenced field changes
-  const computedValueMap = metadata.value.columns.reduce((acc, column) => {
-    if (!column.computed?.trim() || column.columnType === "AUTO_ID") {
-      return acc;
-    }
-    const params: string[] = extractParamsFromExpression(
-      column.computed
-    ).filter((param) => param !== column.id);
-    let computedFunction: Function;
-    try {
-      computedFunction = new Function(
-        params.join(", "),
-        "return eval(`" + column.computed.replaceAll("`", "\\`") + "`)"
-      );
-    } catch (e) {
-      const error = "Computed expression failed: " + e;
-      acc[column.id] = computed(() => ({ value: null, error }));
-      return acc;
-    }
-    acc[column.id] = computed(() => {
-      try {
-        return { value: computedFunction.apply(null, params.map(getValue)) };
-      } catch (e) {
-        return { value: null, error: "Computed expression failed: " + e };
+  const computedValueMap = metadata.value.columns.reduce(
+    (acc, column) => {
+      if (!column.computed?.trim() || column.columnType === "AUTO_ID") {
+        return acc;
       }
-    });
-    return acc;
-  }, {} as Record<columnId, ComputedRef<{ value: columnValue; error?: string }>>);
+      const params: string[] = extractParamsFromExpression(
+        column.computed
+      ).filter((param) => param !== column.id);
+      let computedFunction: Function;
+      try {
+        computedFunction = new Function(
+          "simplePostClient",
+          params.join(", "),
+          "return eval(`" + column.computed.replaceAll("`", "\\`") + "`)"
+        );
+      } catch (e) {
+        const error = "Computed expression failed: " + e;
+        acc[column.id] = computed(() => ({ value: null, error }));
+        return acc;
+      }
+      acc[column.id] = computed(() => {
+        try {
+          return {
+            value: computedFunction.apply(null, [
+              simplePostClient,
+              ...params.map(getValue),
+            ]),
+          };
+        } catch (e) {
+          return { value: null, error: "Computed expression failed: " + e };
+        }
+      });
+      return acc;
+    },
+    {} as Record<columnId, ComputedRef<{ value: columnValue; error?: string }>>
+  );
 
   function getValue(id: columnId): columnValue {
     const computedValue = computedValueMap[id];
@@ -130,64 +140,70 @@ export default function useForm(
   }
 
   // setup visibility signals
-  const visibilityMap = metadata.value.columns.reduce((acc, column) => {
-    const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
+  const visibilityMap = metadata.value.columns.reduce(
+    (acc, column) => {
+      const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
 
-    const exprString = column.visible;
-    const params: string[] = extractParamsFromExpression(exprString || "");
+      const exprString = column.visible;
+      const params: string[] = extractParamsFromExpression(exprString || "");
 
-    const paramsString = params.join(", ");
-    const visibilityFunction = new Function(
-      paramsString,
-      "return " + cleanExpression
-    );
+      const paramsString = params.join(", ");
+      const visibilityFunction = new Function(
+        paramsString,
+        "return " + cleanExpression
+      );
 
-    // use function with apply to pass parameters dynamically while keeping reactivity
-    acc[column.id] = computed(
-      () => !!visibilityFunction.apply(null, params.map(getValue))
-    );
+      // use function with apply to pass parameters dynamically while keeping reactivity
+      acc[column.id] = computed(
+        () => !!visibilityFunction.apply(null, params.map(getValue))
+      );
 
-    return acc;
-  }, {} as Record<columnId, ComputedRef<boolean>>);
+      return acc;
+    },
+    {} as Record<columnId, ComputedRef<boolean>>
+  );
 
-  const requiredMap = metadata.value.columns.reduce((acc, column) => {
-    if (typeof column.required === "boolean") {
-      acc[column.id] = computed(() => !!column.required);
-    } else if (
-      column.required?.toLocaleLowerCase() === "true" ||
-      column.required?.toLocaleLowerCase() === "false"
-    ) {
-      const requiredBool = column.required.toLocaleLowerCase() === "true";
-      acc[column.id] = computed(() => requiredBool);
-    } else if (typeof column.required === "string") {
-      try {
-        const requiredExpression = column.required;
-        const cleanExpression =
-          requiredExpression.replaceAll('"', "'") || "false";
-        const params: string[] =
-          extractParamsFromExpression(requiredExpression);
-        const paramsString = params.join(", ");
-        const requiredFunction = new Function(
-          paramsString,
-          "return eval(`" + cleanExpression + "`)"
-        );
-        acc[column.id] = computed(
-          () => !!requiredFunction.apply(null, params.map(getValue))
-        );
-      } catch (e) {
-        console.error(
-          "Error creating required function for column",
-          column.id,
-          e
-        );
+  const requiredMap = metadata.value.columns.reduce(
+    (acc, column) => {
+      if (typeof column.required === "boolean") {
+        acc[column.id] = computed(() => !!column.required);
+      } else if (
+        column.required?.toLocaleLowerCase() === "true" ||
+        column.required?.toLocaleLowerCase() === "false"
+      ) {
+        const requiredBool = column.required.toLocaleLowerCase() === "true";
+        acc[column.id] = computed(() => requiredBool);
+      } else if (typeof column.required === "string") {
+        try {
+          const requiredExpression = column.required;
+          const cleanExpression =
+            requiredExpression.replaceAll('"', "'") || "false";
+          const params: string[] =
+            extractParamsFromExpression(requiredExpression);
+          const paramsString = params.join(", ");
+          const requiredFunction = new Function(
+            paramsString,
+            "return eval(`" + cleanExpression + "`)"
+          );
+          acc[column.id] = computed(
+            () => !!requiredFunction.apply(null, params.map(getValue))
+          );
+        } catch (e) {
+          console.error(
+            "Error creating required function for column",
+            column.id,
+            e
+          );
+          acc[column.id] = computed(() => false);
+        }
+      } else {
+        // default to not required
         acc[column.id] = computed(() => false);
       }
-    } else {
-      // default to not required
-      acc[column.id] = computed(() => false);
-    }
-    return acc;
-  }, {} as Record<columnId, ComputedRef<boolean>>);
+      return acc;
+    },
+    {} as Record<columnId, ComputedRef<boolean>>
+  );
 
   const errorMap = ref<Record<columnId, string>>({});
   const lastScrollTo = ref<columnId>();
@@ -682,8 +698,8 @@ export default function useForm(
   const showLegend = computed(() =>
     Boolean(
       sections.value.length > 1 ||
-        (sections.value.length === 1 &&
-          (sections.value[0]?.headers.length ?? 0) > 0)
+      (sections.value.length === 1 &&
+        (sections.value[0]?.headers.length ?? 0) > 0)
     )
   );
 
