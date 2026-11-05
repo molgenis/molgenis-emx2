@@ -1,7 +1,9 @@
 name,tags,codesystem,code,ontologyTermURI,definition
-PAXgene Blood RNA Tube,"erdera,RNA",ncit,NCIT_C126394,http://purl.obolibrary.org/obo/NCIT_C126394,A blood collection tube that uses proprietary reagents for whole blood collection and stabilization prior to isolation of cellular RNA.
+PAXgene Blood RNA tube,"erdera,RNA",ncit,NCIT_C126394,http://purl.obolibrary.org/obo/NCIT_C126394,A blood collection tube that uses proprietary reagents for whole blood collection and stabilization prior to isolation of cellular RNA.
 EDTA tube,"erdera,RNA",,,,
-Thermo Fisher Tempus tube,"erdera,RNA",ncit,NCIT_C174427,http://purl.obolibrary.org/obo/NCIT_C174427,"A proprietary blood collection tube for stabilization and isolation of total RNA from whole blood for gene expression analysis. When blood is drawn into the tube and mixed with the proprietary stabilizing reagent, lysis occurs almost immediately. The stabilizing reagent inactivates cellular RNases and selectively precipitates RNA, with genomic DNA and proteins remaining in solution."
-Sarstedt S-Monovette,"erdera,RNA",,,,
-RNAlater,"erdera,RNA",ncit,NCIT_C63348,http://purl.obolibrary.org/obo/NCIT_C63348,"Trade name for an aqueous, non-toxic tissue storage reagent that rapidly permeates tissues to stabilize and protect cellular RNA."
+Tempus Blood RNA tube,"erdera,RNA",ncit,NCIT_C174427,http://purl.obolibrary.org/obo/NCIT_C174427,"A proprietary blood collection tube for stabilization and isolation of total RNA from whole blood for gene expression analysis. When blood is drawn into the tube and mixed with the proprietary stabilizing reagent, lysis occurs almost immediately. The stabilizing reagent inactivates cellular RNases and selectively precipitates RNA, with genomic DNA and proteins remaining in solution."
+Sarstedt S-Monovette RNA Exact,"erdera,RNA",,,,
+Sodium Citrate tube,"erdera,RNA",ncit,NCIT_C200493,http://purl.obolibrary.org/obo/NCIT_C200493,A blood collection tube that contains sodium citrate. Blood samples collected in these tubes are used for coagulation studies.
+Tissue biopsy in RNAlater,"erdera,RNA",ncit,NCIT_C63348,http://purl.obolibrary.org/obo/NCIT_C63348,"Trade name for an aqueous, non-toxic tissue storage reagent that rapidly permeates tissues to stabilize and protect cellular RNA."
+Tissue biopsy,"erdera,RNA",ncit,NCIT_C15189,http://purl.obolibrary.org/obo/NCIT_C15189,"The removal of tissue specimens or fluid from the living body for microscopic examination, performed to establish a diagnosis."
 Cell culture,"erdera,RNA",ncit,NCIT_C16396,http://purl.obolibrary.org/obo/NCIT_C16396,General term referring to the maintenance of cell strains or lines in the laboratory.
