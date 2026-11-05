@@ -1,0 +1,5 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Table groups,,,,,,,,,,,csvw:TableGroup,"Definition of a table group, now only used for rdf production",DataCatalogueFlat,
+Table groups,,resource,ref,1,TRUE,,Resources,,,,,Resource of which the table group is part,DataCatalogueFlat,
+Table groups,,name,,1,TRUE,,,,,,dcterms:title,Unique table group name in the model,DataCatalogueFlat,
+Table groups,,table,ref,,,,Tables,resource,,,csvw:table,Table in this table group,DataCatalogueFlat,
