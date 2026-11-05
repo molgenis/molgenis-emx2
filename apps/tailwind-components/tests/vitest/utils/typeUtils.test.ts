@@ -7,6 +7,9 @@ import {
 import {
   assertBooleanValue,
   assertFileValue,
+  assertMenu,
+  parseLinkSetting,
+  resolveLinkType,
   assertListValue,
   isMgError,
   assertNumberValue,
@@ -370,5 +373,56 @@ describe("getIntInput", () => {
   it("Should return a minus for a minus string input", () => {
     const result = getIntInput("-");
     expect(result).toEqual("-");
+  });
+});
+
+describe("resolveLinkType", () => {
+  it("uses linkType when it is set", () => {
+    expect(resolveLinkType({ linkType: "spaLink" })).toBe("spaLink");
+    expect(resolveLinkType({ linkType: "internalPageLink" })).toBe(
+      "internalPageLink"
+    );
+    expect(resolveLinkType({ linkType: "externalLink" })).toBe("externalLink");
+  });
+
+  it("defaults to spaLink", () => {
+    expect(resolveLinkType({})).toBe("spaLink");
+    expect(resolveLinkType({ linkType: "bogus" })).toBe("spaLink");
+  });
+});
+
+describe("parseLinkSetting", () => {
+  it("parses a linkType setting", () => {
+    expect(
+      parseLinkSetting(
+        '{"link": "https://www.google.com", "linkType": "externalLink"}'
+      )
+    ).toEqual({ link: "https://www.google.com", linkType: "externalLink" });
+  });
+
+  it("defaults a setting without linkType to spaLink", () => {
+    expect(parseLinkSetting('{"link": "/pet%20store/Pet"}')).toEqual({
+      link: "/pet%20store/Pet",
+      linkType: "spaLink",
+    });
+  });
+});
+
+describe("assertMenu", () => {
+  it("accepts every link type and items without linkType", () => {
+    expect(() =>
+      assertMenu([
+        { label: "a", link: "/a", linkType: "spaLink" },
+        { label: "b", link: "b", linkType: "internalPageLink" },
+        { label: "c", link: "https://c.org", linkType: "externalLink" },
+        { label: "d", link: "/d" },
+      ])
+    ).not.toThrow();
+  });
+
+  it("rejects an unknown linkType", () => {
+    expect(() =>
+      assertMenu([{ label: "a", link: "a", linkType: "external" }])
+    ).toThrow(/linkType/);
   });
 });

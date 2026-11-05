@@ -22,7 +22,7 @@ const nestedNavigation: MenuItem[] = [
         link: "#exports",
         submenu: [
           { label: "CSV", link: "#csv" },
-          { label: "JSON", link: "#json", isSpaLink: true },
+          { label: "JSON", link: "#json" },
         ],
       },
     ],
@@ -42,7 +42,7 @@ const nestedNavigation: MenuItem[] = [
       },
     ],
   },
-  { label: "Docs", link: "#docs", isSpaLink: true },
+  { label: "Docs", link: "#docs" },
   { label: "Support", link: "#support" },
   {
     label: "More tools",
