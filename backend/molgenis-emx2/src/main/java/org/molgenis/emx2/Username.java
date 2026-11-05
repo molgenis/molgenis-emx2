@@ -1,5 +1,7 @@
 package org.molgenis.emx2;
 
+import java.util.Locale;
+
 public record Username(String value) {
 
   public Username(String value) {
@@ -11,7 +13,7 @@ public record Username(String value) {
       throw new MolgenisException("Username cannot be null");
     }
 
-    String newValue = value.trim().toLowerCase();
+    String newValue = value.trim().toLowerCase(Locale.ROOT);
 
     if (newValue.isBlank()) {
       throw new MolgenisException("Username cannot be blank");

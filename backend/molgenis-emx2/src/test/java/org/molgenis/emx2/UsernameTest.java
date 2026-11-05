@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,6 +19,17 @@ class UsernameTest {
   @Test
   void givenNonAscii_thenMapToLowerCase() {
     assertEquals("äöü éclair", new Username("ÄÖÜ Éclair").value());
+  }
+
+  @Test
+  void givenTurkishDefaultLocale_thenMapToLowerCaseIndependentOfLocale() {
+    Locale original = Locale.getDefault();
+    try {
+      Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+      assertEquals("mike", new Username("MIKE").value());
+    } finally {
+      Locale.setDefault(original);
+    }
   }
 
   @Test
