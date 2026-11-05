@@ -43,7 +43,9 @@ const sidebarCollapsed = ref(false);
       'gap-7.5': isEditable,
     }"
   >
-    <div class="sticky top-0 pt-2.5 h-screen overflow-y-scroll bg-sidebar-gradient">
+    <div
+      class="sticky top-0 pt-2.5 h-screen overflow-y-scroll bg-sidebar-gradient"
+    >
       <Sidebar
         id="configurable-page-sidebar"
         v-if="isEditable"
