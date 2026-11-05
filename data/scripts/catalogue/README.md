@@ -8,14 +8,14 @@ Most catalogue servers use staging areas where data managers fill out data for e
 3. Migration program is run, see steps 4-7.
 4. Data from the main catalogue schema data is downloaded from a source server (usually the production server) and transformed. The molgenis.csv is deleted and an updated version is added.
 5. The transformed data is uploaded to the catalogue schema on the target server.
-6. Data from staging areas is downloaded and transformed, staging areas are deleted and new staging areas with the same name are made. The molgenis.csv is deleted and an updated version is added.
+6. Data from staging areas is downloaded and transformed. On the target server, a new staging area with the same name is made. A schema that already exists on the target server is skipped, so start with an empty target server. The molgenis.csv is deleted and an updated version is added.
 7. Transformed data is uploaded to staging areas on the target server.
 8. Other schemas that have no Profiles table have to still be moved 'as is' by hand.
 
 
 ## system requirements
 
-- Python 3 (3.8.10)
+- Python 3.10 or newer
 - Git
 
 ## Initial one-time setup
@@ -49,6 +49,11 @@ Use virtual env to get a consistent python environment.
 
 5. Define environment variables in .env, see .env_example
 
-6. Run script for update of servers after selecting the right run.py, e.g.
+6. Run script for update of servers after selecting the right run script for the new data model version, e.g.
 
-    'run_8.0.py'
+    `python run_9.0.py`
+
+## Tests
+
+Each migration (`update/update_X_Y.py`) can be tested with small example data, without a server.
+See [tests/README.md](tests/README.md) for how to run the tests and how to add a test case.

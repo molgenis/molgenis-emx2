@@ -55,6 +55,8 @@ So a forgotten rename causes data loss without an error message.
 
 1. Download a schema export (zip) from a server that uses the old model, and unzip it.
 2. Make a new case folder. Copy `molgenis.csv`, `Profiles.csv` and the tables that the change is about to `from/`.
+   A real export contains a file for every table of the profile, also when the table is empty.
+   So also copy the files that the migration reads. An empty table only needs its header line.
 3. Keep only a few rows per table: rows that show the change, and one or two rows that must not change.
    Do not use personal data, such as real names or email addresses.
 4. Copy `from/` to `to/`, remove `molgenis.csv`, and change the files by hand to what you expect.
