@@ -212,7 +212,7 @@ export function readableStringArray(
   const escapedStrings = strings.map((str) =>
     typeof str === "string"
       ? str.toString().replaceAll("'", "\\'")
-      : (str?.toString() ?? "[non-parsable value]")
+      : str?.toString() ?? "[non-parsable value]"
   );
   if (escapedStrings.length === 0) {
     return "";
