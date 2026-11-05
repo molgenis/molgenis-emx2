@@ -44,11 +44,11 @@ const sidebarCollapsed = ref(false);
     }"
   >
     <div
+      v-if="isEditable"
       class="sticky top-0 pt-2.5 h-screen overflow-y-scroll bg-sidebar-gradient"
     >
       <Sidebar
         id="configurable-page-sidebar"
-        v-if="isEditable"
         :collapsed="sidebarCollapsed"
         :active-filter-count="0"
         @update:collapsed="sidebarCollapsed = $event"
