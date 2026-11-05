@@ -1,8 +1,6 @@
 import { reactive, ref } from "vue";
 import type { User } from "../interfaces/interfaces";
 import { createUser, deleteUser, getUsers } from "../util/adminUtils";
-import type { ITableSettings } from "../../../tailwind-components/types/types";
-
 
 export default function useAdminSettings() {
   const users = ref<User[]>([]);
@@ -15,12 +13,6 @@ export default function useAdminSettings() {
     const { newUsers, newUserCount } = await getUsers();
     users.value = newUsers;
     userCount.value = newUserCount;
-  // const offset = (settings.page - 1) * settings.pageSize;
-    // const divided = userCount.value / settings.pageSize;
-    // totalUserPages.value =
-    //   userCount.value % settings.pageSize > 0
-    //     ? Math.floor(divided) + 1
-    //     : divided;
   }
 
   async function addUser(userName: string, password: string) {
@@ -28,8 +20,8 @@ export default function useAdminSettings() {
     retrieveUsers();
   }
 
-  async function removeUser(user: User) {
-    await deleteUser(user);
+  async function removeUsers(users: User[]) {
+    await Promise.all(users.map((user) => deleteUser(user)));
     await retrieveUsers();
   }
 
@@ -38,7 +30,7 @@ export default function useAdminSettings() {
     userCount,
     totalUserPages,
     addUser,
-    removeUser,
+    removeUsers,
     retrieveUsers,
   });
 }

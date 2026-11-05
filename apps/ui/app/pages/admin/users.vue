@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import type {
+  ITableMetaData,
+  TableRow as TableRowData,
+} from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import CellDetailModal from "../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import Table from "../../../../tailwind-components/app/components/Table.vue";
+import CellDetailModal from "../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
-import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
-import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
-import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
-import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
 import type {
   cellPayload,
   ITableSettings,
@@ -24,10 +21,6 @@ import TokenManagement from "../../components/TokenManagement.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
 import { getRoles, getSchemas } from "../../util/adminUtils";
-import type {
-  ITableMetaData,
-  TableRow as TableRowData,
-} from "../../../../metadata-utils/src/types.ts";
 
 /**
  * Todo:
@@ -102,6 +95,8 @@ const selectedUser = ref<User | null>(null);
 const schemas = ref<SchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const schema = ref<string>("");
+const selectedRows = ref<Map<string, User>>(new Map());
+const usersForDeletion = ref<User[]>([]);
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -122,7 +117,7 @@ const usernames = computed(() => {
   return adminSettings.users.map((user: User) => user.email);
 });
 
-const usersShown = computed(() => {
+const usersShown = computed<TableRowData[]>(() => {
   const search = tableSettings.value.search?.toLowerCase() || "";
   const filteredUsers = adminSettings.users.filter((user: User) => {
     return (
@@ -183,8 +178,10 @@ function openEditUserModal(user: User) {
   showEditUserModal.value = true;
 }
 
-function showDeleteUserConfirmation(user: User) {
-  selectedUser.value = user;
+function showDeleteUserConfirmation(user?: User) {
+  usersForDeletion.value = user
+    ? [user]
+    : Array.from(selectedRows.value.values());
   showDeleteUserModal.value = true;
 }
 
@@ -210,6 +207,44 @@ function handleCellClicked(payload: cellPayload) {
   cellDetailPayload.value = payload;
   showCellInfoSideModal.value = true;
 }
+
+function handleToggleRowSelection(row: TableRowData) {
+  if (selectedRows.value.has(row._rowIdString)) {
+    selectedRows.value.delete(row._rowIdString);
+  } else {
+    selectedRows.value.set(row._rowIdString, userOf(row));
+  }
+}
+
+function handleRowAction(payload: { action: string }) {
+  if ("action" in payload) {
+    const action = payload.action;
+    const singleRowSelected =
+      selectedRows.value.size === 1
+        ? usersShown.value.find((user) =>
+            selectedRows.value.has(user._rowIdString)
+          )
+        : null;
+    switch (action) {
+      case "delete-selection":
+        showDeleteUserConfirmation();
+        break;
+      case "edit-selection":
+        if (singleRowSelected) {
+          openEditUserModal(userOf(singleRowSelected));
+        }
+        break;
+      case "select-all-on-page":
+        usersShown.value.forEach((user) => {
+          selectedRows.value.set(user._rowIdString, userOf(user));
+        });
+        break;
+      case "select-none":
+        selectedRows.value.clear();
+        break;
+    }
+  }
+}
 </script>
 
 <template>
@@ -219,25 +254,18 @@ function handleCellClicked(payload: cellPayload) {
       title="User management"
       :description="`${adminSettings.userCount} users found`"
     >
-      <Button
-        icon="plus"
-        con="user"
-        type="secondary"
-        size="small"
-        @click="showNewUserModal = true"
-      >
-        Create User
-      </Button>
       <TableInteractive
         :features="tableFeatures"
         :permissions="tablePermissions"
         :rows="usersShown"
         :rowCount="adminSettings.userCount"
         :settings="tableSettings"
-        searchPlaceholder="Search users"
         :tableMetadata="tableMetadata"
+        searchPlaceholder="Search users"
         @update:settings="handleUpdateSettings"
         @cellClicked="handleCellClicked"
+        @rowAction="handleRowAction"
+        @toggleRowSelection="handleToggleRowSelection"
       >
         <template #row-action="{ row }">
           <Button
@@ -267,6 +295,17 @@ function handleCellClicked(payload: cellPayload) {
             {{ userOf(row).tokens?.length }} tokens
           </Button>
         </template>
+
+        <template #buttons>
+          <Button
+            type="primary"
+            size="medium"
+            icon="add-circle"
+            @click="showNewUserModal = true"
+          >
+            Add user
+          </Button>
+        </template>
       </TableInteractive>
 
       <CellDetailModal
@@ -293,10 +332,10 @@ function handleCellClicked(payload: cellPayload) {
       />
 
       <DeleteUserConfirmation
-        v-if="selectedUser && showDeleteUserModal"
+        v-if="usersForDeletion.length && showDeleteUserModal"
         v-model:visible="showDeleteUserModal"
-        :user="selectedUser"
-        @deleteUser="adminSettings.removeUser(selectedUser)"
+        :users="usersForDeletion"
+        @deleteUser="adminSettings.removeUsers(usersForDeletion)"
       />
 
       <TokenManagement

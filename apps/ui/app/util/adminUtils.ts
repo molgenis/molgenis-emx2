@@ -1,6 +1,5 @@
 import { $fetch } from "ofetch";
 import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
-import type { ITableSettings } from "../../../tailwind-components/types/types";
 
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
