@@ -1,23 +1,25 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
 import static org.molgenis.emx2.sql.Migrations.migration5addMgTableclassUpdateTrigger;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.jooq.DSLContext;
-import org.jooq.InsertValuesStep3;
 import org.jooq.Record1;
 import org.jooq.exception.DataAccessException;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Username;
 
@@ -121,52 +123,94 @@ public class TestMigration {
             .get(0));
   }
 
-  @Test
-  void testMigration37_shouldThrowWhenDuplicates() {
-    try {
-      rawInsertUsers("migrations_foobarbaz", "migrations_FooBarBaz");
+  @Nested
+  class Migration37 {
 
-      DataAccessException expected =
-          assertThrows(
-              DataAccessException.class,
-              () -> executeMigrationFile(database, "migration37.sql", "should throw"));
-      assertTrue(
-          expected
-              .getCause()
-              .getMessage()
-              .contains("duplicate usernames found (case/whitespace-insensitive)"));
-    } finally {
-      jooq.deleteFrom(USERS_METADATA)
-          .where(USER_NAME.in("migrations_foobarbaz", "migrations_FooBarBaz"))
-          .execute();
-    }
-  }
+    @Test
+    void shouldThrowWhenDuplicates() {
+      Username username1 = rawUsername("migrations_FOOBARBAZ");
+      Username username2 = rawUsername("migrations_FooBarBaz");
+      try {
+        database.addUser(username1);
+        database.addUser(username2);
 
-  @Test
-  void testMigration37_shouldNormalizeUsernames() {
-    String raw = "  migrations_toTRIMandLOWERCASE  ";
-    String normalized = new Username(raw).value();
+        DataAccessException expected =
+            assertThrows(
+                DataAccessException.class,
+                () -> executeMigrationFile(database, "migration37.sql", "should throw"));
 
-    try {
-      rawInsertUsers(raw);
-      executeMigrationFile(database, "migration37.sql", "should throw");
-      List<String> usernames =
-          jooq.select(USER_NAME).from(USERS_METADATA).stream().map(Record1::value1).toList();
-      assertFalse(usernames.contains(raw));
-      assertTrue(usernames.contains(normalized));
-    } finally {
-      jooq.deleteFrom(USERS_METADATA).where(USER_NAME.in(raw, normalized)).execute();
-    }
-  }
-
-  private void rawInsertUsers(String... usernames) {
-    InsertValuesStep3 query =
-        jooq.insertInto(USERS_METADATA).columns(USER_NAME, USER_ENABLED, SETTINGS);
-
-    for (String username : usernames) {
-      query = query.values(username, true, Map.of());
+        assertTrue(
+            expected
+                .getCause()
+                .getMessage()
+                .contains("duplicate usernames found (trimmed/case-insensitive)"));
+      } finally {
+        if (database.hasUser(username1)) {
+          database.removeUser(username1);
+        }
+        if (database.hasUser(username2)) {
+          database.removeUser(username2);
+        }
+      }
     }
 
-    query.onConflictDoNothing().execute();
+    @Test
+    void shouldNormalizeUsernames() {
+      Username username = rawUsername("  migrations_toTRIMandLOWERCASE  ");
+      Username normalized = new Username(username.value());
+      try {
+        database.addUser(username);
+        executeMigrationFile(database, "migration37.sql", "should throw");
+        List<String> usernames =
+            jooq.select(USER_NAME).from(USERS_METADATA).stream().map(Record1::value1).toList();
+        assertFalse(usernames.contains(username.value()));
+        assertTrue(usernames.contains(normalized.value()));
+
+      } finally {
+        if (database.hasUser(username)) {
+          database.removeUser(username);
+        }
+        if (database.hasUser(normalized)) {
+          database.removeUser(normalized);
+        }
+      }
+    }
+
+    @Test
+    void whenUpdatingUsers_thenUpdateRolesAndKeepAccessToTheSameSchemas() {
+      Username uppercase = rawUsername("UPPERCASE_USERNAME");
+      Username normalized = new Username("uppercase_username");
+      String schemaName = Migration37.class.getSimpleName() + "_updateRoles";
+
+      try {
+        database.addUser(uppercase);
+
+        Schema schema = database.dropCreateSchema(schemaName);
+        schema.addMember(uppercase, Privileges.VIEWER.toString());
+
+        database.setActiveUser(uppercase);
+        Collection<String> beforeMigration = database.getSchemaNames();
+
+        database.becomeAdmin();
+        executeMigrationFile(database, "migration37.sql", "should throw");
+
+        assertFalse(database.hasUser(uppercase));
+
+        // Check if the user still has access to the expected schemas
+        database.setActiveUser(normalized);
+        assertEquals(beforeMigration, database.getSchemaNames());
+      } finally {
+        database.becomeAdmin();
+        if (database.hasUser(normalized)) {
+          database.removeUser(normalized);
+        }
+      }
+    }
+
+    private Username rawUsername(String raw) {
+      Username username = mock(Username.class);
+      doReturn(raw).when(username).value();
+      return username;
+    }
   }
 }
