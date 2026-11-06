@@ -2,9 +2,8 @@ import shutil
 import os
 from pathlib import Path
 import pandas as pd
-from decouple import config
 
-CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
+RESOURCE_TABLES = {'Catalogue': 'Catalogues', 'Network': 'Networks', 'Collection': 'Collections'}
 
 def get_data_model(profile_path, path_to_write, profile):
     # get data model from profile and write to file
@@ -25,9 +24,10 @@ class Transform:
     """General functions to update catalogue data model.
     """
 
-    def __init__(self, schema_name):
+    def __init__(self, schema_name, data_dir=None, model_dir=None):
         self.schema_name = schema_name
-        self.path = self.schema_name + '_data/'
+        self.path = os.path.join(data_dir, '') if data_dir else self.schema_name + '_data/'
+        self.model_dir = model_dir
         self.profile = self.get_profile()
 
     def get_profile(self):
@@ -44,7 +44,10 @@ class Transform:
     def update_data_model_file(self):
         """Get data model from profile and copy molgenis.csv to appropriate folder
         """
-        profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
+        if self.model_dir:
+            profile_path = Path(self.model_dir)
+        else:
+            profile_path = Path().cwd().joinpath('..', '..', '..', '_models', 'shared')
         path_to_write = self.path
         get_data_model(profile_path, path_to_write, self.profile)
 
@@ -57,25 +60,39 @@ class Transform:
     def resources(self):
         """ Transform data in Resources: split into separate tables based on type
         """
-        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object', keep_default_na=False)
+        data_model = pd.read_csv(self.path + 'molgenis.csv', dtype='object', keep_default_na=False)
 
-        # split Resources table
-        df_resources['table_type'] = df_resources['type'].apply(assign_table_type)
-        df_catalogues = df_resources[df_resources['table_type'] == 'Catalogue']
-        df_networks = df_resources[df_resources['table_type'] == 'Network']
-        df_collections = df_resources[df_resources['table_type'] == 'Collection']
+        table_types = df_resources['type'].apply(assign_table_type)
+        for table_type, table_name in RESOURCE_TABLES.items():
+            df_table = df_resources[table_types == table_type]
+            if table_name not in set(data_model['tableName']):
+                if len(df_table) != 0:
+                    raise ValueError(f"{self.schema_name}: no table {table_name} in the new model for "
+                                     f"{', '.join(df_table['id'])}")
+                continue
+            columns = columns_of_table(data_model, table_name)
+            keep = [c for c in df_resources.columns
+                    if c == 'mg_draft' or c.split('.')[0] in columns or c.removesuffix('_filename') in columns]
+            df_table[keep].to_csv(self.path + table_name + '.csv', index=False)
 
-        # write tables to file
-        df_catalogues.to_csv(self.path + 'Catalogues.csv', index=False)
-        df_networks.to_csv(self.path + 'Networks.csv', index=False)
-        df_collections.to_csv(self.path + 'Collections.csv', index=False)
-
-        # remove resources table
         os.remove(self.path + 'Resources.csv')
 
 
+def columns_of_table(data_model, table_name):
+    """Columns of a table and of the tables it extends
+    """
+    columns = set()
+    while table_name:
+        table_rows = data_model[data_model['tableName'] == table_name]
+        columns |= set(table_rows['columnName'])
+        parents = [parent for parent in table_rows['tableExtends'] if parent]
+        table_name = parents[0] if parents else None
+    return columns
+
+
 def assign_table_type(resource_type):
-    if pd.isna(resource_type):
+    if not resource_type:
         table_type = 'Collection'
     elif 'Catalogue' in resource_type:
         table_type = 'Catalogue'
