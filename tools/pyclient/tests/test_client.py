@@ -34,7 +34,7 @@ from src.molgenis_emx2_pyclient.utils import (
     validate_graphql_response
 )
 
-server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
+server_url = os.environ.get("MG_SERVER", "http://localhost:8080")
 username = os.environ.get("MG_USERNAME", "admin")
 password = os.environ.get("MG_PASSWORD", "admin")
 
@@ -209,9 +209,9 @@ def test_truncate():
         with pytest.raises(ReferenceException) as exc_info:
             client.truncate(schema='pet store', table='Pet')
         assert exc_info.value.msg is not None
-        assert exc_info.value.msg.startswith("Transaction failed: delete on"
+        assert exc_info.value.msg.startswith("Transaction failed: update or delete on"
                                              " table \"Pet\" violates"
-                                             " foreign key constraint.")
+                                             " foreign key constraint")
 
         # Test correct running
         client.truncate(schema='pet store', table='User')
@@ -599,7 +599,7 @@ async def test_export_schema():
         csv_bytes = await client.export_schema("pet store",
                                                filename="pet store.csv")
         csv_schema = pd.read_csv(csv_bytes)
-        assert len(csv_schema.columns) == 23
+        assert len(csv_schema.columns) == 24
         assert (Path(__file__).parent / "pet store.csv").exists()
         (Path(__file__).parent / "pet store.csv").unlink()
 
