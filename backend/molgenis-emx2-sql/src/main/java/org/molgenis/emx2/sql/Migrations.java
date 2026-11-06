@@ -21,14 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class Migrations {
-  // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 37;
-  public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
-  private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   private Migrations() {
-    // no instances
+    // hide constructor
   }
+  // version the current software needs to work
+  private static final int SOFTWARE_DATABASE_VERSION = 38;
+  private static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
+
+  private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
     db.tx(
@@ -161,10 +162,8 @@ public final class Migrations {
             for (String schemaName : tdb.getSchemaNames()) {
               Schema schema = tdb.getSchema(schemaName);
               for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
-                {
-                  updateSearchIndexTriggerFunction(
-                      ((SqlDatabase) tdb).getJooq(), tableMetadata, tableMetadata.getTableName());
-                }
+                updateSearchIndexTriggerFunction(
+                    ((SqlDatabase) tdb).getJooq(), tableMetadata, tableMetadata.getTableName());
               }
             }
           }
@@ -240,6 +239,10 @@ public final class Migrations {
             executeMigrationFile(tdb, "migration36.sql", "add column_metadata.values");
           }
 
+          if (version < 38) {
+            executeMigrationFile(tdb, "migration37.sql", "make usernames lowercase and trim them");
+          }
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
@@ -259,13 +262,12 @@ public final class Migrations {
     jooq.alterTableIfExists(table(name(MOLGENIS, "schema_metadata"))).addColumn(SETTINGS).execute();
     jooq.alterTableIfExists(table(name(MOLGENIS, "table_metadata"))).addColumn(SETTINGS).execute();
     jooq.alterTableIfExists(table(name(MOLGENIS, "users_metadata"))).addColumn(SETTINGS).execute();
-    // todo: do we also want column settings?
 
     // copy settings table into schema and table respectively
     Result<Record> previousSettings =
         jooq.selectFrom(table(name(MOLGENIS, "settings_metadata"))).fetch();
 
-    // t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
+    // t.columns(TABLE_SCHEMA, settingsTableName, settingsName, settingsValue)
     final Field settingsName = field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
     final Field settingsTableName =
         field(
@@ -273,12 +275,12 @@ public final class Migrations {
             VARCHAR.nullable(true)); // note table might be null in case of schema
     final Field settingsValue = field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
 
-    for (Record record : previousSettings) {
-      String schemaName = record.get(TABLE_SCHEMA, String.class);
-      String tableName = record.get(settingsTableName, String.class);
-      String key = record.get(settingsName, String.class);
-      String value = record.get(settingsValue, String.class);
-      logger.info("migrating setting " + schemaName + "." + tableName + "." + key + "=xxxxx");
+    for (Record setting : previousSettings) {
+      String schemaName = setting.get(TABLE_SCHEMA, String.class);
+      String tableName = setting.get(settingsTableName, String.class);
+      String key = setting.get(settingsName, String.class);
+      String value = setting.get(settingsValue, String.class);
+      logger.info("migrating setting {}.{}.{}=xxxxx", schemaName, tableName, key);
       if (schemaName == null || NOT_PROVIDED.equals(schemaName)) {
         // database level setting
         tdb.setSetting(key, value);
@@ -306,7 +308,7 @@ public final class Migrations {
       jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       jooq.execute(sql);
-      logger.debug(message + "(file = " + sqlFile);
+      logger.debug("{}(file = {}", message, sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
     } finally {
@@ -342,32 +344,34 @@ public final class Migrations {
               "DROP FUNCTION IF EXISTS {0}", name(table.getSchema().getName(), functionName));
 
           jooq.execute(
-              "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ "
-                  + "\nBEGIN"
-                  + "\n\tIF OLD.{1} <> NEW.{1} THEN"
-                  + "\n\t\tRAISE EXCEPTION USING ERRCODE='23505'"
-                  + ", MESSAGE = 'insert or update on table ' || NEW.{1} || ' violates primary key constraint'"
-                  + ", DETAIL = 'Duplicate key: ('||{2}||')=('|| {3} ||') already exists in inherited table ' || OLD.{1};"
-                  + "\n\tEND IF;"
-                  + "\n\tRETURN NEW;"
-                  + "\nEND; $BODY$ LANGUAGE plpgsql;",
+              """
+              CREATE FUNCTION {0}() RETURNS trigger AS $BODY$
+              BEGIN
+                IF OLD.{1} <> NEW.{1} THEN
+                  RAISE EXCEPTION USING ERRCODE='23505',
+                    MESSAGE = 'insert or update on table ' || NEW.{1} || ' violates primary key constraint',
+                    DETAIL = 'Duplicate key: ('||{2}||')=('|| {3} ||') already exists in inherited table ' || OLD.{1};
+                END IF;
+                RETURN NEW;
+              END; $BODY$ LANGUAGE plpgsql;""",
               name(table.getSchema().getName(), functionName),
               name(MG_TABLECLASS),
               inline(keyColumns),
               keyword(keyValues));
 
           jooq.execute(
-              "CREATE CONSTRAINT TRIGGER {0} "
-                  + "\n\tAFTER UPDATE OF {1} ON {2}"
-                  + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
-                  + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+              """
+              CREATE CONSTRAINT TRIGGER {0}
+                AFTER UPDATE OF {1} ON {2}
+                DEFERRABLE INITIALLY IMMEDIATE
+                FOR EACH ROW EXECUTE PROCEDURE {3}()""",
               name(functionName),
               name(MG_TABLECLASS),
               table,
               name(table.getSchema().getName(), functionName));
 
           logger.info(
-              "migration 5 added mg_tableclass update trigger for table " + table.getName());
+              "migration 5 added mg_tableclass update trigger for table {}", table.getName());
         }
       }
     }
