@@ -73,7 +73,9 @@ const resourceQuery = `
       logo {
         url
       }
-      contactEmail
+      contactPoint {
+        email
+      }
       type {
         name
       }
@@ -754,7 +756,7 @@ const showPopulation = computed(
         <ContentBlockIntro
           :image="resource?.logo?.url"
           :link="resource?.website as linkTarget"
-          :contact="resource?.contactEmail"
+          :contact="resource?.contactPoint?.email"
           :contact-name="resource?.name"
           :contact-message-filter="messageFilter"
           :subject-template="resource.acronym"

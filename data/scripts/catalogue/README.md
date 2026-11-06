@@ -52,3 +52,18 @@ Use virtual env to get a consistent python environment.
 6. Run script for update of servers after selecting the right run.py, e.g.
 
     'run_8.0.py'
+
+## Update to 10.0: contact email moves to Contacts
+
+The column `contact email` of Resources is removed. Each email becomes a row in Contacts:
+
+- An email that belongs to an existing contact of the resource uses that contact.
+- Another email gives a new contact with role 'Primary contact'. The name comes from the email:
+  `tiina.eriksson@tuni.fi` gives Tiina Eriksson, `info@nkcx.se` gives 'Contact info'.
+- The first email becomes the `contact point`, unless the resource already has one.
+- No email is lost. A field with more than one email gives more than one contact.
+
+The script prints a line for each change. Check the lines with 'NEW contact', and correct the names on the
+target server. Check also the setting `contactRecipientsQuery`: it must not use `contactEmail`.
+
+Run the checks for this update with `python test_update_10_0.py`.

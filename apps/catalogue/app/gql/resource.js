@@ -6,7 +6,9 @@ export default gql`
       name
       description
       website
-      contactEmail
+      contactPoint {
+        email
+      }
       leadOrganisation {
         acronym
       }
