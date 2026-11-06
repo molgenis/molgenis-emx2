@@ -138,7 +138,7 @@ export async function moveBlockUp(
       message
     }
   }`;
-  
+
   const vars = {
     value: {
       id: blockOrderId,
