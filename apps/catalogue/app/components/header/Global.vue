@@ -8,6 +8,7 @@ import MainNavigation from "../../components/MainNavigation.vue";
 
 const props = defineProps<{
   logoSrc?: string;
+  isPaperExtractingEnabled?: boolean;
 }>();
 
 const config = useRuntimeConfig();
@@ -37,6 +38,12 @@ const menu = [
     label: "Add data",
     link: "/" + config.public.schema + "/pages/#/data-manager-portal",
   },
+  props.isPaperExtractingEnabled
+    ? {
+        label: "Import data from papers",
+        link: "/paper-extracting",
+      }
+    : undefined,
   {
     label: "Manuals",
     link: "/apps/docs/#/catalogue/",

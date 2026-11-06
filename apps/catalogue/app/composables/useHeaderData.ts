@@ -1,6 +1,12 @@
 import { useRoute, useRuntimeConfig } from "#app";
 import { logError } from "#imports";
 import type { UIResource } from "../../interfaces/types";
+import type { ISetting } from "../../../metadata-utils/src/types";
+import {
+  CATALOGUE_ENABLE_PAPER_EXTRACTING,
+  CATALOGUE_PAPER_EXTRACTING_SCHEMA,
+  parsePaperExtractingSettings,
+} from "../utils/paperExtractingSettings";
 
 interface Resp<T> {
   data: T;
@@ -12,7 +18,7 @@ interface IHeaderQuery {
   Variables_agg: { count: number };
   Collections_agg: { count: number };
   Networks_agg: { count: number };
-  _settings: { key: "CATALOGUE_LOGO_SRC"; value: string }[];
+  _settings: ISetting[];
 }
 
 export async function useHeaderData() {
@@ -46,6 +52,8 @@ export async function useHeaderData() {
               }
               _settings (keys: [
                 "CATALOGUE_LOGO_SRC"
+                "${CATALOGUE_ENABLE_PAPER_EXTRACTING}"
+                "${CATALOGUE_PAPER_EXTRACTING_SCHEMA}"
               ]){
                 key
                 value
@@ -138,6 +146,8 @@ export async function useHeaderData() {
       }
     ).value;
 
+  const paperExtracting = parsePaperExtractingSettings(data._settings);
+
   return {
     catalogue,
     variableCount,
@@ -145,5 +155,6 @@ export async function useHeaderData() {
     networkCount,
     logoSrc,
     logoTitle: catalogue?.acronym || catalogue?.name,
+    paperExtracting,
   };
 }
