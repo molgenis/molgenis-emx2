@@ -1,5 +1,6 @@
 import { useHead, tryUseNuxtApp } from "#app";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
+import { useActiveUiTheme } from "./useUiTheme";
 
 export function useLayoutHead(route: RouteLocationNormalizedLoaded) {
   const nuxtApp = tryUseNuxtApp();
@@ -12,10 +13,13 @@ export function useLayoutHead(route: RouteLocationNormalizedLoaded) {
     ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
     : "/_nuxt-styles/img/molgenis.ico";
 
+  const uiTheme = useActiveUiTheme();
+
   useHead({
     htmlAttrs: {
-      "data-theme":
+      "data-theme": () =>
         (route.query.theme as string) ||
+        uiTheme.value ||
         (config.public.emx2Theme as string) ||
         "",
     },
