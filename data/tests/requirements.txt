@@ -1,0 +1,2 @@
+molgenis_emx2_pyclient==13.204.1
+pytest==9.2.0
