@@ -14,6 +14,7 @@ import graphql.parser.ParserOptions;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -117,7 +118,7 @@ public class GraphqlExecutor {
 
     // we don't log password calls
     if (logger.isInfoEnabled()) {
-      if (query.contains("password")) {
+      if (query.toLowerCase(Locale.ROOT).contains("password")) {
         logger.info("query: obfuscated because contains parameter with name 'password'");
       } else {
         logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
