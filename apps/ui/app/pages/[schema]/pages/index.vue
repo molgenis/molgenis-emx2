@@ -294,7 +294,7 @@ function closeStatusModal() {
         v-if="formValues"
         :formValues="formValues"
         :isInsert="true"
-        :tableId="pageType"
+        :tableId="formMetadata.id"
         :schemaId="schema"
       />
     </template>
