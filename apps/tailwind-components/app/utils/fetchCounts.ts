@@ -3,7 +3,7 @@ import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
 import { getColumnIds } from "../composables/fetchTableData";
 import { setNestedValue } from "./buildGqlFilter";
-import { BOOL_LABELS } from "./filterUtils";
+import { BOOL_LABELS, isBoolColumnType } from "./filterUtils";
 
 export interface CountedOption extends Omit<ITreeNode, "children"> {
   count: number;
@@ -51,8 +51,8 @@ export async function fetchCounts(
     return { options, saturated };
   }
 
-  if (columnType === "BOOL") {
-    const options = await fetchBoolGroupBy(
+  if (isBoolColumnType(columnType)) {
+    const options = await fetchBoolCounts(
       schemaId,
       tableId,
       columnId,
@@ -96,63 +96,40 @@ const GROUP_BY_SATURATION_THRESHOLD = 500;
 
 // === STRATEGIES ===
 
-async function fetchBoolGroupBy(
+const BOOL_COUNT_CHOICES = [
+  { alias: "yes", name: "true", columnFilter: { equals: [true] } },
+  { alias: "no", name: "false", columnFilter: { equals: [false] } },
+  { alias: "empty", name: "_null_", columnFilter: { is_null: true } },
+];
+
+async function fetchBoolCounts(
   schemaId: string,
   tableId: string,
   columnId: string,
   crossFilter: IGraphQLFilter,
   fetcher: (schemaId: string, query: string, variables: any) => Promise<any>
 ): Promise<CountedOption[]> {
-  const filterArg = buildFilterArg(crossFilter);
   const segments = columnId.split(".");
-  const fieldSelection =
-    segments.length > 1 ? buildNestedField(segments, "") : columnId;
-
-  let rows: any[];
-  try {
-    rows = await fireGroupByQuery(
-      schemaId,
-      tableId,
-      fieldSelection,
-      filterArg,
-      fetcher
-    );
-  } catch {
-    return [
-      { name: "true", label: BOOL_LABELS["true"], count: 0, overlap: 0 },
-      { name: "false", label: BOOL_LABELS["false"], count: 0, overlap: 0 },
-      { name: "_null_", label: BOOL_LABELS["_null_"], count: 0, overlap: 0 },
-    ];
-  }
-
-  const countMap = new Map<string, number>();
-  for (const row of rows) {
-    const val =
-      segments.length > 1 ? getNestedValue(row, segments) : row[columnId];
-    const key = val === null || val === undefined ? "_null_" : String(val);
-    countMap.set(key, row.count);
-  }
-
-  return [
-    {
-      name: "true",
-      label: BOOL_LABELS["true"],
-      count: countMap.get("true") ?? 0,
-      overlap: 0,
-    },
-    {
-      name: "false",
-      label: BOOL_LABELS["false"],
-      count: countMap.get("false") ?? 0,
-      overlap: 0,
-    },
-    {
-      name: "_null_",
-      label: BOOL_LABELS["_null_"],
-      count: countMap.get("_null_") ?? 0,
-      overlap: 0,
-    },
-  ];
+  const aliases = BOOL_COUNT_CHOICES.map(({ alias, columnFilter }) => {
+    const filter: IGraphQLFilter = structuredClone(crossFilter);
+    setNestedValue(filter, segments, columnFilter);
+    return `${alias}: ${tableId}_agg(filter: {${serializeFilterForQuery(
+      filter
+    )}}) { count }`;
+  });
+  const data = await fetcher(
+    schemaId,
+    `{
+    ${aliases.join("\n    ")}
+  }`,
+    null
+  );
+  return BOOL_COUNT_CHOICES.map(({ alias, name }) => ({
+    name,
+    label: BOOL_LABELS[name],
+    count: data?.[alias]?.count ?? 0,
+    overlap: 0,
+  }));
 }
 
 async function fetchFlatGroupBy(

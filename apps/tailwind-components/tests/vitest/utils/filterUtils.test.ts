@@ -24,12 +24,12 @@ describe("filterValueToTreeSelection", () => {
   });
 
   it("returns empty array for non-equals operator", () => {
-    const filterValue: IFilterValue = { operator: "like", value: "foo" };
+    const filterValue: IFilterValue = { operator: "like", value: ["foo"] };
     expect(filterValueToTreeSelection(filterValue)).toEqual([]);
   });
 
   it("returns empty array for between operator", () => {
-    const filterValue: IFilterValue = { operator: "between", value: [1, 5] };
+    const filterValue: IFilterValue = { operator: "between", value: [[1, 5]] };
     expect(filterValueToTreeSelection(filterValue)).toEqual([]);
   });
 

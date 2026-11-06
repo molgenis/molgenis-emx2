@@ -32,11 +32,11 @@ describe("buildGraphQLFilter", () => {
   it("builds nested filter for 2-level path", () => {
     const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
-      ["order.status", { operator: "like", value: "active" }],
+      ["order.status", { operator: "like", value: ["active"] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      order: { status: { like: "active" } },
+      order: { status: { like: ["active"] } },
     });
   });
 
@@ -62,19 +62,19 @@ describe("buildGraphQLFilter", () => {
     const columns: IColumn[] = [orderColumn, userColumn];
     const filters = new Map<string, IFilterValue>([
       ["order.pet.category", { operator: "equals", value: { name: "dogs" } }],
-      ["user.name", { operator: "like", value: "John" }],
+      ["user.name", { operator: "like", value: ["John"] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
       order: { pet: { category: { name: { equals: ["dogs"] } } } },
-      user: { name: { like: "John" } },
+      user: { name: { like: ["John"] } },
     });
   });
 
   it("handles nested filters with between operator", () => {
     const columns: IColumn[] = [orderColumn];
     const filters = new Map<string, IFilterValue>([
-      ["order.price", { operator: "between", value: [10, 100] }],
+      ["order.price", { operator: "between", value: [[10, 100]] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
@@ -113,114 +113,59 @@ describe("buildGraphQLFilter", () => {
   it("builds simple filter without nesting", () => {
     const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "John" }],
+      ["name", { operator: "like", value: ["John"] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      name: { like: "John" },
+      name: { like: ["John"] },
     });
   });
 
   it("includes search in filter", () => {
     const columns: IColumn[] = [nameColumn];
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "John" }],
+      ["name", { operator: "like", value: ["John"] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "search term");
     expect(result).toEqual({
       _search: "search term",
-      name: { like: "John" },
+      name: { like: ["John"] },
     });
   });
 
-  it("parses space-separated string as AND terms", () => {
-    const columns: IColumn[] = [nameColumn];
+  it.each([
+    ["one value", ["dog"], ["dog"]],
+    ["two values", ["dog", "cat"], ["dog", "cat"]],
+    ["a phrase with spaces stays one value", ["cat dog"], ["cat dog"]],
+    ["plus is a literal character", ["dog+cat"], ["dog+cat"]],
+    [
+      "values are trimmed and blanks dropped",
+      [" dog ", "", "  ", "cat"],
+      ["dog", "cat"],
+    ],
+    ["duplicates are sent as typed", ["dog", "dog"], ["dog", "dog"]],
+  ])("like: %s", (_name, input, expected) => {
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "dog cat" }],
+      ["name", { operator: "like", value: input }],
     ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      _and: [{ name: { like: "dog" } }, { name: { like: "cat" } }],
+    expect(buildGraphQLFilter(filters, [nameColumn], "")).toEqual({
+      name: { like: expected },
     });
   });
 
-  it("parses 'and' keyword string as AND terms with _and wrapper", () => {
-    const columns: IColumn[] = [nameColumn];
+  it("like with only blank values produces no filter entry", () => {
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "dog and cat" }],
+      ["name", { operator: "like", value: ["", "  "] }],
     ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      _and: [{ name: { like: "dog" } }, { name: { like: "cat" } }],
-    });
+    expect(buildGraphQLFilter(filters, [nameColumn], "")).toEqual({});
   });
 
-  it("treats plus as literal character (not AND separator)", () => {
-    const columns: IColumn[] = [nameColumn];
+  it("like on a nested path puts the list under the path", () => {
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "dog+cat" }],
+      ["order.pet.name", { operator: "like", value: ["dog", "cat"] }],
     ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      name: { like: "dog+cat" },
-    });
-  });
-
-  it("parses nested path with 'and' keyword string", () => {
-    const columns: IColumn[] = [orderColumn];
-    const filters = new Map<string, IFilterValue>([
-      ["order.pet.name", { operator: "like", value: "dog and cat" }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      _and: [
-        { order: { pet: { name: { like: "dog" } } } },
-        { order: { pet: { name: { like: "cat" } } } },
-      ],
-    });
-  });
-
-  it("handles single term like filter without parsing", () => {
-    const columns: IColumn[] = [nameColumn];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "dog" }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      name: { like: "dog" },
-    });
-  });
-
-  it("treats standalone 'and' keyword as AND separator", () => {
-    const columns: IColumn[] = [nameColumn];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "tools and human" }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      _and: [{ name: { like: "tools" } }, { name: { like: "human" } }],
-    });
-  });
-
-  it("parses quoted phrase with unquoted term as AND terms", () => {
-    const columns: IColumn[] = [nameColumn];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "'aap noot' mies" }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      _and: [{ name: { like: "aap noot" } }, { name: { like: "mies" } }],
-    });
-  });
-
-  it("parses quoted phrase with AND keyword", () => {
-    const columns: IColumn[] = [nameColumn];
-    const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "'aap noot' and mies" }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      _and: [{ name: { like: "aap noot" } }, { name: { like: "mies" } }],
+    expect(buildGraphQLFilter(filters, [orderColumn], "")).toEqual({
+      order: { pet: { name: { like: ["dog", "cat"] } } },
     });
   });
 
@@ -412,6 +357,28 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ active: { equals: [true, false] } });
   });
 
+  it.each([
+    ["No", ["false"], { active: { equals: false } }],
+    ["Yes and No", ["true", "false"], { active: { equals: [true, false] } }],
+    ["Not set", ["_null_"], { active: { is_null: true } }],
+    [
+      "No and Not set",
+      ["false", "_null_"],
+      { _or: [{ active: { equals: false } }, { active: { is_null: true } }] },
+    ],
+  ])(
+    "BOOL_ARRAY %s builds the same shape as BOOL",
+    (_name, chosen, expected) => {
+      const columns: IColumn[] = [
+        { id: "active", columnType: "BOOL_ARRAY", label: "Active" },
+      ];
+      const filters = new Map<string, IFilterValue>([
+        ["active", { operator: "equals", value: chosen }],
+      ]);
+      expect(buildGraphQLFilter(filters, columns, "")).toEqual(expected);
+    }
+  );
+
   it("uses equals with name key for RADIO with refTableId and plain string values", () => {
     const columns: IColumn[] = [
       makeColumn({
@@ -598,11 +565,11 @@ describe("buildGraphQLFilter", () => {
       }),
     ];
     const filters = new Map<string, IFilterValue>([
-      ["collectionEvents.name", { operator: "like", value: "asdf" }],
+      ["collectionEvents.name", { operator: "like", value: ["asdf"] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      collectionEvents: { name: { like: "asdf" } },
+      collectionEvents: { name: { like: ["asdf"] } },
     });
   });
 
@@ -712,10 +679,69 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
+  it.each([
+    [
+      "two closed ranges",
+      [
+        [10, 20],
+        [30, 40],
+      ],
+      [10, 20, 30, 40],
+    ],
+    [
+      "open ranges keep null on the open side",
+      [
+        [10, null],
+        [null, 5],
+      ],
+      [10, null, null, 5],
+    ],
+    [
+      "a range with both sides empty is dropped",
+      [
+        [null, null],
+        [30, 40],
+      ],
+      [30, 40],
+    ],
+    [
+      "date ranges",
+      [
+        ["2024-01-01", "2024-02-01"],
+        ["2025-01-01", null],
+      ],
+      ["2024-01-01", "2024-02-01", "2025-01-01", null],
+    ],
+  ] as const)(
+    "between: %s send one flat even list",
+    (_name, ranges, expected) => {
+      const columns: IColumn[] = [
+        { id: "age", columnType: "INT", label: "Age" },
+      ];
+      const filters = new Map<string, IFilterValue>([
+        [
+          "age",
+          { operator: "between", value: ranges.map((r) => [...r]) as any },
+        ],
+      ]);
+      expect(buildGraphQLFilter(filters, columns, "")).toEqual({
+        age: { between: expected },
+      });
+    }
+  );
+
+  it("between with no ranges produces no filter entry", () => {
+    const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
+    const filters = new Map<string, IFilterValue>([
+      ["age", { operator: "between", value: [] }],
+    ]);
+    expect(buildGraphQLFilter(filters, columns, "")).toEqual({});
+  });
+
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([
-      ["age", { operator: "between", value: [null, null] }],
+      ["age", { operator: "between", value: [[null, null]] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({});
@@ -733,7 +759,7 @@ describe("buildGraphQLFilter", () => {
   it("H3: INT between [1, 10] produces { age: { between: [1, 10] } }", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
     const filters = new Map<string, IFilterValue>([
-      ["age", { operator: "between", value: [1, 10] }],
+      ["age", { operator: "between", value: [[1, 10]] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ age: { between: [1, 10] } });
@@ -744,7 +770,7 @@ describe("buildGraphQLFilter", () => {
       { id: "count", columnType: "NON_NEGATIVE_INT", label: "Count" },
     ];
     const filters = new Map<string, IFilterValue>([
-      ["count", { operator: "between", value: [0, 100] }],
+      ["count", { operator: "between", value: [[0, 100]] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ count: { between: [0, 100] } });
@@ -759,7 +785,7 @@ describe("buildGraphQLFilter", () => {
         "createdAt",
         {
           operator: "between",
-          value: ["2024-01-01T00:00:00.000Z", "2024-12-31T23:59:59.000Z"],
+          value: [["2024-01-01T00:00:00.000Z", "2024-12-31T23:59:59.000Z"]],
         },
       ],
     ]);
@@ -776,7 +802,7 @@ describe("buildGraphQLFilter", () => {
       { id: "score", columnType: "DECIMAL", label: "Score" },
     ];
     const filters = new Map<string, IFilterValue>([
-      ["score", { operator: "between", value: [2, null] }],
+      ["score", { operator: "between", value: [[2, null]] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ score: { between: [2, null] } });
@@ -787,7 +813,7 @@ describe("buildGraphQLFilter", () => {
       { id: "score", columnType: "DECIMAL", label: "Score" },
     ];
     const filters = new Map<string, IFilterValue>([
-      ["score", { operator: "between", value: [null, 5] }],
+      ["score", { operator: "between", value: [[null, 5]] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({ score: { between: [null, 5] } });
