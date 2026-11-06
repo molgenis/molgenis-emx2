@@ -66,8 +66,15 @@ class CsrfFilterTest {
   }
 
   @Test
-  void givenTokenHeader_whenCrossSitePost_thenAllowed() {
+  void givenTokenHeader_whenCrossSitePost_thenRejected() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", "https://evil.example");
+    when(ctx.header(Constants.X_MOLGENIS_TOKEN)).thenReturn("some-token");
+    assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
+  }
+
+  @Test
+  void givenTokenHeaderWithoutOrigin_whenPost_thenAllowed() {
+    Context ctx = request(HandlerType.POST, "emx2.example.org", null);
     when(ctx.header(Constants.X_MOLGENIS_TOKEN)).thenReturn("some-token");
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }

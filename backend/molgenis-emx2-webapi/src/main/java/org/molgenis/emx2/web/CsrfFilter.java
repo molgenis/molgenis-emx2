@@ -1,7 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.Constants.MOLGENIS_TOKEN;
-
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.HandlerType;
@@ -13,8 +11,9 @@ import java.util.Set;
  * Rejects state-changing requests that a browser sent on behalf of another site (CSRF). A browser
  * attaches the session cookie to cross-site form posts, so for these methods we require that the
  * Origin (or, when absent, the Referer) points to this server. Requests without either header
- * (scripts, curl) and requests authenticated with a token header (which a cross-site form cannot
- * set) are allowed.
+ * (scripts, curl) are allowed. Token headers do not exempt a request: when a session exists it
+ * takes precedence over the token, so a token header alone says nothing about how the request is
+ * authenticated.
  */
 class CsrfFilter {
 
@@ -27,7 +26,7 @@ class CsrfFilter {
   }
 
   static void check(Context ctx) {
-    if (!STATE_CHANGING_METHODS.contains(ctx.method()) || hasTokenHeader(ctx)) {
+    if (!STATE_CHANGING_METHODS.contains(ctx.method())) {
       return;
     }
     String source = ctx.header(Header.ORIGIN);
@@ -41,15 +40,6 @@ class CsrfFilter {
     if (sourceHost == null || !isOwnHost(sourceHost, ctx)) {
       throw new ForbiddenResponse("Cross-site request rejected: origin does not match this server");
     }
-  }
-
-  private static boolean hasTokenHeader(Context ctx) {
-    for (String tokenHeader : MOLGENIS_TOKEN) {
-      if (ctx.header(tokenHeader) != null) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /** Compares host names only; ports may differ behind a reverse proxy. */
