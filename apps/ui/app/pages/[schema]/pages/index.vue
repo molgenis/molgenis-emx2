@@ -20,10 +20,13 @@ import fetchTableMetadata from "../../../../../tailwind-components/app/composabl
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
 import {
   newDeveloperPage,
-  addBlock,
-  addComponent,
   randomId,
 } from "../../../../../tailwind-components/app/utils/cms";
+
+import {
+  addBlock,
+  addComponent,
+} from "../../../../../tailwind-components/app/utils/cms/add.ts";
 
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 
