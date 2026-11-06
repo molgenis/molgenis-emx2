@@ -50,6 +50,8 @@ So a forgotten rename causes data loss without an error message.
 - Data values do not change, unless the README of the case says so.
 - After the migration, the folder contains only tables of the new model.
   Remove the old file when you rename a table.
+- A file with only a header line is the same as no file, because an upload of it changes nothing.
+  So `to/` does not need files for empty tables.
 
 ## Add a test case
 

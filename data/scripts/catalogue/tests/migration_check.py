@@ -35,20 +35,24 @@ def load_model(molgenis_csv: Path) -> dict:
 
 
 def _family(model: dict, table: str) -> list:
-    """The table, its ancestors and its descendants: an export of a table can hold columns of all of them."""
-    family = []
+    """The table, its ancestors and its descendants: an upload of a table can hold columns of all of them.
+
+    Columns of a sibling table (another child of an ancestor) are not part of it.
+    """
+    ancestors = []
     current = table
-    while current in model and current not in family:
-        family.append(current)
+    while current in model and current not in ancestors:
+        ancestors.append(current)
         current = model[current].extends
+    descendants = [table] if table in model else []
     changed = True
     while changed:
         changed = False
         for name, t in model.items():
-            if t.extends in family and name not in family:
-                family.append(name)
+            if t.extends in descendants and name not in descendants:
+                descendants.append(name)
                 changed = True
-    return family
+    return ancestors + descendants[1:]
 
 
 def columns_of(model: dict, table: str) -> dict:
@@ -100,6 +104,8 @@ def check_export(directory: Path, previous_model: dict = None) -> list:
     problems = []
     for name, path in data_files(directory).items():
         table = path.stem
+        if not _has_rows(path):
+            continue
         if table not in model:
             problems.append(f"{name}: no table '{table}' in the model, an upload skips this file")
             continue
@@ -127,13 +133,21 @@ def _read(path: Path, drop: set) -> pd.DataFrame:
     return df.sort_values(list(df.columns)).reset_index(drop=True) if len(df.columns) else df
 
 
+def _has_rows(path: Path) -> bool:
+    try:
+        return len(pd.read_csv(path, dtype=str, keep_default_na=False)) > 0
+    except pd.errors.EmptyDataError:
+        return False
+
+
 def compare_dirs(expected: Path, actual: Path, old_model: dict, new_model: dict) -> list:
     """Differences between the expected and the actual migration output.
 
     Column order, row order and molgenis.csv are not compared. Refback columns are skipped.
+    A file without rows is the same as no file, because an upload of it changes nothing.
     """
-    expected_files = data_files(expected)
-    actual_files = data_files(actual)
+    expected_files = {name: path for name, path in data_files(expected).items() if _has_rows(path)}
+    actual_files = {name: path for name, path in data_files(actual).items() if _has_rows(path)}
     differences = [f"missing file: {name}" for name in expected_files if name not in actual_files]
     differences += [f"unexpected file: {name}" for name in actual_files if name not in expected_files]
     for name in expected_files.keys() & actual_files.keys():
