@@ -12,7 +12,7 @@ export default defineNuxtRouteMiddleware(async () => {
     const link = parseLinkSetting(setting.value.SYSTEM_LANDING_PAGE as string);
     return await navigateTo(link.link, {
       replace: true,
-      external: !link.isSpaLink,
+      external: link.linkType !== "spaLink",
     });
   }
 });

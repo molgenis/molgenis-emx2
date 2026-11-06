@@ -1,18 +1,23 @@
 import { computed, type Ref } from "vue";
 import { useMenu } from "../composables/useMenu";
 import type { ISession, MenuItem } from "../../types/types";
+import { resolveLinkType } from "../utils/typeUtils";
 
 const DEFAULT_MAIN_MENU: MenuItem[] = [
-  { label: "Databases", link: "/", isSpaLink: true },
-  { label: "API", link: "apps/graphql-playground", isSpaLink: false },
+  { label: "Databases", link: "/" },
+  {
+    label: "API",
+    link: "apps/graphql-playground",
+    linkType: "internalPageLink",
+  },
   {
     label: "Components (for developers)",
     link: "apps/tailwind-components",
-    isSpaLink: false,
+    linkType: "internalPageLink",
   },
-  { label: "Help", link: "apps/docs", isSpaLink: false },
-  { label: "Classic UI", link: "apps/central/", isSpaLink: false },
-  { label: "Admin", link: "/admin", isSpaLink: true, role: "Admin" },
+  { label: "Help", link: "apps/docs", linkType: "internalPageLink" },
+  { label: "Classic UI", link: "apps/central/", linkType: "internalPageLink" },
+  { label: "Admin", link: "/admin", role: "Admin" },
 ];
 
 export async function useLayoutMenu(
@@ -23,64 +28,61 @@ export async function useLayoutMenu(
   const menu = await useMenu();
 
   const defaultSchemaMenu = computed<MenuItem[]>(() => [
-    { label: "Tables", link: `/${schema.value}`, isSpaLink: true },
+    { label: "Tables", link: `/${schema.value}` },
     {
       label: "Schema",
       link: `${schema.value}/schema`,
-      isSpaLink: false,
+      linkType: "internalPageLink",
       role: "Viewer",
     },
     {
       label: "SHACL",
       link: `shacl`,
-      isSpaLink: true,
       role: "Viewer",
     },
     {
       label: "Up/Download",
       link: `${schema.value}/updownload`,
-      isSpaLink: false,
+      linkType: "internalPageLink",
       role: "Viewer",
     },
     {
       label: "Reports",
       link: `${schema.value}/reports`,
-      isSpaLink: false,
+      linkType: "internalPageLink",
       role: "Viewer",
     },
     {
       label: "Jobs & Scripts",
       link: `${schema.value}/tasks`,
-      isSpaLink: false,
+      linkType: "internalPageLink",
       role: "Manager",
     },
     {
       label: "Settings",
       link: `${schema.value}/settings`,
-      isSpaLink: false,
+      linkType: "internalPageLink",
       role: "Manager",
     },
     {
       label: "GraphQL",
       link: `${schema.value}/graphql-playground`,
-      isSpaLink: false,
+      linkType: "internalPageLink",
     },
     {
       label: "Analytics",
       link: `analytics`,
-      isSpaLink: true,
       role: "Manager",
     },
     {
       label: "Pages",
       link: `cms/pages`,
-      isSpaLink: true,
       role: "Manager",
     },
     {
       label: "Help",
       link: `${schema.value}/docs`,
-      isSpaLink: false,
+      linkType: "internalPageLink",
     },
   ]);
 
@@ -93,7 +95,7 @@ export async function useLayoutMenu(
       return {
         label: item.label,
         link: item.link,
-        isSpaLink: typeof item.isSpaLink === "boolean" ? item.isSpaLink : false,
+        linkType: resolveLinkType(item),
         role: item.role,
         submenu: item.submenu,
       };

@@ -13,20 +13,27 @@ Set the landing page with the optional SCHEMA_LANDING_PAGE setting
 ```ts
 interface Link {
     link: string;
-    isSpaLink?: boolean;
+    linkType?: "spaLink" | "internalPageLink" | "externalLink"; // optional, default: "spaLink"
 }
 ```
 
-example with external link ( i.e. all links outside of the 'ui' app)
+Link types (```linkType```):
+ - ```spaLink``` (default): a page inside the 'ui' app, for example ```/pet%20store/Pet```.
+ - ```internalPageLink```: a page on this server outside the 'ui' app, for example ```/directory-demo/directory#/catalogue```.
+ - ```externalLink```: a full URL to another site, for example ```https://www.google.com```.
+
+The older ```isSpaLink``` property is no longer read. Settings that use ```"isSpaLink": false``` must change it to ```"linkType": "internalPageLink"``` (or ```"externalLink"``` for a full URL to another site); otherwise the link is treated as a ```spaLink```.
+
+example with a page outside of the 'ui' app
 
 ```json
-{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
+{"link": "/directory-demo/directory#/catalogue", "linkType": "internalPageLink"}
 ```
 
-example with internal link ( i.e. all within of the 'ui' app)
+example with a page inside the 'ui' app
 
 ```json
-{"link": "pet%20store/Pet", "isSpaLink": true}
+{"link": "/pet%20store/Pet", "linkType": "spaLink"}
 ```
 
 
@@ -56,7 +63,7 @@ interface MenuItem {
   role?: string;
   key?: string;
   submenu?: Menu;
-  isSpaLink?: boolean;
+  linkType?: "spaLink" | "internalPageLink" | "externalLink"; // optional, default: "spaLink"
 }
 ```
 
@@ -69,42 +76,50 @@ The user defined menu is stored in the database in the schema settings.
 **Important**: 
  - The settings key used is ```tw-menu```
  - The settings value should be a valid JSON array
- - Internal links (links to other pages in the ui) should have the property ```isSpaLink``` set to true, otherwise the link will be treated as an external link and opened in a new tab. Schema prefix should be included preceded by a slash.
- - External links should have the property ```isSpaLink``` set to false, and should have a schema prefix if they are related to a specific schema. The schema prefix is the name of the schema followed by a slash, for example: ```pet%20store/schema```. If the link is not related to a specific schema, it should not have a schema prefix, for example: ```https://www.google.com```.
+ - Each item's ```linkType``` decides how its ```link``` is used:
+   - ```spaLink``` (default): a page inside the 'ui' app. Include the schema, preceded by a slash, for example ```/pet%20store/Pet```.
+   - ```internalPageLink```: a page on this server outside the 'ui' app. The app base path is put in front, so leave out the leading slash, for example ```pet%20store/schema```.
+   - ```externalLink```: a full URL to another site, used as is, for example ```https://www.google.com```.
+ - The older ```isSpaLink``` property is no longer read. Settings that use ```"isSpaLink": false``` must change it to ```"linkType": "internalPageLink"``` (or ```"externalLink"``` for a full URL to another site); otherwise the link is treated as a ```spaLink```.
 
 Example: 
 ```json 
 [
-  { "label": "Tables", "link": "", "isSpaLink": true },
+  { "label": "Tables", "link": "" },
   {
     "label": "Schema",
     "link": "pet%20store/schema",
-    "isSpaLink": false,
+    "linkType": "internalPageLink",
     "role": "Viewer"
   },
   {
     "label": "Up/Download",
     "link": "pet%20store/updownload",
-    "isSpaLink": false,
+    "linkType": "internalPageLink",
     "role": "Viewer"
   },
   {
     "label": "Reports",
     "link": "pet%20store/reports",
-    "isSpaLink": false,
+    "linkType": "internalPageLink",
     "role": "Viewer"
   },
   {
     "label": "Jobs & Scripts",
     "link": "pet%20store/tasks",
-    "isSpaLink": false,
+    "linkType": "internalPageLink",
     "role": "Manager"
   },
-  { "label": "My Pets", "link": "/pet%20store/Pet", "isSpaLink": true },
+  { "label": "My Pets", "link": "/pet%20store/Pet" },
   {
     "label": "Help",
     "link": "pet%20store/docs",
-    "isSpaLink": false
+    "linkType": "internalPageLink"
+  },
+  {
+    "label": "Manuals",
+    "link": "https://www.google.com",
+    "linkType": "externalLink"
   }
 ]
 ```

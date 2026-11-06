@@ -11,7 +11,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const landingPageLink = parseLinkSetting(schemaLandingPage);
     return await navigateTo(landingPageLink.link, {
       replace: true,
-      external: !landingPageLink.isSpaLink,
+      external: landingPageLink.linkType !== "spaLink",
     });
   }
 });

@@ -1,4 +1,5 @@
-import type { Link, Menu, MgError } from "../../types/types";
+import type { Link, LinkType, Menu, MgError } from "../../types/types";
+import { LINK_TYPES } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -186,6 +187,13 @@ export function assertMenu(menu: unknown): asserts menu is Menu {
         `Expected menu item at index ${index} to have a string 'role' property`
       );
     }
+    if (item.linkType !== undefined && !isLinkType(item.linkType)) {
+      throw new Error(
+        `Expected menu item at index ${index} to have a 'linkType' of ${LINK_TYPES.join(
+          ", "
+        )}`
+      );
+    }
     if (item.key && typeof item.key !== "string") {
       throw new Error(
         `Expected menu item at index ${index} to have a string 'key' property`
@@ -248,25 +256,31 @@ export function isError(error: unknown): error is Error {
   return error instanceof Error;
 }
 
+function isLinkType(value: unknown): value is LinkType {
+  return LINK_TYPES.includes(value as LinkType);
+}
+
+/** Returns the link's linkType, or "spaLink" when it is absent or not a known link type */
+export function resolveLinkType(link: { linkType?: unknown }): LinkType {
+  return isLinkType(link.linkType) ? link.linkType : "spaLink";
+}
+
 export function isLink(value: unknown): value is Link {
   return (
     typeof value === "object" &&
     value !== null &&
     "link" in value &&
     typeof (value as Link).link === "string" &&
-    (typeof (value as Link).isSpaLink === "boolean" ||
-      (value as Link).isSpaLink === undefined)
+    ((value as Link).linkType === undefined ||
+      isLinkType((value as Link).linkType))
   );
 }
 
 export function parseLinkSetting(linkSetting: string): Link {
   const linkSettingObject = JSON.parse(linkSetting);
-  isLink(linkSettingObject);
   return {
     link: linkSettingObject.link,
-    isSpaLink:
-      linkSettingObject.isSpaLink === "true" ||
-      linkSettingObject.isSpaLink === true,
+    linkType: resolveLinkType(linkSettingObject),
   };
 }
 
