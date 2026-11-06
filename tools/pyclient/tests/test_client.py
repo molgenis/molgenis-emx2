@@ -95,6 +95,15 @@ def test_set_token():
         assert client.token == token
 
 
+def test_set_job():
+    """Tests the `set_job` method."""
+    job_id = "SAMPLE JOB"
+    with Client(url=server_url, job=None) as client:
+        client.set_job(job_id)
+
+        assert client.job == job_id
+
+
 def test_upload_csv():
     """Tests the `upload_csv` method."""
     with Client(url=server_url) as client:
