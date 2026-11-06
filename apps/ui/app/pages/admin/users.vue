@@ -25,10 +25,7 @@ import { getRoles, getSchemas } from "../../util/adminUtils";
 /**
  * Todo:
  *
- * Add confirmation dialog to delete user / updating of passwords
- * Add search bar for users
  * Make buttons double click safe
- * Implement pagination
  */
 
 definePageMeta({
