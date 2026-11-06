@@ -1,31 +1,49 @@
 <template>
-  <Spinner v-if="loading" />
-  <LayoutModal v-else title="Change account" :show="true" @close="close">
+  <LayoutModal title="Change account" :show="true" @close="close">
     <template v-slot:body>
-      <LayoutForm>
+      <FormMolgenis id="change-password-form" @submit="updatePassword">
         <h2>Change password</h2>
         <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-        <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+        <MessageError v-if="error">{{ error }}</MessageError>
+        <!-- lets password managers link the new password to the right account -->
+        <input
+          v-if="user"
+          type="text"
+          name="username"
+          autocomplete="username"
+          :value="user"
+          readonly
+          hidden
+        />
+        <InputPassword
+          id="account-old-password"
+          v-model="oldPassword"
+          label="Current password"
+          placeholder="Enter current password"
+          description="Please enter your current password"
+          autocomplete="current-password"
+        />
         <InputPassword
           id="account-password"
           v-model="password"
-          label="Password"
-          placeholder="Enter password"
-          description="Please enter the password"
-          @enterPressed="updatePassword"
+          label="New password"
+          placeholder="Enter new password"
+          description="Please enter the new password"
+          autocomplete="new-password"
         />
         <InputPassword
           id="account-password2"
           v-model="password2"
-          label="Password Repeat"
-          placeholder="Enter password"
-          description="Please enter the password again"
-          @enterPressed="updatePassword"
+          label="Repeat new password"
+          placeholder="Enter new password"
+          description="Please enter the new password again"
+          autocomplete="new-password"
         />
-        <ButtonAction @click="updatePassword">Update password</ButtonAction>
-        <h2 class="mt-4">Manage tokens</h2>
-        <TokenManager />
-      </LayoutForm>
+        <ButtonSubmit :disabled="loading">Update password</ButtonSubmit>
+        <Spinner v-if="loading" />
+      </FormMolgenis>
+      <h2 class="mt-4">Manage tokens</h2>
+      <TokenManager />
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="close">Close</ButtonAlt>
@@ -34,8 +52,9 @@
 </template>
 
 <script lang="ts">
-import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonSubmit from "../forms/ButtonSubmit.vue";
+import FormMolgenis from "../forms/FormMolgenis.vue";
 import MessageError from "../forms/MessageError.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
 import Spinner from "../layout/Spinner.vue";
@@ -45,11 +64,16 @@ import TokenManager from "./TokenManager.vue";
 import { defineComponent } from "vue";
 import { request } from "../../client/client";
 
+const CHANGE_PASSWORD_MUTATION = `mutation changePassword($oldPassword: String, $password: String) {
+  changePassword(oldPassword: $oldPassword, password: $password) { status, message }
+}`;
+
 export default defineComponent({
   components: {
     LayoutModal,
     ButtonAlt,
-    ButtonAction,
+    ButtonSubmit,
+    FormMolgenis,
     InputPassword,
     MessageError,
     MessageSuccess,
@@ -61,37 +85,62 @@ export default defineComponent({
   },
   data() {
     return {
+      oldPassword: null as null | string,
       password: null as null | string,
       password2: null as null | string,
       loading: false,
-      graphqlError: null as null | string,
       success: null as null | string,
       error: null as null | string,
     };
   },
   methods: {
     async updatePassword() {
+      if (this.loading) {
+        return;
+      }
+      this.success = null;
+      this.error = null;
+      if (!this.oldPassword) {
+        this.error = "Please enter your current password";
+        return;
+      }
+      if (!this.password) {
+        this.error = "Please enter a new password";
+        return;
+      }
       if (this.password !== this.password2) {
-        this.error = "Error: Passwords entered must be the same";
-      } else {
-        this.error = null;
-        this.loading = true;
-        const data = await request(
-          "graphql",
-          `mutation{changePassword(password: "${this.password}"){status,message}}`
-        ).catch((error): void => {
-          this.graphqlError = JSON.stringify(error);
-        });
+        this.error = "New passwords entered must be the same";
+        return;
+      }
 
-        if (data.changePassword.status === "SUCCESS") {
-          this.success = "Success. Password changed";
+      this.loading = true;
+      try {
+        // passwords are sent as variables so special characters cannot break the query
+        const data = await request("graphql", CHANGE_PASSWORD_MUTATION, {
+          oldPassword: this.oldPassword,
+          password: this.password,
+        });
+        if (data?.changePassword?.status === "SUCCESS") {
+          this.success = "Password changed";
+          this.oldPassword = null;
+          this.password = null;
+          this.password2 = null;
         } else {
-          this.error = "Password change failed: " + data.changePassword.message;
+          this.error =
+            data?.changePassword?.message ?? "Password change failed";
+          this.oldPassword = null;
         }
+      } catch (error) {
+        this.error = "Password change failed: " + error;
+        this.oldPassword = null;
+      } finally {
         this.loading = false;
       }
     },
     close() {
+      this.oldPassword = null;
+      this.password = null;
+      this.password2 = null;
       this.error = null;
       this.$emit("cancel");
     },

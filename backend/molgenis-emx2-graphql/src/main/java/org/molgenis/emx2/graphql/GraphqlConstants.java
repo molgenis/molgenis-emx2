@@ -16,6 +16,7 @@ public final class GraphqlConstants {
   public static final String FILTER_ARGUMENT = "filter";
   public static final String KEY = "key";
   public static final String PASSWORD = "password";
+  public static final String OLD_PASSWORD = "oldPassword";
   public static final String ENABLED = "enabled";
   public static final String ADMIN = "admin";
   public static final String EMAIL = "email";

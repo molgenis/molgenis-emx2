@@ -11,6 +11,7 @@
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
       type="password"
+      :autocomplete="autocomplete"
       class="form-control"
       :aria-describedby="id"
       :placeholder="label"
@@ -27,6 +28,12 @@ export default {
   name: "InputPassword",
   components: { FormGroup },
   extends: BaseInput,
+  props: {
+    autocomplete: {
+      type: String,
+      required: false,
+    },
+  },
 };
 </script>
 

@@ -167,7 +167,7 @@ class TestGraphqlDatabaseFields {
 
     database.setActiveUser("pietje");
     assertTrue(
-        execute("mutation{changePassword(password:\"blaat124\"){message}}")
+        execute("mutation{changePassword(oldPassword:\"blaat123\",password:\"blaat124\"){message}}")
             .at("/data/changePassword/message")
             .textValue()
             .contains("Password changed"));
@@ -177,6 +177,82 @@ class TestGraphqlDatabaseFields {
     assertNull(sessionManager.getCurrentUser());
 
     database.becomeAdmin();
+  }
+
+  @Test
+  void testChangePasswordRequiresOldPassword() throws IOException {
+    database.becomeAdmin();
+    String user = "changePasswordUser";
+    String other = "changePasswordOther";
+    String fresh = "changePasswordFresh";
+    for (String u : new String[] {user, other, fresh}) {
+      if (database.hasUser(u)) {
+        database.removeUser(u);
+      }
+    }
+    database.setUserPassword(user, "original1");
+    database.setUserPassword(other, "original1");
+
+    try {
+      database.setActiveUser(user);
+
+      // missing old password
+      assertTrue(
+          changePasswordMessage("mutation{changePassword(password:\"changed1\"){message}}")
+              .contains("current password is required"));
+      assertTrue(database.checkUserPassword(user, "original1"));
+
+      // wrong old password
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"wrong\",password:\"changed1\"){message}}")
+              .contains("current password is incorrect"));
+      assertTrue(database.checkUserPassword(user, "original1"));
+
+      // retrying straight away is blocked by the shared sign-in rate limit
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"original1\",password:\"changed1\"){message}}")
+              .contains("too many attempts"));
+      assertTrue(database.checkUserPassword(user, "original1"));
+
+      // non-admin cannot bypass the check by passing their own email
+      database.becomeAdmin();
+      database.removeUser(user);
+      database.setUserPassword(user, "original1");
+      database.setActiveUser(user);
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(email:\"" + user + "\",password:\"changed1\"){message}}")
+              .contains("current password is required"));
+
+      // correct old password (fresh user: `user` is still rate limited from the failure above)
+      database.becomeAdmin();
+      database.setUserPassword(fresh, "original1");
+      database.setActiveUser(fresh);
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"original1\",password:\"changed1\"){message}}")
+              .contains("Password changed"));
+      assertTrue(database.checkUserPassword(fresh, "changed1"));
+    } finally {
+      database.becomeAdmin();
+    }
+
+    // admin resetting another user's password does not need the old password
+    assertTrue(
+        changePasswordMessage(
+                "mutation{changePassword(email:\"" + other + "\",password:\"reset123\"){message}}")
+            .contains("Password changed"));
+    assertTrue(database.checkUserPassword(other, "reset123"));
+
+    database.removeUser(user);
+    database.removeUser(other);
+    database.removeUser(fresh);
+  }
+
+  private String changePasswordMessage(String query) throws IOException {
+    return execute(query).at("/data/changePassword/message").textValue();
   }
 
   @Test
