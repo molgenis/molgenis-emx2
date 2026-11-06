@@ -444,9 +444,9 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private static void log(SqlTableMetadata tableMetadata, long start, String message) {
-    String user = tableMetadata.getDatabase().getActiveUser();
+    Username user = tableMetadata.getDatabase().getActiveUser();
     if (user == null) {
-      user = "molgenis";
+      user = new Username("molgenis");
     }
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -459,9 +459,9 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private void log(long start, String message) {
-    String user = getDatabase().getActiveUser();
+    Username user = getDatabase().getActiveUser();
     if (user == null) {
-      user = "molgenis";
+      user = new Username("molgenis");
     }
     if (logger.isInfoEnabled()) {
       logger.info(

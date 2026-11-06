@@ -1,10 +1,12 @@
 package org.molgenis.emx2.graphql;
 
+import org.molgenis.emx2.Username;
+
 public interface GraphqlSessionHandlerInterface {
 
-  void createSession(String username);
+  void createSession(Username username);
 
   void destroySession();
 
-  String getCurrentUser();
+  Username getCurrentUser();
 }

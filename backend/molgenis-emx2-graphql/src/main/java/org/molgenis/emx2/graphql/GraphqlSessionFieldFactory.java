@@ -77,7 +77,7 @@ public class GraphqlSessionFieldFactory {
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String userName = dataFetchingEnvironment.getArgument(EMAIL);
+              Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (passWord == null) {
                 return new GraphqlApiMutationResult(FAILED, "Password cannot be not null");
@@ -91,7 +91,7 @@ public class GraphqlSessionFieldFactory {
               database.tx(
                   db -> {
                     // uplift permissions
-                    String activeUser = db.getActiveUser();
+                    Username activeUser = db.getActiveUser();
                     try {
                       db.becomeAdmin();
                       db.addUser(userName);
@@ -155,7 +155,10 @@ public class GraphqlSessionFieldFactory {
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
               result.put(
-                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
+                  EMAIL,
+                  database.getActiveUser() != null
+                      ? database.getActiveUser().value()
+                      : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
@@ -198,7 +201,7 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
-              String userName = dataFetchingEnvironment.getArgument(EMAIL);
+              Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
               if (!database.isAdmin() && !userName.equals(database.getActiveUser())) {
                 throw new MolgenisException(
                     "Create token failed: Only admins can create tokens for other users");
@@ -226,9 +229,12 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(EMAIL);
-              if (username == null) {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              Username username;
+              if (email == null) {
                 username = database.getActiveUser();
+              } else {
+                username = new Username(email);
               }
               if (password != null) {
                 database.setUserPassword(username, password);

@@ -14,10 +14,7 @@ import java.util.Map;
 import org.apache.commons.collections4.IteratorUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Change;
-import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Row;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlSchema;
@@ -81,9 +78,10 @@ class Emx2ChangelogTest {
       store = new TableStoreForCsvInMemory();
 
       schema.getDatabase().becomeAdmin();
-      schema.removeMember("test-user");
-      schema.addMember("test-user", privilege.toString());
-      schema.getDatabase().setActiveUser("test-user");
+      Username testUser = new Username("test-user");
+      schema.removeMember(testUser);
+      schema.addMember(testUser, privilege.toString());
+      schema.getDatabase().setActiveUser(testUser);
 
       Emx2Changelog.outputChangelog(store, schema, 1, 0);
       Change change =
@@ -100,9 +98,10 @@ class Emx2ChangelogTest {
       store = new TableStoreForCsvInMemory();
 
       schema.getDatabase().becomeAdmin();
-      schema.removeMember("test-user");
-      schema.addMember("test-user", privilege.toString());
-      schema.getDatabase().setActiveUser("test-user");
+      Username testUser = new Username("test-user");
+      schema.removeMember(testUser);
+      schema.addMember(testUser, privilege.toString());
+      schema.getDatabase().setActiveUser(testUser);
 
       Emx2Changelog.outputChangelog(store, schema, 1, 0);
       assertFalse(store.containsTable(Constants.CHANGELOG_TABLE));

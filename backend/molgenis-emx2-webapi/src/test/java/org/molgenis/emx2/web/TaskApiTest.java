@@ -2,9 +2,9 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import io.restassured.http.Method;
-import java.net.MalformedURLException;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -13,11 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.tasks.Task;
 
 class TaskApiTest extends ApiTestBase {
 
-  private static final String TEST_USER = "task_api_test_user";
+  private static final Username TEST_USER = new Username("task_api_test_user");
   private static final String TEST_PASS = "helloworld";
 
   @BeforeAll
@@ -115,7 +116,7 @@ class TaskApiTest extends ApiTestBase {
   @MethodSource("unauthorizedPaths")
   void givenSession_whenNonAdmin_thenUnauthorized(
       Method method, String path, String expectedMessage) {
-    login("task_api_test_user", "helloworld");
+    login(TEST_USER, "helloworld");
     String message =
         given()
             .sessionId(sessionId)
@@ -141,7 +142,7 @@ class TaskApiTest extends ApiTestBase {
   @ParameterizedTest
   @MethodSource("cancelPaths")
   void givenAdmin_whenCancelUnknownTask_thenNotFound(String path) {
-    login("admin", "admin");
+    login(ADMIN_USER, "admin");
 
     String message =
         given().sessionId(sessionId).post(path).then().statusCode(400).extract().asString();
@@ -168,8 +169,8 @@ class TaskApiTest extends ApiTestBase {
   }
 
   @Test
-  void givenAdmin_whenCancelTask_thenReturnTaskId() throws MalformedURLException {
-    login("admin", "admin");
+  void givenAdmin_whenCancelTask_thenReturnTaskId() {
+    login(ADMIN_USER, "admin");
     String taskId = TaskApi.taskService.submit(new Task());
     String cancelMsg =
         given()

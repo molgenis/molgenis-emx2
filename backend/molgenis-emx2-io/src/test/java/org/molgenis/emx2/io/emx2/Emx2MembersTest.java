@@ -27,13 +27,13 @@ class Emx2MembersTest {
   void shouldInputMembers() {
     addTestUserToStore();
 
-    schema.addMember("bofke", Privileges.VIEWER.toString());
+    schema.addMember(new Username("bofke"), Privileges.VIEWER.toString());
     Emx2Members.inputMembers(store, schema);
     List<Member> members = schema.getMembers();
     assertEquals(
         List.of(
-            new Member("bofke", Privileges.VIEWER.toString()),
-            new Member("test-user", Privileges.VIEWER.toString())),
+            new Member(new Username("bofke"), Privileges.VIEWER.toString()),
+            new Member(new Username("test-user"), Privileges.VIEWER.toString())),
         members);
   }
 
@@ -49,7 +49,7 @@ class Emx2MembersTest {
 
   @Test
   void shouldOutputMembers() {
-    schema.addMember("bofke", Privileges.VIEWER.toString());
+    schema.addMember(new Username("bofke"), Privileges.VIEWER.toString());
     Emx2Members.outputMembers(store, schema);
     List<Row> rows = IteratorUtils.toList(store.readTable(Emx2Members.MEMBERS_TABLE).iterator());
     assertEquals(1, rows.size());

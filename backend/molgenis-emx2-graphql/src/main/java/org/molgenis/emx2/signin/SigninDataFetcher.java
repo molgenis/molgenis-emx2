@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.graphql.GraphqlApiMutationResult;
 import org.molgenis.emx2.graphql.GraphqlApiMutationResultWithToken;
 import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
@@ -27,12 +28,13 @@ public class SigninDataFetcher implements DataFetcher<Object> {
 
   @Override
   public Object get(DataFetchingEnvironment dataFetchingEnvironment) throws Exception {
-    String userName = dataFetchingEnvironment.getArgument(EMAIL);
-    String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
-
-    if (userName == null) {
+    String email = dataFetchingEnvironment.getArgument(EMAIL);
+    if (email == null) {
       return new GraphqlApiMutationResult(FAILED, "Sign in failed: user or password not provided");
     }
+
+    Username userName = new Username(email);
+    String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
 
     Optional<Instant> blockedUntil = rateLimit.getRateLimit(userName);
     if (blockedUntil.isPresent()) {
