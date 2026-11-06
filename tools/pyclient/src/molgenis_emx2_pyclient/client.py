@@ -199,7 +199,7 @@ class Client:
 
     @property
     def token(self) -> str | None:
-        """Returns the token by a property to prevent it being modified."""
+        """Returns the token."""
         return self.session.headers.get('x-molgenis-token')
 
     def set_token(self, token: str | None) -> str | None:
@@ -208,9 +208,14 @@ class Client:
             self.session.headers['x-molgenis-token'] = token
         return token
 
+    @property
+    def job(self) -> str | None:
+        """Returns the job ID if present."""
+        return self._job
+
     def set_job(self, job: str | None):
         """
-        Sets the job ID of the job executing the script using the Client object.
+        Sets the job ID of the job executing the script with a client object.
         """
         self._job = job
 
