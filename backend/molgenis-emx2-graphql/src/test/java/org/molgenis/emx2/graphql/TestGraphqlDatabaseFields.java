@@ -251,6 +251,57 @@ class TestGraphqlDatabaseFields {
     database.removeUser(fresh);
   }
 
+  @Test
+  void testAdminChangingOwnPasswordRequiresOldPassword() throws IOException {
+    // use a dedicated admin user so the built-in admin password is never touched
+    database.becomeAdmin();
+    String adminUser = "changePasswordAdmin";
+    if (database.hasUser(adminUser)) {
+      database.removeUser(adminUser);
+    }
+    database.setUserPassword(adminUser, "original1");
+    database.setAdminUser(adminUser, true);
+
+    try {
+      database.setActiveUser(adminUser);
+      assertTrue(database.isAdmin());
+
+      // admin without old password
+      assertTrue(
+          changePasswordMessage("mutation{changePassword(password:\"changed1\"){message}}")
+              .contains("current password is required"));
+      assertTrue(database.checkUserPassword(adminUser, "original1"));
+
+      // admin passing their own email is not treated as a reset of another user
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(email:\""
+                      + adminUser
+                      + "\",password:\"changed1\"){message}}")
+              .contains("current password is required"));
+      assertTrue(database.checkUserPassword(adminUser, "original1"));
+
+      // admin with correct old password (checked before any failure, so not rate limited)
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"original1\",password:\"changed1\"){message}}")
+              .contains("Password changed"));
+      assertTrue(database.checkUserPassword(adminUser, "changed1"));
+
+      // admin with wrong old password, also with their own email
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(email:\""
+                      + adminUser
+                      + "\",oldPassword:\"wrong\",password:\"changed2\"){message}}")
+              .contains("current password is incorrect"));
+      assertTrue(database.checkUserPassword(adminUser, "changed1"));
+    } finally {
+      database.becomeAdmin();
+      database.removeUser(adminUser);
+    }
+  }
+
   private String changePasswordMessage(String query) throws IOException {
     return execute(query).at("/data/changePassword/message").textValue();
   }
