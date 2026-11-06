@@ -6,6 +6,9 @@ export function isFieldDisabled(
 ) {
   const hasPkey = rowKey && rowKey[column.id] && column.key === 1;
   return (
-    column.readonly === "true" || hasPkey || column.columnType === "AUTO_ID"
+    column.readonly === "true" ||
+    hasPkey ||
+    column.columnType === "AUTO_ID" ||
+    !!column.computed?.trim()
   );
 }
