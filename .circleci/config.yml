@@ -141,6 +141,10 @@ commands:
           - gradle-buildcache-v4-
 
   save_gradle_build_cache:
+    parameters:
+      pool:
+        type: string
+        default: gradle-buildcache-v4
     steps:
     - run:
         name: Cap the gradle build cache at 2GB, dropping the oldest entries first
@@ -157,7 +161,7 @@ commands:
     - save_cache:
         paths:
           - /tmp/ci-cache/gradle-build-cache
-        key: gradle-buildcache-v4-{{ .Branch }}-{{ .Revision }}
+        key: << parameters.pool >>-{{ .Branch }}-{{ .Revision }}
         when: always
 
   restore_turbo_cache:
@@ -485,6 +489,49 @@ jobs:
 
     - post_steps
 
+  test-data:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+    - restore_gradle_deps
+
+    # same resource_class, but 15GB against the plain executor's 8GB, which postgres OOMs on
+    - setup_remote_docker
+
+    - restore_gradle_build_cache
+    - restore_cache:
+        keys:
+          - gradle-buildcache-data-v4-{{ .Branch }}-
+          - gradle-buildcache-data-v4-master-
+
+    - run:
+        name: prepare sql test database
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
+    - run:
+        name: run the data model tests
+        command: |
+          # CircleCI truncates a step log to its last 400KB, so tee keeps it whole on disk.
+          # pipefail keeps the step failing on gradle's exit code rather than tee's.
+          set -o pipefail
+          ./gradlew :backend:molgenis-emx2-datamodels:test \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          2>&1 | tee ~/gradle-logs/test-data.log
+
+    # Two jobs saving one key lose a save, so this pool has its own key.
+    - save_gradle_build_cache:
+        pool: gradle-buildcache-data-v4
+
+    - persist_to_workspace:
+        root: .
+        paths:
+          - backend/molgenis-emx2-datamodels/build/jacoco/test.exec
+          - backend/molgenis-emx2-datamodels/build/test-results/test
+        when: always
+
+    - post_steps
+
   test-backend:
     <<: *test_config
 
@@ -511,34 +558,55 @@ jobs:
         command: |
           ./gradlew --continue pmdMain pmdTest pmdTestFixtures
     - run:
-        name: run tests and merge coverage
-        # Split from sonar so each carries its own timing.
+        name: run tests
         command: |
           # CircleCI truncates a step log to its last 400KB, so tee keeps it whole on disk.
           # pipefail keeps the step failing on gradle's exit code rather than tee's.
           set -o pipefail
-          ./gradlew test jacocoMergedReport -x :apps:test \
+          ./gradlew test -x :apps:test -x :backend:molgenis-emx2-datamodels:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           2>&1 | tee ~/gradle-logs/test-backend.log
+
+    # The only writer of the dependency cache and of the gradle-buildcache-v4 pool.
+    - save_gradle_deps
+    - save_gradle_build_cache
+
+    - persist_to_workspace:
+        root: .
+        paths:
+          - backend/*/build/jacoco/test.exec
+          - backend/*/build/test-results/test
+        when: always
+
+    - post_steps
+
+  sonar:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+    - restore_gradle_deps
+    - setup_remote_docker
+    - restore_gradle_build_cache
+    - attach_workspace:
+        at: .
+
     - run:
         name: push results to sonar
         # sonar rejects an empty pullrequest.key, and master has no PR, so the
         # pull-request flags are only passed when there is one.
+        # Two invocations: with compileTestJava in the graph, jacocoMergedReport's fileTree(dir: '.') fails
+        # validation once `-x test` drops its ordering. -x :apps:testClasses: root testClasses builds the frontend.
         command: |
           SONAR_PR_ARGS=""
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          ./gradlew sonar -x :apps:test \
+          ./gradlew testClasses -x :apps:testClasses
+          ./gradlew jacocoMergedReport sonar -x test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
-
-    # Every backend module, test, pmd and spotless runs here. The only writer of these caches.
-    - save_gradle_deps
-    - save_gradle_build_cache
-
-    - post_steps
 
   release:
     <<: *release_config
@@ -731,6 +799,7 @@ workflows:
         filters:
           branches:
             ignore: master
+    - test-data
     - test-backend
     - test-e2e
     - test-apps
@@ -740,11 +809,17 @@ workflows:
         filters:
           branches:
             ignore: master
+    - sonar:
+        requires:
+          - test-backend
+          - test-data
     - release:
        requires:
          - test-apps
          - test-backend
+         - test-data
          - test-e2e
+         - sonar
        filters:
          branches:
            only: master
