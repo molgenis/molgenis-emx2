@@ -208,6 +208,12 @@ class Client:
             self.session.headers['x-molgenis-token'] = token
         return token
 
+    def set_job(self, job: str | None):
+        """
+        Sets the job ID of the job executing the script using the Client object.
+        """
+        self._job = job
+
     @property
     def version(self):
         """Lists the current EMX2 version on the server"""
