@@ -165,7 +165,7 @@
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
   >
-    <template #header="{ formValues }">
+    <template #header-controles="{ formValues }">
       <EditModalHeader
         v-if="formValues"
         :formValues="formValues"
@@ -186,7 +186,7 @@
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
   >
-    <template #header="{ formValues }">
+    <template #header-controles="{ formValues }">
       <EditModalHeader
         v-if="formValues"
         :formValues="formValues"
