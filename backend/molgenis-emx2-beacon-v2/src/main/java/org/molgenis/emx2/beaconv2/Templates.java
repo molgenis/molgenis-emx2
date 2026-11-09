@@ -11,7 +11,11 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 
-public class Templates {
+public final class Templates {
+
+  private Templates() {
+    // no instances
+  }
 
   public static void addTemplatesToDb(Database database) {
     database.becomeAdmin();

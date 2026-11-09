@@ -51,7 +51,6 @@ async function updatePage() {
   <Container>
     <bread-crumbs align="left" :crumbs="crumbs" class="my-5" />
   </Container>
-
   <ConfigurablePage
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"

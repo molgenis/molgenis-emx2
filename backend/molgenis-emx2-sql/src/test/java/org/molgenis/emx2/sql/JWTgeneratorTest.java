@@ -257,6 +257,8 @@ class JWTgeneratorTest {
   }
 
   @Test
+  @SuppressWarnings(
+      "PMD.AvoidAccessibilityAlteration") // resets the private signer to test its lazy init
   void testGetUserFromTokenInitializesSignerAndRejectsMissingClaims() throws Exception {
     Field signerField = JWTgenerator.class.getDeclaredField("signer");
     signerField.setAccessible(true);

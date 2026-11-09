@@ -22,19 +22,17 @@ public class TestOpenApi {
 
     TableMetadata table = schema.create(TableMetadata.table("TypeTest"));
     for (ColumnType columnType : ColumnType.values()) {
-      if (columnType.isReference()) {
-        // TODO: outside of test for now
-      } else {
+      // TODO: references are outside of test for now
+      if (!columnType.isReference()) {
         table.add(
             Column.column(columnType.toString().toLowerCase() + "Column").setType(columnType));
       }
     }
 
-    TableMetadata personTable =
-        schema.create(
-            TableMetadata.table("Person")
-                .add(Column.column("First_Name"))
-                .add(Column.column("Last_Name")));
+    schema.create(
+        TableMetadata.table("Person")
+            .add(Column.column("First_Name"))
+            .add(Column.column("Last_Name")));
 
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema);
     assertEquals(1, api.getComponents().getSchemas().size()); // useless test

@@ -18,6 +18,7 @@ import org.jooq.impl.SQLDataType;
 import org.jooq.types.YearToSecond;
 import org.molgenis.emx2.*;
 
+@SuppressWarnings("PMD.InstantiableUtilityClass") // extended by SqlTypeUtils
 public class TypeUtils {
   private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
 
@@ -29,11 +30,13 @@ public class TypeUtils {
   }
 
   public static UUID toUuid(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
-        return java.util.UUID.fromString(value);
+        return UUID.fromString(value);
       } else {
         return null;
       }
@@ -61,11 +64,13 @@ public class TypeUtils {
     String value = toText(v);
     // we trim string values, but not text values
     // empty string is treated as null
-    return value != null && !value.trim().equals("") ? value.trim() : null;
+    return value != null && !"".equals(value.trim()) ? value.trim() : null;
   }
 
   public static Integer toInt(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
@@ -75,16 +80,21 @@ public class TypeUtils {
       }
     }
     if (v instanceof Long longValue) {
-      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE)
+      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE) {
         throw new MolgenisException("Cannot cast '" + v + " to integer, it is too large");
+      }
       return ((Long) v).intValue();
     }
-    if (v instanceof Double) return (int) Math.round((Double) v);
+    if (v instanceof Double) {
+      return (int) Math.round((Double) v);
+    }
     return (Integer) v;
   }
 
   public static Long toLong(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
@@ -93,8 +103,12 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) return (Long) v;
-    if (v instanceof Double) return Math.round((Double) v);
+    if (v instanceof Long) {
+      return (Long) v;
+    }
+    if (v instanceof Double) {
+      return Math.round((Double) v);
+    }
     return Long.parseLong(v.toString());
   }
 
@@ -108,17 +122,20 @@ public class TypeUtils {
 
   private static Object[] processArray(
       Object v, UnaryOperator<Object> f, IntFunction<Object[]> m, Class<?> c) {
-    if (v == null) return null; // NOSONAR
-    else if (v.getClass().isArray() && v.getClass().getComponentType().equals(c.getClass()))
+    if (v == null) {
+      return null; // NOSONAR
+    } else if (v.getClass().isArray() && v.getClass().getComponentType().equals(c.getClass())) {
       return (Object[]) v;
-    else if (v instanceof String) {
+    } else if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
         v = splitCsvString(value);
       } else {
         return null;
       }
-    } else if (v.getClass().isArray()) v = Arrays.asList((Object[]) v);
+    } else if (v.getClass().isArray()) {
+      v = Arrays.asList((Object[]) v);
+    }
     if (v instanceof List) {
       return ((List<Object>) v).stream().map(f).toArray(m);
     }
@@ -128,21 +145,25 @@ public class TypeUtils {
   }
 
   public static byte[] toBinary(Object v) {
-    if (v == null) return null; // NOSONAR
+    if (v == null) {
+      return null; // NOSONAR
+    }
     return (byte[]) v;
   }
 
   public static Boolean toBool(Object v) {
-    if (v == null) return null; // NOSONAR
+    if (v == null) {
+      return null; // NOSONAR
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value == null) {
         return null; // NOSONAR
       }
-      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || value.equals("1")) {
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "1".equals(value)) {
         return true;
       }
-      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || value.equals("0")) {
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || "0".equals(value)) {
         return false;
       }
     }
@@ -189,14 +210,22 @@ public class TypeUtils {
   }
 
   public static LocalDate toDate(Object v) {
-    if (v == null) return null;
-    if (v instanceof LocalDate) return (LocalDate) v;
-    if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDate();
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof LocalDate) {
+      return (LocalDate) v;
+    }
+    if (v instanceof OffsetDateTime) {
+      return ((OffsetDateTime) v).toLocalDate();
+    }
     // otherwise try to use string value
     String value = toString(v);
     if (value != null) {
       LocalDateTime ldt = toDateTime(v);
-      if (ldt != null) return ldt.toLocalDate();
+      if (ldt != null) {
+        return ldt.toLocalDate();
+      }
     }
     return null;
   }
@@ -206,9 +235,15 @@ public class TypeUtils {
   }
 
   public static YearToSecond toYearToSecond(Object v) {
-    if (v == null) return null;
-    if (v instanceof YearToSecond yearToSecond) return yearToSecond;
-    if (v instanceof Period period) return YearToSecond.valueOf(period);
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof YearToSecond yearToSecond) {
+      return yearToSecond;
+    }
+    if (v instanceof Period period) {
+      return YearToSecond.valueOf(period);
+    }
     return YearToSecond.valueOf(toPeriod(v));
   }
 
@@ -218,8 +253,12 @@ public class TypeUtils {
   }
 
   public static Period toPeriod(Object v) {
-    if (v == null) return null;
-    if (v instanceof Period) return (Period) v;
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof Period) {
+      return (Period) v;
+    }
     String value = toString(v);
     if (value != null) {
       return Period.parse(value);
@@ -232,10 +271,18 @@ public class TypeUtils {
   }
 
   public static LocalDateTime toDateTime(Object v) {
-    if (v == null) return null;
-    if (v instanceof LocalDateTime) return (LocalDateTime) v;
-    if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
-    if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof LocalDateTime) {
+      return (LocalDateTime) v;
+    }
+    if (v instanceof OffsetDateTime) {
+      return ((OffsetDateTime) v).toLocalDateTime();
+    }
+    if (v instanceof Timestamp) {
+      return ((Timestamp) v).toLocalDateTime();
+    }
     // try string
     String value = toString(v);
     if (value != null) {
@@ -263,7 +310,9 @@ public class TypeUtils {
   }
 
   public static JSONB toJsonb(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof JSONB) { // Ensures JSONB is validated
       v = v.toString();
     }
@@ -280,7 +329,7 @@ public class TypeUtils {
       }
     }
     if (v instanceof JsonNode) {
-      return org.jooq.JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
+      return JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
     }
 
     // Other input is invalid (no casting due to ensuring validateJson() is executed).
@@ -292,16 +341,22 @@ public class TypeUtils {
   }
 
   public static String toText(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
-      if (((String) v).trim().equals("")) {
+      if ("".equals(((String) v).trim())) {
         return null;
       }
       // we trim string values, but not text values
       return (String) v;
     }
-    if (v instanceof Object[]) return joinCsvString((Object[]) v);
-    if (v instanceof Collection) return joinCsvString(((Collection) v).toArray());
+    if (v instanceof Object[]) {
+      return joinCsvString((Object[]) v);
+    }
+    if (v instanceof Collection) {
+      return joinCsvString(((Collection) v).toArray());
+    }
     return v.toString();
   }
 
@@ -311,7 +366,9 @@ public class TypeUtils {
 
   public static ColumnType typeOf(Class<?> klazz) {
     for (ColumnType t : ColumnType.values()) {
-      if (t.getType().equals(klazz)) return t;
+      if (t.getType().equals(klazz)) {
+        return t;
+      }
     }
     throw new MolgenisException(
         "Unknown type: Can not determine typeOf(Class). No MOLGENIS type is defined to match "
@@ -319,8 +376,14 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
-    if (columnType.isArray()) return columnType;
-    if (columnType == ColumnType.ENUM) return ColumnType.ENUM_ARRAY;
+    if (columnType.isArray()) {
+      return columnType;
+    }
+
+    if (columnType == ColumnType.ENUM) {
+      return ColumnType.ENUM_ARRAY;
+    }
+
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;
@@ -344,16 +407,21 @@ public class TypeUtils {
     return Stream.of(v)
         .map(
             s -> {
-              if (s == null) return "";
+              if (s == null) {
+                return "";
+              }
               String str = s.toString();
-              if (str.contains(",")) return "\"" + s.toString() + "\"";
-              else return str;
+              if (str.contains(",")) {
+                return "\"" + s.toString() + "\"";
+              } else {
+                return str;
+              }
             })
         .collect(Collectors.joining(","));
   }
 
   private static List<String> splitCsvString(String value) {
-    ArrayList<String> result = new ArrayList<>();
+    List<String> result = new ArrayList<>();
     boolean notInsideComma = true;
     int start = 0;
     for (int i = 0; i < value.length(); i++) {
@@ -377,7 +445,9 @@ public class TypeUtils {
   }
 
   private static String trimQuotes(String value) {
-    if (value == null || !value.contains("\"")) return value;
+    if (value == null || !value.contains("\"")) {
+      return value;
+    }
     value = value.trim();
     if (value.startsWith("\"") && value.endsWith("\"")) {
       return value.substring(1, value.length() - 1);
@@ -420,27 +490,27 @@ public class TypeUtils {
 
   public static Object getTypedValue(Object v, ColumnType columnType) {
     return switch (columnType.getBaseType()) {
-      case UUID -> TypeUtils.toUuid(v);
-      case UUID_ARRAY -> TypeUtils.toUuidArray(v);
+      case UUID -> toUuid(v);
+      case UUID_ARRAY -> toUuidArray(v);
       case STRING, FILE -> TypeUtils.toString(v);
-      case STRING_ARRAY -> TypeUtils.toStringArray(v);
-      case BOOL -> TypeUtils.toBool(v);
-      case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
-      case INT -> TypeUtils.toInt(v);
-      case INT_ARRAY -> TypeUtils.toIntArray(v);
-      case LONG -> TypeUtils.toLong(v);
-      case LONG_ARRAY -> TypeUtils.toLongArray(v);
-      case DECIMAL -> TypeUtils.toDecimal(v);
-      case DECIMAL_ARRAY -> TypeUtils.toDecimalArray(v);
-      case TEXT -> TypeUtils.toText(v);
-      case TEXT_ARRAY -> TypeUtils.toTextArray(v);
-      case DATE -> TypeUtils.toDate(v);
-      case DATE_ARRAY -> TypeUtils.toDateArray(v);
-      case DATETIME -> TypeUtils.toDateTime(v);
-      case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
-      case PERIOD -> TypeUtils.toPeriod(v);
-      case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
-      case JSON -> TypeUtils.toJsonb(v);
+      case STRING_ARRAY -> toStringArray(v);
+      case BOOL -> toBool(v);
+      case BOOL_ARRAY -> toBoolArray(v);
+      case INT -> toInt(v);
+      case INT_ARRAY -> toIntArray(v);
+      case LONG -> toLong(v);
+      case LONG_ARRAY -> toLongArray(v);
+      case DECIMAL -> toDecimal(v);
+      case DECIMAL_ARRAY -> toDecimalArray(v);
+      case TEXT -> toText(v);
+      case TEXT_ARRAY -> toTextArray(v);
+      case DATE -> toDate(v);
+      case DATE_ARRAY -> toDateArray(v);
+      case DATETIME -> toDateTime(v);
+      case DATETIME_ARRAY -> toDateTimeArray(v);
+      case PERIOD -> toPeriod(v);
+      case PERIOD_ARRAY -> toPeriodArray(v);
+      case JSON -> toJsonb(v);
 
       default ->
           throw new UnsupportedOperationException(
@@ -476,11 +546,11 @@ public class TypeUtils {
     if (value != null) {
       String[] words = value.split("\\s+");
       StringBuilder result = new StringBuilder();
-      for (int i = 0; i < words.length; i++) {
+      for (String word : words) {
         // all other words have first character uppercase, other characters not touched
-        result.append(words[i].substring(0, 1).toUpperCase());
-        if (words[i].length() > 1) {
-          result.append(words[i].substring(1));
+        result.append(word.substring(0, 1).toUpperCase());
+        if (word.length() > 1) {
+          result.append(word.substring(1));
         }
       }
       return result.toString().trim();

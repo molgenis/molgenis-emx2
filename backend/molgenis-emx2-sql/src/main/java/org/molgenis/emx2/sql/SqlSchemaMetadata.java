@@ -40,7 +40,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
           this.tables.keySet().stream()
               .filter(t -> !from.tables.containsKey(t))
               .collect(Collectors.toSet());
-      remove.forEach(t -> this.tables.remove(t));
+      remove.forEach(this.tables::remove);
 
       // sync tables metadata
       from.tables
@@ -226,11 +226,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
-  @Override
-  public Map<String, String> getSettings() {
-    return super.getSettings();
-  }
-
   protected DSLContext getJooq() {
     return getDatabase().getJooq();
   }
@@ -271,10 +266,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public String getRoleForUser(String user) {
     SqlRoleManager roleManager = getDatabase().getRoleManager();
-    if (user == null) user = ANONYMOUS;
+    if (user == null) {
+      user = ANONYMOUS;
+    }
     user = user.trim();
     for (Member m : roleManager.getMembers(getName())) {
-      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) return m.getRole();
+      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) {
+        return m.getRole();
+      }
     }
     return null;
   }

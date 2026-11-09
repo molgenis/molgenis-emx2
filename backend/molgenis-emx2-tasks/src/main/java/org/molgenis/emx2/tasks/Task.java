@@ -57,7 +57,9 @@ public class Task implements Runnable, Iterable<Task> {
   private boolean disabled = false;
   private String failureAddress;
 
-  public Task() {}
+  public Task() {
+    // no-op
+  }
 
   public Task(String description) {
     Objects.requireNonNull(description, "description cannot be null");
@@ -101,7 +103,9 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public Integer getProgress() {
-    if (RUNNING.equals(status)) return progress;
+    if (RUNNING.equals(status)) {
+      return progress;
+    }
     return null;
   }
 
@@ -232,7 +236,9 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   @Override
-  public void run() {}
+  public void run() {
+    // no-op
+  }
 
   @Override
   public Iterator<Task> iterator() {
@@ -253,6 +259,7 @@ public class Task implements Runnable, Iterable<Task> {
     return strict;
   }
 
+  @Override
   public String toString() {
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);

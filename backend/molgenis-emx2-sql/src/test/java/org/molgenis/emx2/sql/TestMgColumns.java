@@ -33,7 +33,9 @@ class TestMgColumns {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
     schema = database.dropCreateSchema(TestMgColumns.class.getSimpleName());
-    if (!database.hasUser(EDITOR_USER)) database.addUser(EDITOR_USER);
+    if (!database.hasUser(EDITOR_USER)) {
+      database.addUser(EDITOR_USER);
+    }
     schema.addMember(EDITOR_USER, Privileges.EDITOR.toString());
   }
 

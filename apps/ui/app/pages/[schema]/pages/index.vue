@@ -281,14 +281,24 @@ function closeStatusModal() {
     v-if="formMetadata && enableEditing"
     key="edit-modal-configurable-page"
     :showButton="false"
-    :schemaId="(schema as string)"
+    :schemaId="schema"
     :metadata="formMetadata"
     :formValues="formValues"
     :isInsert="true"
     v-model:visible="showFormModal"
     @update:cancelled="onClose"
     @update:addedFormValues="onAddFormValues"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="true"
+        :tableId="formMetadata.id"
+        :schemaId="schema"
+      />
+    </template>
+  </EditModal>
   <SideModal
     ref="statusModal"
     type="error"

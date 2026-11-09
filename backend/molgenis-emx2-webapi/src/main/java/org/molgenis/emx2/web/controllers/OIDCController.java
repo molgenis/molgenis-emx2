@@ -4,6 +4,7 @@ import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 
 import io.javalin.http.Context;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -109,7 +110,7 @@ public class OIDCController {
     ctx.status(302);
 
     if (requestedUrlList.isPresent()) {
-      ArrayList<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
+      List<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
       String location = (requestedUrl.size() == 1) ? requestedUrl.get(0) : "/";
       logger.info("redirect using OIDC requested URL: {}", location);
       ctx.redirect(location);

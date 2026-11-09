@@ -9,11 +9,9 @@ dependencies {
     implementation project(':backend:molgenis-emx2-datamodels')
 }
 
-// No tests here, and :apps and :docs sit on this module's runtime classpath, so an empty test or
-// pmdTest task still makes gradle build the frontend. Blank them while there is nothing to run.
+// No tests here, and :apps and :docs sit on this module's runtime classpath, so an empty test
+// task still makes gradle build the frontend. Blank it while there is nothing to run.
+// (Empty pmd tasks are handled for all modules in backend/build.gradle.)
 tasks.named('test') {
     if (sourceSets.test.allSource.empty) { testClassesDirs = files(); classpath = files() }
-}
-tasks.named('pmdTest') {
-    if (sourceSets.test.allSource.empty) { classpath = files() }
 }

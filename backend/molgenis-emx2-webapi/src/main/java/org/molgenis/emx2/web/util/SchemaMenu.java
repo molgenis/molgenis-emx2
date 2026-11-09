@@ -52,9 +52,9 @@ public record SchemaMenu(List<MenuItem> items) {
 
   private boolean shouldShow(MenuItem item, String role, boolean isAnonymous) {
     return role == null
-        || role.equals("admin")
+        || "admin".equals(role)
         || item.role() == null
-        || (item.role().equals("Signed in") && isAnonymous)
+        || ("Signed in".equals(item.role()) && isAnonymous)
         || (item.role().equals(VIEWER.toString())
             && List.of(VIEWER.toString(), EDITOR.toString(), MANAGER.toString()).contains(role))
         || (item.role().equals(EDITOR.toString())

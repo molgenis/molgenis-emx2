@@ -71,15 +71,23 @@ class CsvApiAuthorizationTest extends ApiTestBase {
     Response response = getCsv("/" + SCHEMA + "/api/csv/changelog");
     assertEquals(400, response.getStatusCode());
     assertTrue(
-        response.body().asString().contains("Unauthorized"),
-        () -> "expected 'Unauthorized' in body, got: " + response.body().asString());
+        response
+            .body()
+            .asString()
+            .contains(
+                "Schema '" + SCHEMA + "' unknown. Might you need to sign in or ask permission?"));
   }
 
   @Test
   void changelogAnonymous_isRejected() {
     Response response = given().accept(ACCEPT_CSV).when().get("/" + SCHEMA + "/api/csv/changelog");
     assertEquals(400, response.getStatusCode());
-    assertTrue(response.body().asString().contains("Unauthorized"));
+    assertTrue(
+        response
+            .body()
+            .asString()
+            .contains(
+                "Schema '" + SCHEMA + "' unknown. Might you need to sign in or ask permission?"));
   }
 
   // --- /api/csv/members: handler does explicit canManage ---

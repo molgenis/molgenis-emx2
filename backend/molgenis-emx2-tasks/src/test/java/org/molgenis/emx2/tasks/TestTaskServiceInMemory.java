@@ -51,7 +51,7 @@ public class TestTaskServiceInMemory {
     assertEquals("Cannot cancel task with status: COMPLETED", exception.getMessage());
   }
 
-  private static class StoppableTask extends Task {
+  private static final class StoppableTask extends Task {
     private boolean stopped;
 
     private StoppableTask() {
@@ -59,7 +59,9 @@ public class TestTaskServiceInMemory {
     }
 
     @Override
-    public void run() {}
+    public void run() {
+      // Nothing to do
+    }
 
     @Override
     public void stop() {
