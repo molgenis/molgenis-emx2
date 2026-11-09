@@ -231,7 +231,7 @@ async function updateAutoIds() {
     <template #header>
       <header
         class="py-5 px-8 overflow-none border-b border-divider flex justify-between"
-        :class="$slots['header-controles'] ? 'h-[9.5rem]' : 'h-[4.75rem]'"
+        :class="$slots['header-controls'] ? 'h-[9.5rem]' : 'h-[4.75rem]'"
       >
         <div class="w-2/5 flex gap-2">
           <h2
@@ -242,7 +242,7 @@ async function updateAutoIds() {
           <DraftLabel v-if="isDraft" />
         </div>
         <div class="flex-grow">
-          <slot name="header-controles" :formValues="formValues" />
+          <slot name="header-controls" :formValues="formValues" />
         </div>
         <div class="w-13"></div>
         <button
