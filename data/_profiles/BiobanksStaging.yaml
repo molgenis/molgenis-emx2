@@ -1,0 +1,17 @@
+---
+name: BiobanksStaging
+description: "This schema is used by biobanks to enter their data."
+
+profileTags: BiobanksStaging
+
+demoData: _demodata/applications/datacatalogue_biobankstaging
+
+settings: _settings/datacatalogue_biobankstaging
+
+# special options
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: true
