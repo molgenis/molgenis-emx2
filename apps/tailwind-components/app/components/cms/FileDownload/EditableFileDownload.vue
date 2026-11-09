@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { IFileLists } from "../../../../types/cms";
+import { useForm } from "#imports";
 import { UploadFile, AddLink } from "../../../utils/cms/add";
 import { randomId } from "../../../utils/cms";
+
 import ComponentActions from "../ComponentActions.vue";
 import FileDownload from "./FileDownload.vue";
 import Button from "../../Button.vue";
-import { useForm } from "#imports";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
+
+import type { IFileLists } from "../../../../types/cms";
 import type {
   ColumnType,
   ITableMetaData,
@@ -226,6 +228,5 @@ async function addNewLink() {
       </template>
     </Modal>
   </div>
-
   <FileDownload v-else v-bind="props" />
 </template>

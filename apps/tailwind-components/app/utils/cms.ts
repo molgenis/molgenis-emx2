@@ -6,9 +6,6 @@ import type {
   FetchGraphqlResponse,
 } from "../../types/CmsComponents";
 
-export const actionsToolbarShowDelay = 200;
-export const actionsToolbarHideDelay = 300;
-
 export function randomId(): string {
   return crypto.randomUUID();
 }
