@@ -33,6 +33,14 @@ definePageMeta({
 });
 
 const USER_SCHEMA_ID = "users";
+const DEFAULT_TABLE_SETTINGS: ITableSettings = {
+  page: 1,
+  pageSize: 50,
+  orderby: {
+    column: "email",
+    direction: "ASC",
+  },
+};
 
 const tableFeatures = {
   showSearch: true,
@@ -95,15 +103,7 @@ const schema = ref<string>("");
 const selectedRows = ref<Map<string, User>>(new Map());
 const usersForDeletion = ref<User[]>([]);
 
-const tableSettings = ref<ITableSettings>({
-  page: 1,
-  pageSize: 50,
-  orderby: {
-    column: "email",
-    direction: "ASC",
-  },
-  search: "",
-});
+const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
 const adminSettings = useAdminSettings();
 
 schemas.value = await getSchemas();
@@ -256,6 +256,7 @@ function handleRowAction(payload: { action: string }) {
         :permissions="tablePermissions"
         :rows="usersShown"
         :rowCount="adminSettings.userCount"
+        :selectedRows="selectedRows"
         :settings="tableSettings"
         :tableMetadata="tableMetadata"
         searchPlaceholder="Search users"
