@@ -1,5 +1,7 @@
-order,name,code,parent,ontologyTermURI
-,Biobank,,,
-,Department,,,
-,Something else,,,
-,Another type,,,
+order,name,code,parent,ontologyTermURI,definition
+,Biobank,,,http://purl.obolibrary.org/obo/OBIB_0000623,"An organization bearing legal personality that owns or adminstrates a biobank.""
+,Department,,,http://purl.obolibrary.org/obo/OBIB_0000630,"An organization with a specific responsibility that is a part of a larger organization with a specific responsibility."
+,Laboratory,,,http://purl.obolibrary.org/obo/NCIT_C37984,"A facility equipped and competent to conduct scientific experiments, observations, tests, investigations, and/or to manufacture chemicals or medical products."
+,Coordinating Center,,,http://purl.obolibrary.org/obo/NCIT_C48359,"A facility that is responsible for receiving, editing, processing, analyzing, and storing data generated in a study and that, in addition, has responsibility for coordination of activities required for execution of the study."
+,Research Center,,,http://purl.obolibrary.org/obo/NCIT_C182021,"A facility established for research, often designed to promote interactions between faculty, scholars, students, and industry."
+,Diagnostics or Therapeutics Unit,,,http://purl.obolibrary.org/obo/NCIT_C211542,"A department that specializes on the pathogenesis, diagnosis, treatment, and prevention of disease."
