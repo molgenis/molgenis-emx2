@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { useRoute } from "#app/composables/router";
-import { computed, ref } from "vue";
-import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
+import { definePageMeta } from "#imports";
+import { computed } from "vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
+import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Tab from "../../../tailwind-components/app/components/Tab.vue";
 import users from "./admin/users.vue";
+
+definePageMeta({
+  middleware: "admin-only",
+});
 
 const route = useRoute();
 
