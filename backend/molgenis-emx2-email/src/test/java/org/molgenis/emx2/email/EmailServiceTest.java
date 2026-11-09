@@ -7,7 +7,6 @@ import java.net.ServerSocket;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
-import javax.mail.internet.AddressException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -28,7 +27,7 @@ class EmailServiceTest {
   @EnabledIfEnvironmentVariable(named = "EMX2_TEST_SMTP_SERVER", matches = ".*")
   @EnabledIfEnvironmentVariable(named = "EMX2_TEST_SMTP_RECEIVER", matches = ".*")
   // note set env vars to test sending a mail via smtp server
-  public void sendEmail() throws AddressException {
+  public void sendEmail() {
     EmailSettings.EmailSettingsBuilder builder = new EmailSettings.EmailSettingsBuilder();
     builder.senderEmail(System.getenv("EMX2_TEST_EMAIL_SENDER"));
     builder.auth("true");

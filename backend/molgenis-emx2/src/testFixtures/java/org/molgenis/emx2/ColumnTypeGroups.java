@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ColumnTypeGroups {
+public final class ColumnTypeGroups {
   public static Set<ColumnType> EXCLUDE_REFERENCE_HEADING;
   public static Set<ColumnType> EXCLUDE_FILE_REFERENCE_HEADING;
   public static Set<ColumnType> EXCLUDE_FILE_PERIOD_REFERENCE_HEADING;
@@ -37,5 +37,9 @@ public class ColumnTypeGroups {
             .filter(columnType -> !columnType.isReference())
             .filter(columnType -> !columnType.isHeading())
             .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private ColumnTypeGroups() {
+    // no instances
   }
 }

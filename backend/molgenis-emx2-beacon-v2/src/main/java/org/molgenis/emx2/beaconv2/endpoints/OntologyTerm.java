@@ -18,7 +18,9 @@ public class OntologyTerm {
     this.uri = uri;
   }
 
-  public OntologyTerm() {}
+  private OntologyTerm() {
+    // needed for json parsing
+  }
 
   public void setId(String id) {
     this.id = id;

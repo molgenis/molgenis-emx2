@@ -173,7 +173,7 @@ class HarvestingPipelineTest {
     }
   }
 
-  private static class StaticRdfExtractor implements RdfExtractor {
+  private static final class StaticRdfExtractor implements RdfExtractor {
 
     private boolean called = false;
 
@@ -188,7 +188,7 @@ class HarvestingPipelineTest {
     }
   }
 
-  private static class StaticRdfTransformer implements RdfTransformer {
+  private static final class StaticRdfTransformer implements RdfTransformer {
 
     @Override
     public InMemoryTableStore transform(
@@ -200,7 +200,7 @@ class HarvestingPipelineTest {
     }
   }
 
-  private static class StaticPreProcessor implements RdfPreProcessor {
+  private static final class StaticPreProcessor implements RdfPreProcessor {
 
     @Override
     public void process(Repository repository) {
@@ -213,7 +213,7 @@ class HarvestingPipelineTest {
     }
   }
 
-  private static class StaticPostProcessor implements PostProcessor {
+  private static final class StaticPostProcessor implements PostProcessor {
 
     @Override
     public void process(InMemoryTableStore tableStore) {

@@ -19,8 +19,6 @@ public class Map {
   private List<EntryType> entryTypes;
   private String url;
 
-  public Map() {}
-
   @JsonIgnore
   public JsonNode getResponse(Context ctx) {
     BeaconSpec spec = BeaconSpec.findByPath(ctx.attribute("specification"));

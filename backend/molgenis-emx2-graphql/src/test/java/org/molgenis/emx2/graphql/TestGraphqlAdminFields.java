@@ -171,7 +171,7 @@ class TestGraphqlAdminFields {
 
           assertTrue(
               tdb.getSchema(SCHEMA_NAME).getRoleInfos().stream()
-                  .noneMatch(role -> role.name().equals("PatientViewer")));
+                  .noneMatch(role -> "PatientViewer".equals(role.name())));
         });
   }
 
@@ -297,14 +297,14 @@ class TestGraphqlAdminFields {
     updateUser.put("password", "12345678");
     updateUser.put("enabled", "false");
 
-    ArrayList<Map<String, String>> revokedRoles = new ArrayList<>();
+    List<Map<String, String>> revokedRoles = new ArrayList<>();
     Map<String, String> revokedRole = new HashMap<>();
     revokedRole.put("schemaId", SCHEMA_NAME);
     revokedRole.put("role", "Owner");
     revokedRoles.add(revokedRole);
     updateUser.put("revokedRoles", revokedRoles);
 
-    ArrayList<Map<String, String>> roles = new ArrayList<>();
+    List<Map<String, String>> roles = new ArrayList<>();
     Map<String, String> role = new HashMap<>();
     role.put("schemaId", ANOTHER_SCHEMA_NAME);
     role.put("role", "Owner");

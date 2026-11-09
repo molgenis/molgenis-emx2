@@ -44,6 +44,7 @@ public class TaskServiceInMemory implements TaskService {
     return task.getId();
   }
 
+  @Override
   public Task cancel(String taskId) {
     Task task = tasks.get(taskId);
     if (task == null) {
@@ -103,7 +104,9 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public void removeTask(String id) {
-    if (id == null) return;
+    if (id == null) {
+      return;
+    }
     id = id.replaceAll("[\n|\r|\t]", "_"); // sanitize
 
     Task task = getTask(id);
@@ -112,7 +115,7 @@ public class TaskServiceInMemory implements TaskService {
       logger.info("skipped delete task " + id + "because not found");
       throw new MolgenisException("Task with id '" + id + "' not found");
     }
-    if (task.getStatus().equals(TaskStatus.RUNNING)) {
+    if (task.getStatus().equals(RUNNING)) {
       logger.info("skipped delete task " + id + "because still running");
       throw new MolgenisException("Cannot yet cancel running tasks");
     }

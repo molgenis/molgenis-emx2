@@ -58,9 +58,15 @@ public class QueryBuilder {
     query.append(table.getIdentifier());
     if (hasFilterArguments()) {
       query.append("(");
-      if (limit != null) query.append("limit: ").append(limit).append(",");
-      if (offset != null) query.append("offset: ").append(offset).append(",");
-      if (filters != null && !filters.isEmpty()) addFilters();
+      if (limit != null) {
+        query.append("limit: ").append(limit).append(",");
+      }
+      if (offset != null) {
+        query.append("offset: ").append(offset).append(",");
+      }
+      if (filters != null && !filters.isEmpty()) {
+        addFilters();
+      }
       query.append(")");
     }
     query.append("{");
@@ -150,7 +156,9 @@ public class QueryBuilder {
     for (Column column : columns) {
       String columnName = column.getName();
 
-      if (EXCLUDED_COLUMNS.contains(columnName)) continue;
+      if (EXCLUDED_COLUMNS.contains(columnName)) {
+        continue;
+      }
 
       if (column.isReference()) {
         String refTableName = column.getRefTableName().toLowerCase();

@@ -87,6 +87,6 @@ public class User extends HasSettings<User> {
   }
 
   public boolean isAdmin() {
-    return username.equals("admin") || isAdmin;
+    return "admin".equals(username) || isAdmin;
   }
 }

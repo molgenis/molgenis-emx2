@@ -7,6 +7,7 @@ import type {
 import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
+import { simplePostClient } from "../../../../../metadata-utils/src/simplePostClient";
 
 const {
   EMAIL_REGEX,
@@ -339,25 +340,6 @@ export function executeExpression(
   if (!copy.mg_tableclass) {
     copy.mg_tableclass = `${tableMetaData.id}.${tableMetaData.label}`;
   }
-
-  // A simple client for scripts to use to request data.
-  // Note: don't overuse this, the API call is blocking.
-  let simplePostClient = function (
-    query: string,
-    variables: object,
-    schemaId?: string
-  ) {
-    let xmlHttp = new XMLHttpRequest();
-    xmlHttp.open(
-      "POST",
-      schemaId ? "/" + schemaId + "/graphql" : "graphql",
-      false
-    );
-    xmlHttp.send(
-      `{"query":"${query}", "variables":${JSON.stringify(variables)}}`
-    );
-    return JSON.parse(xmlHttp.responseText).data;
-  };
 
   // FIXME: according to the new Function definition the input here is incorrectly typed
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
