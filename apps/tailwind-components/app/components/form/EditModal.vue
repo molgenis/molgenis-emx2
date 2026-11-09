@@ -230,8 +230,7 @@ async function updateAutoIds() {
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header
-        class="py-5 px-8 overflow-none border-b border-divider flex justify-between"
-        :class="$slots['header-controls'] ? 'h-[9.5rem]' : 'h-[4.75rem]'"
+        class="py-5 px-8 min-h-[4.75rem] flex-none border-b border-divider flex justify-between"
       >
         <div class="w-2/5 flex gap-2">
           <h2

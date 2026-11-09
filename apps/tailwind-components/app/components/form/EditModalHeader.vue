@@ -49,7 +49,7 @@ function getSelectedRole(): string {
 </script>
 
 <template>
-  <div v-if="showRoles" class="flex-col items-center justify-start">
+  <div v-if="showRoles" class="h-[7rem] flex-col items-center justify-start">
     <label class="text-title-contrast" for="roleSelector"> Access group </label>
     <InputListbox
       id="roleSelector"
