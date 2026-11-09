@@ -63,10 +63,6 @@ const enableEditing = computed(() => {
   );
 });
 
-function onCancel() {
-  visible.value = false;
-}
-
 const { data, refresh, error } = useAsyncData(
   `containers-${schema}`,
   async () => {
