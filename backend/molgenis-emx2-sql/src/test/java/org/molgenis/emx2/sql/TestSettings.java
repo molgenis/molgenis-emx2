@@ -182,7 +182,7 @@ public class TestSettings {
     User user = database.addUser(settingsTestUser);
     user.setSetting("my-setting", "user setting");
     database.saveUser(user);
-    assertEquals(database.getUser(settingsTestUser).getSetting("my-setting"), "user setting");
+    assertEquals("user setting", database.getUser(settingsTestUser).getSetting("my-setting"));
     user = database.getUser(settingsTestUser).removeSetting("my-setting");
     database.saveUser(user);
     assertNull(database.getUser(settingsTestUser).getSetting("my-setting"));
