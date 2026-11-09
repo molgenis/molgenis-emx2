@@ -18,47 +18,55 @@ export async function addComponent(
 ) {
   await prepareOrder(schema, order, parentBlock);
 
-  if (componentType === "Paragraph") {
-    await AddParagraph(schema, id);
+  const result = await createComponentType(componentType, schema, id);
+  if (result) {
+    await AddOrder(schema, id, order, parentBlock);
+  } else {
+    console.warn("Component Type", componentType, "does not exist in the CMS");
+  }
+}
+
+export async function createComponentType(
+  componentType: string,
+  schema: string,
+  id: string
+) {
+  let isComponentType: boolean = true;
+  switch (componentType) {
+    case "Buttons":
+      await AddButton(schema, id);
+      break;
+    case "ColumnCharts":
+      await AddColumnChart(schema, id);
+      break;
+    case "File":
+      await AddFile(schema, id);
+      break;
+    case "FileList":
+      await AddFileList(schema, id);
+      break;
+    case "Heading":
+      await AddHeading(schema, id);
+      break;
+    case "Image":
+      await AddImage(schema, id);
+      break;
+    case "NavigationCards":
+      await AddNavigationCard(schema, id);
+      break;
+    case "OrderedLists":
+      break;
+    case "Paragraph":
+      await AddParagraph(schema, id);
+      break;
+    case "UnorderedLists":
+      await AddUnorderedList(schema, id);
+      break;
+    default:
+      isComponentType = false;
   }
 
-  if (componentType === "Heading") {
-    await AddHeading(schema, id);
-  }
-
-  if (componentType === "Image") {
-    await AddImage(schema, id);
-  }
-
-  if (componentType === "File") {
-    await AddFile(schema, id);
-  }
-
-  if (componentType === "FileList") {
-    await AddFileList(schema, id);
-  }
-
-  if (componentType === "NavigationCards") {
-    await AddNavigationCard(schema, id);
-  }
-
-  if (componentType === "OrderedLists") {
-    await AddOrderedList(schema, id);
-  }
-
-  if (componentType === "UnorderedLists") {
-    await AddUnorderedList(schema, id);
-  }
-
-  if (componentType === "ColumnCharts") {
-    await AddColumnChart(schema, id);
-  }
-
-  if (componentType === "Buttons") {
-    await AddButton(schema, id);
-  }
-
-  await AddOrder(schema, id, order, parentBlock);
+  return isComponentType;
 }
 
 export async function addBlock(
