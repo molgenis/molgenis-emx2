@@ -1,15 +1,19 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRuntimeConfig } from "#imports";
 import Container from "./Container.vue";
 import HeaderButton from "./HeaderButton.vue";
 import ThemeSwitch from "./ThemeSwitch.vue";
+import { TOGGLEABLE_THEMES, useActiveUiTheme } from "../composables/useUiTheme";
 
 const config = useRuntimeConfig();
+const uiTheme = useActiveUiTheme();
 
-// only show the theme switch if the emx2Theme is not set to a specific theme ( for example molgenis )
-const showThemeSwitch =
-  config.public?.emx2Theme === "" ||
-  !["light", "dark"].includes(config.public?.emx2Theme as string);
+// only show the theme switch if the theme is not set to a specific theme ( for example molgenis )
+const showThemeSwitch = computed(() => {
+  const theme = uiTheme.value || (config.public?.emx2Theme as string) || "";
+  return theme === "" || TOGGLEABLE_THEMES.includes(theme);
+});
 
 const props = withDefaults(
   defineProps<{
