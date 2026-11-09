@@ -9,6 +9,22 @@ import {
 import type { FetchGraphqlResponse } from "../../../types/CmsComponents";
 import type { IFile } from "../../../types/types";
 
+export async function addBlock(
+  schema: string,
+  id: string,
+  page: string,
+  order: number,
+  componentType: string
+) {
+  await prepareBlockOrder(schema, order, page);
+  const result = await createComponentType(componentType, schema, id);
+  if (result) {
+    await AddBlockOrder(schema, id, order, page);
+  } else {
+    console.warn("Block Type", componentType, "does not exist in the CMS");
+  }
+}
+
 export async function addComponent(
   schema: string,
   id: string,
@@ -33,6 +49,21 @@ export async function createComponentType(
 ) {
   let isComponentType: boolean = true;
   switch (componentType) {
+    // blocks
+    case "Header":
+      await AddHeader(schema, id);
+      break;
+    case "Section":
+      await AddSection(schema, id);
+      break;
+    case "Section - 2 Columns":
+      await AddSection(schema, id, 2);
+      break;
+    case "Section - 3 Columns":
+      await AddSection(schema, id, 3);
+      break;
+
+    // components
     case "Buttons":
       await AddButton(schema, id);
       break;
@@ -68,29 +99,6 @@ export async function createComponentType(
   }
 
   return isComponentType;
-}
-
-export async function addBlock(
-  schema: string,
-  id: string,
-  page: string,
-  order: number,
-  componentType: string
-) {
-  await prepareBlockOrder(schema, order, page);
-  if (componentType === "Header") {
-    await AddHeader(schema, id);
-  }
-  if (componentType === "Section") {
-    await AddSection(schema, id);
-  }
-  if (componentType === "Section - 2 Columns") {
-    await AddSection(schema, id, 2);
-  }
-  if (componentType === "Section - 3 Columns") {
-    await AddSection(schema, id, 3);
-  }
-  await AddBlockOrder(schema, id, order, page);
 }
 
 export async function AddButton(schema: string, id: string) {
