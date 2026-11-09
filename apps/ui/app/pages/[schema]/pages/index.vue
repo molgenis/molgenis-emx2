@@ -18,10 +18,8 @@ import PageGalleryCard from "../../../../../tailwind-components/app/components/c
 
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
-import {
-  newDeveloperPage,
-  randomId,
-} from "../../../../../tailwind-components/app/utils/cms";
+import { randomId } from "../../../../../tailwind-components/app/utils/cms";
+import { newDeveloperPage } from "../../../../../tailwind-components/app/utils/cms/renderDeveloperPage.ts";
 
 import {
   addBlock,
