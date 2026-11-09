@@ -199,8 +199,8 @@ async def test_upload_file():
         assert str(exc_info.value) == ("Uploading files with extension"
                                        " '.txt' is not supported.")
 
-
-def test_truncate():
+@pytest.mark.asyncio
+async def test_truncate():
     """Tests the `truncate` method."""
     with Client(url=server_url) as client:
         client.signin(username, password)
@@ -209,18 +209,18 @@ def test_truncate():
         with pytest.raises(ReferenceException) as exc_info:
             client.truncate(schema='pet store', table='Pet')
         assert exc_info.value.msg is not None
-        assert exc_info.value.msg.startswith("Transaction failed: update or delete on"
+        assert exc_info.value.msg.startswith("Transaction failed: delete on"
                                              " table \"Pet\" violates"
                                              " foreign key constraint")
 
         # Test correct running
-        client.truncate(schema='pet store', table='User')
-        users_after = len(client.get_graphql(schema="pet store", table="User",
-                                             columns=["username"]))
-        assert users_after == 0
+        client.truncate(schema='pet store', table='Order')
+        orders_after = len(client.get_graphql(schema="pet store", table="Order",
+                                             columns=["orderId"]))
+        assert orders_after == 0
 
-        client.save_table(table="User", schema="pet store",
-                          file=RESOURCES_DIR / "petstore" / "User.csv")
+        await client.upload_file(schema="pet store",
+                                 file_path=RESOURCES_DIR / "petstore" / "Order.csv")
 
 
 @pytest.mark.asyncio
