@@ -68,6 +68,10 @@ const parentElem = computed<HTMLElement>(() => {
 const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
 
+const isGroupedColumnChart = computed<boolean>(() => {
+  return props.chartType?.name === "Grouped column chart";
+});
+
 const width = ref<number>(0);
 const height = computed<number>(() => {
   return props.chartHeight - props.topMargin - internalBottomMargin.value;
@@ -126,11 +130,33 @@ const xAxisData = computed<CategoricalAxisTickData>(() => {
   return data;
 });
 
+const xSubAxisData = computed<string[] | undefined>(() => {
+  if (isGroupedColumnChart.value) {
+    const uniquePrimaryGroupData = [
+      ...new Set(
+        props.chartData?.map((row: IChartData) => {
+          return (row.primaryGroupLabel || row.primaryGroupValue) as string;
+        })
+      ),
+    ];
+    return uniquePrimaryGroupData;
+  }
+});
+
 const xScale = computed(() => {
   return newCategoricalAxisGenerator({
     domains: xAxisData.value.domains,
     rangeEnd: width.value,
   });
+});
+
+const xSubScale = computed(() => {
+  if (isGroupedColumnChart.value && xSubAxisData.value) {
+    return newCategoricalAxisGenerator({
+      domains: xSubAxisData.value,
+      rangeEnd: width.value,
+    });
+  }
 });
 
 const yScale = computed(() => {
@@ -155,6 +181,12 @@ const colorPalette = computed<Record<string, string>>(() => {
     return [value, color];
   });
   return Object.fromEntries(valueColorMapping);
+});
+
+const legendData = computed<Record<string, any> | undefined>(() => {
+  if (isGroupedColumnChart.value && xSubAxisData.value) {
+    // map to color palette
+  }
 });
 
 function renderChartAxes() {
@@ -259,6 +291,7 @@ watch(
 </script>
 
 <template>
+  {{ props }}
   <div ref="container" class="grid gap-1 w-full chart_layout_default">
     <ChartTitle
       :id="`${id}-context`"
