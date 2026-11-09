@@ -55,6 +55,7 @@ export async function createComponentType(
       await AddNavigationCard(schema, id);
       break;
     case "OrderedLists":
+      await AddOrderedList(schema, id);
       break;
     case "Paragraph":
       await AddParagraph(schema, id);
