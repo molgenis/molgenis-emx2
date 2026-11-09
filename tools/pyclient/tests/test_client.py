@@ -256,7 +256,7 @@ async def test_export():
         zip_data: BytesIO = await client.export(schema="pet store")
         with zipfile.ZipFile(zip_data, 'r') as zf:
             file_names = zf.namelist()
-        assert len(file_names) == 9
+        assert len(file_names) == 11
         await client.export(schema="pet store", filename="pet store.zip")
         assert (Path(__file__).parent / "pet store.zip").exists()
         (Path(__file__).parent / "pet store.zip").unlink()
