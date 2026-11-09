@@ -1,5 +1,7 @@
 import { useHead, tryUseNuxtApp } from "#app";
+import { computed } from "vue";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
+import { useConfiguredTheme } from "./useConfiguredTheme";
 
 export function useLayoutHead(route: RouteLocationNormalizedLoaded) {
   const nuxtApp = tryUseNuxtApp();
@@ -12,12 +14,18 @@ export function useLayoutHead(route: RouteLocationNormalizedLoaded) {
     ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
     : "/_nuxt-styles/img/molgenis.ico";
 
+  const configuredTheme = useConfiguredTheme();
+  const dataTheme = computed(
+    () =>
+      (route.query.theme as string) ||
+      configuredTheme.value?.base ||
+      (config.public.emx2Theme as string) ||
+      ""
+  );
+
   useHead({
     htmlAttrs: {
-      "data-theme":
-        (route.query.theme as string) ||
-        (config.public.emx2Theme as string) ||
-        "",
+      "data-theme": dataTheme,
     },
     link: [{ rel: "icon", href: faviconHref }],
     titleTemplate: (titleChunk: string | undefined): string | null => {

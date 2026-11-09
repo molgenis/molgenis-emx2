@@ -69,6 +69,12 @@ export async function useLayoutMenu(
       label: "Analytics",
       link: `analytics`,
       isSpaLink: true,
+      role: "Admin",
+    },
+    {
+      label: "Theme",
+      link: `/${schema.value}/theme`,
+      isSpaLink: true,
       role: "Manager",
     },
     {
@@ -107,11 +113,9 @@ export async function useLayoutMenu(
 
     const isVisibleToUser = (item: MenuItem): boolean => {
       if (item.role) {
-        if (session.value?.roles && Array.isArray(session.value.roles)) {
-          return session.value.roles.includes(item.role);
-        } else {
-          return item.role === "Admin" && isAdmin.value === true;
-        }
+        return (
+          session.value?.roles?.[schema.value]?.includes(item.role) ?? false
+        );
       }
       return true;
     };

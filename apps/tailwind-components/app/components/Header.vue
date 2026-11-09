@@ -3,13 +3,20 @@ import { useRuntimeConfig } from "#imports";
 import Container from "./Container.vue";
 import HeaderButton from "./HeaderButton.vue";
 import ThemeSwitch from "./ThemeSwitch.vue";
+import { computed } from "vue";
+import { useConfiguredTheme } from "../composables/useConfiguredTheme";
 
 const config = useRuntimeConfig();
+const configuredTheme = useConfiguredTheme();
 
 // only show the theme switch if the emx2Theme is not set to a specific theme ( for example molgenis )
-const showThemeSwitch =
-  config.public?.emx2Theme === "" ||
-  !["light", "dark"].includes(config.public?.emx2Theme as string);
+// a theme configured by an admin or manager takes precedence over the visitor's choice
+const showThemeSwitch = computed(
+  () =>
+    !configuredTheme.value &&
+    (config.public?.emx2Theme === "" ||
+      !["light", "dark"].includes(config.public?.emx2Theme as string))
+);
 
 const props = withDefaults(
   defineProps<{
