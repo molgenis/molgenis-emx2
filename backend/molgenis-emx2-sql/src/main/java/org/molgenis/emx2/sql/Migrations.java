@@ -25,6 +25,7 @@ public final class Migrations {
   private Migrations() {
     // hide constructor
   }
+
   // version the current software needs to work
   private static final int SOFTWARE_DATABASE_VERSION = 38;
   private static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
