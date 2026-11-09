@@ -10,6 +10,7 @@ import LayoutsLandingPage from "../components/layouts/LandingPage.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import { landingPageRedirect } from "../utils/landingPageRedirect";
+import { openReAuthenticationWindow } from "../../../tailwind-components/app/utils/openReAuthenticationWindow";
 import {
   usePaperExtractingAccess,
   usePaperExtractingSettings,
@@ -66,7 +67,48 @@ const isSubmitting = ref(false);
 const { isSignedIn, hasAccess } = await usePaperExtractingAccess(
   paperExtractingSchema
 );
-const loginUrl = "/login?redirectTo=" + encodeURIComponent("/paper-extracting");
+
+const LOGIN_POPUP_WIDTH = 600;
+const LOGIN_POPUP_HEIGHT = 700;
+let loginMessageHandler: ((event: MessageEvent) => void) | undefined;
+
+function stopListeningForLogin() {
+  if (loginMessageHandler) {
+    window.removeEventListener("message", loginMessageHandler);
+    loginMessageHandler = undefined;
+  }
+}
+
+// the login page lives in the ui app, so sign in using a popup that reports
+// back when it is done, the user then stays on this page
+function signIn() {
+  stopListeningForLogin();
+  const popup = openReAuthenticationWindow(
+    window,
+    "/apps/ui/login?reauthenticate=true",
+    LOGIN_POPUP_WIDTH,
+    LOGIN_POPUP_HEIGHT
+  );
+  if (!popup) {
+    errorMessage.value =
+      "The sign in window was blocked. Please allow pop-ups for this site and try again.";
+    return;
+  }
+  errorMessage.value = "";
+  loginMessageHandler = (event: MessageEvent) => {
+    if (
+      event.origin !== window.location.origin ||
+      event.source !== popup ||
+      event.data?.status !== "reAuthenticated"
+    ) {
+      return;
+    }
+    stopListeningForLogin();
+    // access is determined during page setup, so reload to pick up the session
+    window.location.reload();
+  };
+  window.addEventListener("message", loginMessageHandler);
+}
 
 const {
   data: myJobs,
@@ -108,6 +150,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   clearInterval(jobsRefreshTimer);
+  stopListeningForLogin();
 });
 
 const fileSize = computed(() => {
@@ -231,7 +274,7 @@ async function onSubmit() {
         </Table>
       </ContentBlock>
       <Message v-if="!hasAccess" id="paper-extracting-no-access">
-        <span class="ml-3 grow">
+        <span class="ml-3">
           <template v-if="isSignedIn">
             Your account is not allowed to use paper extracting yet. Please ask
             the project administrator to give you access.
@@ -243,10 +286,11 @@ async function onSubmit() {
         </span>
         <Button
           v-if="!isSignedIn"
-          class="ml-3 shrink-0"
+          class="ml-3 shrink-0 border bordert-theme"
           size="small"
+          type="secondary"
           label="Sign in"
-          :href="loginUrl"
+          @click="signIn"
         />
       </Message>
       <ContentBlock
