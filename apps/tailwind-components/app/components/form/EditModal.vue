@@ -32,6 +32,7 @@ const props = withDefaults(
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
+    title?: string;
   }>(),
   {
     showButton: true,
@@ -236,7 +237,7 @@ async function updateAutoIds() {
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
-            {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
+            {{ title ?? `${isInsert ? "Add" : "Edit"} ${tableId}` }}
           </h2>
           <DraftLabel v-if="isDraft" />
         </div>
