@@ -4,7 +4,9 @@ import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.HandlerType;
 import io.javalin.http.Header;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -57,10 +59,12 @@ class CsrfFilter {
   }
 
   private static String hostOf(String url) {
+    // only the host is needed, and URI rejects characters browsers do send in a path or query
+    String schemeAndAuthority = url.trim().replaceFirst("(://[^/?#]*).*", "$1");
     try {
-      String host = URI.create(url.trim()).getHost();
-      return host == null ? null : host.toLowerCase();
-    } catch (IllegalArgumentException e) {
+      String host = URI.create(schemeAndAuthority).toURL().getHost();
+      return host.isEmpty() ? null : host.toLowerCase(Locale.ROOT);
+    } catch (IllegalArgumentException | MalformedURLException e) {
       return null;
     }
   }

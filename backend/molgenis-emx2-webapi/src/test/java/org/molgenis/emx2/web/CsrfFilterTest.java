@@ -22,65 +22,98 @@ class CsrfFilterTest {
   }
 
   @Test
-  void givenCrossSiteOrigin_whenPost_thenRejected() {
+  void givenCrossSiteOriginWhenPostThenRejected() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", "https://evil.example");
     assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenNullOrigin_whenPost_thenRejected() {
+  void givenNullOriginWhenPostThenRejected() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", "null");
     assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenCrossSiteOrigin_whenDelete_thenRejected() {
+  void givenCrossSiteOriginWhenDeleteThenRejected() {
     Context ctx = request(HandlerType.DELETE, "emx2.example.org", "https://evil.example");
     assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenSameOrigin_whenPost_thenAllowed() {
+  void givenSameOriginWhenPostThenAllowed() {
     Context ctx = request(HandlerType.POST, "emx2.example.org:8080", "https://emx2.example.org");
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenForwardedHostOrigin_whenPost_thenAllowed() {
+  void givenForwardedHostOriginWhenPostThenAllowed() {
     Context ctx = request(HandlerType.POST, "localhost:8080", "https://emx2.example.org");
     when(ctx.header(CsrfFilter.X_FORWARDED_HOST)).thenReturn("emx2.example.org, proxy.internal");
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenNoOriginOrReferer_whenPost_thenAllowed() {
+  void givenNoOriginOrRefererWhenPostThenAllowed() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", null);
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenCrossSiteReferer_whenPostWithoutOrigin_thenRejected() {
+  void givenCrossSiteRefererWhenPostWithoutOriginThenRejected() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", null);
     when(ctx.header(Header.REFERER)).thenReturn("https://evil.example/page");
     assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenTokenHeader_whenCrossSitePost_thenRejected() {
+  void givenTokenHeaderWhenCrossSitePostThenRejected() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", "https://evil.example");
     when(ctx.header(Constants.X_MOLGENIS_TOKEN)).thenReturn("some-token");
     assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenTokenHeaderWithoutOrigin_whenPost_thenAllowed() {
+  void givenTokenHeaderWithoutOriginWhenPostThenAllowed() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", null);
     when(ctx.header(Constants.X_MOLGENIS_TOKEN)).thenReturn("some-token");
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenCrossSiteOrigin_whenGet_thenAllowed() {
+  void givenUnderscoreHostNameWhenPostThenAllowed() {
+    Context ctx = request(HandlerType.POST, "molgenis_emx2:8080", "http://molgenis_emx2:8080");
+    assertDoesNotThrow(() -> CsrfFilter.check(ctx));
+  }
+
+  @Test
+  void givenRefererWithPipeInQueryWhenPostWithoutOriginThenAllowed() {
+    Context ctx = request(HandlerType.POST, "emx2.example.org", null);
+    when(ctx.header(Header.REFERER)).thenReturn("https://emx2.example.org/catalogue?filter=a|b");
+    assertDoesNotThrow(() -> CsrfFilter.check(ctx));
+  }
+
+  @Test
+  void givenIpv6HostWhenPostThenAllowed() {
+    Context ctx = request(HandlerType.POST, "[::1]:8080", "http://[::1]:8080");
+    assertDoesNotThrow(() -> CsrfFilter.check(ctx));
+  }
+
+  @Test
+  void givenOwnHostAsSubdomainOfOtherSiteWhenPostThenRejected() {
+    Context ctx =
+        request(HandlerType.POST, "emx2.example.org", "https://emx2.example.org.evil.example");
+    assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
+  }
+
+  @Test
+  void givenBackslashBeforeOwnHostWhenPostThenRejected() {
+    Context ctx =
+        request(HandlerType.POST, "emx2.example.org", "https://evil.example\\@emx2.example.org");
+    assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
+  }
+
+  @Test
+  void givenCrossSiteOriginWhenGetThenAllowed() {
     Context ctx = request(HandlerType.GET, "emx2.example.org", "https://evil.example");
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }
