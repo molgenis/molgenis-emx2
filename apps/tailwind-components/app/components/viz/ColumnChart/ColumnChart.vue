@@ -13,7 +13,7 @@ import {
   min,
   scaleLinear,
   axisLeft,
-  schemeBlues,
+  schemePuBuGn,
 } from "d3";
 
 const d3 = {
@@ -27,7 +27,7 @@ const d3 = {
   min,
   scaleLinear,
   axisLeft,
-  schemeBlues,
+  schemePuBuGn,
 };
 
 import ChartTitle from "../ChartTitle.vue";
@@ -160,7 +160,7 @@ const xSubAxisData = computed<string[] | undefined>(() => {
         return row.primaryGroupValue as string;
       })
     );
-    return [...uniquePrimaryGroupValues];
+    return [...uniquePrimaryGroupValues].sort();
   }
 });
 
@@ -194,30 +194,29 @@ const yScale = computed(() => {
 
 const colorPalette = computed<Record<string, string>>(() => {
   let palette: any;
+  let domains: string[];
   if (isGroupedColumnChart.value && !props.colorPalette) {
-    const domains = [...new Set(xAxisData.value.domains)].sort();
+    domains = [...new Set(xAxisData.value.domains)].sort();
     const length = domains.length === 2 ? 3 : domains.length;
-    const colors = d3.schemeBlues[length as number];
-    palette = d3.scaleOrdinal(colors);
-    console.log(colors, palette("1"));
+    const colors = d3.schemePuBuGn[length as number];
+    palette = d3.scaleOrdinal(colors).domain(domains).unknown("#ccc");
+  } else {
+    domains = xAxisData.value.domains;
   }
 
-  const valueColorMapping = xAxisData.value.domains.map(
-    (value: string, index: number) => {
-      let color;
-      if (xAxisData.value.palette?.[value]) {
-        color = xAxisData.value.palette[value];
-      } else if (props.colorPalette) {
-        color = props.colorPalette[value as unknown as number];
-      } else if (isGroupedColumnChart.value && !props.colorPalette) {
-        color = palette(index as unknown as string);
-      } else {
-        color = props.fillColor;
-      }
-      return [value, color];
+  const valueColorMapping = domains.map((value: string) => {
+    let color;
+    if (xAxisData.value.palette?.[value]) {
+      color = xAxisData.value.palette[value];
+    } else if (props.colorPalette) {
+      color = props.colorPalette[value as unknown as number];
+    } else if (isGroupedColumnChart.value && !props.colorPalette) {
+      color = palette(value);
+    } else {
+      color = props.fillColor;
     }
-  );
-
+    return [value, color];
+  });
   return Object.fromEntries(valueColorMapping);
 });
 
@@ -313,6 +312,10 @@ function renderChart() {
   renderColumns();
 }
 
+function onLegendClick(event: string[]) {
+  console.log(event);
+}
+
 onMounted(() => {
   renderChart();
   useEventListener("resize", renderChart);
@@ -351,7 +354,9 @@ watch(
       v-if="isGroupedColumnChart && legendIsEnabled"
       :legend-id="`${id}-legend`"
       :data="colorPalette"
-      :stack-legend="!legendIsHorizontal"
+      :stackLegend="false"
+      :enableClicks="true"
+      @legend-item-clicked="onLegendClick($event)"
       style="grid-area: legend"
     />
     <div style="grid-area: chart">
