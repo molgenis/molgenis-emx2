@@ -35,7 +35,7 @@ public class RunMolgenisEmx2 {
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
   public static final boolean INCLUDE_CMS =
-      (Boolean) EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_CMS, false, BOOL);
+      (Boolean) EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_CMS, true, BOOL);
   public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(

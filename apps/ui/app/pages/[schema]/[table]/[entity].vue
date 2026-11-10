@@ -24,6 +24,7 @@ import { visibleColumns } from "../../../../../tailwind-components/app/utils/vis
 import { rowMatchesUserRole } from "../../../../../tailwind-components/app/utils/rowMatchesUserRole";
 import type { cellPayload } from "../../../../../tailwind-components/types/types";
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import EditModalHeader from "../../../../../tailwind-components/app/components/form/EditModalHeader.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -246,5 +247,15 @@ const recordColumns = computed<IColumn[]>(() =>
     @update:cancelled="afterEditClosed"
     @update:added="afterEditClosed"
     @update:edited="afterEditClosed"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="false"
+        :tableId="tableId"
+        :schemaId="schemaId"
+      />
+    </template>
+  </EditModal>
 </template>
