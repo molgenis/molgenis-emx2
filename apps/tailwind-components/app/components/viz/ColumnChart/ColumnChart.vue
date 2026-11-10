@@ -7,11 +7,13 @@ import {
   select,
   selectAll,
   scaleBand,
+  scaleOrdinal,
   axisBottom,
   max,
   min,
   scaleLinear,
   axisLeft,
+  schemeBlues,
 } from "d3";
 
 const d3 = {
@@ -19,14 +21,17 @@ const d3 = {
   select,
   selectAll,
   scaleBand,
+  scaleOrdinal,
   axisBottom,
   max,
   min,
   scaleLinear,
   axisLeft,
+  schemeBlues,
 };
 
 import ChartTitle from "../ChartTitle.vue";
+import ChartLegend from "../ChartLegend/ChartLegend.vue";
 
 import {
   breakXAxisLabels,
@@ -72,6 +77,10 @@ const chartArea = ref(); // receives d3.select
 
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
+});
+
+const groupedChartLegendPosition = computed<string>(() => {
+  return props.legendPosition?.name as string;
 });
 
 const width = ref<number>(0);
@@ -184,24 +193,32 @@ const yScale = computed(() => {
 });
 
 const colorPalette = computed<Record<string, string>>(() => {
-  const valueColorMapping = xAxisData.value.domains.map((value: string) => {
-    let color;
-    if (xAxisData.value.palette?.[value]) {
-      color = xAxisData.value.palette[value];
-    } else if (props.colorPalette) {
-      color = props.colorPalette[value as unknown as number];
-    } else {
-      color = props.fillColor;
-    }
-    return [value, color];
-  });
-  return Object.fromEntries(valueColorMapping);
-});
-
-const legendData = computed<Record<string, any> | undefined>(() => {
-  if (isGroupedColumnChart.value && xSubAxisData.value) {
-    // map to color palette
+  let palette: any;
+  if (isGroupedColumnChart.value && !props.colorPalette) {
+    const domains = [...new Set(xAxisData.value.domains)].sort();
+    const length = domains.length === 2 ? 3 : domains.length;
+    const colors = d3.schemeBlues[length as number];
+    palette = d3.scaleOrdinal(colors);
+    console.log(colors, palette("1"));
   }
+
+  const valueColorMapping = xAxisData.value.domains.map(
+    (value: string, index: number) => {
+      let color;
+      if (xAxisData.value.palette?.[value]) {
+        color = xAxisData.value.palette[value];
+      } else if (props.colorPalette) {
+        color = props.colorPalette[value as unknown as number];
+      } else if (isGroupedColumnChart.value && !props.colorPalette) {
+        color = palette(index as unknown as string);
+      } else {
+        color = props.fillColor;
+      }
+      return [value, color];
+    }
+  );
+
+  return Object.fromEntries(valueColorMapping);
 });
 
 function renderChartAxes() {
@@ -311,7 +328,17 @@ watch(
 </script>
 
 <template>
-  <div ref="container" class="grid gap-1 w-full chart_layout_default">
+  <div
+    ref="container"
+    class="grid gap-1 w-full"
+    :class="{
+      chart_layout_default: !isGroupedColumnChart,
+      chart_layout_with_legend_top:
+        isGroupedColumnChart && groupedChartLegendPosition === 'top',
+      chart_layout_with_legend_bottom:
+        isGroupedColumnChart && groupedChartLegendPosition === 'bottom',
+    }"
+  >
     <ChartTitle
       :id="`${id}-context`"
       :title="(chartTitle as string)"
@@ -320,6 +347,13 @@ watch(
     >
       <slot name="additionalChartInfo"></slot>
     </ChartTitle>
+    <ChartLegend
+      v-if="isGroupedColumnChart && legendIsEnabled"
+      :legend-id="`${id}-legend`"
+      :data="colorPalette"
+      :stack-legend="!legendIsHorizontal"
+      style="grid-area: legend"
+    />
     <div style="grid-area: chart">
       <svg
         :id="id"
@@ -351,6 +385,7 @@ watch(
                   class="column"
                   :x="xScale(nestedRow.xValue as string)"
                   :width="xScale.bandwidth()"
+                  :fill="(colorPalette[nestedRow.xValue as keyof IChartPalette] as string)"
                   :stroke="strokeColor ? strokeColor : undefined"
                   :stroke-width="strokeColor ? '1' : undefined"
                 />
