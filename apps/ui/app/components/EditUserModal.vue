@@ -203,6 +203,10 @@ async function saveUser() {
     revokedRoles: Object.values(revokedRoles.value),
   };
 
+  if (userName.value === "admin") {
+    delete editedUser.enabled;
+  }
+
   if (password.value) {
     editedUser.password = password.value;
   }

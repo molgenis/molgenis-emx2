@@ -27,7 +27,7 @@ export interface Role {
 
 export interface UpdateUser {
   email: string;
-  enabled: boolean;
+  enabled?: boolean;
   password?: string;
   roles?: Role[];
   revokedRoles: Role[];
