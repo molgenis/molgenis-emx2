@@ -29,6 +29,34 @@ Optionally also install python3 for [scripts](use_scripts_jobs.md) feature.
 
 On Linux/Mac this could go as follows (Windows users, please tell us if this works for you too):
 
+**Manage the Java version using SDKMAN**
+
+The exact Java version we use is listed in the `.sdkmanrc` file in the repository root, for example:
+
+```
+java=21.0.13.0+9-tem
+```
+
+If you use [SDKMAN](https://sdkman.io/), it reads this file to install and select the correct Java version for you.
+
+- Install the Java version from `.sdkmanrc` (only needed when it is not installed yet, or after the version in `.sdkmanrc` changed):
+  ```console
+  cd molgenis-emx2
+  sdk env install
+  ```
+- Switch to that Java version in your current shell:
+  ```console
+  sdk env
+  ```
+
+To switch automatically when you `cd` into the repository, enable `sdkman_auto_env`. Open the SDKMAN config with `sdk config` (or edit `~/.sdkman/etc/config`) and set:
+
+```
+sdkman_auto_env=true
+```
+
+Then open a new terminal. From now on SDKMAN switches to the version from `.sdkmanrc` when you enter the directory, and back to your default Java version when you leave it. If that version is not installed yet, SDKMAN tells you so; run `sdk env install` to install it.
+
 **Start postgres using a native postgres installation**
 
 See [Installation guide](run)
