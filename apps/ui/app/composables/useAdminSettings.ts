@@ -23,6 +23,7 @@ export default async function useAdminSettings() {
     userCount.value = newUserCount;
 
     schemas.value = await getSchemas();
+    // TODO get the correct roles, this does not the all custom roles
     roles.value = await getRoles(schemas.value);
   }
 
