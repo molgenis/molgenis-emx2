@@ -137,6 +137,9 @@ export async function getUsers(): Promise<{
 
 function buildUsers(dataUsers: BackendUser[]): User[] {
   return dataUsers.map((user) => {
+    if (user.email === "dragonkeeper") {
+      console.log(user);
+    }
     return {
       email: user.email,
       enabled: user.enabled,

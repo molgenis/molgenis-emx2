@@ -75,8 +75,8 @@ const tableMetadata: ITableMetaData = {
     },
     {
       columnType: "STRING_ARRAY",
-      id: "roleLabels",
-      name: "roleLabels",
+      id: "roles",
+      name: "roles",
       label: "Roles",
     },
     {
