@@ -6,10 +6,22 @@ export function sanitizeHtmlText(text: string) {
       b: "strong",
       i: "em",
     },
-    allowedTags: ["a", "code", "em", "span", "strong", "u", "br"],
+    allowedTags: [
+      "a",
+      "code",
+      "em",
+      "span",
+      "strong",
+      "u",
+      "br",
+      "address",
+      "cite",
+      "time",
+    ],
     allowedAttributes: {
       a: ["href"],
-      "*": ["class"],
+      time: ["datetime"],
+      "*": ["class", "id"],
     },
   });
 }

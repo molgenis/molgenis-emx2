@@ -6,6 +6,7 @@ import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.DownloadApiUtils.requestedColumns;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,7 +44,7 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.tasks.Task;
 
-public class CsvApi {
+public final class CsvApi {
 
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
@@ -73,8 +74,11 @@ public class CsvApi {
 
   private static void getChangelog(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!PermissionEvaluator.canManage(schema)) {
-      throw new MolgenisException("Unauthorized to get schema changelog");
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException(
+          "Schema '"
+              + ctx.pathParam(SCHEMA)
+              + "' unknown. Might you need to sign in or ask permission?");
     }
 
     int limit = parseIntParam(ctx, "limit").orElse(DEFAULT_CHANGELOG_LIMIT);
@@ -121,17 +125,27 @@ public class CsvApi {
   }
 
   private static void discardMetadata(Context ctx) {
-    SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-    getSchema(ctx).discard(schema);
+    SchemaMetadata schemaMetadata = Emx2.fromRowList(getRowList(ctx));
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
+    schema.discard(schemaMetadata);
     ctx.status(200);
     ctx.result("remove metadata items success");
   }
 
   static void mergeMetadata(Context ctx) {
     String fileName = ctx.header("fileName");
-    boolean fileNameMatchesTable = getSchema(ctx).hasTableWithNameOrIdCaseInsensitive(fileName);
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
 
-    if (fileNameMatchesTable) { // so we assume it isn't meta data
+    boolean fileNameMatchesTable = schema.hasTableWithNameOrIdCaseInsensitive(fileName);
+
+    if (fileNameMatchesTable) { // so we assume it isn't metadata
       Table table = MolgenisWebservice.getTableByIdOrName(ctx, fileName);
       if (ctx.queryParam("async") != null) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
@@ -147,8 +161,8 @@ public class CsvApi {
         ctx.result("{ \"message\": \"imported number of rows: \" + " + count + " }");
       }
     } else {
-      SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-      getSchema(ctx).migrate(schema);
+      SchemaMetadata schemaMetadata = Emx2.fromRowList(getRowList(ctx));
+      schema.migrate(schemaMetadata);
       ctx.status(200);
       ctx.result("{ \"message\": \"add/update metadata success\" }");
     }
@@ -156,6 +170,10 @@ public class CsvApi {
 
   static void getMetadata(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
         Emx2.toRowList(schema.getMetadata()),
@@ -173,7 +191,7 @@ public class CsvApi {
 
   private static void getMembers(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!PermissionEvaluator.canManage(schema)) {
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
@@ -200,6 +218,9 @@ public class CsvApi {
 
   private static void getSettings(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
 
     StringWriter writer = new StringWriter();
     Character separator = getSeparator(ctx);
@@ -293,7 +314,9 @@ public class CsvApi {
     try {
       if (modeParam != null) {
         String normalizedMode = modeParam.trim().toUpperCase(java.util.Locale.ROOT);
-        if ("OVERRIDE".equals(normalizedMode)) normalizedMode = UpdateMode.OVERWRITE.name();
+        if ("OVERRIDE".equals(normalizedMode)) {
+          normalizedMode = UpdateMode.OVERWRITE.name();
+        }
         updateMode = UpdateMode.valueOf(normalizedMode);
       }
     } catch (IllegalArgumentException e) {

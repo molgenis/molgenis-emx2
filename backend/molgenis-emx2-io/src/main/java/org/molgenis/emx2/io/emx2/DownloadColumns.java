@@ -12,13 +12,13 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.TableMetadata;
 
-public class DownloadColumns {
+public final class DownloadColumns {
   private DownloadColumns() {
     // hidden
   }
 
   public static boolean isIncluded(String columnName, boolean includeSystemColumns) {
-    return columnName.equals(MG_DRAFT) || !columnName.startsWith("mg_") || includeSystemColumns;
+    return MG_DRAFT.equals(columnName) || !columnName.startsWith("mg_") || includeSystemColumns;
   }
 
   public static List<String> resolve(

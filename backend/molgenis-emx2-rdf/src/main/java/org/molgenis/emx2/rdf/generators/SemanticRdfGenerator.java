@@ -52,7 +52,9 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
    * to describe.
    */
   @Override
-  public void generate(Table table, Column column) {}
+  public void generate(Table table, Column column) {
+    // no-op
+  }
 
   @Override
   protected void ontologyRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
@@ -72,7 +74,9 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
   @Override
   protected void dataRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
-    if (row.isDraft()) return;
+    if (row.isDraft()) {
+      return;
+    }
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
     processDataRowTable(table, subject);

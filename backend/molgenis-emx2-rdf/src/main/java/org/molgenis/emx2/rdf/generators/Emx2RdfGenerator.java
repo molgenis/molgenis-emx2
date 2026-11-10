@@ -141,16 +141,18 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     describeColumns(table, null);
   }
 
-  void describeColumns(final Table table, @Nullable final String columnName) {
-    if (table.getMetadata().getTableType() != TableType.ONTOLOGIES) {
-      for (final Column column : table.getMetadata().getColumns()) {
-        // Exclude the system columns that refer to specific users
-        if (column.isSystemAddUpdateByUserColumn()) {
-          continue;
-        }
-        if (columnName == null || columnName.equals(column.getName())) {
-          describeColumn(column);
-        }
+  void describeColumns(final Table table, final String columnName) {
+    if (table.getMetadata().getTableType() != TableType.DATA) {
+      return;
+    }
+
+    for (final Column column : table.getMetadata().getColumns()) {
+      // Exclude the system columns that refer to specific users
+      if (column.isSystemAddUpdateByUserColumn()) {
+        continue;
+      }
+      if (columnName == null || columnName.equals(column.getName())) {
+        describeColumn(column);
       }
     }
   }
@@ -228,7 +230,9 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   @Override
   protected void dataRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
-    if (row.isDraft()) return;
+    if (row.isDraft()) {
+      return;
+    }
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
     processDataRowGenerics(table, row, subject);

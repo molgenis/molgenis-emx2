@@ -42,10 +42,16 @@ subprojects {
 
     compileJava.dependsOn 'spotlessApply'
 
+    // Skip PMD for empty source sets to improve performance 
+    tasks.withType(Pmd).configureEach {
+        if (source.empty) { classpath = files() }
+    }
+
     tasks.register('format') {
         dependsOn spotlessApply
         dependsOn pmdMain
         dependsOn pmdTest
+        dependsOn pmdTestFixtures
     }
 
     /* default dependencies for all projects*/

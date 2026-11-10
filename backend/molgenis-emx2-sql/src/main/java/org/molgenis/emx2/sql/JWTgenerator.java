@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -22,14 +21,17 @@ import org.molgenis.emx2.utils.RandomString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JWTgenerator {
+public final class JWTgenerator {
   // 32 bytes / 256 bit, the minimum for HS256
   public static final int SHARED_SECRET_LENGTH = 32;
   private static final Logger logger = LoggerFactory.getLogger(JWTgenerator.class);
 
-  private static byte[] sharedSecret;
   private static MACSigner signer;
   private static JWSVerifier verifier;
+
+  private JWTgenerator() {
+    // no instances
+  }
 
   /** Generates a shared secret strong enough to sign tokens with (see {@link #init}). */
   public static String generateSharedSecret() {
@@ -38,8 +40,8 @@ public class JWTgenerator {
 
   private static void init(Database database) {
     try {
-      Objects.requireNonNull(database);
-      sharedSecret = database.resolveJwtSharedSecret().getBytes();
+      requireNonNull(database);
+      byte[] sharedSecret = database.resolveJwtSharedSecret().getBytes();
       // check enough bytes
       if (sharedSecret.length < SHARED_SECRET_LENGTH) {
         throw new MolgenisException(
@@ -85,7 +87,7 @@ public class JWTgenerator {
     requireNonNull(user);
     requireNonNull(tokenId);
     requireNonNull(expirationTime);
-    if (!db.getActiveUser().equals(ADMIN_USER) && !db.getActiveUser().equals(user)) {
+    if (!ADMIN_USER.equals(db.getActiveUser()) && !db.getActiveUser().equals(user)) {
       throw new MolgenisException("Cannot create token for other users unless admin");
     }
     try {

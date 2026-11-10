@@ -7,7 +7,7 @@ import io.javalin.http.Context;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.web.service.CatalogueSiteMap;
 
-public class SiteMapService {
+public final class SiteMapService {
 
   private SiteMapService() {
     // hide constructor
