@@ -1,10 +1,16 @@
 import { $fetch } from "ofetch";
-import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
+import type { TableRow } from "../../../metadata-utils/src/types.ts";
+import type {
+  BackendUser,
+  Role,
+  SchemaInfo,
+  User,
+} from "../interfaces/interfaces";
 
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 
-export async function deleteUser(user: User) {
+export async function deleteUser(user: TableRow) {
   return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
@@ -16,7 +22,7 @@ export async function deleteUser(user: User) {
   });
 }
 
-export async function updateUser(user: User) {
+export async function updateUser(user: TableRow) {
   const updateUser = createUpdateUser(user);
   return $fetch(API_GRAPHQL, {
     method: "post",
@@ -29,17 +35,17 @@ export async function updateUser(user: User) {
   });
 }
 
-function createUpdateUser(user: User) {
+function createUpdateUser(user: TableRow) {
   let updateUser: UpdateUser = {
-    email: user.email,
-    enabled: user.enabled,
-    revokedRoles: user.revokedRoles || [],
+    email: user.email as string,
+    enabled: user.enabled as boolean,
+    revokedRoles: (user.revokedRoles as unknown as Role[]) || [],
   };
   if (user.password) {
-    updateUser.password = user.password;
+    updateUser.password = user.password as string;
   }
   if (user.roles) {
-    updateUser.roles = user.roles;
+    updateUser.roles = user.roles as unknown as Role[];
   }
   return updateUser;
 }
@@ -129,13 +135,22 @@ export async function getUsers(): Promise<{
     });
 }
 
-function buildUsers(dataUsers: User[]): User[] {
+function buildUsers(dataUsers: BackendUser[]): User[] {
   return dataUsers.map((user) => {
-    return { ...user, tokens: getTokens(user) };
+    return {
+      email: user.email,
+      enabled: user.enabled,
+      roles: (user.roles ?? []).map(
+        (role) => `${role.schemaId} (${role.role})`
+      ),
+      tokens: getTokens(user),
+      _rowId: { email: user.email },
+      _rowIdString: user.email,
+    };
   });
 }
 
-function getTokens(user: User) {
+function getTokens(user: BackendUser) {
   if (user.settings.length) {
     const tokens = user.settings.find((setting) => {
       return setting.key === "access-tokens";
@@ -159,7 +174,7 @@ export function isValidPassword(password1: string, password2: string) {
 interface AdminResponse {
   data: {
     _admin: {
-      users: User[];
+      users: BackendUser[];
       userCount: number;
     };
   };

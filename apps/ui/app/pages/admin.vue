@@ -24,12 +24,12 @@ const activeTab = computed(() => {
   <PageHeader title="Admin Tools" />
   <Container class="flex flex-col items-center">
     <div class="flex flex-nowrap w-full">
-      <NuxtLink to="/admin/users"
-        ><Tab :active="activeTab === 'users'">Users</Tab></NuxtLink
-      >
-      <NuxtLink to="/admin/settings"
-        ><Tab :active="activeTab === 'settings'">Settings</Tab></NuxtLink
-      >
+      <NuxtLink to="/admin/users">
+        <Tab :active="activeTab === 'users'">Users</Tab>
+      </NuxtLink>
+      <NuxtLink to="/admin/settings">
+        <Tab :active="activeTab === 'settings'">Settings</Tab>
+      </NuxtLink>
     </div>
     <users v-if="activeTab === 'users'" />
     <NuxtPage v-else />

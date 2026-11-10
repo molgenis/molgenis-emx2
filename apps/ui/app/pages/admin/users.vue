@@ -3,7 +3,7 @@ import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import type {
   ITableMetaData,
-  TableRow as TableRowData,
+  TableRow,
 } from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
@@ -19,8 +19,7 @@ import EditUserModal from "../../components/EditUserModal.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
 import TokenManagement from "../../components/TokenManagement.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
-import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
-import { getRoles, getSchemas } from "../../util/adminUtils";
+import type { User } from "../../interfaces/interfaces.ts";
 
 /**
  * Todo:
@@ -89,7 +88,7 @@ const tableMetadata: ITableMetaData = {
   ],
 };
 
-const showCellInfoSideModal = ref(false);
+const showCellDetailSideModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
 const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
@@ -97,78 +96,31 @@ const showTokenModal = ref(false);
 const showDeleteUserModal = ref(false);
 const selectedUser = ref<User | null>(null);
 
-const schemas = ref<SchemaInfo[]>([]);
-const roles = ref<string[]>([]);
-const schema = ref<string>("");
 const selectedRows = ref<Map<string, User>>(new Map());
 const usersForDeletion = ref<User[]>([]);
 
 const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
-const adminSettings = useAdminSettings();
+const adminSettings = await useAdminSettings();
 
-schemas.value = await getSchemas();
-schema.value = schemas.value[0]?.id || "";
-roles.value = await getRoles(schemas.value);
-
-const usernames = computed(() => {
+const userNames = computed<string[]>(() => {
   return adminSettings.users.map((user: User) => user.email);
 });
 
-const usersShown = computed<TableRowData[]>(() => {
+const usersShown = computed<User[]>(() => {
   const search = tableSettings.value.search?.toLowerCase() || "";
-  const filteredUsers = adminSettings.users.filter((user: User) => {
-    return (
-      user.email.toLowerCase().includes(search) ||
-      user.roles?.some((role) =>
-        role.schemaId.toLowerCase().includes(search)
-      ) ||
-      user.roles?.some((role) => role.role.toLowerCase().includes(search))
-    );
-  });
-  const sortedUsers = filteredUsers.sort((a, b) => {
-    const column = tableSettings.value.orderby?.column || "email";
-    const direction = tableSettings.value.orderby?.direction || "ASC";
-    const aValue = a[column as keyof User];
-    const bValue = b[column as keyof User];
-    if (aValue === undefined || bValue === undefined) {
-      return 0;
-    }
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return direction === "ASC"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
-    return 0;
-  });
-  const paginatedUsers = sortedUsers.slice(
-    (tableSettings.value.page - 1) * tableSettings.value.pageSize,
-    tableSettings.value.page * tableSettings.value.pageSize
+  const filteredUsers = filterUsers(search, adminSettings.users);
+  const sortedUsers = sortUsers(
+    filteredUsers,
+    tableSettings.value.orderby?.column || "email",
+    tableSettings.value.orderby?.direction || "ASC"
   );
-  return paginatedUsers.map(toUserTableRow);
+  const paginatedUsers = paginateUsers(
+    sortedUsers,
+    tableSettings.value.page,
+    tableSettings.value.pageSize
+  );
+  return paginatedUsers;
 });
-
-const usersByEmail = computed(
-  () => new Map(adminSettings.users.map((user: User) => [user.email, user]))
-);
-
-function userOf(row: TableRowData): User {
-  return usersByEmail.value.get(row._rowIdString)!;
-}
-
-function toUserTableRow(user: User): TableRowData {
-  return {
-    _rowId: { email: user.email },
-    _rowIdString: user.email,
-    email: user.email,
-    enabled: user.enabled,
-    roleLabels: (user.roles ?? []).map(
-      (role) => `${role.schemaId} (${role.role})`
-    ),
-    tokens: user.tokens ?? [],
-  };
-}
-
-async function updateCurrentPage() {}
 
 function openEditUserModal(user: User) {
   selectedUser.value = user;
@@ -197,19 +149,18 @@ function canDelete(user: User) {
 
 function handleUpdateSettings(newSettings: ITableSettings) {
   tableSettings.value = newSettings;
-  updateCurrentPage();
 }
 
 function handleCellClicked(payload: cellPayload) {
   cellDetailPayload.value = payload;
-  showCellInfoSideModal.value = true;
+  showCellDetailSideModal.value = true;
 }
 
-function handleToggleRowSelection(row: TableRowData) {
+function handleToggleRowSelection(row: TableRow) {
   if (selectedRows.value.has(row._rowIdString)) {
     selectedRows.value.delete(row._rowIdString);
   } else {
-    selectedRows.value.set(row._rowIdString, userOf(row));
+    selectedRows.value.set(row._rowIdString, rowToUser(row));
   }
 }
 
@@ -228,12 +179,12 @@ function handleRowAction(payload: { action: string }) {
         break;
       case "edit-selection":
         if (singleRowSelected) {
-          openEditUserModal(userOf(singleRowSelected));
+          openEditUserModal(singleRowSelected);
         }
         break;
       case "select-all-on-page":
         usersShown.value.forEach((user) => {
-          selectedRows.value.set(user._rowIdString, userOf(user));
+          selectedRows.value.set(user._rowIdString, user);
         });
         break;
       case "select-none":
@@ -241,6 +192,52 @@ function handleRowAction(payload: { action: string }) {
         break;
     }
   }
+}
+
+function filterUsers(search: string, users: User[]): User[] {
+  if (!search) {
+    return users;
+  } else {
+    const lowerSearch = search.toLowerCase();
+    return users.filter((user: User) => {
+      return (
+        user.email?.toLowerCase().includes(lowerSearch) ||
+        user.roles?.some((role: string) =>
+          role.toLowerCase().includes(lowerSearch)
+        )
+      );
+    });
+  }
+}
+
+function sortUsers(
+  users: User[],
+  column: string,
+  direction: "ASC" | "DESC"
+): User[] {
+  return users.sort((a, b) => {
+    const aValue = JSON.stringify(a[column as keyof User]);
+    const bValue = JSON.stringify(b[column as keyof User]);
+    if (aValue === undefined || bValue === undefined) {
+      return 0;
+    }
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return direction === "ASC"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+    return 0;
+  });
+}
+
+function paginateUsers(users: User[], page: number, pageSize: number): User[] {
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  return users.slice(startIndex, endIndex);
+}
+
+function rowToUser(row: TableRow): User {
+  return row as User;
 }
 </script>
 
@@ -272,25 +269,25 @@ function handleRowAction(payload: { action: string }) {
             type="inline"
             icon="edit"
             :label="`Edit user: ${row.email}`"
-            @click="openEditUserModal(userOf(row))"
+            @click="openEditUserModal(rowToUser(row))"
           />
           <Button
-            v-if="canDelete(userOf(row))"
+            v-if="canDelete(rowToUser(row))"
             :id="`delete-user-${row.email}`"
             iconOnly
             type="inline"
             icon="trash"
             :label="`Delete user: ${row.email}`"
-            @click="showDeleteUserConfirmation(userOf(row))"
+            @click="showDeleteUserConfirmation(rowToUser(row))"
           />
           <Button
-            v-if="userOf(row).tokens?.length"
+            v-if="Array.isArray(row.tokens) && row.tokens.length"
             :id="`manage-tokens-${row.email}`"
             type="inline"
             size="tiny"
-            @click="openManageTokensModal(userOf(row))"
+            @click="openManageTokensModal(rowToUser(row))"
           >
-            {{ userOf(row).tokens?.length }} tokens
+            {{ row.tokens?.length }} tokens
           </Button>
         </template>
 
@@ -310,21 +307,21 @@ function handleRowAction(payload: { action: string }) {
         v-if="cellDetailPayload"
         :payload="cellDetailPayload"
         :schemaId="USER_SCHEMA_ID"
-        v-model:showModal="showCellInfoSideModal"
+        v-model:showModal="showCellDetailSideModal"
       />
 
       <NewUserModal
         v-if="showNewUserModal"
         v-model:visible="showNewUserModal"
-        :usernames="usernames"
+        :usernames="userNames"
         @addUser="adminSettings.addUser"
       />
 
       <EditUserModal
         v-if="selectedUser && showEditUserModal"
         v-model:visible="showEditUserModal"
-        :schemas="schemas"
-        :roles="roles"
+        :schemas="adminSettings.schemas"
+        :roles="adminSettings.roles"
         :user="selectedUser"
         @userUpdated="adminSettings.retrieveUsers"
       />

@@ -5,9 +5,11 @@
         <div class="mb-4">
           <p>
             Are you sure you want to delete the user(s)
-            <strong v-for="user in props.users" :key="user.email">
-              {{ user.email }}
-            </strong>
+            <div v-for="user in props.users">
+              <strong  :key="user.email">
+                {{ user.email }}
+              </strong>
+            </div>
           </p>
           This action cannot be undone.
         </div>

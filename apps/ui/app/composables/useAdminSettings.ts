@@ -1,36 +1,49 @@
 import { reactive, ref } from "vue";
-import type { User } from "../interfaces/interfaces";
-import { createUser, deleteUser, getUsers } from "../util/adminUtils";
+import type { SchemaInfo, User } from "~/interfaces/interfaces.ts";
+import {
+  createUser,
+  deleteUser,
+  getRoles,
+  getSchemas,
+  getUsers,
+} from "../util/adminUtils";
 
-export default function useAdminSettings() {
+export default async function useAdminSettings() {
+  const roles = ref<string[]>([]);
+  const schemas = ref<SchemaInfo[]>([]);
   const users = ref<User[]>([]);
   const userCount = ref(0);
   const totalUserPages = ref(0);
 
-  retrieveUsers();
+  await loadAdminData();
 
-  async function retrieveUsers() {
+  async function loadAdminData() {
     const { newUsers, newUserCount } = await getUsers();
     users.value = newUsers;
     userCount.value = newUserCount;
+
+    schemas.value = await getSchemas();
+    roles.value = await getRoles(schemas.value);
   }
 
   async function addUser(userName: string, password: string) {
     await createUser(userName, password);
-    retrieveUsers();
+    loadAdminData();
   }
 
   async function removeUsers(users: User[]) {
     await Promise.all(users.map((user) => deleteUser(user)));
-    await retrieveUsers();
+    await loadAdminData();
   }
 
   return reactive({
+    roles,
+    schemas,
     users,
     userCount,
     totalUserPages,
     addUser,
     removeUsers,
-    retrieveUsers,
+    retrieveUsers: loadAdminData,
   });
 }
