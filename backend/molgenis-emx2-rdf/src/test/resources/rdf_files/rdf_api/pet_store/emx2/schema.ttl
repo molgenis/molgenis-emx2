@@ -550,7 +550,7 @@ rdfs:domain PetStoreTest:User .
   <http://localhost:8080/PetStoreTest/api/rdf/Order/column/price> "9.99"^^xsd:double;
   <http://localhost:8080/PetStoreTest/api/rdf/Order/column/complete> true;
   <http://localhost:8080/PetStoreTest/api/rdf/Order/column/status> "delivered";
-  <http://localhost:8080/PetStoreTest/api/rdf/Order/column/timestamp> "2026-01-01T12:34:56"^^xsd:dateTime;
+  <http://localhost:8080/PetStoreTest/api/rdf/Order/column/timestamp> "2026-01-01T12:34:56+01:00"^^xsd:dateTime;
   <http://localhost:8080/PetStoreTest/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16"^^xsd:dateTime;
   <http://localhost:8080/PetStoreTest/api/rdf/Order/column/mg_updatedOn> "2025-06-16T15:01:16"^^xsd:dateTime .
 

@@ -22,6 +22,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
  * When a new {@link ColumnType} is added and/or {@link #validateAllColumnTypesCovered()} fails, be
  * sure to add thew new {@link ColumnType} to all tests!!!
  */
+@DefaultTimeZone("Europe/Amsterdam")
 class ColumnTypeRdfMapperTest {
   static final String TEST_SCHEMA = "AllColumnTypes";
   static final String TEST_TABLE = "TestTable";
@@ -173,7 +174,7 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.DATETIME.name(),
                 "3000-01-01T12:30:00",
                 ColumnType.DATETIME_ARRAY.name(),
-                "3001-01-01T12:30:00,3002-01-01T12:30:00",
+                "3001-01-01T12:30:00,3002-07-01T12:30:00",
                 ColumnType.PERIOD.name(),
                 "P1D",
                 ColumnType.PERIOD_ARRAY.name(),
@@ -497,13 +498,14 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.DATE_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.literal("3000-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
+                Set.of(Values.literal("3000-01-01T12:30:00+01:00", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.literal("3001-01-01T12:30:00", CoreDatatype.XSD.DATETIME),
-                    Values.literal("3002-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
+                    Values.literal("3001-01-01T12:30:00+01:00", CoreDatatype.XSD.DATETIME),
+                    Values.literal(
+                        "3002-07-01T12:30:00+02:00" /* summertime */, CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME_ARRAY.name())),
         () ->
             assertEquals(

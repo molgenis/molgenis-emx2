@@ -18,6 +18,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.rdf.CustomAssertions;
+import org.molgenis.emx2.rdf.DefaultTimeZone;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfParser;
@@ -29,6 +30,8 @@ import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
 import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+// Validation files contain xsd:dateTime values with a timezone offset.
+@DefaultTimeZone("Europe/Amsterdam")
 class PetStoreTest extends RdfServiceTestRunner {
   private static final String SCHEMA_NAME = PetStoreTest.class.getSimpleName();
   private static final String SCHEMA_NAME_SECOND = SCHEMA_NAME + "_SECOND";
