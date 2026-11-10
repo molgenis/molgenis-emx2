@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import DraggableComponent from "./DraggableComponent.vue";
 import Accordion from "../Accordion.vue";
 const emit = defineEmits(["dragging"]);

@@ -18,12 +18,13 @@ import PageGalleryCard from "../../../../../tailwind-components/app/components/c
 
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
+import { randomId } from "../../../../../tailwind-components/app/utils/cms";
+import { newDeveloperPage } from "../../../../../tailwind-components/app/utils/cms/renderDeveloperPage.ts";
+
 import {
-  newDeveloperPage,
   addBlock,
   addComponent,
-  randomId,
-} from "../../../../../tailwind-components/app/utils/cms";
+} from "../../../../../tailwind-components/app/utils/cms/add.ts";
 
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 
@@ -61,10 +62,6 @@ const enableEditing = computed(() => {
     isAdmin.value
   );
 });
-
-function onCancel() {
-  visible.value = false;
-}
 
 const { data, refresh, error } = useAsyncData(
   `containers-${schema}`,
