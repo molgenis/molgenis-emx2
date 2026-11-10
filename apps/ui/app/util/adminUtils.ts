@@ -3,6 +3,7 @@ import type {
   BackendUser,
   Role,
   SchemaInfo,
+  UpdateUser,
   User,
 } from "../interfaces/interfaces";
 
@@ -21,32 +22,16 @@ export async function deleteUser(user: User) {
   });
 }
 
-export async function updateUser(user: User) {
-  const updateUser = createUpdateUser(user);
+export async function updateUser(user: UpdateUser) {
   return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
       query: `mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}`,
-      variables: { updateUser },
+      variables: { updateUser: user },
     },
   }).catch((error) => {
     handleError("Error updating user: ", error.value);
   });
-}
-
-function createUpdateUser(user: User): UpdateUser {
-  let updateUser: UpdateUser = {
-    email: user.email,
-    enabled: user.enabled,
-    revokedRoles: (user.revokedRoles as unknown as Role[]) || [],
-  };
-  if (user.password) {
-    updateUser.password = user.password as string;
-  }
-  if (user.roles) {
-    updateUser.roles = user.roles as unknown as Role[];
-  }
-  return updateUser;
 }
 
 export async function createUser(newUserName: string, newPassword: string) {
@@ -58,7 +43,7 @@ export async function createUser(newUserName: string, newPassword: string) {
       query: `mutation{changePassword(email: "${newUserName}", password: "${newPassword}"){status,message}}`,
     },
   }).catch((error) => {
-    handleError("Error creating/updating user: ", error.value);
+    handleError("Error creating/updating user: ", error);
   });
 }
 
@@ -104,6 +89,7 @@ export async function getSchemas() {
 export async function getUsers(): Promise<{
   newUsers: User[];
   newUserCount: number;
+  newRolesByUser: Record<string, Role[]>;
 }> {
   const query = `
   { _admin 
@@ -124,13 +110,19 @@ export async function getUsers(): Promise<{
     },
   })
     .then((response) => {
-      const users = buildUsers(response?.data._admin.users || []);
-      const userCount = response?.data._admin.userCount ?? 0;
-      return { newUsers: users, newUserCount: userCount };
+      const loadedUsers = response?.data._admin.users || [];
+      const newUsers = buildUsers(loadedUsers);
+      const newUserCount = response?.data._admin.userCount ?? 0;
+      const newRolesByUser = loadedUsers.reduce((acc, user) => {
+        acc[user.email] = user.roles || [];
+        return acc;
+      }, {} as Record<string, Role[]>);
+
+      return { newUsers, newUserCount, newRolesByUser: newRolesByUser };
     })
     .catch((error) => {
       handleError("Error loading users: ", error.value);
-      return { newUsers: [], newUserCount: 0 };
+      return { newUsers: [], newUserCount: 0, newRolesByUser: {} };
     });
 }
 
@@ -177,12 +169,4 @@ interface AdminResponse {
       userCount: number;
     };
   };
-}
-
-interface UpdateUser {
-  email: string;
-  enabled: boolean;
-  password?: string;
-  roles?: Role[];
-  revokedRoles: Role[];
 }

@@ -323,7 +323,7 @@ function rowToUser(row: TableRow): User {
         :schemas="adminSettings.schemas"
         :roles="adminSettings.roles"
         :user="selectedUser"
-        @userUpdated="adminSettings.retrieveUsers"
+        @userUpdated="adminSettings.reloadAdminData"
       />
 
       <DeleteUserConfirmation
@@ -337,7 +337,7 @@ function rowToUser(row: TableRow): User {
         v-if="selectedUser && showTokenModal"
         v-model:visible="showTokenModal"
         :user="selectedUser"
-        @userUpdated="adminSettings.retrieveUsers"
+        @userUpdated="adminSettings.reloadAdminData"
       />
     </ContentBlock>
   </Container>

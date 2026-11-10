@@ -24,3 +24,11 @@ export interface Role {
   schemaId: string;
   role: string;
 }
+
+export interface UpdateUser {
+  email: string;
+  enabled: boolean;
+  password?: string;
+  roles?: Role[];
+  revokedRoles: Role[];
+}
