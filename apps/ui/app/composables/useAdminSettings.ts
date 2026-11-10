@@ -28,7 +28,7 @@ export default async function useAdminSettings() {
 
   async function addUser(userName: string, password: string) {
     await createUser(userName, password);
-    loadAdminData();
+    await loadAdminData();
   }
 
   async function removeUsers(users: User[]) {

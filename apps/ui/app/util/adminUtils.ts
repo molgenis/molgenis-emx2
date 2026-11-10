@@ -50,7 +50,7 @@ function createUpdateUser(user: TableRow) {
   return updateUser;
 }
 
-export function createUser(newUserName: string, newPassword: string) {
+export async function createUser(newUserName: string, newPassword: string) {
   if (!newUserName || !newPassword) return;
 
   return $fetch(API_GRAPHQL, {
@@ -86,7 +86,7 @@ export async function getRoles(schemas: SchemaInfo[]): Promise<string[]> {
     });
 }
 
-export function getSchemas() {
+export async function getSchemas() {
   return $fetch<{ data: { _schemas: SchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
@@ -137,9 +137,6 @@ export async function getUsers(): Promise<{
 
 function buildUsers(dataUsers: BackendUser[]): User[] {
   return dataUsers.map((user) => {
-    if (user.email === "dragonkeeper") {
-      console.log(user);
-    }
     return {
       email: user.email,
       enabled: user.enabled,
