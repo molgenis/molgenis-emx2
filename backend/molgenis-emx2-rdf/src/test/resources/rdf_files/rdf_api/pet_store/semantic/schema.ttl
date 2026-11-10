@@ -98,6 +98,9 @@
 <http://localhost:8080/PetStoreTest/api/rdf/User/username=plofke> a foaf:Person;
   foaf:accountName "plofke".
 
+<http://localhost:8080/PetStoreTest/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>
+  <http://example.com/petstore#hasTimestamp> "2026-01-01T12:34:56+01:00"^^xsd:dateTime .
+
 <http://localhost:8080/PetStoreTest/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>
   a sio:SIO_000396;
   rdfs:label "8hlbnm.jpg";
