@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useTemplateRef, watch } from "vue";
 import type { IDeveloperPages } from "../../../types/cms";
-import { generateHtmlPreview } from "../../utils/cms";
+import { generateHtmlPreview } from "../../utils/cms/renderDeveloperPage";
 import { useRoute } from "#app";
 
 const route = useRoute();
