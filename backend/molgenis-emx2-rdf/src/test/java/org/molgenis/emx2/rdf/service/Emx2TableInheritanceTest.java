@@ -113,7 +113,7 @@ public class Emx2TableInheritanceTest extends TableInheritanceTest {
     emx2Predicates.removeAll(emx2Subjects);
     assertTrue(
         emx2Predicates.isEmpty(),
-        "Some predicates are missing a subject describing them:" + emx2Predicates);
+        "Some predicates are missing a subject describing them: " + emx2Predicates);
   }
 
   private Set<String> getEmx2Predicates(InMemoryRDFHandler handler) {
