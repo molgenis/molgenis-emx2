@@ -3,14 +3,12 @@
     <div class="overflow-y-auto">
       <div class="p-5">
         <div class="mb-4">
-          <p>
-            Are you sure you want to delete the user(s)
-            <div v-for="user in props.users">
-              <strong  :key="user.email">
-                {{ user.email }}
-              </strong>
-            </div>
-          </p>
+          <p>Are you sure you want to delete the user(s)</p>
+          <div v-for="user in props.users">
+            <strong :key="user.email">
+              {{ user.email }}
+            </strong>
+          </div>
           This action cannot be undone.
         </div>
       </div>
