@@ -3,6 +3,7 @@ import { ref, computed, useTemplateRef, onMounted, watch } from "vue";
 import { useEventListener } from "@vueuse/core";
 
 import {
+  group,
   select,
   selectAll,
   scaleBand,
@@ -14,6 +15,7 @@ import {
 } from "d3";
 
 const d3 = {
+  group,
   select,
   selectAll,
   scaleBand,
@@ -87,6 +89,18 @@ const internalBottomMargin = computed<number>(() => {
     : 25;
 });
 
+const internalChartData = computed<Record<string, IChartData[]> | undefined>(
+  () => {
+    if (props.chartType?.name === "Grouped column chart" && props.chartData) {
+      const data = d3.group(
+        props.chartData,
+        (row: IChartData) => row.primaryGroupValue
+      );
+      return data as unknown as Record<string, IChartData[]>;
+    }
+  }
+);
+
 const yAxisData = computed<NumericAxisTickData>(() => {
   const ticks: NumericAxisTickData = {
     ...generateAxisTickData(props.chartData as IChartData[], "yValue"),
@@ -132,21 +146,22 @@ const xAxisData = computed<CategoricalAxisTickData>(() => {
 
 const xSubAxisData = computed<string[] | undefined>(() => {
   if (isGroupedColumnChart.value) {
-    const uniquePrimaryGroupData = [
-      ...new Set(
-        props.chartData?.map((row: IChartData) => {
-          return (row.primaryGroupLabel || row.primaryGroupValue) as string;
-        })
-      ),
-    ];
-    return uniquePrimaryGroupData;
+    const uniquePrimaryGroupValues = new Set(
+      props.chartData?.map((row: IChartData) => {
+        return row.primaryGroupValue as string;
+      })
+    );
+    return [...uniquePrimaryGroupValues];
   }
 });
 
 const xScale = computed(() => {
+  const rangeEnd = isGroupedColumnChart.value
+    ? (xSubScale.value?.bandwidth() as number)
+    : width.value;
   return newCategoricalAxisGenerator({
     domains: xAxisData.value.domains,
-    rangeEnd: width.value,
+    rangeEnd: rangeEnd,
   });
 });
 
@@ -191,9 +206,14 @@ const legendData = computed<Record<string, any> | undefined>(() => {
 
 function renderChartAxes() {
   if (chartArea.value) {
-    const xAxis = d3.axisBottom(xScale.value);
+    let xAxis = d3.axisBottom(xScale.value);
+    if (isGroupedColumnChart.value && xSubScale.value) {
+      xAxis = d3.axisBottom(xSubScale.value);
+    }
+
     const yAxis = d3.axisLeft(yScale.value).tickValues(yAxisData.value.ticks);
     const chartAxisGroup = chartArea.value.select("g.axes");
+
     chartAxisGroup.select(".x-axis").call(xAxis);
     chartAxisGroup.select(".y-axis").call(yAxis);
   }
@@ -291,7 +311,6 @@ watch(
 </script>
 
 <template>
-  {{ props }}
   <div ref="container" class="grid gap-1 w-full chart_layout_default">
     <ChartTitle
       :id="`${id}-context`"
@@ -315,6 +334,41 @@ watch(
         >
           <g class="columns">
             <g
+              v-if="isGroupedColumnChart && xSubScale && internalChartData"
+              v-for="row in internalChartData"
+              :transform="`translate(${xSubScale(row[0] as unknown as string)}, 0)`"
+              class="rect-group"
+            >
+              <g
+                v-for="nestedRow in (row[1] as unknown as IChartData[])"
+                class="rect-subgroup"
+                :key="nestedRow.id"
+                :data-x="nestedRow.xValue"
+                :data-y="nestedRow.yValue"
+                :data-group="nestedRow.primaryGroupValue"
+              >
+                <rect
+                  class="column"
+                  :x="xScale(nestedRow.xValue as string)"
+                  :width="xScale.bandwidth()"
+                  :stroke="strokeColor ? strokeColor : undefined"
+                  :stroke-width="strokeColor ? '1' : undefined"
+                />
+                <text
+                  class="fill-chart-text text-body-base"
+                  text-anchor="middle"
+                  :opacity="0"
+                  :x="xScale(nestedRow.xValue)"
+                  :y="yScale(parseInt(nestedRow.yValue))"
+                  :dx="xScale.bandwidth() / 2"
+                  :dy="parseInt(nestedRow.yValue) < 0 ? '1.15em' : '-0.35em'"
+                >
+                  {{ nestedRow.yLabel || nestedRow.yValue }}
+                </text>
+              </g>
+            </g>
+            <g
+              v-else
               v-for="row in chartData"
               class="rect-group"
               :key="row.xValue"
@@ -323,9 +377,9 @@ watch(
             >
               <rect
                 class="column"
+                :x="xScale(row.xValue)"
                 :width="xScale.bandwidth()"
                 :fill="(colorPalette[row.xValue as keyof IChartPalette] as string)"
-                :x="xScale(row.xValue)"
                 :stroke="strokeColor ? strokeColor : undefined"
                 :stroke-width="strokeColor ? '1' : undefined"
               />
