@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useForm } from "#imports";
+import useForm from "../../../composables/useForm.ts";
 import { UploadFile, AddLink } from "../../../utils/cms/add";
 import { randomId } from "../../../utils/cms";
 
