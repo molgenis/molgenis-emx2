@@ -6,7 +6,7 @@ import ComponentActions from "../ComponentActions.vue";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
 
 import type { INavigationCards } from "../../../../types/cms";
 
