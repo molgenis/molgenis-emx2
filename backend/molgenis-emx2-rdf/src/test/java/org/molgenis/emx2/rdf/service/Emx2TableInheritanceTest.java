@@ -21,53 +21,46 @@ import org.molgenis.emx2.rdf.RdfValidator;
  */
 public class Emx2TableInheritanceTest extends TableInheritanceTest {
   @Test
-  void testEmx2Columns_root() throws IOException {
+  void testPresenceEmx2Columns_root() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Root");
     validateEmx2ColumnRdfPresence(handler, true, true, true, false, false);
-    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   @Test
-  void testEmx2Columns_child() throws IOException {
+  void testPresenceEmx2Columns_child() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Child");
     validateEmx2ColumnRdfPresence(handler, true, true, true, false, false);
-    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   @Test
-  void testEmx2Columns_grandChildTypeA() throws IOException {
+  void testPresenceEmx2Columns_grandChildTypeA() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeA");
     validateEmx2ColumnRdfPresence(handler, true, true, false, false, false);
-    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   @Test
-  void testEmx2Columns_grandChildTypeB() throws IOException {
+  void testPresenceEmx2Columns_grandChildTypeB() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeB");
     validateEmx2ColumnRdfPresence(handler, true, false, true, false, false);
-    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   @Test
-  void testEmx2Columns_externalChild() throws IOException {
+  void testPresenceEmx2Columns_externalChild() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherExtTest, "ExternalChild");
     validateEmx2ColumnRdfPresence(handler, false, false, false, true, true);
-    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   @Test
-  void testEmx2Columns_externalGrandChild() throws IOException {
+  void testPresenceEmx2Columns_externalGrandChild() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherExtTest, "ExternalGrandchild");
     validateEmx2ColumnRdfPresence(handler, false, false, false, true, true);
-    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   @Test
-  void testEmx2Columns_rowId() throws IOException {
+  void testPresenceEmx2Columns_rowId() throws IOException {
     // Row endpoint describes columns of the selected table (and its subclasses) as well.
     InMemoryRDFHandler handler = parseRowRdf(tableInherTest, "Root", "id=4");
     validateEmx2ColumnRdfPresence(handler, true, true, true, false, false);
-    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   void validateEmx2ColumnRdfPresence(
@@ -102,6 +95,49 @@ public class Emx2TableInheritanceTest extends TableInheritanceTest {
             OWL.DATATYPEPROPERTY,
             externalGrandChild)
         .validate(handler);
+  }
+
+  @Test
+  void testEmx2SubjectPresentForEmx2Predicates_root() throws IOException {
+    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Root");
+    validateSubjectPresentForEachEmx2Predicate(handler);
+  }
+
+  @Test
+  void testEmx2SubjectPresentForEmx2Predicates_child() throws IOException {
+    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Child");
+    validateSubjectPresentForEachEmx2Predicate(handler);
+  }
+
+  @Test
+  void testEmx2SubjectPresentForEmx2Predicates_grandChildTypeA() throws IOException {
+    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeA");
+    validateSubjectPresentForEachEmx2Predicate(handler);
+  }
+
+  @Test
+  void testEmx2SubjectPresentForEmx2Predicates_grandChildTypeB() throws IOException {
+    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeB");
+    validateSubjectPresentForEachEmx2Predicate(handler);
+  }
+
+  @Test
+  void testEmx2SubjectPresentForEmx2Predicates_externalChild() throws IOException {
+    InMemoryRDFHandler handler = parseTableRdf(tableInherExtTest, "ExternalChild");
+    validateSubjectPresentForEachEmx2Predicate(handler);
+  }
+
+  @Test
+  void testEmx2SubjectPresentForEmx2Predicates_externalGrandChild() throws IOException {
+    InMemoryRDFHandler handler = parseTableRdf(tableInherExtTest, "ExternalGrandchild");
+    validateSubjectPresentForEachEmx2Predicate(handler);
+  }
+
+  @Test
+  void testEmx2SubjectPresentForEmx2Predicates_rowId() throws IOException {
+    // Row endpoint describes columns of the selected table (and its subclasses) as well.
+    InMemoryRDFHandler handler = parseRowRdf(tableInherTest, "Root", "id=4");
+    validateSubjectPresentForEachEmx2Predicate(handler);
   }
 
   void validateSubjectPresentForEachEmx2Predicate(InMemoryRDFHandler handler) {
