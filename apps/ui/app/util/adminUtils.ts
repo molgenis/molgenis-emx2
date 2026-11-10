@@ -1,5 +1,4 @@
 import { $fetch } from "ofetch";
-import type { TableRow } from "../../../metadata-utils/src/types.ts";
 import type {
   BackendUser,
   Role,
@@ -10,7 +9,7 @@ import type {
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 
-export async function deleteUser(user: TableRow) {
+export async function deleteUser(user: User) {
   return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
@@ -22,7 +21,7 @@ export async function deleteUser(user: TableRow) {
   });
 }
 
-export async function updateUser(user: TableRow) {
+export async function updateUser(user: User) {
   const updateUser = createUpdateUser(user);
   return $fetch(API_GRAPHQL, {
     method: "post",
@@ -35,10 +34,10 @@ export async function updateUser(user: TableRow) {
   });
 }
 
-function createUpdateUser(user: TableRow) {
+function createUpdateUser(user: User): UpdateUser {
   let updateUser: UpdateUser = {
-    email: user.email as string,
-    enabled: user.enabled as boolean,
+    email: user.email,
+    enabled: user.enabled,
     revokedRoles: (user.revokedRoles as unknown as Role[]) || [],
   };
   if (user.password) {
