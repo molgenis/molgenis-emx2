@@ -142,8 +142,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   }
 
   void describeColumns(final Table table, @Nullable final String columnName) {
-    if (table.getMetadata().getTableType() == TableType.DATA) {
-      for (final Column column : table.getMetadata().getNonInheritedColumns()) {
+    if (table.getMetadata().getTableType() != TableType.ONTOLOGIES) {
+      for (final Column column : table.getMetadata().getColumns()) {
         // Exclude the system columns that refer to specific users
         if (column.isSystemAddUpdateByUserColumn()) {
           continue;
@@ -152,8 +152,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
           describeColumn(column);
         }
       }
-    } else {
-      // For ontology tables we don't define the columns as predicates.
     }
   }
 
