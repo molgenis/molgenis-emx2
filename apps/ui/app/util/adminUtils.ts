@@ -118,7 +118,7 @@ export async function getUsers(): Promise<{
         return acc;
       }, {} as Record<string, Role[]>);
 
-      return { newUsers, newUserCount, newRolesByUser: newRolesByUser };
+      return { newUsers, newUserCount, newRolesByUser };
     })
     .catch((error) => {
       handleError("Error loading users: ", error.value);
