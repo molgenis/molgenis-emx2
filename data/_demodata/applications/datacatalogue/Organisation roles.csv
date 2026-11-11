@@ -1,190 +1,190 @@
-resource,id,organisation,organisation not in ROR,role,is lead organisation,organisation name,organisation pid,organisation website
-main catalogue,UMCG,University Medical Center Groningen,,,True,,,
-testCohort2,Test organisation without ROR,,Test organisation without ROR,"Data provider,Surveillance",False,,,
-FEF,UEF,University of Eastern Finland,,,True,,,
-PANIC,UEF,University of Eastern Finland,,,True,,,
-SYSDIMET,UEF,University of Eastern Finland,,,True,,,
-OOM,OvGU,Otto-von-Guericke University Magdeburg,,,False,,,
-OOM,BBMRI-ERIC,Biobanking and Biomolecular Resources Research Infrastructure Consortium,,,False,,,
-FORCE-NEN,VUMC,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,False,,,
-FORCE-NEN collections,VUMC,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,False,,,
-PSYCONN,Lentis,Lentis,,,True,,,
-testCohort2,UMC,University Medical Center Utrecht,,Data provider,True,,,
-testCohort1,UMC,University Medical Center Utrecht,,"Researcher,Surveillance",False,,,
-testCohort2,UMCG,University Medical Center Groningen,,"Data provider,Surveillance",False,,,
-testCohort1,Erasmus MC,Erasmus MC,,"Data provider,Surveillance",False,,,
-IPEC,Lentis,Lentis,,,False,,,
-PSYCONN,GGZ Drenthe,GGZ Drenthe,,,True,,,
-IPEC,GGZ Drenthe,GGZ Drenthe,,,False,,,
-OOM,FISABIO,Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,,Researcher,False,,,
-OOM,Centre Hospitalier Universitaire de Toulouse,Centre Hospitalier Universitaire de Toulouse,,,False,,,
-GenR,Erasmus MC,Erasmus MC,,,True,,,
-GenR Next,Erasmus MC,Erasmus MC,,,True,,,
-RS1,Erasmus MC,Erasmus MC,,,True,,,
-RS2,Erasmus MC,Erasmus MC,,,True,,,
-RS3,Erasmus MC,Erasmus MC,,,True,,,
-FORCE-NEN,Erasmus MC,Erasmus MC,,,False,,,
-FORCE-NEN collections,Erasmus MC,Erasmus MC,,,False,,,
-LifeCycle,Erasmus MC,Erasmus MC,,,False,,,
-OOM,Novartis (Netherlands),Novartis (Netherlands),,,False,,,
-OOM,AU,Aarhus University,,Researcher,False,,,
-SEA,CNR IFC; IFC,Istituto di Fisiologia Clinica,,"Researcher,Surveillance",True,,,
-SPF,CNR IFC; IFC,Istituto di Fisiologia Clinica,,"Researcher,Surveillance",True,,,
-OOM,CNR IFC; IFC,Istituto di Fisiologia Clinica,,"Researcher,Surveillance",False,,,
-testNetwork1,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,False,,,
-FORCE-NEN,MMC,Máxima Medisch Centrum,,,False,,,
-testNetwork2,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,False,,,
-testNetworkofNetworks,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,False,,,
-SWS,University of Southampton,University of Southampton,,,True,,,
-ACCESS,Pharmo Institute,Pharmo Institute,,Researcher,False,,,
-OOM,Pharmo Institute,Pharmo Institute,,Researcher,False,,,
-OOM,GSK,GlaxoSmithKline (United Kingdom),,,True,,,
-MBRN,UiO,University of Oslo,,,True,,,
-NOMA,UiO,University of Oslo,,,True,,,
-ACCESS,BIPS,Leibniz Institute for Prevention Research and Epidemiology - BIPS,,,False,,,
-OOM,BIPS,Leibniz Institute for Prevention Research and Epidemiology - BIPS,,,False,,,
-FORCE-NEN,AZM; MUMC,Maastricht University Medical Centre,,,False,,,
-FORCE-NEN collections,AZM; MUMC,Maastricht University Medical Centre,,,False,,,
-OOM,Sanofi (France),Sanofi (France),,,False,,,
-CONSTANCES,INSERM,Inserm,,,True,,,
-EDEN,INSERM,Inserm,,,True,,,
-ELFE,INSERM,Inserm,,,True,,,
-PELAGIE,INSERM,Inserm,,,True,,,
-Sepages,INSERM,Inserm,,,True,,,
-FORCE-NEN collections,MMC,Máxima Medisch Centrum,,,False,,,
-OOM,DIHI,Duke Institute for Health Innovation,,,False,,,
-CELSPAC-TNG,RI,RECETOX,,,True,,,
-HPV,Tampere University,Tampere University,,,True,,,
-WDC,Tampere University,Tampere University,,,False,,,
-DNBC,UCPH,University of Copenhagen,,,True,,,
-ACCESS,Institut Universitari d'Investigació en Atenció Primària Jordi Gol,Institut Universitari d'Investigació en Atenció Primària Jordi Gol,,,False,,,
-PSYCONN,GGZ Friesland,GGZ Friesland,,,True,,,
-IPEC,GGZ Friesland,GGZ Friesland,,,False,,,
-EUROCAT NNL,UMCG,University Medical Center Groningen,,,True,,,
-FORCE-NEN,UMCG,University Medical Center Groningen,,,True,,,
-FORCE-NEN collections,UMCG,University Medical Center Groningen,,,True,,,
-Immune-Image_Task_6.2a,UMCG,University Medical Center Groningen,,,True,,,
-Immune-Image_Task_6.2b,UMCG,University Medical Center Groningen,,,True,,,
-Immune-Image_Task_6.3,UMCG,University Medical Center Groningen,,,True,,,
-IPEC,UMCG,University Medical Center Groningen,,,True,,,
-PSYCONN,UMCG,University Medical Center Groningen,,,True,,,
-testNetwork1,UMCG,University Medical Center Groningen,,,True,,,
-testNetwork2,UMCG,University Medical Center Groningen,,,True,,,
-testNetworkofNetworks,UMCG,University Medical Center Groningen,,,True,,,
-BAMSE,UMCG,University Medical Center Groningen,,,False,,,
-ANAGRAFICA,UMCG,University Medical Center Groningen,,,False,,,
-ARISE,UMCG,University Medical Center Groningen,,,False,,,
-ARS_PS,UMCG,University Medical Center Groningen,,,False,,,
-ATHLETE,UMCG,University Medical Center Groningen,,,False,,,
-COD_FARMACI_SPF,UMCG,University Medical Center Groningen,,,False,,,
-DAHLIA,UMCG,University Medical Center Groningen,,,False,,,
-DRIVE 2019/20,UMCG,University Medical Center Groningen,,,False,,,
-ELSPAC,UMCG,University Medical Center Groningen,,,False,,,
-EUChildNetwork,UMCG,University Medical Center Groningen,,,False,,,
-EXE,UMCG,University Medical Center Groningen,,,False,,,
-FARMACEUTICA,UMCG,University Medical Center Groningen,,,False,,,
-FEIBA-GO,UMCG,University Medical Center Groningen,,,False,,,
-FinACAF,UMCG,University Medical Center Groningen,,,False,,,
-GECKO,UMCG,University Medical Center Groningen,,,False,,,
-HBCS,UMCG,University Medical Center Groningen,,,False,,,
-INMA,UMCG,University Medical Center Groningen,,,False,,,
-INSPECT,UMCG,University Medical Center Groningen,,,False,,,
-IPF,UMCG,University Medical Center Groningen,,,False,,,
-LEMS,UMCG,University Medical Center Groningen,,,False,,,
-LEONARDO,UMCG,University Medical Center Groningen,,,False,,,
-NBC1967-1976,UMCG,University Medical Center Groningen,,,False,,,
-OPTI,UMCG,University Medical Center Groningen,,,False,,,
-PASS,UMCG,University Medical Center Groningen,,,False,,,
-PERSEUS,UMCG,University Medical Center Groningen,,,False,,,
-PHT,UMCG,University Medical Center Groningen,,,False,,,
-RMR,UMCG,University Medical Center Groningen,,,False,,,
-SALM,UMCG,University Medical Center Groningen,,,False,,,
-SAPALDIA,UMCG,University Medical Center Groningen,,,False,,,
-SPA,UMCG,University Medical Center Groningen,,,False,,,
-SPECIALISTICA,UMCG,University Medical Center Groningen,,,False,,,
-SSc-ILD,UMCG,University Medical Center Groningen,,,False,,,
-testCohort3,UMCG,University Medical Center Groningen,,,False,,,
-testCohort4,UMCG,University Medical Center Groningen,,,False,,,
-THALIA,UMCG,University Medical Center Groningen,,,False,,,
-VCN,UMCG,University Medical Center Groningen,,,False,,,
-HELIX,BIGH; BIGH-CERCA,Barcelona Institute for Global Health,,,True,,,
-AVOHILMO,THL,Finnish Institute for Health and Welfare,,"Data originator,Researcher",True,,,
-DHL,THL,Finnish Institute for Health and Welfare,,"Data originator,Researcher",True,,,
-OOM,THL,Finnish Institute for Health and Welfare,,"Data originator,Researcher",False,,,
-mtFIT study,NKI; NKI-AVL,The Netherlands Cancer Institute,,,True,,,
-FORCE-NEN,NKI; NKI-AVL,The Netherlands Cancer Institute,,,False,,,
-FORCE-NEN collections,NKI; NKI-AVL,The Netherlands Cancer Institute,,,False,,,
-FinnGeDi,University of Oulu,University of Oulu,,,True,,,
-NFBC1966,University of Oulu,University of Oulu,,,True,,,
-NFBC1966 G0,University of Oulu,University of Oulu,,,True,,,
-NFBC1986,University of Oulu,University of Oulu,,,True,,,
-WDC,University of Oulu,University of Oulu,,,False,,,
-ADVANCE Coverage POC,SSI,Statens Serum Institut,,,True,,,
-CON,SSI,Statens Serum Institut,,,True,,,
-OOM,SSI,Statens Serum Institut,,,False,,,
-OOM,University of Ferrara,University of Ferrara,,,False,,,
-OOM,AEMPS,Agencia Española de Medicamentos y Productos Sanitarios,,,False,,,
-G21,Universidade do Porto,Universidade do Porto,,,True,,,
-RAINE,UWA,The University of Western Australia,,,True,,,
-OOM,Uppsala University,Uppsala University,,,False,,,
-OOM,Netherlands Pharmacovigilance Centre Lareb,Netherlands Pharmacovigilance Centre Lareb,,,False,,,
-OOM,Takeda (Japan),Takeda (Japan),,,False,,,
-ENVIRONAGE,Hasselt University,Hasselt University,,,True,,,
-OOM,UKZN,University of KwaZulu-Natal,,,False,,,
-KANC,VDU,Vytautas Magnus University,,,True,,,
-OOM,Janssen (Belgium),Janssen (Belgium),,,False,,,
-ALSPAC,University of Bristol,University of Bristol,,,True,,,
-OOM,Swansea University,Swansea University,,,False,,,
-LSC,Universität Innsbruck,Universität Innsbruck,,,True,,,
-mCRC-VHIO,VHIO; VHIO-CERCA,Vall d'Hebron Institute of Oncology,,,True,,,
-CSC,KI,Karolinska Institutet,,,True,,,
-WDC,KI,Karolinska Institutet,,,False,,,
-ACCESS,UMC,University Medical Center Utrecht,,Researcher,True,,,
-CRC-Cohort,BBMRI-ERIC,Biobanking and Biomolecular Resources Research Infrastructure Consortium,,,True,,,
-EFEMERIS_PRESCRIPTION,Centre Hospitalier Universitaire de Toulouse,Centre Hospitalier Universitaire de Toulouse,,,True,,,
-BIB,BRI,Bradford Royal Infirmary,,,True,,,
-MoBa,NIPH,Norwegian Institute of Public Health,,,True,,,
-FORCE-NEN,UMC,University Medical Center Utrecht,,Researcher,True,,,
-FORCE-NEN collections,UMC,University Medical Center Utrecht,,Researcher,True,,,
-OOM,UMC,University Medical Center Utrecht,,Researcher,True,,,
-DIAGNOSTIC,Université de Bordeaux,Université de Bordeaux,,Researcher,True,,,
-ACCESS,Université de Bordeaux,Université de Bordeaux,,Researcher,False,,,
-OOM,Université de Bordeaux,Université de Bordeaux,,Researcher,False,,,
-OOM,ARS,Agenzia Regionale di Sanità della Toscana,,,False,,,
-testCohort1,LUMC,Leiden University Medical Center,,"Data provider,Other",True,,,
-testCohort1,UMCG,University Medical Center Groningen,,"Data originator,Data provider,Researcher,Surveillance,Other",True,,,
-MOLGENIS,UMCG,University Medical Center Groningen,,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
-OOM,UiO,University of Oslo,,,False,,,
-OOM,UU,University of Ulster,,,False,,,
-IPEC,UCPH,University of Copenhagen,,,False,,,
-OOM,UMCG,University Medical Center Groningen,,,False,,,
-OOM,University of Dundee,University of Dundee,,,False,,,
-HPV,University of Oulu,University of Oulu,,,False,,,
-LongITools,University of Oulu,University of Oulu,,,False,,,
-MAT,University of Oulu,University of Oulu,,,False,,,
-ABL,ARS,Agenzia Regionale di Sanità della Toscana,,,True,,,
-AP,ARS,Agenzia Regionale di Sanità della Toscana,,,True,,,
-ARS_ANAG_MED_RES_storico,ARS,Agenzia Regionale di Sanità della Toscana,,,True,,,
-SEA,ARS,Agenzia Regionale di Sanità della Toscana,,,True,,,
-SPF,ARS,Agenzia Regionale di Sanità della Toscana,,,True,,,
-OOM,UNIME,University of Messina,,,False,,,
-ACCESS,UNIME,University of Messina,,,False,,,
-OOM,KUL,KU Leuven,,,False,,,
-testNetwork1,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,False,,,
-testNetwork2,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,False,,,
-testNetworkofNetworks,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,False,,,
-ABCD,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,True,,,
-DFBC,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,True,,,
-testNetwork2,Cynexo,,Cynexo,,False,,,
-testNetworkofNetworks,Cynexo,,Cynexo,,False,,,
-testNetwork1,Cynexo,,Cynexo,,False,,,
-OOM,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,False,,,
-UMCG,UMCG,University Medical Center Groningen,,Data originator,True,,,
-testUMC,testUMC (organisation),,testUMC (organisation),,False,,,
-TestDataSourceID,UCL,University College London,,Researcher,False,,,
-TestDataSourceID,INSERM,Inserm,,Researcher,False,,,
-TestDataSourceID,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,Data originator,True,,,
-TestDatabank1,UMCG,University Medical Center Groningen,,Data originator,True,,,
-TestDatabank2,UMC,University Medical Center Utrecht,,Data originator,False,,,
-MOLGENIS,MOLGENIS,,MOLGENIS,,,,,
-bbmri-eric:ID:EXT_GBR-1-198:collection:1,Newcastle University,Newcastle University,,,True,,,
+resource,id,organisation,organisation not in ROR,department,email,role,is lead organisation,organisation name,organisation pid,organisation website
+main catalogue,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+testCohort2,Test organisation without ROR,,Test organisation without ROR,,example@example.org,"Data provider,Surveillance",False,Test organisation without ROR,https://no-ror-id.org,https://website-test-organisation.org
+FEF,UEF,University of Eastern Finland,,,example@example.org,,True,University of Eastern Finland,https://ror.org/00cyydd11,https://www.uef.fi
+PANIC,UEF,University of Eastern Finland,,,example@example.org,,True,University of Eastern Finland,https://ror.org/00cyydd11,https://www.uef.fi
+SYSDIMET,UEF,University of Eastern Finland,,,example@example.org,,True,University of Eastern Finland,https://ror.org/00cyydd11,https://www.uef.fi
+OOM,OvGU,Otto-von-Guericke University Magdeburg,,,example@example.org,,False,Otto-von-Guericke University Magdeburg,https://ror.org/00ggpsq73,http://www.ovgu.de/unimagdeburg/en/Otto+von+Guericke+University+Magdeburg.html
+OOM,BBMRI-ERIC,Biobanking and Biomolecular Resources Research Infrastructure Consortium,,,example@example.org,,False,Biobanking and Biomolecular Resources Research Infrastructure Consortium,https://ror.org/00pwncn89,http://bbmri-eric.eu/
+FORCE-NEN,VUMC,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,example@example.org,,False,Amsterdam UMC Location Vrije Universiteit Amsterdam,https://ror.org/00q6h8f30,https://vumc.nl
+FORCE-NEN collections,VUMC,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,example@example.org,,False,Amsterdam UMC Location Vrije Universiteit Amsterdam,https://ror.org/00q6h8f30,https://vumc.nl
+PSYCONN,Lentis,Lentis,,,example@example.org,,True,Lentis,https://ror.org/00t93jm73,https://www.lentis.nl/
+testCohort2,UMC,University Medical Center Utrecht,,,example@example.org,Data provider,True,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl
+testCohort1,UMC,University Medical Center Utrecht,,,example@example.org,"Researcher,Surveillance",False,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl
+testCohort2,UMCG,University Medical Center Groningen,,,example@example.org,"Data provider,Surveillance",False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+testCohort1,Erasmus MC,Erasmus MC,,,example@example.org,"Data provider,Surveillance",False,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+IPEC,Lentis,Lentis,,,example@example.org,,False,Lentis,https://ror.org/00t93jm73,https://www.lentis.nl/
+PSYCONN,GGZ Drenthe,GGZ Drenthe,,,example@example.org,,True,GGZ Drenthe,https://ror.org/0107rkg57,https://www.ggzdrenthe.nl/
+IPEC,GGZ Drenthe,GGZ Drenthe,,,example@example.org,,False,GGZ Drenthe,https://ror.org/0107rkg57,https://www.ggzdrenthe.nl/
+OOM,FISABIO,Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,,,example@example.org,Researcher,False,Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,https://ror.org/0116vew40,http://fisabio.san.gva.es/
+OOM,Centre Hospitalier Universitaire de Toulouse,Centre Hospitalier Universitaire de Toulouse,,,example@example.org,,False,Centre Hospitalier Universitaire de Toulouse,https://ror.org/017h5q109,http://www.chu-toulouse.fr/
+GenR,Erasmus MC,Erasmus MC,,,example@example.org,,True,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+GenR Next,Erasmus MC,Erasmus MC,,,example@example.org,,True,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+RS1,Erasmus MC,Erasmus MC,,,example@example.org,,True,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+RS2,Erasmus MC,Erasmus MC,,,example@example.org,,True,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+RS3,Erasmus MC,Erasmus MC,,,example@example.org,,True,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+FORCE-NEN,Erasmus MC,Erasmus MC,,,example@example.org,,False,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+FORCE-NEN collections,Erasmus MC,Erasmus MC,,,example@example.org,,False,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+LifeCycle,Erasmus MC,Erasmus MC,,,example@example.org,,False,Erasmus MC,https://ror.org/018906e22,https://www.erasmusmc.nl
+OOM,Novartis (Netherlands),Novartis (Netherlands),,,example@example.org,,False,Novartis (Netherlands),https://ror.org/01a80cj23,http://www.novartis.nl/
+OOM,AU,Aarhus University,,,example@example.org,Researcher,False,Aarhus University,https://ror.org/01aj84f44,https://www.au.dk
+SEA,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,example@example.org,"Researcher,Surveillance",True,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/
+SPF,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,example@example.org,"Researcher,Surveillance",True,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/
+OOM,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,example@example.org,"Researcher,Surveillance",False,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/
+testNetwork1,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,example@example.org,,False,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/
+FORCE-NEN,MMC,Máxima Medisch Centrum,,,example@example.org,,False,Máxima Medisch Centrum,https://ror.org/02x6rcb77,http://expats.mmc.nl/
+testNetwork2,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,example@example.org,,False,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/
+testNetworkofNetworks,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,example@example.org,,False,Istituto di Fisiologia Clinica,https://ror.org/01kdj2848,https://www.ifc.cnr.it/index.php/it/
+SWS,University of Southampton,University of Southampton,,,example@example.org,,True,University of Southampton,https://ror.org/01ryk1543,http://www.southampton.ac.uk/
+ACCESS,Pharmo Institute,Pharmo Institute,,,example@example.org,Researcher,False,Pharmo Institute,https://ror.org/01wfg6h04,http://www.pharmo.nl/
+OOM,Pharmo Institute,Pharmo Institute,,,example@example.org,Researcher,False,Pharmo Institute,https://ror.org/01wfg6h04,http://www.pharmo.nl/
+OOM,GSK,GlaxoSmithKline (United Kingdom),,,example@example.org,,True,GlaxoSmithKline (United Kingdom),https://ror.org/01xsqw823,http://uk.gsk.com/
+MBRN,UiO,University of Oslo,,,example@example.org,,True,University of Oslo,https://ror.org/01xtthb56,http://www.uio.no/english/
+NOMA,UiO,University of Oslo,,,example@example.org,,True,University of Oslo,https://ror.org/01xtthb56,http://www.uio.no/english/
+ACCESS,BIPS,Leibniz Institute for Prevention Research and Epidemiology - BIPS,,,example@example.org,,False,Leibniz Institute for Prevention Research and Epidemiology - BIPS,https://ror.org/02c22vc57,https://www.bips-institut.de/en/home.html
+OOM,BIPS,Leibniz Institute for Prevention Research and Epidemiology - BIPS,,,example@example.org,,False,Leibniz Institute for Prevention Research and Epidemiology - BIPS,https://ror.org/02c22vc57,https://www.bips-institut.de/en/home.html
+FORCE-NEN,AZM; MUMC,Maastricht University Medical Centre,,,example@example.org,,False,Maastricht University Medical Centre,https://ror.org/02d9ce178,https://www.mumc.nl
+FORCE-NEN collections,AZM; MUMC,Maastricht University Medical Centre,,,example@example.org,,False,Maastricht University Medical Centre,https://ror.org/02d9ce178,https://www.mumc.nl
+OOM,Sanofi (France),Sanofi (France),,,example@example.org,,False,Sanofi (France),https://ror.org/02n6c9837,http://en.sanofi.com/
+CONSTANCES,INSERM,Inserm,,,example@example.org,,True,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr
+EDEN,INSERM,Inserm,,,example@example.org,,True,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr
+ELFE,INSERM,Inserm,,,example@example.org,,True,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr
+PELAGIE,INSERM,Inserm,,,example@example.org,,True,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr
+Sepages,INSERM,Inserm,,,example@example.org,,True,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr
+FORCE-NEN collections,MMC,Máxima Medisch Centrum,,,example@example.org,,False,Máxima Medisch Centrum,https://ror.org/02x6rcb77,http://expats.mmc.nl/
+OOM,DIHI,Duke Institute for Health Innovation,,,example@example.org,,False,Duke Institute for Health Innovation,https://ror.org/031n1rn61,http://www.dihi.org/
+CELSPAC-TNG,RI,RECETOX,,,example@example.org,,True,RECETOX,https://ror.org/032hzqh22,https://www.recetox.muni.cz
+HPV,Tampere University,Tampere University,,,example@example.org,,True,Tampere University,https://ror.org/033003e23,https://www.tuni.fi/en
+WDC,Tampere University,Tampere University,,,example@example.org,,False,Tampere University,https://ror.org/033003e23,https://www.tuni.fi/en
+DNBC,UCPH,University of Copenhagen,,,example@example.org,,True,University of Copenhagen,https://ror.org/035b05819,https://www.ku.dk
+ACCESS,Institut Universitari d'Investigació en Atenció Primària Jordi Gol,Institut Universitari d'Investigació en Atenció Primària Jordi Gol,,,example@example.org,,False,Institut Universitari d'Investigació en Atenció Primària Jordi Gol,https://ror.org/0370bpp07,http://www.idiapjordigol.com/index.php?lang=en
+PSYCONN,GGZ Friesland,GGZ Friesland,,,example@example.org,,True,GGZ Friesland,https://ror.org/03c0kv729,https://www.ggzfriesland.nl/
+IPEC,GGZ Friesland,GGZ Friesland,,,example@example.org,,False,GGZ Friesland,https://ror.org/03c0kv729,https://www.ggzfriesland.nl/
+EUROCAT NNL,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+FORCE-NEN,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+FORCE-NEN collections,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+Immune-Image_Task_6.2a,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+Immune-Image_Task_6.2b,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+Immune-Image_Task_6.3,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+IPEC,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+PSYCONN,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+testNetwork1,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+testNetwork2,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+testNetworkofNetworks,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+BAMSE,UMCG,University Medical Center Groningen,,,example@example.org,,False,Universidade do Porto,https://ror.org/043pwc612,https://www.up.pt
+ANAGRAFICA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+ARISE,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+ARS_PS,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+ATHLETE,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+COD_FARMACI_SPF,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+DAHLIA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+DRIVE 2019/20,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+ELSPAC,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+EUChildNetwork,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+EXE,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+FARMACEUTICA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+FEIBA-GO,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+FinACAF,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+GECKO,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+HBCS,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+INMA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+INSPECT,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+IPF,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+LEMS,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+LEONARDO,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+NBC1967-1976,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+OPTI,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+PASS,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+PERSEUS,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+PHT,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+RMR,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+SALM,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+SAPALDIA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+SPA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+SPECIALISTICA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+SSc-ILD,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+testCohort3,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+testCohort4,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+THALIA,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+VCN,UMCG,University Medical Center Groningen,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+HELIX,BIGH; BIGH-CERCA,Barcelona Institute for Global Health,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+AVOHILMO,THL,Finnish Institute for Health and Welfare,,,example@example.org,"Data originator,Researcher",True,Barcelona Institute for Global Health,https://ror.org/03hjgt059,http://www.isglobal.org/en/
+DHL,THL,Finnish Institute for Health and Welfare,,,example@example.org,"Data originator,Researcher",True,Finnish Institute for Health and Welfare,https://ror.org/03tf0c761,https://thl.fi/etusivu
+OOM,THL,Finnish Institute for Health and Welfare,,,example@example.org,"Data originator,Researcher",False,Finnish Institute for Health and Welfare,https://ror.org/03tf0c761,https://thl.fi/etusivu
+mtFIT study,NKI; NKI-AVL,The Netherlands Cancer Institute,,,example@example.org,,True,Finnish Institute for Health and Welfare,https://ror.org/03tf0c761,https://thl.fi/etusivu
+FORCE-NEN,NKI; NKI-AVL,The Netherlands Cancer Institute,,,example@example.org,,False,The Netherlands Cancer Institute,https://ror.org/03xqtf034,https://www.nki.nl
+FORCE-NEN collections,NKI; NKI-AVL,The Netherlands Cancer Institute,,,example@example.org,,False,The Netherlands Cancer Institute,https://ror.org/03xqtf034,https://www.nki.nl
+FinnGeDi,University of Oulu,University of Oulu,,,example@example.org,,True,The Netherlands Cancer Institute,https://ror.org/03xqtf034,https://www.nki.nl
+NFBC1966,University of Oulu,University of Oulu,,,example@example.org,,True,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+NFBC1966 G0,University of Oulu,University of Oulu,,,example@example.org,,True,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+NFBC1986,University of Oulu,University of Oulu,,,example@example.org,,True,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+WDC,University of Oulu,University of Oulu,,,example@example.org,,False,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+ADVANCE Coverage POC,SSI,Statens Serum Institut,,,example@example.org,,True,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+CON,SSI,Statens Serum Institut,,,example@example.org,,True,Statens Serum Institut,https://ror.org/0417ye583,https://www.ssi.dk
+OOM,SSI,Statens Serum Institut,,,example@example.org,,False,Statens Serum Institut,https://ror.org/0417ye583,https://www.ssi.dk
+OOM,University of Ferrara,University of Ferrara,,,example@example.org,,False,Statens Serum Institut,https://ror.org/0417ye583,https://www.ssi.dk
+OOM,AEMPS,Agencia Española de Medicamentos y Productos Sanitarios,,,example@example.org,,False,University of Ferrara,https://ror.org/041zkgm14,https://www.unife.it
+G21,Universidade do Porto,Universidade do Porto,,,example@example.org,,True,Agencia Española de Medicamentos y Productos Sanitarios,https://ror.org/043fs9135,http://www.aemps.gob.es/
+RAINE,UWA,The University of Western Australia,,,example@example.org,,True,The University of Western Australia,https://ror.org/047272k79,https://www.uwa.edu.au
+OOM,Uppsala University,Uppsala University,,,example@example.org,,False,Uppsala University,https://ror.org/048a87296,https://www.uu.se/en/
+OOM,Netherlands Pharmacovigilance Centre Lareb,Netherlands Pharmacovigilance Centre Lareb,,,example@example.org,,False,Netherlands Pharmacovigilance Centre Lareb,https://ror.org/04fp8ns78,http://www.lareb.nl/?lang=en-GB
+OOM,Takeda (Japan),Takeda (Japan),,,example@example.org,,False,Takeda (Japan),https://ror.org/04hjbmv12,http://www.takeda.com
+ENVIRONAGE,Hasselt University,Hasselt University,,,example@example.org,,True,Hasselt University,https://ror.org/04nbhqj75,https://www.uhasselt.be
+OOM,UKZN,University of KwaZulu-Natal,,,example@example.org,,False,University of KwaZulu-Natal,https://ror.org/04qzfn040,https://www.ukzn.ac.za
+KANC,VDU,Vytautas Magnus University,,,example@example.org,,True,Vytautas Magnus University,https://ror.org/04y7eh037,https://www.vdu.lt
+OOM,Janssen (Belgium),Janssen (Belgium),,,example@example.org,,False,Janssen (Belgium),https://ror.org/04yzcpd71,https://www.janssen.com/belgium/
+ALSPAC,University of Bristol,University of Bristol,,,example@example.org,,True,University of Bristol,https://ror.org/0524sp257,http://bristol.ac.uk/
+OOM,Swansea University,Swansea University,,,example@example.org,,False,Swansea University,https://ror.org/053fq8t95,https://www.swansea.ac.uk
+LSC,Universität Innsbruck,Universität Innsbruck,,,example@example.org,,True,Universität Innsbruck,https://ror.org/054pv6659,https://www.uibk.ac.at
+mCRC-VHIO,VHIO; VHIO-CERCA,Vall d'Hebron Institute of Oncology,,,example@example.org,,True,Vall d'Hebron Institute of Oncology,https://ror.org/054xx3904,https://www.vhio.net
+CSC,KI,Karolinska Institutet,,,example@example.org,,True,Karolinska Institutet,https://ror.org/056d84691,https://ki.se
+WDC,KI,Karolinska Institutet,,,example@example.org,,False,Karolinska Institutet,https://ror.org/056d84691,https://ki.se
+ACCESS,UMC,University Medical Center Utrecht,,,example@example.org,Researcher,True,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl
+CRC-Cohort,BBMRI-ERIC,Biobanking and Biomolecular Resources Research Infrastructure Consortium,,,example@example.org,,True,Biobanking and Biomolecular Resources Research Infrastructure Consortium,https://ror.org/00pwncn89,http://bbmri-eric.eu/
+EFEMERIS_PRESCRIPTION,Centre Hospitalier Universitaire de Toulouse,Centre Hospitalier Universitaire de Toulouse,,,example@example.org,,True,Centre Hospitalier Universitaire de Toulouse,https://ror.org/017h5q109,http://www.chu-toulouse.fr/
+BIB,BRI,Bradford Royal Infirmary,,,example@example.org,,True,Bradford Royal Infirmary,https://ror.org/01ck0pr88,https://www.bradfordhospitals.nhs.uk/our-hospitals/bradford-royal-infirmary-bri/
+MoBa,NIPH,Norwegian Institute of Public Health,,,example@example.org,,True,Norwegian Institute of Public Health,https://ror.org/046nvst19,http://www.fhi.no/
+FORCE-NEN,UMC,University Medical Center Utrecht,,,example@example.org,Researcher,True,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl
+FORCE-NEN collections,UMC,University Medical Center Utrecht,,,example@example.org,Researcher,True,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl
+OOM,UMC,University Medical Center Utrecht,,,example@example.org,Researcher,True,University Medical Center Utrecht,https://ror.org/0575yy874,https://www.umcutrecht.nl
+DIAGNOSTIC,Université de Bordeaux,Université de Bordeaux,,,example@example.org,Researcher,True,Université de Bordeaux,https://ror.org/057qpr032,https://www.u-bordeaux.fr
+ACCESS,Université de Bordeaux,Université de Bordeaux,,,example@example.org,Researcher,False,Université de Bordeaux,https://ror.org/057qpr032,https://www.u-bordeaux.fr
+OOM,Université de Bordeaux,Université de Bordeaux,,,example@example.org,Researcher,False,Université de Bordeaux,https://ror.org/057qpr032,https://www.u-bordeaux.fr
+OOM,ARS,Agenzia Regionale di Sanità della Toscana,,,example@example.org,,False,Université de Bordeaux,https://ror.org/057qpr032,https://www.u-bordeaux.fr
+testCohort1,LUMC,Leiden University Medical Center,,,example@example.org,"Data provider,Other",True,Agenzia Regionale di Sanità della Toscana,https://ror.org/059vkfm47,https://www.ars.toscana.it/it/
+testCohort1,UMCG,University Medical Center Groningen,,,example@example.org,"Data originator,Data provider,Researcher,Surveillance,Other",True,Leiden University Medical Center,https://ror.org/05xvt9f17,https://www.lumc.nl
+MOLGENIS,UMCG,University Medical Center Groningen,,,example@example.org,,True,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+OOM,UiO,University of Oslo,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+OOM,UU,University of Ulster,,,example@example.org,,False,University of Oslo,https://ror.org/01xtthb56,http://www.uio.no/english/
+IPEC,UCPH,University of Copenhagen,,,example@example.org,,False,University of Ulster,https://ror.org/01yp9g959,https://www.ulster.ac.uk
+OOM,UMCG,University Medical Center Groningen,,,example@example.org,,False,University of Copenhagen,https://ror.org/035b05819,https://www.ku.dk
+OOM,University of Dundee,University of Dundee,,,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+HPV,University of Oulu,University of Oulu,,,example@example.org,,False,University of Dundee,https://ror.org/03h2bxq36,https://www.dundee.ac.uk
+LongITools,University of Oulu,University of Oulu,,,example@example.org,,False,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+MAT,University of Oulu,University of Oulu,,,example@example.org,,False,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+ABL,ARS,Agenzia Regionale di Sanità della Toscana,,,example@example.org,,True,University of Oulu,https://ror.org/03yj89h83,https://www.oulu.fi
+AP,ARS,Agenzia Regionale di Sanità della Toscana,,,example@example.org,,True,Agenzia Regionale di Sanità della Toscana,https://ror.org/059vkfm47,https://www.ars.toscana.it/it/
+ARS_ANAG_MED_RES_storico,ARS,Agenzia Regionale di Sanità della Toscana,,,example@example.org,,True,Agenzia Regionale di Sanità della Toscana,https://ror.org/059vkfm47,https://www.ars.toscana.it/it/
+SEA,ARS,Agenzia Regionale di Sanità della Toscana,,,example@example.org,,True,Agenzia Regionale di Sanità della Toscana,https://ror.org/059vkfm47,https://www.ars.toscana.it/it/
+SPF,ARS,Agenzia Regionale di Sanità della Toscana,,,example@example.org,,True,Agenzia Regionale di Sanità della Toscana,https://ror.org/059vkfm47,https://www.ars.toscana.it/it/
+OOM,UNIME,University of Messina,,,example@example.org,,False,Agenzia Regionale di Sanità della Toscana,https://ror.org/059vkfm47,https://www.ars.toscana.it/it/
+ACCESS,UNIME,University of Messina,,,example@example.org,,False,University of Messina,https://ror.org/05ctdxz19,https://www.unime.it
+OOM,KUL,KU Leuven,,,example@example.org,,False,University of Messina,https://ror.org/05ctdxz19,https://www.unime.it
+testNetwork1,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,False,KU Leuven,https://ror.org/05f950310,http://www.kuleuven.be/english
+testNetwork2,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,False,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
+testNetworkofNetworks,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,False,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
+ABCD,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,True,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
+DFBC,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,True,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
+testNetwork2,Cynexo,,Cynexo,,example@example.org,,False,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
+testNetworkofNetworks,Cynexo,,Cynexo,,example@example.org,,False,Cynexo ,https://placeholderpid,https://test-website.org
+testNetwork1,Cynexo,,Cynexo,,example@example.org,,False,Cynexo ,https://placeholderpid,https://test-website.org
+OOM,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,example@example.org,,False,Cynexo ,https://placeholderpid,https://test-website.org
+UMCG,UMCG,University Medical Center Groningen,,,example@example.org,Data originator,True,Malta Congenital Anomalies Registry Directorate for Health Information and Research,https://placeholderpid,https://test-website.org
+testUMC,testUMC (organisation),,testUMC (organisation),,example@example.org,,False,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl
+TestDataSourceID,UCL,University College London,,,example@example.org,Researcher,False,testUMC,https://placeholderpid,https://test-umc@example.org
+TestDataSourceID,INSERM,Inserm,,,example@example.org,Researcher,False,University College London,https://ror.org/02jx3x895,http://www.ucl.ac.uk/
+TestDataSourceID,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,Data originator,True,Inserm,https://ror.org/02vjkv261,https://www.inserm.fr
+TestDatabank1,UMCG,University Medical Center Groningen,,,example@example.org,Data originator,True,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
+TestDatabank2,UMC,University Medical Center Utrecht,,,example@example.org,Data originator,False,University Medical Center Groningen,https://roridtest.org,https://testwebsite.org
+MOLGENIS,MOLGENIS,,MOLGENIS,,support@molgenis.org,,,University Medical Center Utrecht,https://roridtest.org,https://testwebsite.org
+bbmri-eric:ID:EXT_GBR-1-198:collection:1,Newcastle University,Newcastle University,,,example@example.org,,True,Newcastle University,https://ror.org/01kj2bm70,https://www.ncl.ac.uk/
