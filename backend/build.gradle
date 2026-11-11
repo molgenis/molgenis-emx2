@@ -187,27 +187,30 @@ def pmdReport = tasks.register('pmdReport') {
             { configurations.pmd.find { it.name.startsWith('pmd-core') } }, 'pmd-nicerhtml.xsl')
     def output = layout.buildDirectory.file('reports/pmd/pmd.html')
     doLast {
-        def builderFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
-        builderFactory.namespaceAware = true
-        def merged = null
-        reports.files.sort().each { report ->
-            def doc = builderFactory.newDocumentBuilder().parse(report)
-            if (merged == null) { merged = doc; return }
-            doc.documentElement.childNodes.with { nodes -> (0..<nodes.length).collect { nodes.item(it) } }
-                    .findAll { it instanceof org.w3c.dom.Element }
-                    .each { merged.documentElement.appendChild(merged.importNode(it, true)) }
+        // Merge: the first report is the base, every entry of the other reports is copied into it.
+        def parser = javax.xml.parsers.DocumentBuilderFactory.newInstance().tap { namespaceAware = true }.newDocumentBuilder()
+        def documents = reports.files.sort().collect { parser.parse(it) }
+        def merged = documents.first()
+        documents.drop(1).each { document ->
+            def entries = document.documentElement.childNodes
+            entries.length.times { i ->
+                def entry = entries.item(i)
+                if (entry instanceof org.w3c.dom.Element) merged.documentElement.appendChild(merged.importNode(entry, true))
+            }
         }
+
+        // Render the merged report as HTML.
+        def outputFile = output.get().asFile
         stylesheet.asReader().withCloseable { xsl ->
             javax.xml.transform.TransformerFactory.newInstance()
                     .newTransformer(new javax.xml.transform.stream.StreamSource(xsl))
                     .transform(new javax.xml.transform.dom.DOMSource(merged),
-                            new javax.xml.transform.stream.StreamResult(output.get().asFile))
+                            new javax.xml.transform.stream.StreamResult(outputFile))
         }
 
         def violations = merged.getElementsByTagNameNS('*', 'violation').length
         if (violations > 0) {
-            def reportUri = output.get().asFile.toPath().toUri()
-            throw new GradleException("${violations} PMD rule violations were found. See the report at: ${reportUri}")
+            throw new GradleException("${violations} PMD rule violations were found. See the report at: ${outputFile.toPath().toUri()}")
         }
     }
 }
