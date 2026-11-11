@@ -403,7 +403,7 @@ public final class MetadataUtils {
               .orderBy(USER_NAME);
       Select<?> pagedQuery = limit > 0 ? query.limit(limit).offset(offset) : query.offset(offset);
       List<User> users = new ArrayList<>();
-      for (org.jooq.Record user : pagedQuery.fetchArray()) {
+      for (Record user : pagedQuery.fetchArray()) {
         User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
         newUser.setEnabled(user.get(USER_ENABLED));
         newUser.setAdmin(user.get(USER_ADMIN));
