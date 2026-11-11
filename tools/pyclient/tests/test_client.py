@@ -34,7 +34,7 @@ from src.molgenis_emx2_pyclient.utils import (
     validate_graphql_response
 )
 
-server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
+server_url = os.environ.get("MG_SERVER", "http://localhost:8080")
 username = os.environ.get("MG_USERNAME", "admin")
 password = os.environ.get("MG_PASSWORD", "admin")
 
@@ -93,6 +93,15 @@ def test_set_token():
         client.set_token(token)
 
         assert client.token == token
+
+
+def test_set_job():
+    """Tests the `set_job` method."""
+    job_id = "SAMPLE JOB"
+    with Client(url=server_url, job=None) as client:
+        client.set_job(job_id)
+
+        assert client.job == job_id
 
 
 def test_upload_csv():
@@ -190,8 +199,8 @@ async def test_upload_file():
         assert str(exc_info.value) == ("Uploading files with extension"
                                        " '.txt' is not supported.")
 
-
-def test_truncate():
+@pytest.mark.asyncio
+async def test_truncate():
     """Tests the `truncate` method."""
     with Client(url=server_url) as client:
         client.signin(username, password)
@@ -202,16 +211,16 @@ def test_truncate():
         assert exc_info.value.msg is not None
         assert exc_info.value.msg.startswith("Transaction failed: delete on"
                                              " table \"Pet\" violates"
-                                             " foreign key constraint.")
+                                             " foreign key constraint")
 
         # Test correct running
-        client.truncate(schema='pet store', table='User')
-        users_after = len(client.get_graphql(schema="pet store", table="User",
-                                             columns=["username"]))
-        assert users_after == 0
+        client.truncate(schema='pet store', table='Order')
+        orders_after = len(client.get_graphql(schema="pet store", table="Order",
+                                             columns=["orderId"]))
+        assert orders_after == 0
 
-        client.save_table(table="User", schema="pet store",
-                          file=RESOURCES_DIR / "petstore" / "User.csv")
+        await client.upload_file(schema="pet store",
+                                 file_path=RESOURCES_DIR / "petstore" / "Order.csv")
 
 
 @pytest.mark.asyncio
@@ -247,7 +256,7 @@ async def test_export():
         zip_data: BytesIO = await client.export(schema="pet store")
         with zipfile.ZipFile(zip_data, 'r') as zf:
             file_names = zf.namelist()
-        assert len(file_names) == 9
+        assert len(file_names) == 11
         await client.export(schema="pet store", filename="pet store.zip")
         assert (Path(__file__).parent / "pet store.zip").exists()
         (Path(__file__).parent / "pet store.zip").unlink()
@@ -590,7 +599,7 @@ async def test_export_schema():
         csv_bytes = await client.export_schema("pet store",
                                                filename="pet store.csv")
         csv_schema = pd.read_csv(csv_bytes)
-        assert len(csv_schema.columns) == 23
+        assert len(csv_schema.columns) == 24
         assert (Path(__file__).parent / "pet store.csv").exists()
         (Path(__file__).parent / "pet store.csv").unlink()
 
