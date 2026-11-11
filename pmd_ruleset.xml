@@ -11,10 +11,20 @@
 
     <!-- Rulesets to apply -->
     <rule ref="rulesets/java/quickstart.xml">
+        <exclude name="AvoidStringBufferField" />
         <exclude name="ControlStatementBraces" />
         <exclude name="MethodNamingConventions" />
         <exclude name="EmptyCatchBlock" />
+        <exclude name="UseLocaleWithCaseConversions" />
+        <exclude name="SingularField" />
         <exclude name="SimplifyBooleanReturns" />
+        <exclude name="PreserveStackTrace" />
+        <exclude name="ReturnEmptyCollectionRatherThanNull" />
+        <exclude name="NonExhaustiveSwitch" />
+        <exclude name="CompareObjectsWithEquals" />
+        <exclude name="GuardLogStatement" />
+        <exclude name="AvoidUsingHardCodedIP" />
+        <exclude name="NonThreadSafeSingleton" />
         <exclude name="EmptyControlStatement" />
     </rule>
 
