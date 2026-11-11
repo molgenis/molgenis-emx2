@@ -1,3 +1,4 @@
+import { proxyOriginHeaders } from "../../../../../../tailwind-components/server/utils/proxyOriginHeaders";
 import { joinURL } from "ufo";
 import { proxyRequest, defineEventHandler, getRouterParam } from "h3";
 import { useRuntimeConfig } from "#imports";
@@ -7,5 +8,7 @@ export default defineEventHandler((event) => {
   const schema = getRouterParam(event, "schema") || "";
   const location = joinURL(config.public.apiBase, schema, "api", "trigger");
   console.log("to : ", location);
-  return proxyRequest(event, location);
+  return proxyRequest(event, location, {
+    headers: proxyOriginHeaders(event, location),
+  });
 });
