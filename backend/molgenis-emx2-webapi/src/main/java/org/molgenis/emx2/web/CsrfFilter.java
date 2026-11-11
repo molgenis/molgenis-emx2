@@ -17,7 +17,7 @@ import java.util.Set;
  * takes precedence over the token, so a token header alone says nothing about how the request is
  * authenticated.
  */
-class CsrfFilter {
+final class CsrfFilter {
 
   private static final Set<HandlerType> STATE_CHANGING_METHODS =
       Set.of(HandlerType.POST, HandlerType.PUT, HandlerType.PATCH, HandlerType.DELETE);
@@ -51,11 +51,9 @@ class CsrfFilter {
       return true;
     }
     String host = ctx.header(Header.HOST);
-    if (host != null && sourceHost.equals(hostOfAuthority(host))) {
-      return true;
-    }
-    return MolgenisWebservice.hostUrl != null
-        && sourceHost.equalsIgnoreCase(MolgenisWebservice.hostUrl.getHost());
+    return (host != null && sourceHost.equals(hostOfAuthority(host)))
+        || (MolgenisWebservice.hostUrl != null
+            && sourceHost.equalsIgnoreCase(MolgenisWebservice.hostUrl.getHost()));
   }
 
   private static String hostOf(String url) {
