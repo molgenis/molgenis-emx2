@@ -13,7 +13,7 @@ import {
   min,
   scaleLinear,
   axisLeft,
-  schemePuBuGn,
+  schemeBlues,
 } from "d3";
 
 const d3 = {
@@ -27,7 +27,7 @@ const d3 = {
   min,
   scaleLinear,
   axisLeft,
-  schemePuBuGn,
+  schemeBlues,
 };
 
 import ChartTitle from "../ChartTitle.vue";
@@ -198,10 +198,16 @@ const colorPalette = computed<Record<string, string>>(() => {
   if (isGroupedColumnChart.value && !props.colorPalette) {
     domains = [...new Set(xAxisData.value.domains)].sort();
     const length = domains.length === 2 ? 3 : domains.length;
-    const colors = d3.schemePuBuGn[length as number];
+    const colors = d3.schemeBlues[length as number];
     palette = d3.scaleOrdinal(colors).domain(domains).unknown("#ccc");
   } else {
     domains = xAxisData.value.domains;
+  }
+
+  if (props.colorPalette) {
+    palette = Object.fromEntries(
+      props.colorPalette.map((row: IChartPalette) => [row.value, row.color])
+    );
   }
 
   const valueColorMapping = domains.map((value: string) => {
@@ -209,7 +215,7 @@ const colorPalette = computed<Record<string, string>>(() => {
     if (xAxisData.value.palette?.[value]) {
       color = xAxisData.value.palette[value];
     } else if (props.colorPalette) {
-      color = props.colorPalette[value as unknown as number];
+      color = palette[value];
     } else if (isGroupedColumnChart.value && !props.colorPalette) {
       color = palette(value);
     } else {
