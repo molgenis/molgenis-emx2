@@ -27,8 +27,8 @@ test("user crud", async ({ page }) => {
   await page.locator('[id="New username"]').fill("e2e-test-user");
   await page.locator('[id="New user password"]').click();
   await page.locator('[id="New user password"]').fill("testtest");
-  await page.getByRole("textbox").nth(2).click();
-  await page.getByRole("textbox").nth(2).fill("testtest");
+  await page.getByRole("textbox").nth(3).click();
+  await page.getByRole("textbox").nth(3).fill("testtest");
   await page.getByRole("button", { name: "Add user" }).click();
   // Edit user - add role, disable
   await page.getByRole("button", { name: "Edit user: e2e-test-user" }).click();
