@@ -509,7 +509,10 @@ jobs:
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
-          ./gradlew --continue pmdMain pmdTest pmdTestFixtures
+          status=0
+          ./gradlew pmdReport || status=$?
+          cp backend/build/reports/pmd/pmd.html ~/gradle-logs/
+          exit $status
     - run:
         name: run tests and merge coverage
         # Split from sonar so each carries its own timing.

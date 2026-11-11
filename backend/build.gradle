@@ -33,13 +33,6 @@ subprojects {
         }
     }
 
-    pmd {
-        consoleOutput = true
-        toolVersion = "7.28.0"
-        ruleSetFiles = files("${project.rootDir}/pmd_ruleset.xml")
-        ruleSets = []
-    }
-
     compileJava.dependsOn 'spotlessApply'
 
     // Skip PMD for empty source sets to improve performance 
@@ -172,6 +165,56 @@ subprojects {
             showStandardStreams = false
         }
     }
+}
+
+allprojects {
+    pmd {
+        consoleOutput = true
+        toolVersion = "7.28.0"
+        ruleSetFiles = files("${project.rootDir}/pmd_ruleset.xml")
+        ruleSets = []
+    }
+}
+
+/* Runs PMD on all modules and renders their XML reports as one HTML report, with PMD's own
+   pmd-nicerhtml.xsl */
+def pmdReport = tasks.register('pmdReport') {
+    description = 'Runs PMD on all backend modules, with one combined report: backend/build/reports/pmd/pmd.html.'
+    group = 'verification'
+    dependsOn subprojects.collect { it.tasks.withType(Pmd) }
+    def reports = files(subprojects.collect { it.fileTree('build/reports/pmd') { include '*.xml' } })
+    def stylesheet = resources.text.fromArchiveEntry(
+            { configurations.pmd.find { it.name.startsWith('pmd-core') } }, 'pmd-nicerhtml.xsl')
+    def output = layout.buildDirectory.file('reports/pmd/pmd.html')
+    doLast {
+        def builderFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+        builderFactory.namespaceAware = true
+        def merged = null
+        reports.files.sort().each { report ->
+            def doc = builderFactory.newDocumentBuilder().parse(report)
+            if (merged == null) { merged = doc; return }
+            doc.documentElement.childNodes.with { nodes -> (0..<nodes.length).collect { nodes.item(it) } }
+                    .findAll { it instanceof org.w3c.dom.Element }
+                    .each { merged.documentElement.appendChild(merged.importNode(it, true)) }
+        }
+        stylesheet.asReader().withCloseable { xsl ->
+            javax.xml.transform.TransformerFactory.newInstance()
+                    .newTransformer(new javax.xml.transform.stream.StreamSource(xsl))
+                    .transform(new javax.xml.transform.dom.DOMSource(merged),
+                            new javax.xml.transform.stream.StreamResult(output.get().asFile))
+        }
+
+        def violations = merged.getElementsByTagNameNS('*', 'violation').length
+        if (violations > 0) {
+            def reportUri = output.get().asFile.toPath().toUri()
+            throw new GradleException("${violations} PMD rule violations were found. See the report at: ${reportUri}")
+        }
+    }
+}
+
+/* With pmdReport in the build, a failing module PMD task would skip it, so pmdReport fails instead. */
+gradle.taskGraph.whenReady { graph ->
+    if (graph.hasTask(pmdReport.get())) subprojects.each { it.tasks.withType(Pmd).each { it.ignoreFailures = true } }
 }
 
 /* have webapi tests run after all other modules (starts web service, needs exclusive DB access) */
