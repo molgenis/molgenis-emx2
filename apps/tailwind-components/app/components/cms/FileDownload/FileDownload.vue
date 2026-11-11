@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { IFileLists, IFiles } from "../../../../types/cms";
-import { getFiles } from "../../../utils/cms";
+import { getFiles } from "../../../utils/cms/get.ts";
 import FileDownloadItem from "../FileDownloadItem/FileDownloadItem.vue";
 const props = withDefaults(
   defineProps<IFileLists & { isEditable?: boolean; schema: string }>(),

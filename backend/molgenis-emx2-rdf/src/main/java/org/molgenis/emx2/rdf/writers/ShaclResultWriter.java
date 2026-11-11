@@ -69,7 +69,9 @@ public class ShaclResultWriter extends RdfOutputStreamWriter {
   }
 
   @Override
-  public void processNamespace(Namespace namespace) {}
+  public void processNamespace(Namespace namespace) {
+    // Namespaces are not needed here
+  }
 
   @Override
   public void processTriple(Statement statement) {
@@ -83,13 +85,12 @@ public class ShaclResultWriter extends RdfOutputStreamWriter {
 
   @Override
   public void close() {
-    try {
+    try (connection) {
       connection.commit();
       writeSuccess();
     } catch (RepositoryException e) {
       writeFailure(e);
     } finally {
-      connection.close();
       repository.shutDown();
     }
   }

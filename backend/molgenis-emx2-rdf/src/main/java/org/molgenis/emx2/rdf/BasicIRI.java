@@ -8,7 +8,7 @@ import org.eclipse.rdf4j.model.IRI;
  * Basic IRIs not defined by RDF4J but used within EMX2 to generate triples (can be called similar
  * to {@link org.eclipse.rdf4j.model.vocabulary.RDFS}).
  */
-public class BasicIRI {
+public final class BasicIRI {
   /**
    * FDP-O:metadataIdentifier is the identifier of the metadata entry, which is the subject itself.
    * See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
@@ -34,4 +34,8 @@ public class BasicIRI {
    * entity makes note of attributes of one or more entities)
    */
   public static final IRI SIO_OBSERVING = iri("http://semanticscience.org/resource/SIO_001055");
+
+  private BasicIRI() {
+    // no instances
+  }
 }

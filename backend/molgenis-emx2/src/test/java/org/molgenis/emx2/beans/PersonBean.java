@@ -10,6 +10,7 @@ public class PersonBean {
 
   private String lastName;
 
+  @SuppressWarnings("PMD.UnusedPrivateField") // checks that transient fields are skipped
   private transient String notIncluded;
 
   public UUID getMolgenisid() {

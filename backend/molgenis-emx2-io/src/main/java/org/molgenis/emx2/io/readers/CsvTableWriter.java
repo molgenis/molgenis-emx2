@@ -8,7 +8,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvWriter;
 
-public class CsvTableWriter {
+public final class CsvTableWriter {
 
   private CsvTableWriter() {
     // hide constructor

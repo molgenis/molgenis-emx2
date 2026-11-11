@@ -27,7 +27,7 @@ class GenerateQueryTest {
   private Schema schema;
   private String expectedQuery;
 
-  private final PrintStream originalOut = System.out;
+  private PrintStream originalOut;
   private ByteArrayOutputStream capturedOut;
 
   @BeforeEach
@@ -44,6 +44,7 @@ class GenerateQueryTest {
                     .setSemantics("xsd:name")));
     expectedQuery = new TableQueryGenerator().generate(table.getMetadata());
 
+    originalOut = System.out;
     capturedOut = new ByteArrayOutputStream();
     System.setOut(new PrintStream(capturedOut));
   }

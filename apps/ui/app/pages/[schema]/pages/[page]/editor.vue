@@ -22,11 +22,8 @@ import Message from "../../../../../../tailwind-components/app/components/Messag
 import CodeEditor from "../../../../../../tailwind-components/app/components/editor/CodeEditor.vue";
 import HtmlPreview from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
 
-import {
-  getPage,
-  newDeveloperPage,
-} from "../../../../../../tailwind-components/app/utils/cms";
-
+import { getPage } from "../../../../../../tailwind-components/app/utils/cms";
+import { newDeveloperPage } from "../../../../../../tailwind-components/app/utils/cms/renderDeveloperPage.ts";
 import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
 
 interface ModelStatus {

@@ -9,7 +9,7 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphqlFactory {
+public final class GraphqlFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlFactory.class);
 
   private GraphqlFactory() {}
@@ -52,14 +52,10 @@ public class GraphqlFactory {
       mutationBuilder.field(session.createTokenField(database));
     }
 
-    GraphQL graphql =
-        GraphQL.newGraphQL(
-                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-            .build();
-
-    return graphql;
+    return GraphQL.newGraphQL(
+            GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+        .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
+        .build();
   }
 
   public static GraphQL forSchema(Schema schema, TaskService taskService) {
@@ -101,7 +97,7 @@ public class GraphqlFactory {
 
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumns().size() > 0) {
+      if (!table.getColumns().isEmpty()) {
         if (tableField.hasViewPermission(table)) {
           queryBuilder.field(tableField.tableQueryField(table));
         }
@@ -128,7 +124,7 @@ public class GraphqlFactory {
       logger.info(
           "creation graphql for schema: {} completed in {}ms",
           schema.getMetadata().getName(),
-          (System.currentTimeMillis() - start));
+          System.currentTimeMillis() - start);
     }
 
     return graphql;

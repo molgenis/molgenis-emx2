@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 
@@ -27,13 +28,13 @@ class EmailValidatorTest {
 
   @Test
   void validationResponseToRecievers() {
-    LinkedHashMap<String, Object> validationResponse = new LinkedHashMap<>();
-    LinkedHashMap<String, Object> data = new LinkedHashMap<>();
-    ArrayList<LinkedHashMap> resources = new ArrayList<>();
-    LinkedHashMap resource = new LinkedHashMap<>();
-    ArrayList<LinkedHashMap> contacts = new ArrayList<>();
+    Map<String, Object> validationResponse = new LinkedHashMap<>();
+    Map<String, Object> data = new LinkedHashMap<>();
+    List<Map> resources = new ArrayList<>();
+    Map resource = new LinkedHashMap<>();
+    List<Map> contacts = new ArrayList<>();
 
-    LinkedHashMap<String, Object> contactValue = new LinkedHashMap<>();
+    Map<String, Object> contactValue = new LinkedHashMap<>();
 
     validationResponse.put("data", data);
     data.put("Resources", resources);

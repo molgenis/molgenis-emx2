@@ -1,6 +1,7 @@
 package org.molgenis.emx2.beaconv2.common;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Arrays;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.ReceivedRequestSummary;
 
@@ -9,13 +10,16 @@ public class Meta {
 
   private String beaconId;
   private String apiVersion;
-  private String $schema;
+
+  @JsonProperty("$schema")
+  private String schema;
+
   private Schemas[] returnedSchemas;
   private ReceivedRequestSummary receivedRequestSummary;
   private String returnedGranularity;
 
-  public Meta(String $schema, String entityType) {
-    this.$schema = $schema;
+  public Meta(String schema, String entityType) {
+    this.schema = schema;
     this.beaconId = "org.molgenis.beaconv2";
     this.apiVersion = "v2.0.0";
     this.returnedSchemas = Arrays.asList(new Schemas(entityType)).toArray(Schemas[]::new);
@@ -31,8 +35,8 @@ public class Meta {
     return apiVersion;
   }
 
-  public String get$schema() {
-    return $schema;
+  public String getSchema() {
+    return schema;
   }
 
   public Schemas[] getReturnedSchemas() {

@@ -45,10 +45,13 @@
           @update:columns="handleColumnsUpdate"
         />
 
-        <DownloadButton
-          v-if="schemaId && tableId"
+        <Download
           :schemaId="schemaId"
           :tableId="tableId"
+          :filters="filters"
+          :columns="defaultSortedColumns"
+          :visibleColumns="sortedVisibleColumns"
+          :selectedRowKeys="[...selectedRows.values()]"
         />
 
         <Truncate
@@ -227,7 +230,7 @@ import EditModalHeader from "../form/EditModalHeader.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
 import TableControlColumns from "./control/Columns.vue";
 import DeleteRows from "./control/DeleteRows.vue";
-import DownloadButton from "./control/DownloadButton.vue";
+import Download from "./control/Download.vue";
 import Truncate from "./control/Truncate.vue";
 
 const props = withDefaults(
@@ -332,17 +335,24 @@ const columns = computed<IColumn[]>(
     ) ?? []
 );
 
-const sortedColumns = computed<IColumn[]>(() => {
-  const backEndSortedColumns = sortColumns(columns.value);
+// all columns in backend order, i.e. what a download without column selection gives
+const defaultSortedColumns = computed<IColumn[]>(() =>
+  sortColumns([...columns.value])
+);
 
-  if (settings.value.orderedVisibleColumnsIds?.length) {
-    return backEndSortedColumns.sort((a, b) => {
-      const indexA =
-        settings.value.orderedVisibleColumnsIds?.indexOf(a.id) ?? -1;
-      const indexB =
-        settings.value.orderedVisibleColumnsIds?.indexOf(b.id) ?? -1;
-      return indexA - indexB;
-    });
+const sortedColumns = computed<IColumn[]>(() => {
+  const backEndSortedColumns = [...defaultSortedColumns.value];
+  const visibleIds = settings.value.orderedVisibleColumnsIds;
+
+  if (visibleIds?.length) {
+    // mark hidden columns, so the column selection reflects the current table
+    return backEndSortedColumns
+      .sort((a, b) => visibleIds.indexOf(a.id) - visibleIds.indexOf(b.id))
+      .map((column) =>
+        visibleIds.includes(column.id)
+          ? column
+          : { ...column, visible: "false" }
+      );
   }
 
   return backEndSortedColumns;

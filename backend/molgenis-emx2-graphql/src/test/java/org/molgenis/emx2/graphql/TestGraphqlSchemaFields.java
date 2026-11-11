@@ -540,7 +540,7 @@ class TestGraphqlSchemaFields {
 
     // orderId=1 has one pet
     assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    assert (result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:"));
+    assert result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:");
 
     // apply nested filter
     result =
@@ -1042,7 +1042,7 @@ class TestGraphqlSchemaFields {
         execute("mutation {truncate(tables: \"Order\"){message}}").at("/truncate/message").asText();
     assertTrue(message.contains("Truncated"));
     List<Row> result2 = schema.getTable("Order").retrieveRows();
-    assertTrue(result.size() > 0 && result2.size() == 0);
+    assertTrue(!result.isEmpty() && result2.isEmpty());
 
     // restore
     database.dropSchemaIfExists(schemaName);
@@ -1066,9 +1066,10 @@ class TestGraphqlSchemaFields {
               .get(0)
               .get("status")
               .asText();
-      if (pollCount++ > 5) {
+      if (pollCount > 5) {
         throw new MolgenisException("failed: polling took too long, result is: " + status);
       }
+      pollCount++;
       Thread.sleep(1000);
     }
 

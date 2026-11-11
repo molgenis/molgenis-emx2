@@ -73,7 +73,9 @@ public class VariantFilterParser implements FilterParser {
   public List<String> getGraphQlFilters() {
     List<String> filters = new ArrayList<>(graphQlFilters);
     String urlPathFilter = getUrlPathFilter(beaconQuery);
-    if (urlPathFilter != null) filters.add(urlPathFilter);
+    if (urlPathFilter != null) {
+      filters.add(urlPathFilter);
+    }
 
     return filters;
   }
@@ -87,7 +89,7 @@ public class VariantFilterParser implements FilterParser {
   }
 
   private GenomicQueryType getGenomicQueryType() {
-    if ((qReferenceName != null && qStart != null) && (qGeneId == null)) {
+    if (qReferenceName != null && qStart != null && (qGeneId == null)) {
       if (qEnd != null) {
         if (qStart.length == 1 && qEnd.length == 1) {
           return GenomicQueryType.RANGE;

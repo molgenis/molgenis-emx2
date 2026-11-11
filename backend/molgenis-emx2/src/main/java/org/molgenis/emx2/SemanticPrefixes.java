@@ -77,7 +77,7 @@ public class SemanticPrefixes {
   }
 
   private static Namespace validateNamespace(Namespace namespace) {
-    if (namespace.getPrefix().equals("http") || namespace.getPrefix().equals("https")) {
+    if ("http".equals(namespace.getPrefix()) || "https".equals(namespace.getPrefix())) {
       throw new MolgenisException("http(s) is not allowed as a prefix!");
     }
     try {
@@ -147,16 +147,20 @@ public class SemanticPrefixes {
       final Function<String, R> iriOperator,
       final Function<String, R> prefixedNameOperator) {
 
-    if (semantic.isLegacyIri()) return iriOperator.apply(semantic.get());
-    if (semantic.get().startsWith("<"))
+    if (semantic.isLegacyIri()) {
+      return iriOperator.apply(semantic.get());
+    }
+    if (semantic.get().startsWith("<")) {
       return iriOperator.apply(semantic.get().substring(1, semantic.get().length() - 1));
+    }
     return prefixedNameOperator.apply(semantic.get());
   }
 
   private Namespace getNamespace(final String prefix) {
     Namespace foundNamespace = namespaces.get(prefix);
-    if (foundNamespace == null)
+    if (foundNamespace == null) {
       throw new MolgenisException("Semantic uses an undefined prefix label: " + prefix);
+    }
     return foundNamespace;
   }
 
