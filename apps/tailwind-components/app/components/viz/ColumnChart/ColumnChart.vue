@@ -318,10 +318,6 @@ function renderChart() {
   renderColumns();
 }
 
-function onLegendClick(event: string[]) {
-  console.log(event);
-}
-
 onMounted(() => {
   renderChart();
   useEventListener("resize", renderChart);
@@ -359,9 +355,6 @@ watch(
       v-if="isGroupedColumnChart && legendIsEnabled"
       :legend-id="`${id}-legend`"
       :data="colorPalette"
-      :stackLegend="false"
-      :enableClicks="true"
-      @legend-item-clicked="onLegendClick($event)"
       style="grid-area: legend"
     />
     <div style="grid-area: chart">
