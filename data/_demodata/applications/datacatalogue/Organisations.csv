@@ -64,7 +64,7 @@ CYN,https://placeholder-pid/cyn.org,Cynexo,,https://test-website.org,test@email.
 MLT.I,https://placeholder-pid/mlt-i.org,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,https://test-website.org,test@email.com,,,,
 TUMC,https://placeholder-pid/tumc.org,testUMC (organisation),,https://test-umc@example.org,test@email.com,,,,
 UCL,https://ror.org/02jx3x895,University College London,University College London,http://www.ucl.ac.uk/,test@email.com,,,,
-MOLGENIS_org,https://placeholder-pid/molgenis-org.org,MOLGENIS,,https://molgenis.org/,molgenis-support@umcg.nl,,,,
+MOLGENIS_org,https://placeholder-pid/molgenis-org.org,MOLGENIS,,https://molgenis.org/,support@molgenis.org,,,,
 bbmri-eric-directory,https://placeholder-pid/bbmri-eric-directory.org,BBMRI-ERIC Directory,,https://placeholder-website/bbmri-eric-directory.org,test@email.com,"The BBMRI-ERIC Directory, the upstream catalogue this migration slice of directory data was imported from.",,,
 directory_nn_EXT,https://placeholder-pid/directory-nn-ext.org,External countries,,https://placeholder-website/directory-nn-ext.org,test@email.com,BBMRI-ERIC national node (EXT),,,
 directory_le_0014,https://placeholder-pid/directory-le-0014.org,Hamad Medical City,,https://placeholder-website/directory-le-0014.org,test@email.com,Legal entity (juridical person) minted from the directory,,,
