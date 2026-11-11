@@ -298,7 +298,7 @@ function rowToUser(row: TableRow): User {
             icon="add-circle"
             @click="showNewUserModal = true"
           >
-            Add user
+            Create user
           </Button>
         </template>
       </TableInteractive>
