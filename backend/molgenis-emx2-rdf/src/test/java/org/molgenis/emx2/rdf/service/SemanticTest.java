@@ -21,6 +21,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
+import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
 
 class SemanticTest extends RdfServiceTestRunner {
   private static final String SCHEMA_NAME = SemanticTest.class.getSimpleName();
@@ -212,20 +213,31 @@ class SemanticTest extends RdfServiceTestRunner {
   }
 
   @Test
-  void prefixedNamesValidRow() throws IOException {
+  void semanticGenerator_prefixedNamesValidRow() throws IOException {
     Set<IRI> expectedPredicates =
         Set.of(
             Values.iri("http://purl.org/dc/terms/title"),
             Values.iri("http://purl.org/dc/terms/description"));
 
-    InMemoryRDFHandler handler = parseRowRdf(semanticTest, "SemanticTable", "id=1");
+    InMemoryRDFHandler handler =
+        parseRowRdf(RdfApiGeneratorFactory.SEMANTIC, semanticTest, "SemanticTable", "id=1");
     Set<IRI> actualPredicates =
         handler.resources.get(Values.iri(getApi(semanticTest) + "SemanticTable/id=1")).keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));
   }
 
   @Test
-  void prefixedNamesRowUsingUndefinedPrefix() {
-    assertThrows(MolgenisException.class, () -> parseRowRdf(semanticTest, "SemanticTable", "id=2"));
+  void semanticGenerator_prefixedNamesRowUsingUndefinedPrefix() {
+    assertThrows(
+        MolgenisException.class,
+        () -> parseRowRdf(RdfApiGeneratorFactory.SEMANTIC, semanticTest, "SemanticTable", "id=2"));
+  }
+
+  @Test
+  void emx2Generator_anyRowWhenUndefinedPrefixIsDefined() {
+    // Columns are described, therefore fails.
+    assertThrows(
+        MolgenisException.class,
+        () -> parseRowRdf(RdfApiGeneratorFactory.EMX2, semanticTest, "SemanticTable", "id=1"));
   }
 }

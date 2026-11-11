@@ -25,6 +25,7 @@ import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
+import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
@@ -44,8 +45,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     describeRoot();
     describeSchema(schema);
     tables.forEach(this::describeTable);
-    tables.forEach(i -> describeColumns(i, null));
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
   }
 
   @Override
@@ -56,8 +57,19 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     describeTable(table);
-    describeColumns(table, null);
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
+  }
+
+  @Override
+  public void generate(Table table, PrimaryKey primaryKey) {
+    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+
+    generatePrefixes(table.getSchema());
+    generateCustomRdf(table.getSchema());
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t, primaryKey));
   }
 
   @Override
@@ -124,12 +136,16 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
+  void describeColumns(final Table table) {
+    describeColumns(table, null);
+  }
+
   void describeColumns(final Table table, final String columnName) {
     if (table.getMetadata().getTableType() != TableType.DATA) {
       return;
     }
 
-    for (final Column column : table.getMetadata().getNonInheritedColumns()) {
+    for (final Column column : table.getMetadata().getColumns()) {
       // Exclude the system columns that refer to specific users
       if (column.isSystemAddUpdateByUserColumn()) {
         continue;

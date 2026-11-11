@@ -7,6 +7,7 @@ import static org.molgenis.emx2.rdf.RdfUtils.*;
 
 import java.util.*;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -41,7 +42,7 @@ public abstract class RdfGenerator {
   }
 
   protected void processRows(
-      final Consumer<Row> consumer, final Table table, final PrimaryKey primaryKey) {
+      final Consumer<Row> consumer, final Table table, @Nullable final PrimaryKey primaryKey) {
     Query query = table.query();
 
     if (primaryKey != null) {
