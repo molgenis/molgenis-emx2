@@ -348,7 +348,6 @@ watch(
       :description="chartDescription"
       style="grid-area: context"
     >
-      <slot name="additionalChartInfo"></slot>
     </ChartTitle>
     <ChartLegend
       v-if="isGroupedColumnChart && legendIsEnabled"
@@ -360,6 +359,7 @@ watch(
       style="grid-area: legend"
     />
     <div style="grid-area: chart">
+      <slot name="additionalChartInfo"></slot>
       <svg
         :id="id"
         :width="width"
