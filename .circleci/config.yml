@@ -215,7 +215,7 @@ commands:
         when: always
     - store_artifacts:
         path: backend/build/reports/pmd/pmd.html
-        destination: pmd
+        destination: pmd.html
         when: always
 
 # jobs for pull request and master
