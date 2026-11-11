@@ -9,6 +9,7 @@ import {
   assertFileValue,
   assertMenu,
   parseLinkSetting,
+  resolveLinkLocation,
   resolveLinkType,
   assertListValue,
   isMgError,
@@ -391,18 +392,67 @@ describe("resolveLinkType", () => {
   });
 });
 
+describe("resolveLinkLocation", () => {
+  it("returns spaLink as is", () => {
+    expect(
+      resolveLinkLocation({ location: "/pet%20store/Pet" }, "/base/")
+    ).toBe("/pet%20store/Pet");
+  });
+
+  it("prefixes internalPageLink with the base path", () => {
+    const internal = (link: string, basePath?: string) =>
+      resolveLinkLocation(
+        { location: link, linkType: "internalPageLink" },
+        basePath
+      );
+    expect(internal("pet%20store/schema")).toBe("/pet%20store/schema");
+    expect(internal("/pet%20store/schema")).toBe("/pet%20store/schema");
+    expect(internal("pet%20store/schema", "/base")).toBe(
+      "/base/pet%20store/schema"
+    );
+    expect(internal("/pet%20store/schema", "/base/")).toBe(
+      "/base/pet%20store/schema"
+    );
+  });
+
+  it("keeps internalPageLink on this server", () => {
+    const internal = (link: string) =>
+      resolveLinkLocation({ location: link, linkType: "internalPageLink" });
+    expect(internal("//evil.example")).toBe("/evil.example");
+    expect(internal("/\\evil.example")).toBe("/evil.example");
+  });
+
+  it("returns a safe externalLink as is", () => {
+    expect(
+      resolveLinkLocation({
+        location: "https://example.org/a",
+        linkType: "externalLink",
+      })
+    ).toBe("https://example.org/a");
+  });
+
+  it("returns undefined for an unsafe externalLink", () => {
+    expect(
+      resolveLinkLocation({
+        location: "javascript:alert(1)",
+        linkType: "externalLink",
+      })
+    ).toBeUndefined();
+  });
+});
+
 describe("parseLinkSetting", () => {
   it("parses a linkType setting", () => {
     expect(
       parseLinkSetting(
-        '{"link": "https://www.google.com", "linkType": "externalLink"}'
+        '{"location": "https://www.google.com", "linkType": "externalLink"}'
       )
-    ).toEqual({ link: "https://www.google.com", linkType: "externalLink" });
+    ).toEqual({ location: "https://www.google.com", linkType: "externalLink" });
   });
 
   it("defaults a setting without linkType to spaLink", () => {
-    expect(parseLinkSetting('{"link": "/pet%20store/Pet"}')).toEqual({
-      link: "/pet%20store/Pet",
+    expect(parseLinkSetting('{"location": "/pet%20store/Pet"}')).toEqual({
+      location: "/pet%20store/Pet",
       linkType: "spaLink",
     });
   });
@@ -412,17 +462,17 @@ describe("assertMenu", () => {
   it("accepts every link type and items without linkType", () => {
     expect(() =>
       assertMenu([
-        { label: "a", link: "/a", linkType: "spaLink" },
-        { label: "b", link: "b", linkType: "internalPageLink" },
-        { label: "c", link: "https://c.org", linkType: "externalLink" },
-        { label: "d", link: "/d" },
+        { label: "a", location: "/a", linkType: "spaLink" },
+        { label: "b", location: "b", linkType: "internalPageLink" },
+        { label: "c", location: "https://c.org", linkType: "externalLink" },
+        { label: "d", location: "/d" },
       ])
     ).not.toThrow();
   });
 
   it("rejects an unknown linkType", () => {
     expect(() =>
-      assertMenu([{ label: "a", link: "a", linkType: "external" }])
+      assertMenu([{ label: "a", location: "a", linkType: "external" }])
     ).toThrow(/linkType/);
   });
 });

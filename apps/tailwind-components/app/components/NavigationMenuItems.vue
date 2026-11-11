@@ -23,7 +23,7 @@ const submenuButtonClass =
 
 <template>
   <ol :class="submenuListClass">
-    <li v-for="item in items" :key="`${item.label}-${item.link}`">
+    <li v-for="item in items" :key="`${item.label}-${item.location}`">
       <template v-if="!item.submenu || item.submenu.length === 0">
         <NavigationMenuLink
           :item="item"

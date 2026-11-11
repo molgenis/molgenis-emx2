@@ -41,7 +41,7 @@ const moreButtonClass =
   <nav class="flex items-center justify-between gap-6 xl:justify-center">
     <template
       v-for="mainNavItem in mainNavItems"
-      :key="`${mainNavItem.label}-${mainNavItem.link}`"
+      :key="`${mainNavItem.label}-${mainNavItem.location}`"
     >
       <template v-if="!mainNavItem.submenu || mainNavItem.submenu.length === 0">
         <NavigationMenuLink

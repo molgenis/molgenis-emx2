@@ -177,9 +177,9 @@ export function assertMenu(menu: unknown): asserts menu is Menu {
         `Expected menu item at index ${index} to have a string 'label' property`
       );
     }
-    if (typeof item.link !== "string") {
+    if (typeof item.location !== "string") {
       throw new Error(
-        `Expected menu item at index ${index} to have a string 'link' property`
+        `Expected menu item at index ${index} to have a string 'location' property`
       );
     }
     if (item.role && typeof item.role !== "string") {
@@ -265,12 +265,54 @@ export function resolveLinkType(link: { linkType?: unknown }): LinkType {
   return isLinkType(link.linkType) ? link.linkType : "spaLink";
 }
 
+const SAFE_EXTERNAL_PROTOCOLS = new Set(["http:", "https:", "mailto:"]);
+
+/**
+ * Returns true when the url is absolute and uses an allowed protocol.
+ * Rejects executable urls such as `javascript:` or `data:` that would run
+ * in the visiting user's session when the link is clicked.
+ */
+export function isSafeExternalUrl(url: string): boolean {
+  try {
+    return SAFE_EXTERNAL_PROTOCOLS.has(new URL(url.trim()).protocol);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolves a link to the href to navigate to.
+ * - spaLink: returned as is, it is a route inside the ui app
+ * - internalPageLink: leading slashes are removed and the server base path is
+ *   prefixed, so the link never resolves relative to the current page and a
+ *   `//host` value cannot leave this server
+ * - externalLink: returned as is when it uses a safe protocol
+ * Returns undefined when the link must not be navigated to.
+ */
+export function resolveLinkLocation(
+  link: Link,
+  basePath: string = "/"
+): string | undefined {
+  switch (resolveLinkType(link)) {
+    case "externalLink":
+      return isSafeExternalUrl(link.location)
+        ? link.location.trim()
+        : undefined;
+    case "internalPageLink": {
+      const prefix = basePath.endsWith("/") ? basePath : `${basePath}/`;
+      return prefix + link.location.trim().replace(/^[/\\]+/, "");
+    }
+    default:
+      return link.location;
+  }
+}
+
 export function isLink(value: unknown): value is Link {
   return (
     typeof value === "object" &&
     value !== null &&
-    "link" in value &&
-    typeof (value as Link).link === "string" &&
+    "location" in value &&
+    typeof (value as Link).location === "string" &&
     ((value as Link).linkType === undefined ||
       isLinkType((value as Link).linkType))
   );
@@ -279,7 +321,7 @@ export function isLink(value: unknown): value is Link {
 export function parseLinkSetting(linkSetting: string): Link {
   const linkSettingObject = JSON.parse(linkSetting);
   return {
-    link: linkSettingObject.link,
+    location: linkSettingObject.location,
     linkType: resolveLinkType(linkSettingObject),
   };
 }

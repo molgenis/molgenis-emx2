@@ -226,7 +226,7 @@ export const LINK_TYPES = [
 export type LinkType = (typeof LINK_TYPES)[number];
 
 export interface Link {
-  link: string;
+  location: string;
   linkType?: LinkType;
 }
 export interface MenuItem extends Link {
