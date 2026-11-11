@@ -201,6 +201,7 @@ def pmdReport = tasks.register('pmdReport') {
 
         // Render the merged report as HTML.
         def outputFile = output.get().asFile
+        outputFile.parentFile.mkdirs()
         stylesheet.asReader().withCloseable { xsl ->
             javax.xml.transform.TransformerFactory.newInstance()
                     .newTransformer(new javax.xml.transform.stream.StreamSource(xsl))
