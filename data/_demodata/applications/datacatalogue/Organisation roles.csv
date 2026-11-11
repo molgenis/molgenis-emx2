@@ -170,7 +170,7 @@ SPF,ARS,Agenzia Regionale di Sanità della Toscana,,,example@example.org,,True,A
 OOM,UNIME,University of Messina,,,example@example.org,,False,University of Messina,https://ror.org/05ctdxz19,https://www.unime.it
 ACCESS,UNIME,University of Messina,,,example@example.org,,False,University of Messina,https://ror.org/05ctdxz19,https://www.unime.it
 OOM,KUL,KU Leuven,,,example@example.org,,False,KU Leuven,https://ror.org/05f950310,http://www.kuleuven.be/english
-testNetwork1,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,False,
+testNetwork1,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,False,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
 testNetwork2,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,False,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
 testNetworkofNetworks,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,False,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
 ABCD,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,example@example.org,,True,Amsterdam University Medical Centers,https://ror.org/05grdyy37,https://www.amsterdamumc.org
@@ -189,3 +189,10 @@ TestDatabank2,UMC,University Medical Center Utrecht,,,example@example.org,Data o
 MOLGENIS,MOLGENIS,,MOLGENIS,,support@molgenis.org,,,Test organisation without ROR,https://no-ror-id.org,https://website-test-organisation.org
 bbmri-eric:ID:EXT_GBR-1-198:collection:1,Newcastle University,Newcastle University,,,example@example.org,,True,Newcastle University,https://ror.org/01kj2bm70,https://www.ncl.ac.uk/
 bbmri-eric:ID:AT_MUI,Innsbruck Medical University,,,,example@example.org,,True,Innsbruck Medical University,https://ror.org/03pt86f80,https://www.i-med.ac.at/
+bbmri-eric:ID:EXT_QBB,HMC,Hamad Medical Corporation,,,example@example.org,,True,Hamad Medical Corporation,https://ror.org/02zwb6n98,https://www.hamad.qa/EN/Pages/default.aspx
+bbmri-eric:ID:EXT_QBB:collection:covid19,HMC,Hamad Medical Corporation,,,example@example.org,,True,Hamad Medical Corporation,https://ror.org/02zwb6n98,https://www.hamad.qa/EN/Pages/default.aspx
+bbmri-eric:ID:EXT_IBG,IBG,Izmir Biomedicine and Genome Center,,,example@example.org,,True,Izmir Biomedicine and Genome Center,https://ror.org/04n6j6456,https://www.ibg.edu.tr
+bbmri-eric:ID:EXT_IBG:collection:RareDisease-1,IBG,Izmir Biomedicine and Genome Center,,,example@example.org,,True,Izmir Biomedicine and Genome Center,https://ror.org/04n6j6456,https://www.ibg.edu.tr
+bbmri-eric:ID:EXT_IBG:collection:HematologicalDisease-1,IBG,Izmir Biomedicine and Genome Center,,,example@example.org,,True,Izmir Biomedicine and Genome Center,https://ror.org/04n6j6456,https://www.ibg.edu.tr
+bbmri-eric:ID:EXT_76823,ISCIII,Instituto de Salud Carlos III,,,example@example.org,,True,Instituto de Salud Carlos III,https://ror.org/00ca2c886,https://www.isciii.es
+bbmri-eric:ID:EXT_76823:collection:MainCollection,ISCIII,Instituto de Salud Carlos III,,,example@example.org,,True,Instituto de Salud Carlos III,https://ror.org/00ca2c886,https://www.isciii.es
