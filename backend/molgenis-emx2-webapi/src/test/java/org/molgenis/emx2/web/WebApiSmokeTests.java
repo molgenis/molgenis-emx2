@@ -1136,6 +1136,25 @@ class WebApiSmokeTests extends ApiTestBase {
       // ignore error when there is nothing to clean up
     }
 
+    // The synchronous GET endpoint gives up after a fixed 60s server-side. A python script spends
+    // most of that on venv creation and pip on slow CI agents (Azure), so the synchronous checks
+    // use a bash script; the python path is still covered by the async run below.
+    String syncScriptName = "hello world bash";
+    deleteJobsForScript(syncScriptName);
+    database
+        .getSchema(SYSTEM_SCHEMA)
+        .getTable("Scripts")
+        .save(
+            row(
+                "name",
+                syncScriptName,
+                "type",
+                "bash",
+                "script",
+                "printf Readme > \"$OUTPUT_FILE\"",
+                "outputFileExtension",
+                "txt"));
+
     String token = getToken("admin", "admin");
     String result;
 
@@ -1145,7 +1164,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .header(MOLGENIS_TOKEN[0], token)
             .when()
-            .get(SYSTEM_PREFIX + "/api/scripts/hello+world")
+            .get(SYSTEM_PREFIX + "/api/scripts/hello+world+bash")
             .getBody()
             .asString();
     assertEquals("Readme", result);
@@ -1156,10 +1175,13 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .header(MOLGENIS_TOKEN[0], token)
             .when()
-            .get("/api/scripts/hello+world")
+            .get("/api/scripts/hello+world+bash")
             .getBody()
             .asString();
     assertEquals("Readme", result);
+
+    deleteJobsForScript(syncScriptName);
+    database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", syncScriptName));
 
     // or async using post and then we get a task id
     // simply retrieve the results using get
@@ -1522,8 +1544,9 @@ class WebApiSmokeTests extends ApiTestBase {
     Filter f = f("script", f("name", EQUALS, scriptName));
     int count = 0;
     Row firstJob = null;
-    // should run every 5 secs, lets give it some time to complete at least 1 job
-    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
+    // python jobs create a venv and run pip first, which can take well over a minute on slow CI
+    // agents, so allow up to ~3 minutes
+    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 180) {
       List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
       if (!jobList.isEmpty()) {
         firstJob = jobList.get(0);
