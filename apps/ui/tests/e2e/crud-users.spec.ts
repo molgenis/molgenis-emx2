@@ -27,10 +27,15 @@ test("user crud", async ({ page }) => {
   await page.locator('[id="New username"]').fill("e2e-test-user");
   await page.locator('[id="New user password"]').click();
   await page.locator('[id="New user password"]').fill("testtest");
-  await page.getByRole("textbox").nth(3).click();
-  await page.getByRole("textbox").nth(3).fill("testtest");
+  await page.locator('[id="New user password second time"]').click();
+  await page.locator('[id="New user password second time"]').fill("testtest");
   await page.getByRole("button", { name: "Add user" }).click();
+
   // Edit user - add role, disable
+  await page
+    .getByRole("searchbox", { name: "Search users" })
+    .fill("e2e-test-user");
+  await page.getByRole("cell", { name: "e2e-test-user", exact: true }).hover();
   await page.getByRole("button", { name: "Edit user: e2e-test-user" }).click();
   await page.getByRole("button", { name: "Add role" }).click();
   await page
@@ -38,14 +43,18 @@ test("user crud", async ({ page }) => {
     .getByText("Disable")
     .click();
   await page.getByRole("button", { name: "Save" }).click();
+
   // Edit user - enable user
+  await page.getByRole("cell", { name: "e2e-test-user", exact: true }).hover();
   await page.getByRole("button", { name: "Edit user: e2e-test-user" }).click();
   await page
     .locator("#disabledUserRadio-radio-group")
     .getByText("Enabled")
     .click();
   await page.getByRole("button", { name: "Save" }).click();
+
   // Delete user
+  await page.getByRole("cell", { name: "e2e-test-user", exact: true }).hover();
   await page
     .getByRole("button", { name: "Delete user: e2e-test-user" })
     .click();
