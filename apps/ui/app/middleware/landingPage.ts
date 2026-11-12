@@ -1,5 +1,8 @@
 import { defineNuxtRouteMiddleware, navigateTo } from "#app";
-import { parseLinkSetting } from "../../../tailwind-components/app/utils/typeUtils";
+import {
+  parseLinkSetting,
+  resolveLinkLocation,
+} from "../../../tailwind-components/app/utils/typeUtils";
 import { useSchemaSettings } from "../../../tailwind-components/app/composables/useSchemaSettings";
 const SCHEMA_LANDING_PAGE = "SCHEMA_LANDING_PAGE";
 
@@ -9,9 +12,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   if (from.path === "/" && typeof schemaLandingPage === "string") {
     const landingPageLink = parseLinkSetting(schemaLandingPage);
-    return await navigateTo(landingPageLink.link, {
-      replace: true,
-      external: !landingPageLink.isSpaLink,
-    });
+    const location = resolveLinkLocation(landingPageLink);
+    if (location) {
+      return await navigateTo(location, {
+        replace: true,
+        external: landingPageLink.linkType !== "spaLink",
+      });
+    }
   }
 });

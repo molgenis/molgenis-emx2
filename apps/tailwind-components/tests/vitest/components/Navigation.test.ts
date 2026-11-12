@@ -18,15 +18,15 @@ describe("Navigation", () => {
       props: {
         maximumButtonShown: 4,
         navigation: [
-          { label: "Home", link: "#" },
+          { label: "Home", location: "#" },
           {
             label: "Data",
-            link: "#",
+            location: "#",
             submenu: [
               {
                 label: "Catalog",
-                link: "#catalog",
-                submenu: [{ label: "Entities", link: "#entities" }],
+                location: "#catalog",
+                submenu: [{ label: "Entities", location: "#entities" }],
               },
             ],
           },
