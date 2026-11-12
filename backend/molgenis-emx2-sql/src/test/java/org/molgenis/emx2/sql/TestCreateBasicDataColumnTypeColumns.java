@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
@@ -83,15 +82,15 @@ public class TestCreateBasicDataColumnTypeColumns {
     // check queryOld and test getters
     List<Row> result = schema.getTable("TypeTest").retrieveRows();
     for (Row res : result) {
-      assert res.getDate("Test date") instanceof LocalDate;
-      assert res.getDateTime("Test datetime") instanceof LocalDateTime;
-      assert res.getString("Test string") instanceof String;
-      assert res.getInteger("Test int") instanceof Integer;
-      assert res.getDecimal("Test decimal") instanceof Double;
-      assert res.getText("Test text") instanceof String;
-      assert res.getBoolean("Test bool") instanceof Boolean;
-      assert res.getUuid("Test uuid") instanceof java.util.UUID;
-      assert res.getPeriod("Test period") instanceof Period;
+      assertInstanceOf(LocalDate.class, res.getDate("Test date"));
+      assertInstanceOf(LocalDateTime.class, res.getDateTime("Test datetime"));
+      assertInstanceOf(String.class, res.getString("Test string"));
+      assertInstanceOf(Integer.class, res.getInteger("Test int"));
+      assertInstanceOf(Double.class, res.getDecimal("Test decimal"));
+      assertInstanceOf(String.class, res.getText("Test text"));
+      assertInstanceOf(Boolean.class, res.getBoolean("Test bool"));
+      assertInstanceOf(java.util.UUID.class, res.getUuid("Test uuid"));
+      assertInstanceOf(Period.class, res.getPeriod("Test period"));
     }
 
     StopWatch.print("checked getters");

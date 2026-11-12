@@ -19,12 +19,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.jetty.http.HttpCookie;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.matomo.MatomoTrackingService;
 import org.molgenis.emx2.web.util.SchemaMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +63,13 @@ public class MolgenisWebservice {
                   new JavalinJackson()
                       .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
               config.jetty.modifyServletContextHandler(
-                  context ->
-                      context.setMaxFormContentSize(
-                          Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
-                  );
+                  context -> {
+                    context.setMaxFormContentSize(Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
+                    // keep the session cookie off cross-site posts (CSRF)
+                    context.getSessionHandler().setSameSite(HttpCookie.SameSite.LAX);
+                  });
             });
+
     hostUrlFromEnvironment = setServiceUrl();
   }
 
@@ -80,12 +84,16 @@ public class MolgenisWebservice {
       }
     }
 
+    addMatomoHandlerIfEnabled();
+
     if (MetricsController.METRICS_ENABLED) {
       logger.info("Enabling metrics endpoint /{}", MetricsController.METRICS_PATH);
       JvmMetrics.builder().register();
       MetricsController metricsController = new MetricsController();
       app.get("/" + MetricsController.METRICS_PATH, metricsController::handleRequest);
     }
+
+    app.before(CsrfFilter::check);
 
     MessageApi.create(app);
 
@@ -201,6 +209,14 @@ public class MolgenisWebservice {
 
   public int getPort() {
     return app.port();
+  }
+
+  private void addMatomoHandlerIfEnabled() {
+    String matomoUrl =
+        (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, null, ColumnType.STRING);
+    if (matomoUrl != null) {
+      app.before(MatomoTrackingService.fromEnvironment(hostUrl.toString())::track);
+    }
   }
 
   private static void handleLoginCallback(Context ctx) {

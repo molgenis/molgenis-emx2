@@ -21,15 +21,15 @@ import EditableButton from "./button/EditableButton.vue";
 
 import EditModal from "../form/EditModal.vue";
 
+import { updateCMSfield } from "../../utils/cms";
+import { deleteBlock, deleteComponent } from "../../utils/cms/delete";
 import {
-  deleteBlock,
-  deleteComponent,
   moveComponentUp,
   moveBlockUp,
   moveComponentDown,
   moveBlockDown,
-  updateCMSfield,
-} from "../../utils/cms";
+} from "../../utils/cms/move";
+
 import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
