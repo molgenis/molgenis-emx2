@@ -1,22 +1,8 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
+import { isBoolColumnType, nonEmptyRanges, trimmedTerms } from "./filterUtils";
 
 const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
-
-export function parseFilterTerms(input: string): string[] {
-  const tokenRegex = /'([^']*)'|(\S+)/g;
-  const terms: string[] = [];
-  let match;
-
-  while ((match = tokenRegex.exec(input)) !== null) {
-    const token = match[1] ?? match[2]!;
-    if (token.toLowerCase() !== "and") {
-      terms.push(token);
-    }
-  }
-
-  return terms.filter(Boolean);
-}
 
 export function setNestedValue(obj: any, path: string[], value: any): void {
   if (path.length === 0) return;
@@ -164,7 +150,7 @@ export function buildGraphQLFilter(
           const resolvedType =
             columnTypeMap?.get(columnId) || column.columnType;
 
-          if (resolvedType === "BOOL") {
+          if (isBoolColumnType(resolvedType)) {
             const boolResult = equalsForBool(arr as string[], pathSegments);
             if (boolResult.orClause) {
               if (!filter._or) filter._or = [] as any;
@@ -216,31 +202,17 @@ export function buildGraphQLFilter(
         break;
 
       case "like": {
-        if (typeof value === "string") {
-          const terms = parseFilterTerms(value);
-          if (terms.length <= 1) {
-            filterValueObj = { like: terms[0] || value };
-          } else {
-            const likeFilters = terms.map((term: string) => {
-              const entry: any = {};
-              setNestedValue(entry, pathSegments, { like: term });
-              return entry;
-            });
-            if (!filter._and) filter._and = [] as any;
-            (filter._and as any[]).push(...likeFilters);
-            return;
-          }
-        } else {
-          filterValueObj = { like: value };
-        }
+        const terms = trimmedTerms(value);
+        if (terms.length > 0) filterValueObj = { like: terms };
         break;
       }
 
       case "between": {
-        const [min, max] = value;
-        if (min != null || max != null) {
-          filterValueObj = { between: [min ?? null, max ?? null] };
-        }
+        const bounds = nonEmptyRanges(value).flatMap(([min, max]) => [
+          min ?? null,
+          max ?? null,
+        ]);
+        if (bounds.length > 0) filterValueObj = { between: bounds };
         break;
       }
 

@@ -242,7 +242,7 @@ describe("useFilters — gqlFilter computation", () => {
       schemaId: "test",
       tableId: "table1",
     });
-    setFilter("age", { operator: "between", value: [10, 50] });
+    setFilter("age", { operator: "between", value: [[10, 50]] });
     expect((gqlFilter.value as any).age).toBeDefined();
   });
 });
@@ -1089,7 +1089,7 @@ describe("useFilters — H1 regression: mg_filters survives setFilter after cust
 
     toggleFilter("name");
     const callsBeforeFlush = replaceCalls.length;
-    setFilter("name", { operator: "like", value: "test" });
+    setFilter("name", { operator: "like", value: ["test"] });
 
     const setFilterCall = replaceCalls[callsBeforeFlush];
     expect(setFilterCall?.query?.[MG_FILTERS_PARAM]).toBeDefined();

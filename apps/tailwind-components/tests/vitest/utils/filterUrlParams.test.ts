@@ -10,41 +10,44 @@ import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 
 describe("serializeFilterValue", () => {
-  it("serializes like operator for string", () => {
-    const result = serializeFilterValue({ operator: "like", value: "John" });
-    expect(result).toBe("John");
+  it.each([
+    [["John"], "John"],
+    [["dog", "cat"], "dog|cat"],
+    [["cat dog", "bird"], "cat dog|bird"],
+  ])("serializes like %j as %s", (terms, expected) => {
+    expect(serializeFilterValue({ operator: "like", value: terms })).toBe(
+      expected
+    );
   });
 
-  it("serializes between operator for int", () => {
-    const result = serializeFilterValue({
-      operator: "between",
-      value: [10, 20],
-    });
-    expect(result).toBe("10..20");
-  });
-
-  it("serializes between with only min", () => {
-    const result = serializeFilterValue({
-      operator: "between",
-      value: [10, null],
-    });
-    expect(result).toBe("10..");
-  });
-
-  it("serializes between with only max", () => {
-    const result = serializeFilterValue({
-      operator: "between",
-      value: [null, 20],
-    });
-    expect(result).toBe("..20");
-  });
-
-  it("returns null for empty between", () => {
-    const result = serializeFilterValue({
-      operator: "between",
-      value: [null, null],
-    });
-    expect(result).toBeNull();
+  it.each([
+    [[[10, 20]], "10..20"],
+    [[[10, null]], "10.."],
+    [[[null, 20]], "..20"],
+    [
+      [
+        [10, 20],
+        [30, 40],
+      ],
+      "10..20|30..40",
+    ],
+    [
+      [
+        [null, null],
+        [30, 40],
+      ],
+      "30..40",
+    ],
+    [[[null, null]], null],
+    [[], null],
+    [[["2024-01-01", "2024-12-31"]], "2024-01-01..2024-12-31"],
+  ] as const)("serializes between %j as %s", (ranges, expected) => {
+    expect(
+      serializeFilterValue({
+        operator: "between",
+        value: ranges.map((r) => [...r]) as any,
+      })
+    ).toBe(expected);
   });
 
   it("serializes equals operator with simple values using pipe", () => {
@@ -72,14 +75,6 @@ describe("serializeFilterValue", () => {
     const result = serializeFilterValue({ operator: "isNull", value: true });
     expect(result).toBe("null");
   });
-
-  it("serializes date range", () => {
-    const result = serializeFilterValue({
-      operator: "between",
-      value: ["2024-01-01", "2024-12-31"],
-    });
-    expect(result).toBe("2024-01-01..2024-12-31");
-  });
 });
 
 describe("parseFilterValue", () => {
@@ -89,29 +84,100 @@ describe("parseFilterValue", () => {
   const refColumn: IColumn = { id: "category", columnType: "REF" };
   const uuidColumn: IColumn = { id: "id", columnType: "UUID" };
 
-  it("parses simple string as like", () => {
+  it("parses simple string as a like list of one", () => {
     const result = parseFilterValue("John", stringColumn);
-    expect(result).toEqual({ operator: "like", value: "John" });
+    expect(result).toEqual({ operator: "like", value: ["John"] });
   });
 
-  it("passes through raw string value for string types", () => {
-    const result = parseFilterValue("a|b|c", stringColumn);
-    expect(result).toEqual({ operator: "like", value: "a|b|c" });
+  it.each([
+    "STRING",
+    "TEXT",
+    "EMAIL",
+    "HYPERLINK",
+    "AUTO_ID",
+    "TEXT_ARRAY",
+    "EMAIL_ARRAY",
+    "HYPERLINK_ARRAY",
+  ] as const)(
+    "splits pipe separated %s values into a like list",
+    (columnType) => {
+      const column: IColumn = { id: "c", columnType };
+      expect(parseFilterValue("dog|cat", column)).toEqual({
+        operator: "like",
+        value: ["dog", "cat"],
+      });
+    }
+  );
+
+  it.each(["STRING_ARRAY", "BOOL_ARRAY"] as const)(
+    "reads %s as an equals list, one value or many",
+    (columnType) => {
+      const column: IColumn = { id: "c", columnType };
+      expect(parseFilterValue("a", column)).toEqual({
+        operator: "equals",
+        value: ["a"],
+      });
+      expect(parseFilterValue("a|b", column)).toEqual({
+        operator: "equals",
+        value: ["a", "b"],
+      });
+    }
+  );
+
+  it.each([
+    [
+      "10..20|30..40",
+      [
+        [10, 20],
+        [30, 40],
+      ],
+    ],
+    [
+      "10..|..5",
+      [
+        [10, null],
+        [null, 5],
+      ],
+    ],
+    [
+      "10..20|25",
+      [
+        [10, 20],
+        [25, 25],
+      ],
+    ],
+  ])("parses int ranges %s", (urlValue, expected) => {
+    expect(parseFilterValue(urlValue, intColumn)).toEqual({
+      operator: "between",
+      value: expected,
+    });
+  });
+
+  it("parses several date ranges", () => {
+    expect(
+      parseFilterValue("2024-01-01..2024-02-01|2025-01-01..", dateColumn)
+    ).toEqual({
+      operator: "between",
+      value: [
+        ["2024-01-01", "2024-02-01"],
+        ["2025-01-01", null],
+      ],
+    });
   });
 
   it("parses range for int", () => {
     const result = parseFilterValue("10..20", intColumn);
-    expect(result).toEqual({ operator: "between", value: [10, 20] });
+    expect(result).toEqual({ operator: "between", value: [[10, 20]] });
   });
 
   it("parses range with only min for int", () => {
     const result = parseFilterValue("10..", intColumn);
-    expect(result).toEqual({ operator: "between", value: [10, null] });
+    expect(result).toEqual({ operator: "between", value: [[10, null]] });
   });
 
   it("parses range with only max for int", () => {
     const result = parseFilterValue("..20", intColumn);
-    expect(result).toEqual({ operator: "between", value: [null, 20] });
+    expect(result).toEqual({ operator: "between", value: [[null, 20]] });
   });
 
   it("parses single int as equals", () => {
@@ -123,7 +189,7 @@ describe("parseFilterValue", () => {
     const result = parseFilterValue("2024-01-01..2024-12-31", dateColumn);
     expect(result).toEqual({
       operator: "between",
-      value: ["2024-01-01", "2024-12-31"],
+      value: [["2024-01-01", "2024-12-31"]],
     });
   });
 
@@ -220,8 +286,8 @@ describe("serializeFiltersToUrl", () => {
 
   it("serializes filters", () => {
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "John" }],
-      ["age", { operator: "between", value: [18, 65] }],
+      ["name", { operator: "like", value: ["John"] }],
+      ["age", { operator: "between", value: [[18, 65]] }],
     ]);
     const result = serializeFiltersToUrl(filters, "", columns);
     expect(result).toEqual({ name: "John", age: "18..65" });
@@ -229,7 +295,7 @@ describe("serializeFiltersToUrl", () => {
 
   it("serializes both search and filters", () => {
     const filters = new Map<string, IFilterValue>([
-      ["name", { operator: "like", value: "John" }],
+      ["name", { operator: "like", value: ["John"] }],
     ]);
     const result = serializeFiltersToUrl(filters, "test", columns);
     expect(result).toEqual({ mg_search: "test", name: "John" });
@@ -237,7 +303,7 @@ describe("serializeFiltersToUrl", () => {
 
   it("skips unknown columns", () => {
     const filters = new Map<string, IFilterValue>([
-      ["unknown", { operator: "like", value: "test" }],
+      ["unknown", { operator: "like", value: ["test"] }],
     ]);
     const result = serializeFiltersToUrl(filters, "", columns);
     expect(result).toEqual({});
@@ -321,11 +387,11 @@ describe("parseFiltersFromUrl", () => {
     expect(result.filters.size).toBe(2);
     expect(result.filters.get("name")).toEqual({
       operator: "like",
-      value: "John",
+      value: ["John"],
     });
     expect(result.filters.get("age")).toEqual({
       operator: "between",
-      value: [18, 65],
+      value: [[18, 65]],
     });
   });
 
@@ -723,19 +789,19 @@ describe("nested REF like filter URL round-trip", () => {
 
   it("like filter on nested REF text column round-trips without losing operator", () => {
     const original = new Map<string, IFilterValue>([
-      ["collectionEvents.name", { operator: "like", value: "Smith" }],
+      ["collectionEvents.name", { operator: "like", value: ["Smith"] }],
     ]);
     const urlParams = serializeFiltersToUrl(original, "", columns);
     const { filters } = parseFiltersFromUrl(urlParams, columns);
     expect(filters.get("collectionEvents.name")).toEqual({
       operator: "like",
-      value: "Smith",
+      value: ["Smith"],
     });
   });
 
   it("like filter on nested REF text column produces correct URL key", () => {
     const original = new Map<string, IFilterValue>([
-      ["collectionEvents.name", { operator: "like", value: "Smith" }],
+      ["collectionEvents.name", { operator: "like", value: ["Smith"] }],
     ]);
     const urlParams = serializeFiltersToUrl(original, "", columns);
     expect(Object.keys(urlParams)).toContain("collectionEvents.name~like");
@@ -744,7 +810,7 @@ describe("nested REF like filter URL round-trip", () => {
 
   it("like filter on nested REF text column does not produce equals operator on parse", () => {
     const original = new Map<string, IFilterValue>([
-      ["collectionEvents.name", { operator: "like", value: "Smith" }],
+      ["collectionEvents.name", { operator: "like", value: ["Smith"] }],
     ]);
     const urlParams = serializeFiltersToUrl(original, "", columns);
     const { filters } = parseFiltersFromUrl(urlParams, columns);
@@ -760,37 +826,77 @@ describe("string filter round-trip (type → URL → parse → buildFilter)", ()
   };
   const columns = [stringColumn];
 
-  function roundTrip(input: string) {
-    const filterValue: IFilterValue = { operator: "like", value: input };
+  it.each([
+    [["aap"], "aap"],
+    [["aap", "noot"], "aap|noot"],
+    [["aap noot", "mies"], "aap noot|mies"],
+  ])("terms %j travel as %s", (terms, url) => {
+    const filterValue: IFilterValue = { operator: "like", value: terms };
     const serialized = serializeFilterValue(filterValue);
+    expect(serialized).toBe(url);
     const parsed = parseFilterValue(serialized!, stringColumn);
-    const gql = buildGraphQLFilter(new Map([["name", parsed!]]), columns);
-    return { serialized, parsed, gql };
-  }
-
-  it("single term: aap", () => {
-    const { serialized, parsed, gql } = roundTrip("aap");
-    expect(serialized).toBe("aap");
-    expect(parsed).toEqual({ operator: "like", value: "aap" });
-    expect(gql).toEqual({ name: { like: "aap" } });
-  });
-
-  it("AND terms: aap noot", () => {
-    const { serialized, parsed, gql } = roundTrip("aap noot");
-    expect(serialized).toBe("aap noot");
-    expect(parsed).toEqual({ operator: "like", value: "aap noot" });
-    expect(gql).toEqual({
-      _and: [{ name: { like: "aap" } }, { name: { like: "noot" } }],
+    expect(parsed).toEqual(filterValue);
+    expect(buildGraphQLFilter(new Map([["name", parsed!]]), columns)).toEqual({
+      name: { like: terms },
     });
   });
+});
 
-  it("AND terms: aap and noot", () => {
-    const { serialized, parsed, gql } = roundTrip("aap and noot");
-    expect(serialized).toBe("aap and noot");
-    expect(parsed).toEqual({ operator: "like", value: "aap and noot" });
-    expect(gql).toEqual({
-      _and: [{ name: { like: "aap" } }, { name: { like: "noot" } }],
-    });
+describe("multi-value filters through the whole URL", () => {
+  const columns: IColumn[] = [
+    { id: "name", columnType: "STRING" },
+    { id: "age", columnType: "INT" },
+    { id: "tags", columnType: "STRING_ARRAY" },
+    { id: "order", columnType: "REF", refTableId: "Order" },
+  ];
+
+  it.each([
+    [
+      "text",
+      new Map<string, IFilterValue>([
+        ["name", { operator: "like", value: ["dog", "cat"] }],
+      ]),
+      { name: "dog|cat" },
+    ],
+    [
+      "nested text",
+      new Map<string, IFilterValue>([
+        ["order.status", { operator: "like", value: ["a", "b"] }],
+      ]),
+      { "order.status~like": "a|b" },
+    ],
+    [
+      "ranges",
+      new Map<string, IFilterValue>([
+        [
+          "age",
+          {
+            operator: "between",
+            value: [
+              [10, 20],
+              [30, 40],
+            ],
+          },
+        ],
+      ]),
+      { age: "10..20|30..40" },
+    ],
+    [
+      "STRING_ARRAY tree selection",
+      new Map<string, IFilterValue>([
+        ["tags", { operator: "equals", value: ["a", "b"] }],
+      ]),
+      { tags: "a|b" },
+    ],
+  ])("%s serializes and parses back", (_name, filters, query) => {
+    expect(serializeFiltersToUrl(filters, "", columns)).toEqual(query);
+    expect(parseFiltersFromUrl(query, columns).filters).toEqual(filters);
+  });
+
+  it("a plus in the URL reads as a space inside a phrase", () => {
+    expect(
+      parseFiltersFromUrl({ name: "cat+dog|bird" }, columns).filters.get("name")
+    ).toEqual({ operator: "like", value: ["cat dog", "bird"] });
   });
 });
 

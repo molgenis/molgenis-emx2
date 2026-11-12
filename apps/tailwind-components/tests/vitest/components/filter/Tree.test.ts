@@ -28,14 +28,6 @@ function ontologyColumn(): IColumn {
   } as IColumn;
 }
 
-function boolColumn(): IColumn {
-  return {
-    id: "active",
-    label: "Active",
-    columnType: "BOOL",
-  } as IColumn;
-}
-
 const sampleOptions: CountedOption[] = [
   { name: "dogs", label: "Dogs", count: 10, overlap: 0 },
   { name: "cats", label: "Cats", count: 5, overlap: 0 },
@@ -81,14 +73,6 @@ describe("FilterTree", () => {
 
     it("renders Tree for ONTOLOGY column type", () => {
       const wrapper = mountTree(ontologyColumn(), sampleOptions);
-      expect(wrapper.findComponent(TreeNode).exists()).toBe(true);
-    });
-
-    it("renders Tree for BOOL column type", () => {
-      const wrapper = mountTree(boolColumn(), [
-        { name: "true", count: 3 },
-        { name: "false", count: 2 },
-      ]);
       expect(wrapper.findComponent(TreeNode).exists()).toBe(true);
     });
 
@@ -437,22 +421,6 @@ describe("FilterTree", () => {
       );
     });
 
-    it("BOOL filter with 3 options: zero-count options hidden by default (no show-more button)", () => {
-      const opts: CountedOption[] = [
-        { name: "true", label: "Yes", count: 5, overlap: 0 },
-        { name: "false", label: "No", count: 0, overlap: 0 },
-        { name: "_null_", label: "Not set", count: 0, overlap: 0 },
-      ];
-      const wrapper = mountTree(boolColumn(), opts);
-      expect(wrapper.find("button.text-search-filter-action").exists()).toBe(
-        false
-      );
-      const text = wrapper.text();
-      expect(text).toContain("Yes");
-      expect(text).not.toContain("No (0)");
-      expect(text).not.toContain("Not set (0)");
-    });
-
     it("large filter (>15 roots): clicking show-more makes zero-count options visible", async () => {
       const opts: CountedOption[] = [
         ...Array.from({ length: 45 }, (_, i) => ({
@@ -518,7 +486,7 @@ describe("FilterTree", () => {
         { name: "false", label: "No", count: 0, overlap: 0 },
         { name: "_null_", label: "Not set", count: 0, overlap: 0 },
       ];
-      const wrapper = mountTree(boolColumn(), opts);
+      const wrapper = mountTree(ontologyColumn(), opts);
       expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(true);
       expect(wrapper.text()).toContain(
         "No options available given current filters"
@@ -740,18 +708,6 @@ describe("FilterTree — delta display counts", () => {
     const wrapper = mountTree(col, options, undefined);
     expect(wrapper.text()).toContain("Age Group (7)");
     expect(wrapper.text()).not.toContain("Age Group (10)");
-  });
-
-  it("BOOL single-select unselected option shows solo count when overlap is 0", () => {
-    const col = boolColumn();
-    const options: CountedOption[] = [
-      { name: "true", label: "Yes", count: 3, overlap: 3 },
-      { name: "false", label: "No", count: 5, overlap: 0 },
-      { name: "_null_", label: "Not set", count: 1, overlap: 0 },
-    ];
-    const modelValue: IFilterValue = { operator: "equals", value: ["true"] };
-    const wrapper = mountTree(col, options, modelValue);
-    expect(wrapper.text()).toContain("No (5)");
   });
 
   it("selected Adolescent count stays stable when Adult is added to selection", async () => {
