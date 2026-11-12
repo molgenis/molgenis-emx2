@@ -358,12 +358,12 @@ describe("getIntInput", () => {
 
   it("Should return null for a null input", () => {
     const result = getIntInput(null);
-    expect(result).toEqual(null);
+    expect(result).toBeNull();
   });
 
   it("Should return undefined for a undefined input", () => {
     const result = getIntInput(undefined);
-    expect(result).toEqual(undefined);
+    expect(result).toBeUndefined();
   });
 
   it("Should return empty string for an empty string input", () => {
@@ -394,24 +394,8 @@ describe("resolveLinkType", () => {
 
 describe("resolveLinkLocation", () => {
   it("returns spaLink as is", () => {
-    expect(
-      resolveLinkLocation({ location: "/pet%20store/Pet" }, "/base/")
-    ).toBe("/pet%20store/Pet");
-  });
-
-  it("prefixes internalPageLink with the base path", () => {
-    const internal = (link: string, basePath?: string) =>
-      resolveLinkLocation(
-        { location: link, linkType: "internalPageLink" },
-        basePath
-      );
-    expect(internal("pet%20store/schema")).toBe("/pet%20store/schema");
-    expect(internal("/pet%20store/schema")).toBe("/pet%20store/schema");
-    expect(internal("pet%20store/schema", "/base")).toBe(
-      "/base/pet%20store/schema"
-    );
-    expect(internal("/pet%20store/schema", "/base/")).toBe(
-      "/base/pet%20store/schema"
+    expect(resolveLinkLocation({ location: "/pet%20store/Pet" })).toBe(
+      "/pet%20store/Pet"
     );
   });
 

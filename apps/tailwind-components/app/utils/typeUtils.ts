@@ -283,24 +283,18 @@ export function isSafeExternalUrl(url: string): boolean {
 /**
  * Resolves a link to the href to navigate to.
  * - spaLink: returned as is, it is a route inside the ui app
- * - internalPageLink: leading slashes are removed and the server base path is
- *   prefixed, so the link never resolves relative to the current page and a
- *   `//host` value cannot leave this server
+ * - internalPageLink: leading slashes are removed and the '/' prefixed,
  * - externalLink: returned as is when it uses a safe protocol
  * Returns undefined when the link must not be navigated to.
  */
-export function resolveLinkLocation(
-  link: Link,
-  basePath: string = "/"
-): string | undefined {
+export function resolveLinkLocation(link: Link): string | undefined {
   switch (resolveLinkType(link)) {
     case "externalLink":
       return isSafeExternalUrl(link.location)
         ? link.location.trim()
         : undefined;
     case "internalPageLink": {
-      const prefix = basePath.endsWith("/") ? basePath : `${basePath}/`;
-      return prefix + link.location.trim().replace(/^[/\\]+/, "");
+      return "/" + link.location.trim().replace(/^[/\\]+/, "");
     }
     default:
       return link.location;
