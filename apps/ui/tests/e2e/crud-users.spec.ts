@@ -38,7 +38,9 @@ test("user crud", async ({ page }) => {
     .getByRole("searchbox", { name: "Search users" })
     .fill(E2E_TEST_USER);
   await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
-  await page.getByRole("button", { name: "Edit user: E2E_TEST_USER" }).click();
+  await page
+    .getByRole("button", { name: `Edit user: ${E2E_TEST_USER}` })
+    .click();
   await page.getByRole("button", { name: "Add role" }).click();
   await page
     .locator("#disabledUserRadio-radio-group")
@@ -48,7 +50,9 @@ test("user crud", async ({ page }) => {
 
   // Edit user - enable user
   await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
-  await page.getByRole("button", { name: "Edit user: E2E_TEST_USER" }).click();
+  await page
+    .getByRole("button", { name: `Edit user: ${E2E_TEST_USER}` })
+    .click();
   await page
     .locator("#disabledUserRadio-radio-group")
     .getByText("Enabled")
@@ -58,10 +62,10 @@ test("user crud", async ({ page }) => {
   // Delete user
   await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
   await page
-    .getByRole("button", { name: "Delete user: E2E_TEST_USER" })
+    .getByRole("button", { name: `Delete user: ${E2E_TEST_USER}` })
     .click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Edit user: E2E_TEST_USER" })
+    page.getByRole("button", { name: `Edit user: ${E2E_TEST_USER}` })
   ).not.toBeVisible();
 });
