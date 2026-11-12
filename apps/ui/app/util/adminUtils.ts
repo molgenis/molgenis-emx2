@@ -111,7 +111,7 @@ export async function getUsers(): Promise<{
   })
     .then((response) => {
       const loadedUsers = response?.data._admin.users || [];
-      const newUsers = buildUsers(loadedUsers);
+      const newUsers = mapBackendUserToUser(loadedUsers);
       const newUserCount = response?.data._admin.userCount ?? 0;
       const newRolesByUser = loadedUsers.reduce((acc, user) => {
         acc[user.email] = user.roles || [];
@@ -126,7 +126,7 @@ export async function getUsers(): Promise<{
     });
 }
 
-function buildUsers(dataUsers: BackendUser[]): User[] {
+function mapBackendUserToUser(dataUsers: BackendUser[]): User[] {
   return dataUsers.map((user) => {
     return {
       email: user.email,
