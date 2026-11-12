@@ -30,8 +30,8 @@ withDefaults(
   }
 );
 
-const visible = defineModel("visible", {
-  required: true,
+const visible = defineModel<boolean>("visible", {
+  default: false,
 });
 
 const emit = defineEmits(["closed"]);

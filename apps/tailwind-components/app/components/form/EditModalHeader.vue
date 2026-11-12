@@ -7,7 +7,6 @@ import type {
   IInputValueLabel,
 } from "../../../../metadata-utils/src/types";
 import { useSession } from "../../composables/useSession";
-import DraftLabel from "../label/DraftLabel.vue";
 
 const GLOBAL_ROLE: string = "Global";
 
@@ -21,7 +20,6 @@ const { formValues, tableId, schemaId } = defineProps<{
 const session = await useSession(schemaId);
 
 const roles = computed<string[]>(() => session.rowLevelRoles.value);
-const isDraft = computed(() => formValues["mg_draft"] === true || false);
 const showRoles = computed(() => session.showRolesForTable(tableId));
 const selectedRole = ref<string>(getSelectedRole());
 
@@ -51,26 +49,14 @@ function getSelectedRole(): string {
 </script>
 
 <template>
-  <div class="mb-5 relative flex items-center pr-14">
-    <h2 class="uppercase text-heading-4xl font-display text-title-contrast">
-      {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
-    </h2>
-
-    <DraftLabel v-if="isDraft" />
-    <div
-      v-if="showRoles"
-      class="gap-2.5 w-1/3 ml-auto flex shrink-0 items-center text-title-contrast"
-    >
-      <label class="whitespace-nowrap font-bold" for="roleSelector">
-        Access group
-      </label>
-      <InputListbox
-        id="roleSelector"
-        :value="selectedRole"
-        :options="[GLOBAL_ROLE].concat(roles)"
-        showClearButton
-        @update:modelValue="onUpdateSelectedRole"
-      />
-    </div>
+  <div v-if="showRoles" class="h-[7rem] flex-col items-center justify-start">
+    <label class="text-title-contrast" for="roleSelector"> Access group </label>
+    <InputListbox
+      id="roleSelector"
+      :value="selectedRole"
+      :options="[GLOBAL_ROLE].concat(roles)"
+      showClearButton
+      @update:modelValue="onUpdateSelectedRole"
+    />
   </div>
 </template>
