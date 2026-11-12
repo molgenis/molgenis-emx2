@@ -24,7 +24,10 @@
       >
         <label
           :for="`legend-input-${legendId}-${key}`"
-          class="flex flex-row gap-3 justify-start items-center hover:underline hover:cursor-pointer"
+          class="flex flex-row gap-3 justify-start items-center"
+          :class="{
+            'hover:underline hover:cursor-pointer': enableHovering,
+          }"
         >
           <ChartLegendMarker :markerType="markerType" :fill="data[key]" />
           <input
@@ -58,7 +61,14 @@
         @mouseout="$emit('legend-item-mouseout', key)"
       >
         <ChartLegendMarker :markerType="markerType" :fill="data[key]" />
-        <span class="text-chart-text hover:cursor-pointer">{{ key }}</span>
+        <span
+          class="text-chart-text"
+          :class="{
+            'hover:cursor-pointer': enableHovering,
+          }"
+        >
+          {{ key }}
+        </span>
       </div>
     </li>
   </ul>
