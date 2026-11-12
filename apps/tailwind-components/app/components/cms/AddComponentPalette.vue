@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import DraggableComponent from "./DraggableComponent.vue";
 import Accordion from "../Accordion.vue";
 const emit = defineEmits(["dragging"]);
@@ -75,6 +74,21 @@ const handleDragEvent = (event: DragEvent) => {
               icon="AddLink"
               componentName="Buttons"
               componentLabel="Button"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="UploadFile"
+              componentName="File"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="UploadFile"
+              componentName="FileList"
+              componentLabel="File list"
               @dragging="handleDragEvent"
             />
           </li>

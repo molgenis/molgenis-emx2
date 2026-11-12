@@ -127,6 +127,9 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         url
                         urlLabel
                         urlIsExternal
+                        navigationCardWidth {
+                            name
+                        }
                         
                         # lists: unordered and ordered
                         orderedItems

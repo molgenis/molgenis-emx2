@@ -1,17 +1,13 @@
 <script setup lang="ts">
+import { ref, useTemplateRef } from "vue";
 import { useMouse } from "@vueuse/core";
 import { useElementBounding } from "@vueuse/core";
-import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn as useAnimationFrame } from "@vueuse/core";
 import { hideAllPoppers } from "floating-vue";
 
-import {
-  addBlock,
-  addComponent,
-  moveBlockTo,
-  moveComponentTo,
-} from "../../utils/cms";
+import { addBlock, addComponent } from "../../utils/cms/add";
+import { moveBlockTo, moveComponentTo } from "../../utils/cms/move";
 
 import type { IDraggingInfo } from "../../../types/CmsComponents";
 
