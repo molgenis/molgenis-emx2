@@ -142,6 +142,7 @@ commands:
 
   save_gradle_build_cache:
     parameters:
+      # test-data saves its own pool through this parameter, so it keeps the prune without an extra step.
       pool:
         type: string
         default: gradle-buildcache-v4
