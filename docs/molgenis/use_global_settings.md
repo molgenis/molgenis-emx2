@@ -14,6 +14,18 @@ Schema settings currently supported:
 
 ### New ui (tailwind-based) settings (Alpha non-stable feature)
 
+#### Theme
+Go to the 'Theme' tab of the admin page to set the theme of the application. Each theme is a built-in theme plus any CSS variables you changed.
+
+- **Built-in themes** (light, dark, molgenis, umcg, aumc, hdsu and uncan-connect) cannot be changed. Use 'Duplicate and customise' to start a custom theme from one of them.
+- **Custom themes** have a name of your choice and can be edited or deleted. A theme that is in use cannot be deleted.
+- **Precedence:** a theme set on a database wins over the application theme. Custom themes made here can also be selected in every database.
+- 'Let visitors choose' removes the application theme. Visitors then get the light/dark toggle, which is hidden while a theme is set.
+
+If a custom theme makes the page unreadable, add `?theme=light` to the URL to view the page with a built-in theme and change the selection.
+
+The page stores its data in the settings ```tw-theme``` (id of the active theme) and ```tw-custom-themes``` (JSON list of custom themes). Values containing `url()`, `@`, `;`, braces, `<` or backslashes are ignored.
+
 #### Landing page
 Set the landing page with the optional SYSTEM_LANDING_PAGE setting
 

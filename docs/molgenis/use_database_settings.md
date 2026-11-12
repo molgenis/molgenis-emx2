@@ -4,6 +4,11 @@ See setting menu.
 
 ### New ui (tailwind-based) settings (Alpha non-stable feature)
 
+#### Theme
+Users with at least the Manager role can set the theme of a database with the 'Theme' item in the database menu. A theme set here wins over the application theme, and 'Inherit application theme' removes it again.
+
+You can choose a built-in theme or a custom theme made by the administrator, or create custom themes for this database. See [Admin settings](use_global_settings.md) for how themes work.
+
 #### Landing page
 Set the landing page with the optional SCHEMA_LANDING_PAGE setting
 

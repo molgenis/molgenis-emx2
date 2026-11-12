@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from "#app/composables/router";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
 import Tab from "../../../tailwind-components/app/components/Tab.vue";
@@ -11,6 +11,7 @@ const route = useRoute();
 const activeTab = computed(() => {
   if (route.path.includes("users")) return "users";
   if (route.path.includes("settings")) return "settings";
+  if (route.path.includes("theme")) return "theme";
   return "users";
 });
 </script>
@@ -24,6 +25,9 @@ const activeTab = computed(() => {
       >
       <NuxtLink to="/admin/settings"
         ><Tab :active="activeTab === 'settings'">Settings</Tab></NuxtLink
+      >
+      <NuxtLink to="/admin/theme"
+        ><Tab :active="activeTab === 'theme'">Theme</Tab></NuxtLink
       >
     </div>
     <users v-if="activeTab === 'users'" />
