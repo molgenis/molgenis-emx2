@@ -52,7 +52,10 @@ const showMenu = ref<boolean>(false);
           'sr-only': headingIsHidden,
         }"
         :contenteditable="props.isEditable"
-        @input="props.isEditable && emit('updateText', $el.textContent)"
+        @input="
+          props.isEditable &&
+            emit('updateText', ($event.target as HTMLElement)?.innerHTML ?? '')
+        "
       />
     </div>
   </VMenu>

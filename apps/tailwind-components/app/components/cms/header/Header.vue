@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { IHeaders, IFile } from "../../../../types/cms";
-defineProps<IHeaders & { image?: IFile }>();
+const props = defineProps<
+  IHeaders & { image?: IFile } & { isEditable: boolean }
+>();
+const emit = defineEmits(["updateTitle", "updateSubtitle"]);
 </script>
 
 <template>
@@ -24,8 +27,29 @@ defineProps<IHeaders & { image?: IFile }>();
         'text-center': titleIsCentered,
       }"
     >
-      <h1 class="font-display text-heading-6xl">{{ title }}</h1>
-      <p class="text-body-lg">{{ subtitle }}</p>
+      <h1
+        class="font-display text-heading-6xl"
+        :contenteditable="props.isEditable"
+        @input="
+          props.isEditable &&
+            emit('updateTitle', ($event.target as HTMLElement)?.innerHTML ?? '')
+        "
+      >
+        {{ title }}
+      </h1>
+      <p
+        class="text-body-lg"
+        :contenteditable="props.isEditable"
+        @input="
+          props.isEditable &&
+            emit(
+              'updateSubtitle',
+              ($event.target as HTMLElement)?.innerHTML ?? ''
+            )
+        "
+      >
+        {{ subtitle }}
+      </p>
     </div>
     <div
       v-if="image?.url"

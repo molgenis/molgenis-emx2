@@ -132,7 +132,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     emit("dragging", {
       dragging: action === "grab",
       componentType: props.componentType,
-      componentName: props.mg_tableclass.split(".")[1],
+      componentName: schemaTableName.value,
       action: "move",
       moveOrderId: props.orderId,
       parentId: props.parent,
@@ -198,17 +198,19 @@ function asSingularName(value: string | undefined): string | undefined {
   return value;
 }
 
-const debouncedUpdateText = useDebounceFn((text: string) => {
+const debouncedUpdateText = useDebounceFn((text: string, field: string) => {
+  // regular expression used to capitalize first letter of each word and remove the spaces
   updateCMSfield(
     componentMetadata.value?.schemaId || "",
-    schemaTableName.value as "Paragraphs" | "Headings",
+    schemaTableName.value?.replace(/\s+(.)/g, (_, char) => char.toUpperCase()),
     props.component.id,
-    text
+    text,
+    field
   );
 }, 1000);
 
-function updateText(text: string) {
-  debouncedUpdateText(text);
+function updateText(text: string, field: string = "text") {
+  debouncedUpdateText(text, field);
 }
 </script>
 
@@ -221,6 +223,8 @@ function updateText(text: string) {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateTitle="updateText($event, 'title')"
+    @updateSubtitle="updateText($event, 'subtitle')"
   />
   <EditableSection
     v-else-if="mg_tableclass.endsWith('.Sections')"
@@ -291,6 +295,7 @@ function updateText(text: string) {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateOrderedItems="updateText($event, 'orderedItems')"
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
@@ -299,6 +304,7 @@ function updateText(text: string) {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateUnorderedItems="updateText($event, 'unorderedItems')"
   />
   <EditableColumnChart
     v-else-if="

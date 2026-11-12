@@ -916,9 +916,10 @@ export function pageCopyDate(): string {
 
 export async function updateCMSfield(
   schema: string,
-  typeName: "Paragraphs" | "Headings",
+  typeName: string,
   id: string,
-  text: string
+  text: string,
+  fieldName: string = "text"
 ) {
   const updateQuery = `mutation update($value:[${typeName}Input]) {
       update(${typeName}:$value) {
@@ -926,6 +927,6 @@ export async function updateCMSfield(
       }
     }`;
 
-  const updateVars = { value: [{ id, text }] };
+  const updateVars = { value: [{ id, [fieldName]: text }] };
   await cmsFetch(schema, updateQuery, updateVars);
 }
