@@ -8,9 +8,9 @@ const NuxtLinkStub = {
   template: '<a data-spa :href="to"><slot /></a>',
 };
 
-async function render(item: Omit<MenuItem, "label">, basePath = "/") {
+async function render(item: Omit<MenuItem, "label">) {
   const wrapper = await mountSuspended(NavigationMenuLink, {
-    props: { item: { label: "Link", ...item }, basePath, linkClass: "" },
+    props: { item: { label: "Link", ...item }, linkClass: "" },
     global: { stubs: { NuxtLink: NuxtLinkStub } },
   });
   const anchor = wrapper.find("a");
@@ -27,19 +27,13 @@ describe("NavigationMenuLink", () => {
     ).toEqual({ href: "/pet store/Pet", isSpa: true });
   });
 
-  it("prefixes internalPageLink with the base path", async () => {
+  it("prefixes internalPageLink with the server root", async () => {
     expect(
       await render({
         location: "pet store/schema",
         linkType: "internalPageLink",
       })
     ).toEqual({ href: "/pet store/schema", isSpa: false });
-    expect(
-      await render(
-        { location: "apps/central/", linkType: "internalPageLink" },
-        "/base/"
-      )
-    ).toEqual({ href: "/base/apps/central/", isSpa: false });
     expect(
       await render({ location: "/apps/central/", linkType: "internalPageLink" })
     ).toEqual({ href: "/apps/central/", isSpa: false });
@@ -63,8 +57,7 @@ describe("NavigationMenuLink", () => {
   ])("does not render an href for unsafe externalLink %s", async (link) => {
     const wrapper = await mountSuspended(NavigationMenuLink, {
       props: {
-        item: { label: "Link", link, linkType: "externalLink" },
-        basePath: "/",
+        item: { label: "Link", location: link, linkType: "externalLink" },
         linkClass: "",
       },
     });

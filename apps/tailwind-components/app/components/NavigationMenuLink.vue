@@ -5,12 +5,11 @@ import { resolveLinkLocation, resolveLinkType } from "../utils/typeUtils";
 
 const props = defineProps<{
   item: MenuItem;
-  basePath: string;
   linkClass: string;
 }>();
 
 const linkType = computed(() => resolveLinkType(props.item));
-const href = computed(() => resolveLinkLocation(props.item, props.basePath));
+const href = computed(() => resolveLinkLocation(props.item));
 </script>
 
 <template>

@@ -1,4 +1,4 @@
-import { defineNuxtRouteMiddleware, navigateTo, useAppConfig } from "#app";
+import { defineNuxtRouteMiddleware, navigateTo } from "#app";
 import { useSettings } from "../../../tailwind-components/app/composables/useSettings";
 import {
   parseLinkSetting,
@@ -13,10 +13,7 @@ export default defineNuxtRouteMiddleware(async () => {
 
   if (setting.value?.SYSTEM_LANDING_PAGE) {
     const link = parseLinkSetting(setting.value.SYSTEM_LANDING_PAGE as string);
-    const location = resolveLinkLocation(
-      link,
-      String(useAppConfig().basePath ?? "/")
-    );
+    const location = resolveLinkLocation(link);
     if (location) {
       return await navigateTo(location, {
         replace: true,

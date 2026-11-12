@@ -1,4 +1,4 @@
-import { defineNuxtRouteMiddleware, navigateTo, useAppConfig } from "#app";
+import { defineNuxtRouteMiddleware, navigateTo } from "#app";
 import {
   parseLinkSetting,
   resolveLinkLocation,
@@ -12,10 +12,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   if (from.path === "/" && typeof schemaLandingPage === "string") {
     const landingPageLink = parseLinkSetting(schemaLandingPage);
-    const location = resolveLinkLocation(
-      landingPageLink,
-      String(useAppConfig().basePath ?? "/")
-    );
+    const location = resolveLinkLocation(landingPageLink);
     if (location) {
       return await navigateTo(location, {
         replace: true,
