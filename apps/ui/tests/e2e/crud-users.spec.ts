@@ -49,6 +49,9 @@ test("user crud", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
 
   // Edit user - enable user
+  await page
+    .getByRole("searchbox", { name: "Search users" })
+    .fill(E2E_TEST_USER);
   await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
   await page
     .getByRole("button", { name: `Edit user: ${E2E_TEST_USER}` })
@@ -60,6 +63,9 @@ test("user crud", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
 
   // Delete user
+  await page
+    .getByRole("searchbox", { name: "Search users" })
+    .fill(E2E_TEST_USER);
   await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
   await page
     .getByRole("button", { name: `Delete user: ${E2E_TEST_USER}` })
