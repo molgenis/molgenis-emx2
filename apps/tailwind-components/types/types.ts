@@ -2,12 +2,16 @@ import type {
   columnValue,
   IColumn,
   IRefColumn,
-  IRow,
 } from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
 };
+export interface MgError {
+  message: string;
+  statusCode: number;
+  data: { errors: { message: string }[] };
+}
 
 export interface Schema {
   id: string;
@@ -67,13 +71,31 @@ export interface ITreeNodeState extends ITreeNode {
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
 
+export interface IOntologyTreeItem {
+  name: string;
+  label?: string;
+  definition?: string;
+  order?: number;
+  code?: string;
+  ontologyTermURI?: string;
+  parent?: IOntologyTreeItem;
+  children?: IOntologyTreeItem[];
+}
+
+export interface IOntologyTerm {
+  name: string;
+  label?: string;
+  definition?: string;
+  order?: number;
+  parent?: { name: string } | null;
+}
+
 export type ButtonType =
   | "primary"
   | "secondary"
   | "tertiary"
   | "text"
   | "outline"
-  | "disabled"
   | "filterWell"
   | "inline";
 
@@ -97,7 +119,7 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection;
   };
-  orderedColumnsIds: string[];
+  orderedVisibleColumnsIds?: string[];
   search?: string;
 }
 
@@ -146,9 +168,19 @@ export type schemaId = string;
 export interface ISession {
   email: string;
   admin: boolean;
-  roles: Record<schemaId, string[]>;
-  schemas?: string[];
+  roles?: Record<schemaId, string[]>;
+  tablePermissions?: Record<schemaId, ITablePermission[]>;
+  schemas?: Schema[];
   token?: string;
+}
+export interface ITablePermission {
+  name: string;
+  id: string;
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isRowLevel: boolean;
 }
 
 export interface RefPayload {
@@ -198,4 +230,17 @@ export interface Settings {
 }
 export interface SystemSettings extends Settings {
   isOidcEnabled: boolean;
+}
+
+export interface SchemaPermission {
+  name: string;
+  permissions: TablePermission[];
+}
+
+export interface TablePermission {
+  table: string;
+  isRowLevel: boolean;
+  insert: boolean;
+  update: boolean;
+  delete: boolean;
 }

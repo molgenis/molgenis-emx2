@@ -56,6 +56,6 @@ MOLGENIS is licensed as [LGPLv3](LICENSE). This means it is free to use, and can
 acknowledged and changes to its source code are given back to the community. Please cite Van der [Velde et al (2018)](https://pubmed.ncbi.nlm.nih.gov/30165396)
 or [Swertz et al (2010)](https://pubmed.ncbi.nlm.nih.gov/21210979) if you use MOLGENIS for a scientific publication.
 
-MOLGENIS is thankfull to many open source software projects as well as scientific ontology projects. Find the full list in [NOTICE.md](NOTICE.md)
+MOLGENIS is thankful to many open source software projects as well as scientific ontology projects. Find the full list in [NOTICE.md](NOTICE.md)
 
 

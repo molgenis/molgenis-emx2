@@ -1,9 +1,13 @@
 import {defineConfig} from "vite";
 import vue from "@vitejs/plugin-vue";
 import monacoEditorPlugin from "vite-plugin-monaco-editor";
+import {appsHost} from "../dev-env";
+import {rewriteOrigin} from "../dev-proxy-origin";
 
 
-const opts = {changeOrigin: true, secure: false, logLevel: "debug"};
+const HOST = appsHost("http://localhost:8080");
+
+const opts = {changeOrigin: true, secure: false, logLevel: "debug", configure: rewriteOrigin};
 
 export default defineConfig({
     plugins: [
@@ -15,12 +19,12 @@ export default defineConfig({
     base: "",
     server: {
         proxy: {
-            "/graphql": {target: "http://localhost:8080/api", ...opts},
-            "/api": {target: "http://localhost:8080/", ...opts},
-            "/theme.css": {target: "http://localhost:8080/apps/central", ...opts},
-            "/apps": {target: "http://localhost:8080", ...opts},
+            "/graphql": {target: `${HOST}/api`, ...opts},
+            "/api": {target: `${HOST}/`, ...opts},
+            "/theme.css": {target: `${HOST}/apps/central`, ...opts},
+            "/apps": {target: HOST, ...opts},
             "^/theme.css": {
-                target: "http://localhost:8080/apps/central",
+                target: `${HOST}/apps/central`,
                 ...opts,
             },
         },

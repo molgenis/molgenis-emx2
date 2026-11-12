@@ -3,11 +3,18 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { createHtmlPlugin } from "vite-plugin-html";
 import monacoEditorPlugin from "vite-plugin-monaco-editor";
+import { appsHost } from "../dev-env";
+import { rewriteOrigin } from "../dev-proxy-origin";
 
-const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org/";
+const HOST = appsHost("https://emx2.dev.molgenis.org/");
 const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "directory-demo";
 
-const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
+const opts = {
+  changeOrigin: true,
+  secure: false,
+  logLevel: "debug",
+  configure: rewriteOrigin,
+};
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({

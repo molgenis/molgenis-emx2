@@ -3,10 +3,10 @@ package org.molgenis.emx2.sql;
 import static java.lang.Boolean.TRUE;
 
 import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.Database;
+import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ChangeLogUtils {
+public final class ChangeLogUtils {
 
   private ChangeLogUtils() {
     throw new IllegalStateException("Utility class");
@@ -30,10 +30,7 @@ public class ChangeLogUtils {
                    END;
                    $%3$s_audit$ LANGUAGE plpgsql;
                 """
-        .formatted(
-            schemaName,
-            ChangeLogUtils.buildFunctionName(schemaName),
-            ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, buildFunctionName(schemaName), buildFunctionName(tableName));
   }
 
   public static String buildAuditTrigger(String schemaName, String tableName) {
@@ -42,27 +39,27 @@ public class ChangeLogUtils {
             AFTER INSERT OR UPDATE OR DELETE ON "%1$s"."%2$s"
                 FOR EACH ROW EXECUTE FUNCTION "%1$s"."process_%3$s_audit"();
             """
-        .formatted(schemaName, tableName, ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, tableName, buildFunctionName(tableName));
   }
 
   public static String buildAuditTriggerRemove(String schemaName, String tableName) {
     return """
             DROP TRIGGER IF EXISTS %3$s_audit ON "%1$s"."%2$s" CASCADE
             """
-        .formatted(schemaName, tableName, ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, tableName, buildFunctionName(tableName));
   }
 
   public static String buildProcessAuditFunctionRemove(String schemaName, String tableName) {
     return """
             DROP FUNCTION IF EXISTS "%1$s"."process_%2$s_audit"() CASCADE
             """
-        .formatted(schemaName, ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, buildFunctionName(tableName));
   }
 
-  public static boolean isChangeSchema(Database db, String schemaName) {
+  public static boolean isChangeSchema(SchemaMetadataProvider db, String schemaName) {
     return TRUE.equals(
         TypeUtils.toBool(
-            db.getSchema(schemaName).getMetadata().getSetting(Constants.IS_CHANGELOG_ENABLED)));
+            db.getSchemaMetadata(schemaName).getSetting(Constants.IS_CHANGELOG_ENABLED)));
   }
 
   private static String buildFunctionName(String tableName) {

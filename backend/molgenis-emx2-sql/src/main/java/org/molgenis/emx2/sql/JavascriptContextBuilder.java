@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import java.util.*;
 import java.util.function.Supplier;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
@@ -14,7 +15,7 @@ import org.molgenis.emx2.Row;
  * identifiers. Reference columns become nested maps; file columns are omitted. Database-level
  * bindings (e.g. current user) are merged in last.
  */
-public class JavascriptContextBuilder {
+public final class JavascriptContextBuilder {
 
   private JavascriptContextBuilder() {
     // hide constructor
@@ -24,18 +25,19 @@ public class JavascriptContextBuilder {
    * Converts {@code row} to a {@code Map<identifier, value>} ready for use in Javascript
    * interactions.
    *
+   * @param database source of the database-level bindings (e.g. current user) merged in last
    * @param columns Columns that should be included in the context, used to determine reference
-   *     structure and bindings
+   *     structure
    * @param row the row whose values are mapped
    * @return a mutable map keyed by column identifier; reference columns are nested maps or lists
    */
-  public static Map<String, Object> fromRow(List<Column> columns, Row row) {
+  public static Map<String, Object> fromRow(Database database, List<Column> columns, Row row) {
     Map<String, Object> context = new HashMap<>();
     for (Column column : columns) {
       updateContext(context, row, column);
     }
 
-    addJavaScriptBindings(context, columns);
+    addJavaScriptBindings(context, database);
 
     return context;
   }
@@ -43,10 +45,13 @@ public class JavascriptContextBuilder {
   public static void updateContext(Map<String, Object> context, Row row, Column column) {
     if (column.isReference()) {
       context.put(column.getIdentifier(), getRefFromRow(row, column));
-    } else if (column.isFile()) {
-      // skip file
-    } else {
-      context.put(column.getIdentifier(), row.get(column));
+    } else if (!column.isFile()) { // files are skipped
+      if (column.isArray()) {
+        Object value = Optional.ofNullable(row.get(column)).orElse(new Object[0]);
+        context.put(column.getIdentifier(), value);
+      } else {
+        context.put(column.getIdentifier(), row.get(column));
+      }
     }
   }
 
@@ -56,9 +61,10 @@ public class JavascriptContextBuilder {
       for (Reference ref : c.getReferences()) {
         if (!ref.isOverlapping()) {
           // must be a list
-          if (row.getValueMap().get(ref.getColumnName()) != null) {
+          Object values = row.get(ref.getColumnName(), ref.getPrimitiveType());
+          if (values != null) {
             int i = 0;
-            for (Object value : (Object[]) row.get(ref.getColumnName(), ref.getPrimitiveType())) {
+            for (Object value : (Object[]) values) {
               if (i == result.size()) {
                 result.add(new LinkedHashMap<>());
               }
@@ -86,23 +92,22 @@ public class JavascriptContextBuilder {
     if (path.size() == 1) {
       result.put(path.get(0), value);
     } else {
-      if (result.get(path.get(0)) == null) {
-        result.put(path.get(0), new LinkedHashMap<>());
-      }
-      putMap((Map) result.get(path.get(0)), path.subList(1, path.size()), value);
+      result.computeIfAbsent(path.getFirst(), k -> new LinkedHashMap<>());
+      putMap((Map) result.get(path.getFirst()), path.subList(1, path.size()), value);
     }
   }
 
-  private static void addJavaScriptBindings(Map<String, Object> context, List<Column> columns) {
-    if (columns.isEmpty()) return;
-    Column column = columns.getFirst();
-    if (column.getTable() == null) return;
-    if (column.getSchema() == null) return;
-    if (column.getSchema().getDatabase() == null) return;
-    Map<String, Supplier<Object>> bindings =
-        column.getSchema().getDatabase().getJavaScriptBindings();
-    for (String key : bindings.keySet()) {
-      context.put(key, bindings.get(key).get());
+  private static void addJavaScriptBindings(Map<String, Object> context, Database database) {
+    if (database == null) {
+      return;
+    }
+    Map<String, Supplier<Object>> bindings = database.getJavaScriptBindings();
+    if (bindings == null) {
+      return;
+    }
+
+    for (Map.Entry<String, Supplier<Object>> entry : bindings.entrySet()) {
+      context.put(entry.getKey(), entry.getValue().get());
     }
   }
 }

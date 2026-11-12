@@ -8,7 +8,6 @@ import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
 import graphql.execution.ResultPath;
 import graphql.language.SourceLocation;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.molgenis.emx2.MolgenisException;
 
@@ -24,24 +23,7 @@ public class GraphqlCustomExceptionHandler implements DataFetcherExceptionHandle
     final ErrorClassification errorType = error.getErrorType();
 
     if (exception instanceof MolgenisException) {
-      error =
-          new GraphQLError() {
-
-            @Override
-            public String getMessage() {
-              return exception.toString();
-            }
-
-            @Override
-            public List<SourceLocation> getLocations() {
-              return List.of(sourceLocation);
-            }
-
-            @Override
-            public ErrorClassification getErrorType() {
-              return errorType;
-            }
-          };
+      error = new MolgenisGraphqlError(exception, sourceLocation, errorType);
     }
 
     final DataFetcherExceptionHandlerResult result =

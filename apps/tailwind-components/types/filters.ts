@@ -70,6 +70,7 @@ export interface NestedColumnMeta {
   refTableId?: string | null;
   refSchemaId?: string | null;
   refLabel?: string | null;
+  allowedValues?: string[];
 }
 
 export interface UseFilters {

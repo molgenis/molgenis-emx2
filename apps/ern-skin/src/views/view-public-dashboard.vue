@@ -12,9 +12,10 @@ import {
   DataTable,
   PieChart2,
   ColumnChart,
-  WorldGeoJson,
   // @ts-ignore
 } from "molgenis-viz";
+
+import EuropeGeoJson from "../../../molgenis-viz/src/data/europe.geo.json";
 
 import type {
   IComponents,
@@ -157,7 +158,7 @@ loadData()
           <GeoMercator
             chartId="ernSkinOrganisationsMap"
             title="Status of data by healthcare provider"
-            :geojson="WorldGeoJson"
+            :geojson="EuropeGeoJson"
             :chartData="organisationsData"
             rowId="code"
             latitude="latitude"
@@ -197,7 +198,8 @@ loadData()
               `;
             }
             "
-            :zoomLimits="[0.3, 10]"
+            :chartScale="2"
+            :zoomLimits="[0.5, 10]"
             :enableLegendClicks="true"
             :chartHeight="440"
           />

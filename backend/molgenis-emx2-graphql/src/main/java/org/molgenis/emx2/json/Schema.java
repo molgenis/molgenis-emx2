@@ -11,6 +11,7 @@ import org.molgenis.emx2.TableMetadata;
 
 public class Schema {
 
+  private String name;
   private List<Table> tables = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
 
@@ -23,6 +24,7 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema, boolean minimal) {
+    this.name = schema.getName();
     this.settings =
         schema.getSettings().entrySet().stream()
             .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
@@ -40,12 +42,16 @@ public class Schema {
 
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
+    if (name != null) {
+      s.setName(name);
+    }
     s.setSettings(
         this.settings.stream()
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
+      tm.setImportSchema(t.getInheritSchemaName());
       tm.setInheritName(t.getInheritName());
       tm.setSettings(
           t.getSettings().stream()
@@ -55,7 +61,9 @@ public class Schema {
       if (t.getTableType() != null) {
         tm.setTableType(t.getTableType());
       }
-      if (t.getDrop()) tm.drop();
+      if (t.getDrop()) {
+        tm.drop();
+      }
       tm.setSemantics(t.getSemantics());
       tm.setLabels(
           t.getLabels().stream()
@@ -66,10 +74,8 @@ public class Schema {
               .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
-        if (c.getName().equals(Constants.MG_TOP_OF_FORM)) {
-          // skip
-        } else if (!c.isInherited()) {
-          // we remove clearly inherited columns here
+        // skip top of form, and we remove clearly inherited columns here
+        if (!Constants.MG_TOP_OF_FORM.equals(c.getName()) && !c.isInherited()) {
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
           tm.add(cm);
         }
@@ -77,6 +83,14 @@ public class Schema {
       tm.setTableType(t.getTableType());
     }
     return s;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public List<Table> getTables() {
@@ -93,5 +107,32 @@ public class Schema {
 
   public void setSettings(List<Setting> settings) {
     this.settings = settings;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Schema schema = (Schema) o;
+    return Objects.equals(name, schema.name)
+        && Objects.equals(tables, schema.tables)
+        && Objects.equals(settings, schema.settings);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, tables, settings);
+  }
+
+  @Override
+  public String toString() {
+    return "Schema{"
+        + "name='"
+        + name
+        + '\''
+        + ", tables="
+        + tables
+        + ", settings="
+        + settings
+        + '}';
   }
 }

@@ -534,13 +534,13 @@ class TestGraphqlSchemaFields {
 
     // also works on refback
     result = execute("{Pet_groupBy {count,orders{orderId}}}");
-    // 6 pets without order
-    assertEquals(7, result.at("/Pet_groupBy/2/count").intValue());
+    // 8 pets without order
+    assertEquals(8, result.at("/Pet_groupBy/2/count").intValue());
     assertNull(null, result.at("/Pet_groupBy/2/orders").textValue());
 
     // orderId=1 has one pet
     assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    assert (result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:"));
+    assert result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:");
 
     // apply nested filter
     result =
@@ -593,10 +593,14 @@ class TestGraphqlSchemaFields {
     assertEquals(1, result.at("/Pet_groupBy/6/count").intValue());
     assertEquals("cat", result.at("/Pet_groupBy/6/categoryTest/nameTest").textValue());
     assertEquals(null, result.at("/Pet_groupBy/6/tagsTest/nameTest").textValue());
-    // 1 blue mouse
+    // 1 <untagged> dragon
     assertEquals(1, result.at("/Pet_groupBy/10/count").intValue());
-    assertEquals("mouse", result.at("/Pet_groupBy/10/categoryTest/nameTest").textValue());
-    assertEquals("blue", result.at("/Pet_groupBy/10/tagsTest/nameTest").textValue());
+    assertEquals("dragon", result.at("/Pet_groupBy/10/categoryTest/nameTest").textValue());
+    assertEquals(null, result.at("/Pet_groupBy/10/tagsTest/nameTest").textValue());
+    // 1 blue mouse
+    assertEquals(1, result.at("/Pet_groupBy/11/count").intValue());
+    assertEquals("mouse", result.at("/Pet_groupBy/11/categoryTest/nameTest").textValue());
+    assertEquals("blue", result.at("/Pet_groupBy/11/tagsTest/nameTest").textValue());
     // 1 green ant
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
     assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
@@ -624,6 +628,26 @@ class TestGraphqlSchemaFields {
   @Test
   void testSchemaQueries() throws IOException {
     assertEquals(schemaName, execute("{_schema{name}}").at("/_schema/name").textValue());
+  }
+
+  @Test
+  void testSemantics() throws IOException {
+    JsonNode output = execute("{_schema {id, tables {id, semantics, columns {id, semantics}}}}");
+
+    JsonNode tableSemantics = output.at("/_schema/tables/4/semantics");
+    JsonNode columnSemantics = output.at("/_schema/tables/4/columns/3/semantics");
+
+    assertAll(
+        () -> assertEquals(1, tableSemantics.size()),
+        () -> assertEquals("foaf:Person", tableSemantics.get(0).textValue()),
+        () -> assertEquals(3, columnSemantics.size()),
+        () ->
+            assertEquals(
+                "http://example.com/petstore#hasLastName", columnSemantics.get(0).textValue()),
+        () -> assertEquals("foaf:lastName", columnSemantics.get(1).textValue()),
+        () ->
+            assertEquals(
+                "<http://example.com/petstore#hasFamilyName>", columnSemantics.get(2).textValue()));
   }
 
   @Test
@@ -718,13 +742,13 @@ class TestGraphqlSchemaFields {
   @Test
   void testAddAlterDropColumn() throws IOException {
     execute("mutation{change(columns:{table:\"Pet\",name:\"test\"}){message}}");
-    assertNotNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertNotNull(database.getSchemaMetadata(schemaName).getTableMetadata("Pet").getColumn("test"));
     execute(
         "mutation{change(columns:{table:\"Pet\", oldName:\"test\",name:\"test2\", key:3, columnType:\"INT\"}){message}}");
 
     database.clearCache(); // cannot know here, server clears caches
 
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertNull(database.getSchemaMetadata(schemaName).getTableMetadata("Pet").getColumn("test"));
     assertEquals(
         ColumnType.INT,
         database
@@ -738,7 +762,7 @@ class TestGraphqlSchemaFields {
 
     database.clearCache(); // cannot know here, server clears caches
 
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
+    assertNull(database.getSchemaMetadata(schemaName).getTableMetadata("Pet").getColumn("test2"));
 
     execute(
         "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", visible:\"blaat\"}){message}}");
@@ -1018,7 +1042,7 @@ class TestGraphqlSchemaFields {
         execute("mutation {truncate(tables: \"Order\"){message}}").at("/truncate/message").asText();
     assertTrue(message.contains("Truncated"));
     List<Row> result2 = schema.getTable("Order").retrieveRows();
-    assertTrue(result.size() > 0 && result2.size() == 0);
+    assertTrue(!result.isEmpty() && result2.isEmpty());
 
     // restore
     database.dropSchemaIfExists(schemaName);
@@ -1042,9 +1066,10 @@ class TestGraphqlSchemaFields {
               .get(0)
               .get("status")
               .asText();
-      if (pollCount++ > 5) {
+      if (pollCount > 5) {
         throw new MolgenisException("failed: polling took too long, result is: " + status);
       }
+      pollCount++;
       Thread.sleep(1000);
     }
 
@@ -1066,7 +1091,7 @@ class TestGraphqlSchemaFields {
     graphqlExecutor = new GraphqlExecutor(schema, taskService);
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
-    assertEquals(9, result.at("/_reports/count").intValue());
+    assertEquals(10, result.at("/_reports/count").intValue());
 
     // report 2 has parameters
     result =

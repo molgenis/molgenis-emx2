@@ -1,4 +1,4 @@
-import type { ComputedRef } from "vue";
+import type { ComputedRef, MaybeRef } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -50,7 +50,9 @@ export type CellValueType =
   | "NON_NEGATIVE_INT"
   | "NON_NEGATIVE_INT_ARRAY"
   | "CHECKBOX"
-  | "MULTISELECT";
+  | "MULTISELECT"
+  | "ENUM"
+  | "ENUM_ARRAY";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -72,6 +74,7 @@ export interface IColumn {
   refLinkId?: string;
   refSchemaId?: string; //should always be provided when refTableId is set even if in same schema
   refTableId?: string;
+  cascadeDelete?: boolean;
   required?: string | boolean;
   semantics?: string[];
   validation?: string;
@@ -80,6 +83,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  allowedValues?: string[];
 }
 
 export interface IRefColumn extends IColumn {
@@ -95,8 +99,9 @@ export interface ITableMetaData {
   schemaId: string;
   name: string;
   label: string;
+  rowLabelTemplate?: string;
   description?: string;
-  tableType: string;
+  tableType: TableType;
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
@@ -117,9 +122,9 @@ interface LegendItem {
   id: string;
   label: string;
   type: HeadingType;
-  errorCount: ComputedRef<number>;
-  isVisible: ComputedRef<boolean>;
-  isActive: ComputedRef<boolean> | boolean;
+  errorCount?: MaybeRef<number>;
+  isVisible?: MaybeRef<boolean>;
+  isActive?: ComputedRef<boolean> | boolean;
 }
 export interface LegendSection extends LegendItem {
   type: "SECTION";
@@ -141,6 +146,8 @@ export type columnValue =
   | columnValueObject
   | columnValueObject[]
   | fileValue;
+
+export type nonEmptyColumnValue = Exclude<columnValue, null | undefined>;
 
 export type recordValue = Record<string, columnValue>;
 
@@ -196,4 +203,39 @@ export type IInputValueLabel = {
 
 export type IRow = Record<columnId, columnValue>;
 
+// An IRow with front-end specific properties adorned to it. These properties are not part of the data model and are used for front-end purposes only.
+export type TableRow = IRow & {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+  mg_roles?: string[];
+};
+
 export type DateValue = Date | string | undefined | null;
+
+export type TaskStatus =
+  | "WAITING"
+  | "RUNNING"
+  | "COMPLETED"
+  | "SKIPPED"
+  | "WARNING"
+  | "ERROR"
+  | "UNKNOWN"
+  | "CANCELLED";
+
+export interface TaskResponse {
+  data: {
+    _tasks: {
+      id: string;
+      description: string;
+      status: TaskStatus;
+    }[];
+  };
+}
+
+export type TruncateStatus =
+  | "REQUEST_CONFIRMATION"
+  | "RUNNING"
+  | "COMPLETED"
+  | "FAILED";
+
+export type TableType = "ONTOLOGIES" | "DATA";

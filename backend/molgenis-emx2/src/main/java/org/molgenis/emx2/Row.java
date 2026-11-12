@@ -22,7 +22,9 @@ public class Row {
   }
 
   public Row(Object... nameValuePairs) {
-    if (nameValuePairs == null) return;
+    if (nameValuePairs == null) {
+      return;
+    }
     if (nameValuePairs.length % 2 == 1) {
       throw new MolgenisException(
           "Row nameValue constructor should even number of parameters representing name-value pairs: Received "
@@ -46,13 +48,29 @@ public class Row {
     return new Row(nameValuePairs);
   }
 
-  public Row() {}
+  public Row() {
+    // no-op
+  }
 
   public Row(Map<String, ?> values) {
     this();
     for (Map.Entry<String, ?> entry : values.entrySet()) {
       this.set(entry.getKey(), entry.getValue());
     }
+  }
+
+  /**
+   * Returns a copy of this row with the values of 'other' written over it, except for the excluded
+   * column names. Columns 'other' doesn't mention keep the value they have in this row.
+   */
+  public Row overrideWith(Row other, Set<String> exclude) {
+    Row result = new Row(this);
+    for (Map.Entry<String, Object> value : other.getValueMap().entrySet()) {
+      if (!exclude.contains(value.getKey())) {
+        result.set(value.getKey(), value.getValue());
+      }
+    }
+    return result;
   }
 
   public void clear(Column column) {
@@ -354,7 +372,9 @@ public class Row {
   }
 
   public <T> T get(String name, Class<T> type) {
-    if (type == null) return null;
+    if (type == null) {
+      return null;
+    }
     return switch (type.getSimpleName()) {
       case "String" -> (T) getString(name);
       case "String[]" -> (T) getStringArray(name);
@@ -384,6 +404,7 @@ public class Row {
     };
   }
 
+  @Override
   public String toString() {
     return "ROW("
         + values.entrySet().stream()
@@ -396,8 +417,8 @@ public class Row {
     return values.containsKey(columnName);
   }
 
-  public boolean notNull(String columnName) {
-    return values.get(columnName) != null && !values.get(columnName).toString().trim().equals("");
+  public boolean notEmpty(String columnName) {
+    return values.get(columnName) != null && !"".equals(values.get(columnName).toString().trim());
   }
 
   public boolean isNull(String columnName, ColumnType type) {

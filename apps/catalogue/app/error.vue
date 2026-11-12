@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRuntimeConfig, useHead, useRouter } from "#app";
+import { useRuntimeConfig, useHead, useRouter } from "nuxt/app";
 import { useTheme } from "./composables/useTheme";
 import Logo from "../../tailwind-components/app/components/Logo.vue";
 import BackgroundGradient from "../../tailwind-components/app/components/BackgroundGradient.vue";

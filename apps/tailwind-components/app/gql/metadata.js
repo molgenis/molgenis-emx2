@@ -7,7 +7,9 @@ export default gql`
       tables {
         id
         schemaId
+        name
         label
+        rowLabelTemplate
         tableType
         description
         semantics
@@ -21,6 +23,7 @@ export default gql`
           key
           refTableId
           refSchemaId
+          cascadeDelete
           refLinkId
           refLabel
           refLabelDefault
@@ -34,6 +37,7 @@ export default gql`
           computed
           visible
           validation
+          allowedValues
         }
       }
     }

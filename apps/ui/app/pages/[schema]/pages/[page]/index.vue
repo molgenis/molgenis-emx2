@@ -5,7 +5,7 @@ import { useHead } from "#app";
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import DeveloperPage from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
-import ConfigurablePage from "../../../../../../tailwind-components/app/components/pages/ConfigurablePage.vue";
+import ConfigurablePage from "../../../../../../tailwind-components/app/components/cms/ConfigurablePage.vue";
 import { getPage } from "../../../../../../tailwind-components/app/utils/cms";
 
 import type { Crumb } from "../../../../../../tailwind-components/types/types";
@@ -46,5 +46,6 @@ const crumbs: Crumb[] = [
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"
     :is-editable="false"
+    :schema="schema || ''"
   />
 </template>

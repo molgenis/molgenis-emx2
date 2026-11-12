@@ -1,10 +1,15 @@
 package org.molgenis.emx2.json;
 
+import static java.util.Arrays.stream;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
@@ -35,7 +40,7 @@ public class Column {
   private String refLabelDefault;
   private Integer position = null;
 
-  // private Boolean cascadeDelete = false;
+  private Boolean cascadeDelete = false;
   private String validation = null;
   private String visible = null;
   private String computed = null;
@@ -43,10 +48,13 @@ public class Column {
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
   private String[] profiles = null;
+  private String[] allowedValues = null;
 
   private boolean inherited = false;
 
-  public Column() {}
+  Column() {
+    // needed for jackson parsing
+  }
 
   public Column(org.molgenis.emx2.Column column, TableMetadata table) {
     this(column, table, false);
@@ -63,7 +71,7 @@ public class Column {
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
-            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
+            .filter(entry -> entry.getValue() != null && !entry.getValue().trim().isEmpty())
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.formLabel = column.getFormLabel();
@@ -74,7 +82,7 @@ public class Column {
       this.columnType = column.getColumnType();
     }
     if (column.isReference()) {
-      if (column.getSchema().getDatabase() != null) {
+      if (column.getSchema().getSchemaMetadataProvider() != null) {
         this.refSchemaId = column.getRefSchemaName();
         this.refSchemaName = column.getRefSchemaName();
         this.refTableId = column.getRefTable().getIdentifier();
@@ -82,41 +90,47 @@ public class Column {
       }
       this.refTableName = column.getRefTableName();
       if (column.getRefLinkColumn() != null) {
-        if (column.getTable().getSchema().getDatabase() != null) {
+        if (column.getTable().getSchema().getSchemaMetadataProvider() != null) {
           this.refLinkId = column.getRefLinkColumn().getIdentifier();
         }
         this.refLinkName = column.getRefLink();
       }
       if (column.getRefBack() != null) {
-        if (column.getTable().getSchema().getDatabase() != null) {
+        if (column.getTable().getSchema().getSchemaMetadataProvider() != null) {
           org.molgenis.emx2.Column refBackColumn = column.getRefBackColumn();
-          if (refBackColumn == null)
+          if (refBackColumn == null) {
             throw new MolgenisException(
                 "Cannot find refback for " + column.getTableName() + "." + column.getName());
+          }
           this.refBackId = refBackColumn.getIdentifier();
         }
         this.refBackName = column.getRefBack();
       }
     }
     this.refLabel = column.getRefLabel();
-    // this.cascadeDelete = column.isCascadeDelete();
+    this.cascadeDelete = column.isCascadeDelete();
     this.validation = column.getValidation();
     this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
-            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
+            .filter(entry -> entry.getValue() != null && !entry.getValue().trim().isEmpty())
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
-    this.semantics = column.getSemantics();
+    this.semantics =
+        column.getSemantics() == null
+            ? null
+            : stream(column.getSemantics()).map(Semantic::toString).toArray(String[]::new);
+    this.allowedValues = column.getAllowedValues();
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();
 
     // calculated field
-    if (table.getInheritName() != null)
-      this.inherited = table.getInheritedTable().getColumnNames().contains(column.getName());
+    if (table.getInheritName() != null) {
+      this.inherited = table.requireInheritedTable().getColumnNames().contains(column.getName());
+    }
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
@@ -127,7 +141,9 @@ public class Column {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setType(columnType);
-    if (drop) c.drop();
+    if (drop) {
+      c.drop();
+    }
     c.setRequired(required);
     c.setDefaultValue(defaultValue);
     c.setRefSchemaName(refSchemaName);
@@ -136,7 +152,7 @@ public class Column {
     c.setRefLabel(refLabel);
     c.setKey(key);
     c.setPosition(position);
-    // c.setCascadeDelete(cascadeDelete);
+    c.setCascadeDelete(cascadeDelete);
     c.setRefBack(refBackName);
     c.setValidation(validation);
     c.setDescriptions(
@@ -144,6 +160,7 @@ public class Column {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
+    c.setAllowedValues(allowedValues);
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
@@ -179,7 +196,7 @@ public class Column {
   }
 
   public boolean isRequired() {
-    return required != null && required.equals("true");
+    return required != null && "true".equals(required);
   }
 
   public void setRequired(Boolean required) {
@@ -202,13 +219,13 @@ public class Column {
     this.refTableId = refTableId;
   }
 
-  //  public Boolean getCascadeDelete() {
-  //    return cascadeDelete;
-  //  }
-  //
-  //  public void setCascadeDelete(Boolean cascadeDelete) {
-  //    this.cascadeDelete = cascadeDelete;
-  //  }
+  public Boolean getCascadeDelete() {
+    return cascadeDelete;
+  }
+
+  public void setCascadeDelete(Boolean cascadeDelete) {
+    this.cascadeDelete = cascadeDelete;
+  }
 
   public ColumnType getColumnType() {
     return columnType;
@@ -248,6 +265,14 @@ public class Column {
 
   public void setSemantics(String[] semantics) {
     this.semantics = semantics;
+  }
+
+  public String[] getAllowedValues() {
+    return allowedValues;
+  }
+
+  public void setAllowedValues(String[] allowedValues) {
+    this.allowedValues = allowedValues;
   }
 
   public String getRefLinkId() {
@@ -440,5 +465,190 @@ public class Column {
 
   public void setFormLabel(String formLabel) {
     this.formLabel = formLabel;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Column column = (Column) o;
+    return drop == column.drop
+        && inherited == column.inherited
+        && Objects.equals(table, column.table)
+        && Objects.equals(id, column.id)
+        && Objects.equals(name, column.name)
+        && Objects.equals(label, column.label)
+        && Objects.equals(section, column.section)
+        && Objects.equals(heading, column.heading)
+        && Objects.equals(description, column.description)
+        && Objects.equals(labels, column.labels)
+        && Objects.equals(formLabel, column.formLabel)
+        && Objects.equals(oldName, column.oldName)
+        && Objects.equals(key, column.key)
+        && Objects.equals(required, column.required)
+        && Objects.equals(readonly, column.readonly)
+        && Objects.equals(defaultValue, column.defaultValue)
+        && Objects.equals(refSchemaId, column.refSchemaId)
+        && Objects.equals(refSchemaName, column.refSchemaName)
+        && Objects.equals(refTableId, column.refTableId)
+        && Objects.equals(refTableName, column.refTableName)
+        && Objects.equals(refLinkId, column.refLinkId)
+        && Objects.equals(refLinkName, column.refLinkName)
+        && Objects.equals(refBackId, column.refBackId)
+        && Objects.equals(refBackName, column.refBackName)
+        && Objects.equals(refLabel, column.refLabel)
+        && Objects.equals(refLabelDefault, column.refLabelDefault)
+        && Objects.equals(position, column.position)
+        && Objects.equals(cascadeDelete, column.cascadeDelete)
+        && Objects.equals(validation, column.validation)
+        && Objects.equals(visible, column.visible)
+        && Objects.equals(computed, column.computed)
+        && Objects.equals(descriptions, column.descriptions)
+        && columnType == column.columnType
+        && Objects.deepEquals(semantics, column.semantics)
+        && Objects.deepEquals(profiles, column.profiles)
+        && Objects.deepEquals(allowedValues, column.allowedValues);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        table,
+        id,
+        name,
+        label,
+        section,
+        heading,
+        description,
+        labels,
+        formLabel,
+        drop,
+        oldName,
+        key,
+        required,
+        readonly,
+        defaultValue,
+        refSchemaId,
+        refSchemaName,
+        refTableId,
+        refTableName,
+        refLinkId,
+        refLinkName,
+        refBackId,
+        refBackName,
+        refLabel,
+        refLabelDefault,
+        position,
+        cascadeDelete,
+        validation,
+        visible,
+        computed,
+        descriptions,
+        columnType,
+        Arrays.hashCode(semantics),
+        Arrays.hashCode(profiles),
+        Arrays.hashCode(allowedValues),
+        inherited);
+  }
+
+  @Override
+  public String toString() {
+    return "Column{"
+        + "table='"
+        + table
+        + '\''
+        + ", id='"
+        + id
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", label='"
+        + label
+        + '\''
+        + ", section='"
+        + section
+        + '\''
+        + ", heading='"
+        + heading
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", labels="
+        + labels
+        + ", formLabel='"
+        + formLabel
+        + '\''
+        + ", drop="
+        + drop
+        + ", oldName='"
+        + oldName
+        + '\''
+        + ", key="
+        + key
+        + ", required='"
+        + required
+        + '\''
+        + ", readonly="
+        + readonly
+        + ", defaultValue='"
+        + defaultValue
+        + '\''
+        + ", refSchemaId='"
+        + refSchemaId
+        + '\''
+        + ", refSchemaName='"
+        + refSchemaName
+        + '\''
+        + ", refTableId='"
+        + refTableId
+        + '\''
+        + ", refTableName='"
+        + refTableName
+        + '\''
+        + ", refLinkId='"
+        + refLinkId
+        + '\''
+        + ", refLinkName='"
+        + refLinkName
+        + '\''
+        + ", refBackId='"
+        + refBackId
+        + '\''
+        + ", refBackName='"
+        + refBackName
+        + '\''
+        + ", refLabel='"
+        + refLabel
+        + '\''
+        + ", refLabelDefault='"
+        + refLabelDefault
+        + '\''
+        + ", position="
+        + position
+        + ", cascadeDelete="
+        + cascadeDelete
+        + ", validation='"
+        + validation
+        + '\''
+        + ", visible='"
+        + visible
+        + '\''
+        + ", computed='"
+        + computed
+        + '\''
+        + ", descriptions="
+        + descriptions
+        + ", columnType="
+        + columnType
+        + ", semantics="
+        + Arrays.toString(semantics)
+        + ", profiles="
+        + Arrays.toString(profiles)
+        + ", allowedValues="
+        + Arrays.toString(allowedValues)
+        + ", inherited="
+        + inherited
+        + '}';
   }
 }

@@ -1,0 +1,138 @@
+package org.molgenis.emx2.fairmapper.cli.commands;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
+import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
+import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.CsvwPreProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
+import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
+import picocli.CommandLine;
+
+class HarvestTest {
+
+  private static final String RDF_ENDPOINT = "https://example.org/fdp";
+
+  private Schema schema;
+
+  @BeforeEach
+  void setUp() {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    schema = database.dropCreateSchema(getClass().getSimpleName());
+    schema.create(
+        TableMetadata.table("TableA", Column.column("id").setType(ColumnType.STRING).setPkey()),
+        TableMetadata.table("TableB", Column.column("id").setType(ColumnType.STRING).setPkey()));
+  }
+
+  @Test
+  void shouldPassRdfSchemaAndTablesIntoConfig() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA,TableB");
+
+    assertEquals(URI.create(RDF_ENDPOINT), config.rdf());
+    assertEquals(schema.getName(), config.schemaName());
+    assertEquals(List.of("TableA", "TableB"), config.tables());
+  }
+
+  @Test
+  void shouldConfigureFdpExtractorAndSparqlTransformer() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+
+    assertInstanceOf(CrawlingRdfExtractor.class, config.extractor());
+    assertInstanceOf(SparqlSelectRdfTransformer.class, config.transformer());
+  }
+
+  @Test
+  void shouldConfigureDcatPreAndPostProcessors() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+
+    assertEquals(1, config.postProcessors().size());
+    assertInstanceOf(DCATPostProcessor.class, config.postProcessors().get(0));
+
+    assertEquals(3, config.preProcessors().size());
+    assertInstanceOf(TemporalRdfPreProcessor.class, config.preProcessors().get(0));
+    assertInstanceOf(TypicalAgeRdfPreProcessor.class, config.preProcessors().get(1));
+    assertInstanceOf(CsvwPreProcessor.class, config.preProcessors().get(2));
+  }
+
+  @Test
+  void shouldEnableDumpingWithGivenOutputPathWhenOutputOptionProvided() {
+    HarvestingPipelineConfig config =
+        runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-o", "/tmp/harvest-output");
+
+    assertTrue(config.dumpEnabled());
+    assertEquals("/tmp/harvest-output", config.outputPath());
+  }
+
+  @Test
+  void shouldNotEnableDumpingWhenOutputOptionOmitted() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+
+    assertFalse(config.dumpEnabled());
+    assertNull(config.outputPath());
+  }
+
+  @Test
+  void shouldNotEnableDataLoadingWhenLoadOptionOmitted() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+
+    assertFalse(config.loadEnabled());
+  }
+
+  @Test
+  void shouldEnableDataLoadingWhenLoadOptionProvided() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-u");
+
+    assertTrue(config.loadEnabled());
+  }
+
+  @Test
+  void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--upload");
+
+    assertTrue(config.loadEnabled());
+  }
+
+  private HarvestingPipelineConfig runAndCaptureConfig(
+      String rdf, String tables, String... extraArgs) {
+    Harvest harvest = spy(new Harvest());
+    doReturn((SchemaMetadataProvider) schemaName -> schema.getMetadata())
+        .when(harvest)
+        .getSchemaMetadataProvider();
+    doNothing().when(harvest).runPipeline(any());
+
+    String[] args =
+        Stream.concat(
+                Stream.of(
+                    "-r",
+                    rdf,
+                    "-s",
+                    schema.getName(),
+                    "-t",
+                    tables,
+                    "--endpoint",
+                    "http://localhost:8080",
+                    "--token",
+                    "token123"),
+                Arrays.stream(extraArgs))
+            .toArray(String[]::new);
+    new CommandLine(harvest).execute(args);
+
+    ArgumentCaptor<HarvestingPipelineConfig.Builder> captor =
+        ArgumentCaptor.forClass(HarvestingPipelineConfig.Builder.class);
+    verify(harvest).runPipeline(captor.capture());
+    return captor.getValue().build();
+  }
+}

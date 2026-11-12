@@ -9,12 +9,12 @@ the triggers ( what events to run when ) should be created using the analytics a
 
 ### Install the module 
 
-use package manager to install the module '@molgenis/emx2-analytics'
+use package manager to install the module 'emx2-analytics'
 
-```pnpm add @molgenis/emx2-analytics``` (or use the * option for pnpm workspaces)
+```pnpm add emx2-analytics``` (or use the * option for pnpm workspaces)
 
 ### Setup the triggers in the app 
-```import { setupAnalytics } from "@molgenis/emx2-analytics"; ```
+```import { setupAnalytics } from "emx2-analytics"; ```
 
 ...
 

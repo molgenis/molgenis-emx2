@@ -9,7 +9,7 @@
       :data-invalid="invalid"
       :year-range="[432, 2060]"
       type="Date"
-      v-model:="internalValue"
+      v-model="internalValue"
       @update:modelValue="handleUpdate"
       model-type="format"
       month-name-format="long"
@@ -23,7 +23,7 @@
         escClose: true,
       }"
       @blur="handleBlur"
-      :teleport="true"
+      :teleport="modalTeleportTarget ?? true"
     />
   </client-only>
 </template>
@@ -33,7 +33,8 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../../types/types";
 import type { DateValue } from "../../../../metadata-utils/src/types";
-import { watch, ref, onBeforeMount } from "vue";
+import { watch, ref, onBeforeMount, inject } from "vue";
+import { MODAL_TELEPORT_TARGET } from "../../utils/modalManager";
 
 const props = defineProps<
   IInputProps & {
@@ -46,6 +47,9 @@ const datePlaceholder = ref<string>(inputDateFormat);
 //vue-date-picker emitted to many events so we need a filter
 const internalValue = ref<DateValue>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+// inside a modal, teleport into it so the modal's focus trap allows clicks
+const modalTeleportTarget = inject(MODAL_TELEPORT_TARGET, null);
 
 function setPlaceholder(value?: DateValue) {
   if (value) {

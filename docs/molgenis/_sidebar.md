@@ -18,6 +18,7 @@
     - [Pyclient API](use_usingpyclient.md)
     - [Admin](use_global_settings.md)
     - [Analytics](use_analytics.md)
+    - [FAIR Mapper](use_fairmapper.md)
 - **Installation guide**
     - [Run as systemd service](run_systemd.md)
     - [Run as java service](run_java.md)
@@ -41,3 +42,4 @@
     - [Building frontend apps](dev_apps.md)
     - [App profiles](dev_profiles.md)
     - [Migrations](dev_migrations.md)
+    - [Local Matomo](dev_matomo.md)

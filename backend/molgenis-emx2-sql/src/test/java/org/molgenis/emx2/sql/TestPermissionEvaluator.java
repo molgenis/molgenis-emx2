@@ -44,7 +44,9 @@ class TestPermissionEvaluator {
             USER_MANAGER,
             USER_CUSTOM,
             USER_NO_ROLE)) {
-      if (!database.hasUser(user)) database.addUser(user);
+      if (!database.hasUser(user)) {
+        database.addUser(user);
+      }
     }
 
     Schema schema = database.dropCreateSchema(SCHEMA);
@@ -161,10 +163,11 @@ class TestPermissionEvaluator {
     }
 
     @Test
-    void customRoleGetsExistsOnNonGrantedTable() {
+    void customRoleGetsNoneOnNonGrantedTable() {
+      // a custom role only holds 'Member', which carries no aggregate permission
       Schema s = schemaFor(USER_CUSTOM);
       TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
-      assertEquals(AggregateLevel.EXISTS, PermissionEvaluator.getAggregateLevel(s, tableB));
+      assertEquals(AggregateLevel.NONE, PermissionEvaluator.getAggregateLevel(s, tableB));
     }
 
     @Test
@@ -172,6 +175,37 @@ class TestPermissionEvaluator {
       Schema s = schemaFor(USER_EXISTS);
       TableMetadata ontology = s.getMetadata().getTableMetadata(ONTOLOGY_TABLE);
       assertEquals(AggregateLevel.COUNT, PermissionEvaluator.getAggregateLevel(s, ontology));
+    }
+  }
+
+  @Nested
+  class CanCount {
+
+    @Test
+    void countAndViewerCanCount() {
+      for (String user : List.of(USER_COUNT, USER_VIEWER)) {
+        Schema s = schemaFor(user);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        assertTrue(PermissionEvaluator.canCount(s, tableA), user);
+      }
+    }
+
+    @Test
+    void lowerAggregateRolesCannotCount() {
+      for (String user : List.of(USER_EXISTS, USER_RANGE, USER_AGGREGATOR)) {
+        Schema s = schemaFor(user);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        assertFalse(PermissionEvaluator.canCount(s, tableA), user);
+      }
+    }
+
+    @Test
+    void customRoleCanCountGrantedTableOnly() {
+      Schema s = schemaFor(USER_CUSTOM);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+      assertTrue(PermissionEvaluator.canCount(s, tableA));
+      assertFalse(PermissionEvaluator.canCount(s, tableB));
     }
   }
 

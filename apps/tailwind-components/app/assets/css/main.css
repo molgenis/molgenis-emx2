@@ -6,10 +6,25 @@
 @import url("./theme/umcg.css");
 @import url("./theme/aumc.css");
 @import url("./theme/hdsu.css");
+@import url("./theme/uncan-connect.css");
 @import url("./plugins/popper.css");
 @import url("./plugins/datepicker.css");
 
 @layer components {
+  /* Switches text and icon colours to the theme's inverted set.
+     Label shares the heading colour: no theme defines a muted inverted
+     text colour yet, so this is a known gap awaiting design, not an oversight. */
+  .surface-inverted {
+    --text-color-link: var(--text-color-link-inverted);
+    --text-color-icon-neutral: var(--text-color-link-inverted);
+    --text-color-record-heading: var(--text-color-title);
+    --text-color-record-label: var(--text-color-title);
+    --text-color-record-value: var(--text-color-title);
+    --text-color-table-column-header: var(--text-color-title);
+    --text-color-table-row: var(--text-color-title);
+    --text-color-pagination: var(--text-color-pagination-inverted);
+  }
+
   :root {
     --color-current: currentColor;
     --color-black: #333;
@@ -82,6 +97,12 @@
       #ffffff 133.81%
     );
 
+    --background-color-bulk-gradient: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #ffffff 100%
+    );
+
     --opacity-background-gradient: 0;
 
     --background-color-link-hover: var(--color-blue-50);
@@ -133,6 +154,7 @@
     --background-color-code-output: var(--color-gray-100);
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
     --background-color-dropdown: var(--color-white);
+    --background-color-banner: var(--color-green-500);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
@@ -142,7 +164,10 @@
     --text-color-button-tertiary-hover: var(--color-blue-800);
     --text-color-button-outline: var(--color-blue-500);
     --text-color-button-outline-hover: var(--color-blue-700);
-    --text-color-button-disabled: var(--color-gray-600);
+    --text-color-button-inline: var(--text-color-button-outline);
+    --text-color-button-disabled: var(--color-gray-400);
+    --text-color-button-text-disabled: var(--text-color-button-disabled);
+    --text-color-button-inline-disabled: var(--text-color-button-disabled);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-800);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
@@ -156,6 +181,7 @@
     --text-color-button-cart-count: var(--color-black);
 
     --text-color-menu: var(--text-color-title);
+    --text-color-menu-dynamic: var(--color-blue-500);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
     --text-color-breadcrumb-arrow: var(--color-gray-400);
@@ -198,6 +224,10 @@
     --text-color-pagination-button-hover: var(--color-blue-800);
     --text-color-link: var(--color-blue-500);
     --text-color-link-hover: var(--color-blue-800);
+    /* Keep this independent of --text-color-link. `.surface-inverted` sets
+       --text-color-link from this token, so the reverse definition would form a
+       cycle and leave both invalid. */
+    --text-color-link-inverted: var(--color-blue-500);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-table-row: var(--color-blue-800);
@@ -241,6 +271,8 @@
     --border-color-footer: var(--border-color-theme);
     --border-color-filter-divider: var(--color-gray-200);
 
+    --accent-color: var(---color-blue-500);
+
     --border-width-theme: 1px;
     --border-width-form-required: 1px;
 
@@ -261,6 +293,7 @@
     --height-input: 3.5rem;
     --height-input-tiny: 2rem;
     --height-input-small: 2.5rem;
+    --height-input-medium: 3.125rem;
     --height-input-large: 4.5rem;
 
     /** input switch styles */

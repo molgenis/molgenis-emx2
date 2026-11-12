@@ -11,6 +11,7 @@ const props = defineProps<{
 }>();
 
 const config = useRuntimeConfig();
+const siteTitle = config.public.siteTitle;
 
 const menu = [
   { label: "Home", link: `/` },
@@ -60,7 +61,7 @@ const menu = [
   <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
-        <Logo :link="`/`" :image="logoSrc" />
+        <Logo :link="`/`" :image="logoSrc" :alt="siteTitle" />
         <MainNavigation :navigation="menu" />
         <!--  <div class="w-[450px]">
            <SearchBar />
@@ -75,7 +76,7 @@ const menu = [
           <HamburgerMenu :navigation="menu" />
 
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile link="/" :image="logoSrc" />
+            <LogoMobile link="/" :image="logoSrc" :alt="siteTitle" />
           </div>
 
           <div class="flex gap-3">

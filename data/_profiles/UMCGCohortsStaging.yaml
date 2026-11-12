@@ -6,7 +6,7 @@ profileTags: UMCGCohortsStaging
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
-#settings: _settings/datacatalogue
+settings: _settings/datacatalogue_cohortstaging
 
 # special options
 ontologiesToFixedSchema: CatalogueOntologies

@@ -7,6 +7,7 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
+import type { ITablePermission } from "../components/account/Interfaces";
 import { deepClone, getKeyValue } from "../components/utils";
 import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
@@ -17,7 +18,13 @@ import { toFormData } from "../../../metadata-utils/src/toFormData";
 // application wide cache for schema meta data
 const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
 
-export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
+export {
+  request,
+  fetchSchemaMetaData,
+  convertRowToPrimaryKey,
+  fetchTablePermissions,
+  resolveTablePermission,
+};
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
     return {
@@ -37,6 +44,39 @@ const client: IClient = {
         return deepClone(schema).tables.find(
           (table: ITableMetaData) => table.id === tableId
         );
+      },
+      fetchCascadeDeleteMsg: async (tableId: string) => {
+        const schema = await fetchSchemaMetaData(schemaId);
+        function findReferingTables(
+          tableId: string,
+          found: Record<string, ITableMetaData>
+        ) {
+          const referringTables = schema.tables
+            .filter((table) => table.id !== tableId && !found[table.id])
+            .filter((table: ITableMetaData) => {
+              return table.columns.find(
+                (column: IColumn) =>
+                  column.refTableId === tableId &&
+                  (column.columnType === "REF" ||
+                    column.columnType === "SELECT" ||
+                    column.columnType === "RADIO") &&
+                  column.cascadeDelete
+              );
+            });
+          referringTables.forEach((table) => {
+            found[table.id] = table;
+            findReferingTables(table.id, found);
+          });
+        }
+        const found: Record<string, ITableMetaData> = {};
+        // recursively find tables that reference this table, passing the found tables so we don't get into an infinite loop
+        findReferingTables(tableId, found);
+        const cascadeTables = Object.values(found);
+
+        return cascadeTables.length
+          ? "Removing this row will also remove any rows in the following tables that reference this row: " +
+              cascadeTables.map((table) => table.name).join(", ")
+          : "";
       },
       fetchTableData: async (
         tableId: string,
@@ -201,6 +241,7 @@ const metadataQuery = `{
         key,
         refTableId,
         refSchemaId,
+        cascadeDelete,
         refLinkId,
         refLabel,
         refLabelDefault,
@@ -350,6 +391,40 @@ const fetchOntologyOptions = async (
 const fetchSettings = async (schemaId?: string) => {
   return (await request(graphqlURL(schemaId), "{_settings{key, value}}"))
     ._settings;
+};
+
+// session scoped cache of table permissions per schema, so a form referencing
+// another schema can resolve insert/update/delete rights without refetching
+const tablePermissionsCache = new Map<string, Promise<ITablePermission[]>>();
+
+const fetchTablePermissions = (
+  schemaId: string
+): Promise<ITablePermission[]> => {
+  if (!tablePermissionsCache.has(schemaId)) {
+    tablePermissionsCache.set(
+      schemaId,
+      request(
+        graphqlURL(schemaId),
+        "{_session{tablePermissions{id,name,canView,canInsert,canUpdate,canDelete,isRowLevel}}}"
+      ).then((response) => response?._session?.tablePermissions ?? [])
+    );
+  }
+  return tablePermissionsCache.get(schemaId)!;
+};
+
+// resolve the permission of a referenced table: same-schema references are
+// already in the seed (the current session), a reference to another schema is
+// fetched (and cached) from that schema
+const resolveTablePermission = async (
+  schemaId: string,
+  tableId: string,
+  seed: ITablePermission[] = []
+): Promise<ITablePermission | undefined> => {
+  const match = (p: ITablePermission) => p.id === tableId || p.name === tableId;
+  return (
+    seed.find(match) ??
+    (schemaId ? (await fetchTablePermissions(schemaId)).find(match) : undefined)
+  );
 };
 
 const request = async (url: string, graphql: string, variables?: any) => {

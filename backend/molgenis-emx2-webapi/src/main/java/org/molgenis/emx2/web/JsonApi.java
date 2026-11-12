@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.settings.ReportUtils.getReportById;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.getReportParameters;
 
@@ -8,9 +9,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.*;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 
-public class JsonApi {
+public final class JsonApi {
 
   private JsonApi() {
     // hide constructor
@@ -23,6 +25,10 @@ public class JsonApi {
 
   public static void getJsonReport(Context ctx) throws JsonProcessingException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
     String reports = ctx.queryParam("id");
     Map<String, ?> parameters = getReportParameters(ctx);
     Map<String, Object> jsonResponse = new LinkedHashMap<>();

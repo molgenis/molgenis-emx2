@@ -9,6 +9,7 @@ import Container from "../../../tailwind-components/app/components/Container.vue
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
+import { sanitizeRedirectPath } from "../../../tailwind-components/app/utils/redirect";
 
 const route = useRoute();
 
@@ -87,7 +88,7 @@ async function signin() {
       } else {
         route.query.redirectTo
           ? navigateTo({
-              path: route.query.redirectTo as string,
+              path: sanitizeRedirectPath(route.query.redirectTo),
               replace: true,
             })
           : navigateTo({ path: "/", replace: true });

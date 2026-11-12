@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
 
-public class TaskApi {
+public final class TaskApi {
 
   public static final TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA, hostUrl);
   private static final ApplicationCachePerUser APPLICATION_CACHE =
@@ -31,9 +31,13 @@ public class TaskApi {
   public static final TaskServiceScheduler taskSchedulerService =
       new TaskServiceScheduler(taskService);
 
+  private TaskApi() {
+    // no instances
+  }
+
   public static void create(Javalin app) {
     app.get("/api/tasks", TaskApi::listTasks);
-    app.get("/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/api/tasks/clear", TaskApi::clearTasks);
     app.get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
     app.get("/api/scripts/{name}", TaskApi::getScript); // run synchronously, with parameters on url
     app.post(
@@ -50,7 +54,7 @@ public class TaskApi {
 
     // also works in context schema
     app.get("/{schema}/api/tasks", TaskApi::listTasks);
-    app.get("/{schema}/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/{schema}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/api/tasks/{id}", TaskApi::getTask);
     app.get(
         "/{schema}/api/scripts/{name}",
@@ -67,7 +71,7 @@ public class TaskApi {
 
     // also in app
     app.get("/{schema}/{app}/api/tasks", TaskApi::listTasks);
-    app.get("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/{app}/api/tasks/{id}", TaskApi::getTask);
     app.post("/{schema}/{app}/api/tasks/{id}/cancel", TaskApi::cancelTask); // cancel a running task
   }

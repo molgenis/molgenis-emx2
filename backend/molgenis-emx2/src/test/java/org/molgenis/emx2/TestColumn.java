@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 
 public class TestColumn {
 
+  private static final String MISSING_REF_TABLE = "DoesNotExist";
+  private static final String SCHEMA_WITH_MISSING_REF_TABLE = "TestColumnMissingRefTable";
+
   private static SchemaMetadata createResourcesContactsSchema() {
     SchemaMetadata schema = new SchemaMetadata("TestColumn");
     schema.create(table("Resources", column("id").setType(STRING).setKey(1)));
@@ -18,6 +21,43 @@ public class TestColumn {
             column("resource").setType(REF).setRefTable("Resources").setKey(1),
             column("name").setType(STRING).setKey(1)));
     return schema;
+  }
+
+  private static SchemaMetadata createSchemaWithMissingRefTable() {
+    SchemaMetadata schema = new SchemaMetadata(SCHEMA_WITH_MISSING_REF_TABLE);
+    schema.create(
+        table(
+            "Contacts",
+            column("resource").setType(REF).setRefTable(MISSING_REF_TABLE).setKey(1),
+            column("name").setType(STRING).setKey(1)));
+    return schema;
+  }
+
+  @Test
+  void getRefTableThrowsWhenRefTableMissing() {
+    SchemaMetadata schema = createSchemaWithMissingRefTable();
+    Column resourceColumn = schema.getTableMetadata("Contacts").getColumn("resource");
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, resourceColumn::getRefTable);
+    assertAll(
+        () ->
+            assertTrue(exception.getMessage().contains(MISSING_REF_TABLE), exception.getMessage()),
+        () ->
+            assertTrue(
+                exception.getMessage().contains(SCHEMA_WITH_MISSING_REF_TABLE),
+                exception.getMessage()),
+        () ->
+            assertTrue(
+                exception.getMessage().contains("Contacts.resource"), exception.getMessage()));
+  }
+
+  @Test
+  void getReferenceRefbackReturnsNullWhenRefTableMissing() {
+    SchemaMetadata schema = createSchemaWithMissingRefTable();
+    Column resourceColumn = schema.getTableMetadata("Contacts").getColumn("resource");
+
+    assertNull(assertDoesNotThrow(resourceColumn::getReferenceRefback));
   }
 
   @Test

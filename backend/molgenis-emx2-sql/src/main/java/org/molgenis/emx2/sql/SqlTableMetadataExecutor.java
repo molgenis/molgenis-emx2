@@ -16,10 +16,9 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
-class SqlTableMetadataExecutor {
+final class SqlTableMetadataExecutor {
 
   public static final String MG_TABLECLASS_UPDATE = "_MG_TABLECLASS_UPDATE";
 
@@ -33,6 +32,9 @@ class SqlTableMetadataExecutor {
     MetadataUtils.saveTableMetadata(jooq, table);
 
     // grant rights to schema manager, editor and viewer role
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.MEMBER.toString()));
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.EXISTS.toString()));
@@ -58,23 +60,14 @@ class SqlTableMetadataExecutor {
 
     // create columns from primary key of superclass
     if (table.getInheritName() != null) {
-      if (table.getInheritedTable() == null) {
-        throw new MolgenisException(
-            "Cannot inherit "
-                + table.getImportSchema()
-                + "."
-                + table.getInheritName()
-                + ": not found");
-      }
-      executeSetInherit(jooq, table, table.getInheritedTable());
+      executeSetInherit(jooq, table, table.requireInheritedTable());
     }
 
     // then create columns
     for (Column column : table.getNonInheritedColumns()) {
       if (!column.isHeading()) {
         validateColumn(column);
-        if (table.getInheritName() == null
-            || table.getInheritedTable().getColumn(column.getName()) == null) {
+        if (!column.isInherited()) {
           executeCreateColumn(jooq, column);
         }
       } else {
@@ -87,10 +80,8 @@ class SqlTableMetadataExecutor {
 
     // then create (composite) foreign keys
     for (Column column : table.getStoredColumns()) {
-      if ((table.getInheritName() == null
-              || table.getInheritedTable().getColumn(column.getName()) == null)
-          && column.isReference()) {
-        SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
+      if (!column.isInherited() && column.isReference()) {
+        executeCreateRefConstraints(jooq, column);
       }
     }
 
@@ -102,7 +93,8 @@ class SqlTableMetadataExecutor {
       executeAddMetaColumns(table);
     }
 
-    if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
+    if (ChangeLogUtils.isChangeSchema(
+        table.getSchema().getSchemaMetadataProvider(), table.getSchemaName())) {
       // setup trigger processing function
       jooq.execute(
           ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
@@ -116,8 +108,15 @@ class SqlTableMetadataExecutor {
     // drop search trigger
     dropSearchTrigger(jooq, table);
 
-    // rename search column
-    jooq.alterTable(table.getJooqTable()).renameTo(newName + "search_vector_trigger");
+    // rename search column and its index
+    jooq.alterTable(table.getJooqTable())
+        .renameColumn(name(searchColumnName(table.getTableName())))
+        .to(name(searchColumnName(newName)))
+        .execute();
+    jooq.execute(
+        "ALTER INDEX {0} RENAME TO {1}",
+        name(table.getSchemaName(), searchIndexName(table.getTableName())),
+        name(searchIndexName(newName)));
 
     // rename table
     jooq.alterTable(table.getJooqTable()).renameTo(name(table.getSchemaName(), newName)).execute();
@@ -149,7 +148,7 @@ class SqlTableMetadataExecutor {
     }
 
     // remove meta, we use super class meta
-    executeRemoveMetaColumns(jooq, table);
+    executeRemoveMetaColumns(table);
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInheritName(other.getTableName());
@@ -238,12 +237,12 @@ class SqlTableMetadataExecutor {
     for (String string : strings) {
       names.add(name(string));
     }
-    return names.toArray(new Name[names.size()]);
+    return names.toArray(new Name[0]);
   }
 
   // helper methods
-  static org.jooq.Table getJooqTable(TableMetadata table) {
-    return DSL.table(name(table.getSchema().getName(), table.getTableName()));
+  static Table getJooqTable(TableMetadata table) {
+    return table(name(table.getSchema().getName(), table.getTableName()));
   }
 
   static void createOrReplaceKey(
@@ -264,13 +263,11 @@ class SqlTableMetadataExecutor {
     //    } else {
     if (index == 1) {
       jooq.alterTable(getJooqTable(table))
-          .add(
-              constraint(name(uniqueName))
-                  .primaryKey(keyFields.toArray(new Field[keyFields.size()])))
+          .add(constraint(name(uniqueName)).primaryKey(keyFields.toArray(new Field[0])))
           .execute();
     } else {
       jooq.alterTable(getJooqTable(table))
-          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
+          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[0])))
           .execute();
     }
   }
@@ -278,7 +275,7 @@ class SqlTableMetadataExecutor {
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
       // disableChangeLog
-      disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
+      disableChangeLog((SqlDatabase) table.getSchema().getSchemaMetadataProvider(), table);
 
       // drop search trigger
       jooq.execute(
@@ -332,10 +329,9 @@ class SqlTableMetadataExecutor {
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getStoredColumns()) {
-      if (!c.isSystemColumn()) {
-        if (c.isFile()) {
-          // do nothing for now
-        } else if (c.isReference()) {
+      // files are skipped for now
+      if (!c.isSystemColumn() && !c.isFile()) {
+        if (c.isReference()) {
           for (Reference r : c.getReferences()) {
             mgSearchVector.append(
                 String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getColumnName()));
@@ -366,6 +362,10 @@ class SqlTableMetadataExecutor {
 
   static String searchColumnName(String tableName) {
     return tableName + TEXT_SEARCH_COLUMN_NAME;
+  }
+
+  private static String searchIndexName(String tableName) {
+    return tableName + "_search_idx";
   }
 
   private static String getSearchTriggerName(String tableName) {
@@ -399,20 +399,30 @@ class SqlTableMetadataExecutor {
     table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(-1));
   }
 
-  private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {
+  private static void executeRemoveMetaColumns(TableMetadata table) {
     // don't delete superclass columns so check local colum
-    if (table.getLocalColumn(MG_DRAFT) != null) table.dropColumn(MG_DRAFT);
-    if (table.getLocalColumn(MG_INSERTEDBY) != null) table.dropColumn(MG_INSERTEDBY);
-    if (table.getLocalColumn(MG_INSERTEDON) != null) table.dropColumn(MG_INSERTEDON);
-    if (table.getLocalColumn(MG_UPDATEDBY) != null) table.dropColumn(MG_UPDATEDBY);
-    if (table.getLocalColumn(MG_UPDATEDON) != null) table.dropColumn(MG_UPDATEDON);
+    if (table.getLocalColumn(MG_DRAFT) != null) {
+      table.dropColumn(MG_DRAFT);
+    }
+    if (table.getLocalColumn(MG_INSERTEDBY) != null) {
+      table.dropColumn(MG_INSERTEDBY);
+    }
+    if (table.getLocalColumn(MG_INSERTEDON) != null) {
+      table.dropColumn(MG_INSERTEDON);
+    }
+    if (table.getLocalColumn(MG_UPDATEDBY) != null) {
+      table.dropColumn(MG_UPDATEDBY);
+    }
+    if (table.getLocalColumn(MG_UPDATEDON) != null) {
+      table.dropColumn(MG_UPDATEDON);
+    }
   }
 
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {
 
     Table jooqTable = getJooqTable(table);
     Name searchColumnName = name(searchColumnName(table.getTableName()));
-    Name searchIndexName = name(table.getTableName() + "_search_idx");
+    Name searchIndexName = name(searchIndexName(table.getTableName()));
 
     // also add text search  column
     // 1. create column

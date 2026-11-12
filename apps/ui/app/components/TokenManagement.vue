@@ -22,16 +22,16 @@
 <script setup lang="ts">
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import Table from "../../../tailwind-components/app/components/Table.vue";
-import TableHead from "../../../tailwind-components/app/components/TableHead.vue";
-import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
+import TableHead from "../../../tailwind-components/app/components/TableHead.vue";
 import TableHeadRow from "../../../tailwind-components/app/components/TableHeadRow.vue";
-import type { IUser } from "../util/adminUtils";
+import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
+import type { User } from "../interfaces/interfaces.ts";
 
 const emit = defineEmits(["userUpdated"]);
 
 const props = defineProps<{
-  user: IUser;
+  user: User;
 }>();
 
 const visible = defineModel("visible", { required: true });

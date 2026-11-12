@@ -18,6 +18,25 @@ Releases of the Molgenis EMX2 Pyclient follow the release number of the accompan
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ
 from the latest version of Molgenis EMX2.
 
+### 13.204.1
+
+- Improved preparing CSV data for reading as DataFrame
+
+
+### 13.196.1
+
+- Fixed `pandas` package dependency
+- Improved formatting of source files
+
+### 13.187.2
+
+- Fixed input check for `delete_records`
+- Added utility functions `validate_graphql_response` and `response_to_dataframe`
+
+### 13.165.2
+
+- Fixed compatibility issue with pandas v2
+
 ### 13.162.0
 
 - Added option `parse_arrays` to `get`, which parses array-type data to Python lists
@@ -264,7 +283,8 @@ Before building the source, the package `build` needs to be installed.
 ## Test
 
 Tests for the Pyclient have been created with the Pytest framework.
-In order to test the functionality of the Pyclient copy the '.env-example' file to '.env' and modify the parameters for the server you want to test on.
+In order to test the functionality of the Pyclient copy the '.env-example' file to '.env'
+and modify the parameters for the server you want to test on.
 
 Then execute the following to run all the tests
 

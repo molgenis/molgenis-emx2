@@ -8,6 +8,6 @@ public class DashboardTest extends TestLoaders {
 
   @Test
   public void dashboardTestLoader() {
-    assertEquals(7, dashboard.getTableNames().size());
+    assertEquals(6, dashboard.getTableNames().size());
   }
 }

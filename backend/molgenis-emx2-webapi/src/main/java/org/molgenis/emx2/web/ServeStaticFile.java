@@ -4,6 +4,7 @@ import static org.molgenis.emx2.ColumnType.STRING;
 
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URLConnection;
@@ -17,7 +18,7 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-public class ServeStaticFile {
+public final class ServeStaticFile {
 
   private record AppsPath(boolean isFile, boolean isUi, String mimeType, String path) {
 
@@ -32,7 +33,7 @@ public class ServeStaticFile {
         }
       }
 
-      boolean isFile = parts.getLast().contains(("."));
+      boolean isFile = parts.getLast().contains(".");
       boolean isUi = !isFile && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
 
       // check if the path starts with apps, if not, remove the first bit <schema>
@@ -113,14 +114,21 @@ public class ServeStaticFile {
     return false;
   }
 
-  // Serve internal file
+  // Serve internal file (classpath resource under the internal apps root)
   public static void serve(Context ctx, String path) {
+    Path internalRoot = Path.of(INTERNAL_APP_FOLDER).normalize();
+    Path resolved = Path.of(path).normalize();
+    if (!resolved.startsWith(internalRoot)) {
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
+      return;
+    }
+    String resourcePath = convertWindowsPathToJarPath(resolved.toString());
 
-    try (InputStream in = ServeStaticFile.class.getResourceAsStream(path)) {
-      String mimeType = URLConnection.guessContentTypeFromName(path);
+    try (InputStream in = ServeStaticFile.class.getResourceAsStream(resourcePath)) {
+      String mimeType = URLConnection.guessContentTypeFromName(resourcePath);
 
       if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(path));
+        mimeType = Files.probeContentType(resolved);
       }
       send(ctx, in, mimeType);
     } catch (Exception e) {
@@ -144,18 +152,22 @@ public class ServeStaticFile {
         internalAppsDirectory.resolve(fallbackFileBase).normalize().toString();
 
     if (!requestedInternalFilePath.startsWith(internalAppsDirectory.toString())) {
-      ctx.status(403).result("Forbidden");
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
       return;
     }
 
     if (appsPath.isFile) {
       boolean internalRequestFound =
           tryServeJarApp(ctx, requestedInternalFilePath, appsPath.mimeType);
-      if (internalRequestFound) return;
+      if (internalRequestFound) {
+        return;
+      }
     }
 
     boolean internalFallbackFound = tryServeJarApp(ctx, internalFallbackFile, "text/html");
-    if (internalFallbackFound) return;
+    if (internalFallbackFound) {
+      return;
+    }
 
     // External can not use apps
     path = path.replace("apps/", "");
@@ -175,18 +187,22 @@ public class ServeStaticFile {
 
     if (!requestedExternalFilePath.startsWith(externalAppsDirectory)) {
       // Suspected path traversal: reject the request
-      ctx.status(403).result("Forbidden");
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
       return;
     }
 
     if (appsPath.isFile) {
       boolean externalRequestFound =
           tryServeExternalApp(ctx, requestedExternalFilePath.toString(), appsPath.mimeType);
-      if (externalRequestFound) return;
+      if (externalRequestFound) {
+        return;
+      }
     }
 
     boolean externalFallbackFound = tryServeExternalApp(ctx, externalFallbackFile, "text/html");
-    if (externalFallbackFound) return;
+    if (externalFallbackFound) {
+      return;
+    }
 
     // Tried out best to serve something, sadly nothing was found!
     ctx.status(404).result(NOT_FOUND + ctx.path());

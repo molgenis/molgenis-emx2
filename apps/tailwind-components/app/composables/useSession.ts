@@ -1,15 +1,72 @@
-import { useState } from "#app";
-import { useAsyncData } from "#app/composables/asyncData";
-import { useRouter } from "#app/composables/router";
-import { computed, type Ref } from "vue";
-import type { ISession } from "../../types/types";
+import { useAsyncData, useRouter, useState } from "nuxt/app";
+import { computed, ref, type Ref } from "vue";
+import type {
+  ISession,
+  ITablePermission,
+  SchemaPermission,
+  TablePermission,
+} from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
 export const useSession = async (schemaId?: string) => {
   const router = useRouter();
-  const session = useState("session", () => null as ISession | null);
-
+  const session = useState<ISession | null>("session", () => null);
+  const schemaPermissions = useState<SchemaPermission[]>(
+    "schemaPermissions",
+    () => []
+  );
   let messageHandler: ((event: MessageEvent) => void) | null = null;
+
+  const isAdmin = computed(() => session.value?.admin || false);
+  const isOwner = computed(() => hasRole("Owner"));
+  const isManager = computed(() => hasRole("Manager"));
+
+  if (
+    !session.value ||
+    (schemaId && session.value.roles?.[schemaId] === undefined)
+  ) {
+    await loadSession().then(loadSchemaPermissions);
+  }
+
+  const tablePermissionsForSession = computed<ITablePermission[]>(() =>
+    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
+  );
+
+  const rowLevelRoles = computed<string[]>(() =>
+    getRolesForSchema(schemaPermissions.value)
+  );
+
+  function hasRole(role: string): boolean {
+    if (schemaId) {
+      return session.value?.roles?.[schemaId]?.includes(role) || false;
+    } else {
+      return false;
+    }
+  }
+
+  async function loadSchemaPermissions(): Promise<void> {
+    if (schemaId && (isAdmin.value || isOwner.value || isManager.value)) {
+      const response = await $fetch(`/${schemaId}/graphql`, {
+        method: "POST",
+        body: JSON.stringify({
+          query: `query {
+                    _schema {
+                      roles {
+                        name
+                        permissions {
+                          table
+                          isRowLevel
+                        }
+                      }
+                    }
+                  }`,
+        }),
+      });
+      const schemaRoles: SchemaPermission[] =
+        response?.data?._schema?.roles || [];
+      schemaPermissions.value = schemaRoles;
+    }
+  }
 
   async function fetchSessionDetails() {
     return $fetch("/api/graphql", {
@@ -20,42 +77,44 @@ export const useSession = async (schemaId?: string) => {
     });
   }
 
-  async function fetchSchemaRoles(schemaId: string) {
+  async function fetchPermissions(schemaId: string) {
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: JSON.stringify({
-        query: `{_session { roles }}`,
+        query: `{_session { roles, tablePermissions{ name, id, canView, canInsert, canUpdate, canDelete, isRowLevel } } }`,
       }),
     });
   }
 
   async function loadSession() {
-    const schemaRolesPromise = schemaId
-      ? useAsyncData("schemaRoles_" + schemaId, () =>
-          fetchSchemaRoles(schemaId)
+    const permissionsPromise = schemaId
+      ? useAsyncData("permissions_" + schemaId, () =>
+          fetchPermissions(schemaId)
         )
       : Promise.resolve(null);
 
     const sessionPromise = useAsyncData("session", () => fetchSessionDetails());
 
     // parallel requests
-    const [schemaRolesResult, sessionResult] = await Promise.all([
-      schemaRolesPromise,
+    const [permissionsResult, sessionResult] = await Promise.all([
+      permissionsPromise,
       sessionPromise,
     ]);
 
-    if (sessionResult.error.value || schemaRolesResult?.error.value) {
+    if (sessionResult.error.value || permissionsResult?.error.value) {
       console.error("Error fetching session", sessionResult.error.value);
     }
 
     session.value = sessionResult.data.value?.data._session;
 
-    if (session.value && schemaId) {
-      if (!session.value.roles) {
-        session.value.roles = {};
-      }
+    if (session.value && schemaId && permissionsResult) {
+      session.value.roles = {};
+      session.value.tablePermissions = {};
+
       session.value.roles[schemaId] =
-        schemaRolesResult?.data.value?.data?._session?.roles;
+        permissionsResult?.data.value?.data?._session?.roles;
+      session.value.tablePermissions[schemaId] =
+        permissionsResult?.data.value?.data?._session?.tablePermissions;
     }
   }
 
@@ -63,8 +122,8 @@ export const useSession = async (schemaId?: string) => {
     session.value = null;
 
     // parallel requests
-    const [schemaRolesResult, sessionResult] = await Promise.all([
-      schemaId ? fetchSchemaRoles(schemaId) : Promise.resolve(null),
+    const [permissionsResult, sessionResult] = await Promise.all([
+      schemaId ? fetchPermissions(schemaId) : Promise.resolve(null),
       fetchSessionDetails(),
     ]);
 
@@ -74,11 +133,13 @@ export const useSession = async (schemaId?: string) => {
 
     session.value = sessionResult.data._session;
 
-    if (session.value && schemaId && schemaRolesResult) {
-      if (!session.value.roles) {
-        session.value.roles = {};
-      }
-      session.value.roles[schemaId] = schemaRolesResult.data?._session?.roles;
+    if (session.value && schemaId && permissionsResult) {
+      session.value.roles = {};
+      session.value.tablePermissions = {};
+
+      session.value.roles[schemaId] = permissionsResult.data?._session?.roles;
+      session.value.tablePermissions[schemaId] =
+        permissionsResult.data?._session?.tablePermissions;
     }
   }
 
@@ -148,21 +209,54 @@ export const useSession = async (schemaId?: string) => {
     reload();
   }
 
-  const isAdmin = computed(() => session.value?.admin || false);
+  function getTablePermissionForSession(
+    tableId: string
+  ): ITablePermission | undefined {
+    return tablePermissionsForSession.value.find(
+      (permission) => permission.id === tableId || permission.name === tableId
+    );
+  }
 
-  if (
-    !session.value ||
-    (schemaId && session.value.roles?.[schemaId] === undefined)
-  ) {
-    await loadSession();
+  function isTableRowLevel(tableId: string): boolean {
+    return schemaPermissions.value.some((schemaPermission) =>
+      schemaPermission.permissions.some(
+        (permission) =>
+          (permission.table === tableId || permission.table === "*") &&
+          permission.isRowLevel
+      )
+    );
+  }
+
+  function showRolesForTable(tableId: string): boolean {
+    return (
+      (isAdmin.value || isOwner.value || isManager.value) &&
+      isTableRowLevel(tableId)
+    );
   }
 
   return {
     isAdmin,
+    rowLevelRoles,
     session,
+    tablePermissionsForSession,
+
+    getTablePermissionForSession,
     reload,
     hasSessionTimeout,
     reAuthenticate,
     signOut,
+    showRolesForTable,
   };
 };
+
+function getRolesForSchema(roles: SchemaPermission[]): string[] {
+  return (
+    roles
+      .filter((role: SchemaPermission) =>
+        role.permissions.some(
+          (permission: TablePermission) => permission.isRowLevel
+        )
+      )
+      .map((role: SchemaPermission) => role.name) || []
+  );
+}

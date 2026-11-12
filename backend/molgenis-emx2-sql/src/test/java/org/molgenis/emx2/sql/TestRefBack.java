@@ -235,14 +235,12 @@ public class TestRefBack {
     query = users.agg(s("count")).where(f("posts", f("title", EQUALS, "jacks post")));
     assertTrue(query.retrieveJSON().contains("\"count\": 1"));
 
-    // delete of user should fail as long as there are posts refering to this user, unless cascading
-    // delete
-    try {
-      // users.delete(new Row().set("username", "jack"));
-      // should not fail? fail("delete of user with reference from post should fail");
-    } catch (Exception e) {
-      // ok
-    }
+    // delete of user should fail as long as there are posts referring to this user, unless
+    // cascading
+    assertThrows(
+        Exception.class,
+        () -> users.delete(new Row().set("username", "jack")),
+        "delete of user with reference from post should fail");
 
     // delete of a post should also remove it from users.posts
     posts.delete(new Row().set("title", "joes post"));
@@ -304,7 +302,6 @@ public class TestRefBack {
                         .setType(REFBACK)
                         .setRefTable("treatments_incorrect_ref")
                         .setRefBack("id")));
-    ;
   }
 
   @Test

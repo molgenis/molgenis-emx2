@@ -4,4 +4,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-datamodels')
+
+    implementation libs.caffeine
+    implementation libs.prometheus.metrics.core
 }

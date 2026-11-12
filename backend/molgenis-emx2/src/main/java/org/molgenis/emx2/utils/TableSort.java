@@ -8,15 +8,15 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
-public class TableSort {
+public final class TableSort {
 
   private TableSort() {
     // hide constructor
   }
 
   public static void sortTableByDependency(List<TableMetadata> tableList) {
-    ArrayList<TableMetadata> result = new ArrayList<>();
-    ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
+    List<TableMetadata> result = new ArrayList<>();
+    List<TableMetadata> todo = new ArrayList<>(tableList);
 
     // ensure deterministic order
     todo.sort(
@@ -35,25 +35,26 @@ public class TableSort {
         TableMetadata current = todo.get(i);
         boolean depends = false;
 
-        for (int j = 0; j < todo.size(); j++) {
+        for (TableMetadata other : todo) {
           if (current.getInheritName() != null
               && current.getImportSchema() == null
-              && todo.get(j).equals(current.getInheritedTable())) {
+              && other.equals(current.getInheritedTable())) {
             depends = true;
             break;
           }
         }
-        if (!depends)
+        if (!depends) {
           for (Column c : current.getPrimaryKeyColumns()) {
             if (c.getRefTableName() != null && !c.isRefback()) {
               for (int j = 0; j < todo.size(); j++) {
-                if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
+                if (i != j && todo.get(j).getTableName().equals(c.getRefTableName())) {
                   depends = true;
                   break;
                 }
               }
             }
           }
+        }
         if (!depends) {
           result.add(todo.get(i));
           todo.remove(i);

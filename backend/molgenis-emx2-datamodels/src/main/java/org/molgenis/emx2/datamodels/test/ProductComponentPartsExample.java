@@ -10,7 +10,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Table;
 
-public class ProductComponentPartsExample {
+public final class ProductComponentPartsExample {
   public static final String PART = "Part";
   public static final String COMPONENT = "Component";
   public static final String PRODUCT = "Product";

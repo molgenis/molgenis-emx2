@@ -11,44 +11,49 @@ import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
-import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
-import org.molgenis.emx2.rdf.generators.query.RdfPredicateResolver;
-import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
 
-  private final Variable subject;
   private final Column column;
-  protected final Variable object;
   private final boolean isRequired;
-  protected final Variable selector;
-  private final NamespaceMapper nameSpaceMapper;
+  private final boolean inverse;
 
-  public LiteralColumnSparqlQueryGenerator(Variable subject, Column column) {
-    this(
-        subject,
-        column,
-        SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(column)),
-        column.isRequired());
+  protected final Variable subject;
+  protected final Variable object;
+  protected final Variable selector;
+
+  public static LiteralColumnSparqlQueryGenerator of(Variable subject, Column column) {
+    return new LiteralColumnSparqlQueryGenerator(
+        subject, column, ColumnNameSparqlEncoder.encodeSparqlVariable(column), column.isRequired());
   }
 
-  public LiteralColumnSparqlQueryGenerator(
+  public static LiteralColumnSparqlQueryGenerator forRequiredObject(
+      Variable subject, Column column, Variable object) {
+    return new LiteralColumnSparqlQueryGenerator(subject, column, object, true);
+  }
+
+  private LiteralColumnSparqlQueryGenerator(
       Variable subject, Column column, Variable object, boolean isRequired) {
-    this(subject, column, object, object, isRequired);
+    this(subject, column, object, object, isRequired, false);
   }
 
   protected LiteralColumnSparqlQueryGenerator(
-      Variable subject, Column column, Variable object, Variable selector, boolean isRequired) {
+      Variable subject,
+      Column column,
+      Variable object,
+      Variable selector,
+      boolean isRequired,
+      boolean inverse) {
     this.subject = subject;
     this.column = column;
     this.object = object;
     this.selector = selector;
     this.isRequired = isRequired;
-    this.nameSpaceMapper = new NamespaceMapper(column.getTable().getSchema());
+    this.inverse = inverse;
   }
 
   @Override
@@ -61,29 +66,38 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     return (selector == null) ? Collections.emptyList() : List.of(selector);
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Override
   public List<GraphPattern> getPatterns() {
-    if (column.getSemantics().length == 0) {
+    if (!column.hasSemantics()) {
       return Collections.emptyList();
-    } else if (column.getSemantics().length > 1) {
-      return multiSemanticPattern();
     }
 
-    String semantic = column.getSemantics()[0];
-    GraphPattern pattern = GraphPatterns.tp(subject, resolveSemantic(semantic), object);
+    if (column.getSemantics().length > 1) {
+      return multiSemanticPattern();
+    } else {
+      RdfPredicate predicate =
+          column
+              .getSemanticsStringStream()
+              .findFirst()
+              .orElseThrow()
+              .transform(this::generatePredicate);
+      GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
-    return List.of(isRequired ? pattern : pattern.optional());
+      return List.of(isRequired ? pattern : pattern.optional());
+    }
   }
 
   private List<GraphPattern> multiSemanticPattern() {
     List<GraphPattern> semanticPatterns = new ArrayList<>();
     List<Operand> aliases = new ArrayList<>();
 
-    for (int i = 0; i < column.getSemantics().length; i++) {
-      String semantic = column.getSemantics()[i];
-      Variable alias = SparqlBuilder.var(object.getVarName() + i);
+    RdfPredicate[] semantics =
+        column.getSemanticsStringStream().map(this::generatePredicate).toArray(RdfPredicate[]::new);
 
-      GraphPattern pattern = GraphPatterns.tp(subject, resolveSemantic(semantic), alias).optional();
+    for (int i = 0; i < semantics.length; i++) {
+      Variable alias = SparqlBuilder.var(object.getVarName() + i);
+      GraphPattern pattern = GraphPatterns.tp(subject, semantics[i], alias).optional();
       semanticPatterns.add(pattern);
       aliases.add(alias);
     }
@@ -91,19 +105,16 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     Expression<?> coalesce = Expressions.coalesce(aliases.toArray(new Operand[0]));
     semanticPatterns.add(Expressions.bind(coalesce, object));
 
-    GraphPatternNotTriples mainPattern =
-        GraphPatterns.and(semanticPatterns.toArray(new GraphPattern[0])).optional();
-
     if (isRequired) {
       Expression<?> bound = Expressions.bound(object);
-      return List.of(mainPattern, filter(bound.getQueryString()));
+      semanticPatterns.add(filter(bound.getQueryString()));
     }
 
-    return List.of(mainPattern);
+    return semanticPatterns;
   }
 
-  private RdfPredicate resolveSemantic(String semantic) {
-    return RdfPredicateResolver.resolve(semantic, nameSpaceMapper);
+  private RdfPredicate generatePredicate(String semanticString) {
+    return () -> inverse ? "^" + semanticString : semanticString;
   }
 
   /**

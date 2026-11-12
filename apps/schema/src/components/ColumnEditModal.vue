@@ -98,6 +98,26 @@
                   label="refLabel"
                   description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
                 />
+                <InputBoolean
+                  v-if="
+                    column.columnType === 'REF' ||
+                    column.columnType === 'SELECT' ||
+                    column.columnType === 'RADIO'
+                  "
+                  id="columns_cascadeDelete"
+                  v-model="column.cascadeDelete"
+                  label="cascadeDelete"
+                  description="When checked, deleting a row in the referenced table will also delete all rows in this table that refer to it. When unchecked, deleting a row in the referenced table will be blocked if there are rows in this table that refer to it."
+                />
+              </div>
+              <div class="col-4" v-if="showValuesInput">
+                <ArrayInput
+                  id="column_values"
+                  columnType="STRING_ARRAY"
+                  v-model="column.allowedValues"
+                  label="allowed values"
+                  description="The allowed values of this column, one per entry. Their order is kept."
+                />
               </div>
               <div class="col-4" v-if="column.columnType === 'REFBACK'">
                 <InputSelect
@@ -314,6 +334,7 @@ import {
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
+import { findRootTable } from "../tableModel";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -395,11 +416,9 @@ export default {
   computed: {
     //current table object unedited
     originalTable() {
-      return this.schema.tables.find(
-        (table: Record<string, any>) =>
-          table.name === this.tableName ||
-          table.name === this.column.table ||
-          (table.subclasses && table.subclasses.includes(this.column.table))
+      return (
+        findRootTable(this.schema.tables, this.tableName) ||
+        findRootTable(this.schema.tables, this.column.table)
       );
     },
     //current table object edited
@@ -477,8 +496,10 @@ export default {
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter(
-          (c: Record<string, any>) => c.name === this.column.name
+        (
+          this.originalTable?.columns?.filter(
+            (c: Record<string, any>) => c.name === this.column.name
+          ) ?? []
         ).length > 0
       ) {
         return "Name should be unique";
@@ -489,9 +510,13 @@ export default {
     isDisabled() {
       return this.operation !== "add" && this.nameInvalid;
     },
+    showValuesInput() {
+      return ["ENUM", "ENUM_ARRAY"].includes(this.column.columnType);
+    },
   },
   methods: {
     showModal() {
+      this.reset();
       this.modalVisible = true;
     },
     apply() {
@@ -606,7 +631,7 @@ function getRefTableColumns(
     const inheritedTable = tables.find(
       (otherTable: Record<string, any>) => table.inheritName === otherTable.name
     );
-    return [...inheritedTable?.columns, ...table?.columns];
+    return [...(inheritedTable?.columns || []), ...(table?.columns || [])];
   } else {
     return table?.columns || [];
   }

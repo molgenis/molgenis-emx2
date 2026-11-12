@@ -21,21 +21,18 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqlAggregatePermission {
   private static GraphqlExecutor grapql;
-  private static Database database;
   private static final String schemaName = TestGraphqlAggregatePermission.class.getSimpleName();
-  private static Schema schema;
-  private static TaskService taskService;
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(schemaName);
     PET_STORE.getImportTask(database, schemaName, "", true).run();
-    schema = database.getSchema(schemaName);
+    Schema schema = database.getSchema(schemaName);
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     database.setActiveUser("AGGREGATE_TEST_USER");
-    taskService = new TaskServiceInMemory();
+    TaskService taskService = new TaskServiceInMemory();
     grapql = new GraphqlExecutor(database.getSchema(schemaName), taskService);
   }
 
@@ -55,13 +52,9 @@ public class TestGraphqlAggregatePermission {
   }
 
   @Test
-  public void aggregateShouldHaveGroupByGraphql() {
-    assertDoesNotThrow(() -> execute("{Pet_groupBy{count,tags{name}}}"));
-  }
-
-  @Test
-  public void aggregateShouldNotHaveGroupByOtherTable() {
-    assertThrows(MolgenisException.class, () -> execute("{Pet_groupBy{count,category{name}}"));
+  public void aggregateShouldNotHaveGroupByGraphql() {
+    assertThrows(MolgenisException.class, () -> execute("{Pet_groupBy{count,tags{name}}}"));
+    assertThrows(MolgenisException.class, () -> execute("{Pet_groupBy{sum{weight},tags{name}}}"));
   }
 
   private JsonNode execute(String query) throws IOException {

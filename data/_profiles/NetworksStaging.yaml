@@ -6,7 +6,7 @@ profileTags: NetworksStaging
 
 # demoData: _demodata/applications/datacatalogue_networkstaging
 
-# settings: _settings/datacatalogue
+settings: _settings/datacatalogue_networkstaging
 
 # special options
 ontologiesToFixedSchema: CatalogueOntologies

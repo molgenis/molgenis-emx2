@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { buildQueryFilter } from "./buildQueryFilter";
+import { buildQueryFilter, mergeFilterAndClauses } from "./buildQueryFilter";
 import type { IFilter, IFilterCondition } from "../../interfaces/types";
 
 describe("buildQueryFilter", () => {
@@ -68,6 +68,53 @@ describe("buildQueryFilter", () => {
     };
     const filterString = buildQueryFilter(filters);
     expect(expectedFilter).toEqual(filterString);
+  });
+
+  it("should keep the search filter while combining network table filters with an _and", () => {
+    const merged = mergeFilterAndClauses(buildQueryFilter(filters), [
+      { mg_tableclass: { equals: "schema.Networks" } },
+      { mg_tableclass: { equals: "schema.Catalogues" } },
+    ]);
+
+    expect(merged).toEqual({
+      _and: [
+        {
+          _or: [
+            {
+              _search: "test",
+            },
+            {
+              collectionEvents: {
+                _search: "test",
+              },
+            },
+            {
+              subcohorts: {
+                _search: "test",
+              },
+            },
+          ],
+          collectionEvents: {
+            sampleCategories: {
+              equals: [
+                {
+                  name: "Adipocytes",
+                },
+                {
+                  name: "Myocytes, Cardiac",
+                },
+              ],
+            },
+          },
+        },
+        {
+          _or: [
+            { mg_tableclass: { equals: "schema.Networks" } },
+            { mg_tableclass: { equals: "schema.Catalogues" } },
+          ],
+        },
+      ],
+    });
   });
 
   it("should use the buildFilterFunction to build the filter confition(s) if it is set on the filter config", () => {

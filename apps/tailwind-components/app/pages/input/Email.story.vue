@@ -7,15 +7,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import type { ColumnType } from "../../../../metadata-utils/src/types";
 import { useForm } from "#imports";
+import { ref } from "vue";
+import type {
+  ColumnType,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
 
 const model = ref({});
-const metadata = ref({
+const metadata = ref<ITableMetaData>({
   id: "Types",
   label: "Email Form",
-  tableType: "FORM",
+  tableType: "DATA",
   name: "Types",
   schemaId: "Types",
   columns: [

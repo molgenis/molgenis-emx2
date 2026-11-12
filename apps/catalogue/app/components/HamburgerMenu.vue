@@ -16,7 +16,7 @@ defineProps({
         v-for="menuItem in navigation"
         :href="menuItem.link"
         class="font-display text-heading-4xl"
-        :class="menuItem?.highlight === true ? 'text-link' : 'text-blue-800'"
+        :class="menuItem?.highlight === true ? 'text-link' : 'text-sub-menu'"
       >
         {{ menuItem.label }}
       </a>

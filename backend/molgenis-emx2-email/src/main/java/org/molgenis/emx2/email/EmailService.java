@@ -31,6 +31,8 @@ public class EmailService {
     props.put("mail.smtp.socketFactory.port", settings.getSocketFactoryPort());
     props.put("mail.smtp.socketFactory.class", settings.getSocketFactoryClass());
     props.put("mail.smtp.socketFactory.fallback", settings.getSocketFactoryFallback());
+    props.put("mail.smtp.connectiontimeout", settings.getConnectionTimeout());
+    props.put("mail.smtp.timeout", settings.getReadTimeout());
 
     props.put("mail.debug", settings.getDebug());
 
@@ -80,7 +82,7 @@ public class EmailService {
     }
   }
 
-  private class SMTPAuthenticator extends javax.mail.Authenticator {
+  private final class SMTPAuthenticator extends Authenticator {
     @Override
     public PasswordAuthentication getPasswordAuthentication() {
       return new PasswordAuthentication(senderEmail, senderPassword);

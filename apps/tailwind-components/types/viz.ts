@@ -9,6 +9,7 @@ export interface Charts {
 export type LegendPosition = "top" | "bottom";
 
 export interface ChartTitle {
+  id: string;
   title: string;
   description?: string;
 }
@@ -73,6 +74,7 @@ export interface NumericAxisTickData {
 export interface CategoricalAxisTickData {
   count: number;
   domains: string[];
+  palette?: Record<string, any>;
 }
 
 export interface NewNumericAxisGeneratorProps {

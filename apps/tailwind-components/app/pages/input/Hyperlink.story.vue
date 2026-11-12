@@ -6,17 +6,20 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import type { ColumnType } from "../../../../metadata-utils/src/types";
 import { useForm } from "#imports";
+import { ref } from "vue";
+import type {
+  ColumnType,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
 
 const model = ref({});
-const metadata = {
+const metadata: ITableMetaData = {
   label: "Hyperlink",
   id: "Types",
   name: "Types",
   schemaId: "Types",
-  tableType: "my kind of table",
+  tableType: "DATA",
   columns: [
     {
       id: "hyperlinkType",

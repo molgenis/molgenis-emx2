@@ -100,6 +100,7 @@
     :describedBy="describedBy"
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
+    :showClearButton="showClearButton"
     :align="align"
     @focus="emit('focus')"
     @blur="emit('blur')"
@@ -158,7 +159,7 @@
     :refLabel="refLabel!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="false"
+    :isArray="false"
   />
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
@@ -175,7 +176,7 @@
     :refLabel="refLabel!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="true"
+    :isArray="true"
   />
   <InputRef
     v-else-if="'SELECT' === typeUpperCase"
@@ -192,12 +193,11 @@
     :refLabel="refLabel!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="false"
+    :isArray="false"
   />
   <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
     v-model="modelValue as columnValueObject[] | undefined"
-    :multiselect="true"
     :id="id"
     :limit="0"
     :valid="valid"
@@ -211,6 +211,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
+    :isArray="true"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"
@@ -239,7 +240,7 @@
     :ontologyTableId="refTableId!"
     @focus="emit('focus')"
     @blur="emit('blur')"
-    :is-array="false"
+    :isArray="false"
     :limit="10"
   />
   <InputOntology
@@ -296,6 +297,20 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputEnum
+    v-else-if="['ENUM', 'ENUM_ARRAY'].includes(typeUpperCase)"
+    :id="id"
+    :isArray="typeUpperCase === 'ENUM_ARRAY'"
+    v-model="modelValue as string | string[] | null | undefined"
+    :allowedValues="allowedValues ?? []"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :required="required"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
 </template>
 
 <script setup lang="ts">
@@ -314,6 +329,7 @@ import InputCheckboxGroup from "./input/CheckboxGroup.vue";
 import InputDate from "./input/Date.vue";
 import InputDateTime from "./input/DateTime.vue";
 import InputDecimal from "./input/Decimal.vue";
+import InputEnum from "./input/Enum.vue";
 import InputFile from "./input/File.vue";
 import InputInt from "./input/Int.vue";
 import InputLong from "./input/Long.vue";
@@ -336,8 +352,11 @@ const props = withDefaults(
       refBackColumn?: string;
       rowKey?: any;
       options?: IValueLabel[];
+      allowedValues?: string[];
+      required?: boolean;
       trueLabel?: string;
       falseLabel?: string;
+      showClearButton?: boolean;
       align?: "horizontal" | "vertical";
       limit?: number;
       errorMessage?: string | null;
@@ -345,6 +364,8 @@ const props = withDefaults(
   >(),
   {
     limit: 25,
+    // undefined (not Vue's implicit false) so Boolean.vue keeps its own default
+    showClearButton: undefined,
   }
 );
 const emit = defineEmits(["focus", "blur"]);

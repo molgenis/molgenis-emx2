@@ -1,0 +1,4 @@
+order,name,parent,codesystem,code,ontologyTermURI,definition
+0,default,,,,,"The default height has a height of 72"
+1,small,,,,,"A smaller height resolved to height of 48"
+2,large,,,,,"A larger height resolves to height of 96"

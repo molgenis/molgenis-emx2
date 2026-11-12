@@ -8,14 +8,14 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ResolveDefaultValue {
+public final class ResolveDefaultValue {
 
   private ResolveDefaultValue() {
     // hide constructor
   }
 
   public static void apply(Map<String, Object> context, Column column, Row row) {
-    if (isComputed(column)) {
+    if (column.hasComputedDefaultValue()) {
       applyComputedDefaultValue(row, column, context);
     } else {
       row.set(column.getName(), column.getDefaultValue());
@@ -24,7 +24,7 @@ public class ResolveDefaultValue {
 
   private static void applyComputedDefaultValue(
       Row row, Column column, Map<String, Object> context) {
-    String expression = column.getDefaultValue().substring(1);
+    String expression = column.getDefaultValueExpression();
     try {
       if (column.isRefArray()) {
         List<Map<String, Object>> result =
@@ -42,9 +42,5 @@ public class ResolveDefaultValue {
       throw new MolgenisException(
           "Error in defaultValue of column " + column.getName() + ": " + e.getMessage());
     }
-  }
-
-  private static boolean isComputed(Column column) {
-    return column.getDefaultValue().startsWith("=");
   }
 }

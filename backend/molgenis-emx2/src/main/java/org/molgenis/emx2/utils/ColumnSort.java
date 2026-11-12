@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.Column;
 
-public class ColumnSort {
+public final class ColumnSort {
   private ColumnSort() {
     // hide constructor
   }

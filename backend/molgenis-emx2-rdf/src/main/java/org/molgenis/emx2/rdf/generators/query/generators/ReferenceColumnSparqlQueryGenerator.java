@@ -2,15 +2,13 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
-import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
-import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
-import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
+import org.eclipse.rdf4j.sparqlbuilder.core.*;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
+import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,9 +69,10 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       selectors.addAll(generator.getSelectors());
     } else {
       generator =
-          new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
+          LiteralColumnSparqlQueryGenerator.forRequiredObject(
+              variable, rootColumn, encodedColumnPath());
 
-      selectors.add(columnVariable());
+      selectors.add(encodedColumnPath());
     }
 
     patterns.addAll(generator.getPatterns());
@@ -81,22 +80,35 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
   }
 
   private void mapDataColumn() {
+    Variable columnVariable = encodedColumnPath();
+    Variable subjectVariable = columnSubjectVariable();
+
     ColumnSparqlQueryGenerator mapper =
-        new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
+        LiteralColumnSparqlQueryGenerator.forRequiredObject(variable, rootColumn, columnVariable);
     patterns.addAll(mapper.getPatterns());
+    addSubjectColumnVariable(subjectVariable, columnVariable);
     mapPrimaryKeys();
+  }
+
+  private void addSubjectColumnVariable(Variable subjectVariable, Variable columnVariable) {
+    if (rootColumn.isArray()) {
+      selectors.add(SparqlVariableUtil.concatAs(encodedColumnPath(), subjectVariable));
+    } else {
+      selectors.add(columnVariable.as(subjectVariable));
+      groupBy.add(columnVariable);
+    }
   }
 
   private void mapPrimaryKeys() {
     TableMetadata refTable = rootColumn.getRefTable();
     for (Column column : refTable.getPrimaryKeyColumns()) {
-      if (column.getSemantics() == null || column.getSemantics().length == 0) {
+      if (!column.hasSemantics()) {
         logger.warn("Column {} has no semantics", column.getName());
         continue;
       }
 
-      ArrayList<String> columnPath = columnPath();
-      Variable subject = columnVariable();
+      List<String> columnPath = columnPath();
+      Variable subject = encodedColumnPath();
       ColumnSparqlQueryGenerator mapper = getMapperForColumn(column, subject, columnPath);
 
       patterns.addAll(mapper.getPatterns());
@@ -106,35 +118,38 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
   }
 
   private ColumnSparqlQueryGenerator getMapperForColumn(
-      Column column, Variable subject, ArrayList<String> columnPath) {
+      Column column, Variable subject, List<String> columnPath) {
     if (column.isReference()) {
       return new ReferenceColumnSparqlQueryGenerator(subject, column, columnPath);
     }
 
-    Variable ref = SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(columnPath));
+    Variable ref = encodedColumnPath();
     Variable extended = extendVariable(subject, column);
 
     if (rootColumn.isArray()) {
       return new ArrayColumnSparqlQueryGenerator(ref, column, extended);
     } else {
-      return new LiteralColumnSparqlQueryGenerator(ref, column, extended, true);
+      return LiteralColumnSparqlQueryGenerator.forRequiredObject(ref, column, extended);
     }
   }
 
-  private Variable columnVariable() {
-    return SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(columnPath()));
+  private Variable columnSubjectVariable() {
+    return SparqlVariableUtil.subjectVariable(encodedColumnPath());
   }
 
-  private ArrayList<String> columnPath() {
-    ArrayList<String> newPath = new ArrayList<>(path);
-    newPath.add(ColumnNameSparqlEncoder.encodeSparqlVariable(rootColumn));
+  private Variable encodedColumnPath() {
+    return ColumnNameSparqlEncoder.encodeSparqlVariablePath(columnPath());
+  }
+
+  private List<String> columnPath() {
+    List<String> newPath = new ArrayList<>(path);
+    newPath.add(rootColumn.getName());
     return newPath;
   }
 
   private Variable extendVariable(Variable toExtend, Column column) {
-    return SparqlBuilder.var(
-        ColumnNameSparqlEncoder.encodeSparqlVariable(
-            List.of(toExtend.getVarName(), column.getName())));
+    return ColumnNameSparqlEncoder.encodeSparqlVariablePath(
+        List.of(toExtend.getVarName(), column.getName()));
   }
 
   @Override

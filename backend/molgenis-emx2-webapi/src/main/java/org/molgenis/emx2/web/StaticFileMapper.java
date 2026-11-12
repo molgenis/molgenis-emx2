@@ -10,7 +10,7 @@ import io.javalin.http.Context;
  *
  * <p>TODO add apps proxy service
  */
-public class StaticFileMapper {
+public final class StaticFileMapper {
 
   private StaticFileMapper() {
     // hide constructor

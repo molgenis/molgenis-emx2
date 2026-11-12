@@ -8,7 +8,11 @@ import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.tasks.Task;
 
-public class DataModels {
+public final class DataModels {
+
+  private DataModels() {
+    // no instances
+  }
 
   public enum Profile {
     DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),
@@ -29,6 +33,7 @@ public class DataModels {
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
     TYPE_TEST("_profiles/TypeTest.yaml"),
+    UI_DASHBOARD("_profiles/DataViz.yaml"),
     MG_CMS("_profiles/Pages.yaml");
 
     public static boolean hasProfile(String nameOther) {
@@ -54,13 +59,11 @@ public class DataModels {
 
   public enum Regular {
     ERN_DASHBOARD(DashboardLoader::new),
-    UI_DASHBOARD(UiDashboardLoader::new),
     PATIENT_REGISTRY_DEMO(PatientRegistryDemoLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     BIOBANK_DIRECTORY_STAGING(
-        (schemaLoaderSettings ->
-            new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true)));
+        schemaLoaderSettings -> new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true));
 
     public static boolean hasRegular(String nameOther) {
       return Arrays.stream(values()).anyMatch(regular -> regular.name().equals(nameOther));

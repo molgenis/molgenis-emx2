@@ -1,5 +1,10 @@
 <template>
-  <Button type="outline" icon="columns" @click="showModal = true">
+  <Button
+    type="outline"
+    icon="columns"
+    @click="showModal = true"
+    class="h-50px"
+  >
     Columns
   </Button>
   <Modal
@@ -68,11 +73,11 @@
       <div />
     </template>
     <template #footer>
-      <div class="flex gap-2 justify-start py-5">
-        <Button type="primary" size="small" label="Save" @click="handleSave" />
+      <div class="flex gap-2 justify-start py-5 h-sidebar-footer items-center">
+        <Button type="primary" size="medium" label="Save" @click="handleSave" />
         <Button
           type="secondary"
-          size="small"
+          size="medium"
           label="Cancel"
           @click="handleCancel"
         />
@@ -100,7 +105,9 @@ const props = defineProps<{
   tableId?: string;
 }>();
 
-const emits = defineEmits(["update:columns"]);
+const emits = defineEmits<{
+  (event: "update:columns", columns: IColumn[]): void;
+}>();
 
 const showModal = ref(false);
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
@@ -109,7 +116,7 @@ const selectedSortMethod = ref<string>("Default");
 
 watch(() => props.columns, initializeColumns, { immediate: true });
 
-function initializeColumns(newColumns: IColumn[]) {
+function initializeColumns() {
   columnsInColumnsSelectModal.value = props.columns.map(columnToColumnConfig);
 }
 

@@ -2,11 +2,11 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2025-01-14
+# MODIFIED: 2026-08-31
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
-# COMMENTS: Designed to interact with the schema "pet store".
+# COMMENTS: Designed to interact with the schemas "pet store" and "catalogue-demo".
 #           Create a file called '.env' that states the molgenis token, to get
 #           this token login into the server (UI) as admin. Next, click on
 #           'Hi admin' and under Manage token give the new token a name and
@@ -38,7 +38,7 @@ async def main():
     load_dotenv()
     token = os.environ.get('MG_TOKEN')
 
-    async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
+    async with Client('https://emx2.dev.molgenis.org/', schema='catalogue-demo') as client:
 
         participant_range = [10_000, 20_000]
         subpopulations = client.get_graphql(table='Subpopulations',
@@ -87,8 +87,8 @@ async def main():
         pet_sheet = pd.DataFrame((ps := pd.DataFrame(pet_store['Pet'].values)).values[1:], columns=ps.iloc[0].values)
         print(pet_sheet.to_string())
 
-        # Export the 'Resources' table from schema 'catalogue' to memory and print a sample of its contents
-        raw_resources = await client.export(schema='catalogue', table='Resources')
+        # Export the 'Resources' table from schema 'catalogue-demo' to memory and print a sample of its contents
+        raw_resources = await client.export(schema='catalogue-demo', table='Resources')
         resources = pd.read_csv(raw_resources)
         print(resources.sample(5).to_string())
 
@@ -277,8 +277,8 @@ async def main():
 
     # //////////////////////////////////////////////////////////////////////////////////////////
     # Examples for using the Schema, Table, and Column classes
-    # Get the metadata for the 'catalogue' schema
-    catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata('catalogue')
+    # Get the metadata for the 'catalogue-demo' schema
+    catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata(name='catalogue-demo')
 
     # Get the metadata for the Resources table
     resources_meta = catalogue_schema.get_table(by='name', value='Resources')

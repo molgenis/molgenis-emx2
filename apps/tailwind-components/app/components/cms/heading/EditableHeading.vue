@@ -1,0 +1,60 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import Heading from "./Heading.vue";
+import ComponentActions from "../ComponentActions.vue";
+import type { IHeadings } from "../../../../types/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms/constants.ts";
+
+const props = withDefaults(
+  defineProps<IHeadings & { isEditable?: boolean }>(),
+  {
+    level: 2,
+    headingIsCentered: false,
+    headingIsHidden: false,
+    isEditable: false,
+  }
+);
+
+const emit = defineEmits(["edit", "delete", "move", "updateText"]);
+const showMenu = ref<boolean>(false);
+</script>
+
+<template>
+  <VMenu
+    v-if="isEditable"
+    v-model:shown="showMenu"
+    showGroup="component-menu"
+    :triggers="['hover', 'focus']"
+    :popperTriggers="['hover', 'focus']"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
+    :placement="headingIsCentered ? 'bottom' : 'bottom-start'"
+    noAutoFocus
+  >
+    <template #popper>
+      <ComponentActions
+        name="Heading"
+        :id="`${id}-toolbar`"
+        :aria-controls="id"
+        @edit="$emit('edit')"
+        @delete="$emit('delete')"
+        @move="$emit('move', $event)"
+      />
+    </template>
+    <div>
+      <Heading
+        v-bind="props"
+        :class="{
+          group: isEditable,
+          underline: showMenu,
+          'sr-only': headingIsHidden,
+        }"
+        :contenteditable="props.isEditable"
+        @input="props.isEditable && emit('updateText', $el.textContent)"
+      />
+    </div>
+  </VMenu>
+  <Heading v-else v-bind="props" />
+</template>

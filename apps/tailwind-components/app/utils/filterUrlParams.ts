@@ -112,6 +112,8 @@ export function parseFilterValue(
     "BOOL",
     "RADIO",
     "CHECKBOX",
+    "ENUM",
+    "ENUM_ARRAY",
   ]);
 
   if (

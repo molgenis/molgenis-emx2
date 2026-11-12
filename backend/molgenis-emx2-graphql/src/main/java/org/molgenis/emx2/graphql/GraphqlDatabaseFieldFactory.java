@@ -53,10 +53,6 @@ public class GraphqlDatabaseFieldFactory {
                   .type(Scalars.GraphQLString))
           .build();
 
-  public GraphqlDatabaseFieldFactory() {
-    // no instances
-  }
-
   public GraphQLFieldDefinition.Builder deleteMutation(
       Database database, GraphQLCodeRegistry.Builder codeRegistry) {
     codeRegistry.dataFetcher(
@@ -129,7 +125,7 @@ public class GraphqlDatabaseFieldFactory {
         (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
-              String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
+              String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
               database.updateSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
             });
@@ -176,7 +172,7 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               List<Map<String, String>> result = new ArrayList<>();
               for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
-                HashMap<String, String> fields = new HashMap<>();
+                Map<String, String> fields = new HashMap<>();
                 fields.put("id", schemaInfo.tableSchema()); // todo if we want identifier here
                 fields.put(
                     "label", schemaInfo.tableSchema()); // todo if we want something else than name
@@ -287,6 +283,19 @@ public class GraphqlDatabaseFieldFactory {
         .build();
   }
 
+  static final GraphQLInputObjectType inputDropRoleType =
+      GraphQLInputObjectType.newInputObject()
+          .name("DropRoleInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SCHEMA_ID)
+                  .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ROLES)
+                  .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
+          .build();
+
   public GraphQLFieldDefinition dropMutation(
       Database database, GraphQLCodeRegistry.Builder codeRegistry) {
     codeRegistry.dataFetcher(
@@ -300,6 +309,7 @@ public class GraphqlDatabaseFieldFactory {
                       dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       dropSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+                      dropRoles(db, dataFetchingEnvironment.getArgument(ROLES), messageBuilder);
                     } catch (Exception e) {
                       throw new GraphqlException("change failed", e);
                     }
@@ -314,6 +324,8 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputDropSettingType)))
+        .argument(
+            GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(inputDropRoleType)))
         .build();
   }
 
@@ -333,6 +345,27 @@ public class GraphqlDatabaseFieldFactory {
       for (Map<String, ?> userAsMap : userList) {
         database.removeUser((String) userAsMap.get(EMAIL));
         messageBuilder.append("Dropped user '" + userAsMap.get(EMAIL) + "'. ");
+      }
+    }
+  }
+
+  private static void dropRoles(
+      Database database, List<Map<String, String>> roleList, StringBuilder messageBuilder) {
+    if (roleList != null) {
+      for (Map<String, String> roleAsMap : roleList) {
+        String schemaName = roleAsMap.get(SCHEMA_ID);
+        String roleName = roleAsMap.get(ROLES);
+        Schema schema = database.getSchema(schemaName);
+        if (schema == null) {
+          throw new MolgenisException("Schema '" + schemaName + "' does not exist");
+        }
+        schema.deleteRole(roleName);
+        messageBuilder
+            .append("Dropped role '")
+            .append(roleName)
+            .append("' from schema '")
+            .append(schemaName)
+            .append("'. ");
       }
     }
   }

@@ -13,6 +13,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,7 +22,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
 
-public class SqlColumnExecutor {
+public final class SqlColumnExecutor {
   private SqlColumnExecutor() {
     // hide
   }
@@ -276,11 +277,15 @@ public class SqlColumnExecutor {
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
     if (column.getRefSchemaName() != null) {
-      if (schema.getDatabase().getSchema(column.getRefSchemaName()) == null) {
+      try {
+        refSchema = schema.getSchemaMetadataProvider().getSchemaMetadata(column.getRefSchemaName());
+        if (refSchema == null) {
+          throw new MolgenisException("Unable to find Schema");
+        }
+      } catch (MolgenisException e) {
         throw new MolgenisException(
             "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = schema.getDatabase().getSchema(column.getRefSchemaName()).getMetadata();
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
@@ -351,6 +356,52 @@ public class SqlColumnExecutor {
                 .setRefBack("parent"));
   }
 
+  private static void validateKeyNotAddedToSubclass(Column column) {
+    TableMetadata table = column.getTable();
+    if (!column.isPrimaryKey()
+        || column.isAutoId()
+        || table == null
+        || !table.isSubclass()
+        || column.isInherited()) {
+      return;
+    }
+    throw new MolgenisException(
+        String.format(
+            "Cannot make column '%s.%s' part of the primary key: table '%s' extends '%s' and a"
+                + " subclass shares the primary key of its root table '%s'",
+            table.getTableName(),
+            column.getName(),
+            table.getTableName(),
+            table.getInheritName(),
+            table.getRootTable().getTableName()));
+  }
+
+  private static void validateAllowedValues(Column c) {
+    String[] values = c.getAllowedValues();
+    boolean hasValues = values != null && values.length > 0;
+    if (!c.getColumnType().isEnum()) {
+      if (hasValues) {
+        throw new MolgenisException(
+            "allowedValues can only be set on ENUM or ENUM_ARRAY, not on " + c.getColumnType());
+      }
+      c.setAllowedValues((String[]) null);
+      return;
+    }
+    if (!hasValues) {
+      throw new MolgenisException(
+          c.getColumnType() + " requires at least one value in 'allowedValues'");
+    }
+    if (Arrays.stream(values).anyMatch(v -> v == null || v.isBlank())) {
+      throw new MolgenisException("'allowedValues' cannot contain a blank value");
+    }
+    String[] trimmed = Arrays.stream(values).map(String::trim).toArray(String[]::new);
+    if (Arrays.stream(trimmed).distinct().count() != trimmed.length) {
+      throw new MolgenisException(
+          "'allowedValues' cannot contain duplicates: '" + String.join("', '", trimmed) + "'");
+    }
+    c.setAllowedValues(trimmed);
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -364,6 +415,7 @@ public class SqlColumnExecutor {
                 + c.getName()
                 + "' failed: When key spans multiple columns, none of the columns can be nullable");
       }
+      validateKeyNotAddedToSubclass(c);
       if (c.isReference() && !c.isOntology() && c.getRefTableName() == null) {
         throw new MolgenisException(
             String.format(
@@ -437,6 +489,7 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
+      validateAllowedValues(c);
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
         c.setRequired(true);
@@ -454,13 +507,10 @@ public class SqlColumnExecutor {
   }
 
   static void executeCreateRefConstraints(DSLContext jooq, Column column) {
-    // set constraints
     if (column.isRef()) {
       createRefConstraints(jooq, column);
     } else if (column.isRefArray()) {
       createRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 
@@ -475,10 +525,8 @@ public class SqlColumnExecutor {
     } else if (column.isRef() || column.isRefArray()) {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
-        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
-        column
-            .getTable()
-            .getSchema()
+        executeRemoveColumn(jooq, column.getReferenceRefback());
+        ((SqlSchemaMetadata) column.getTable().getSchema())
             .getDatabase()
             .getListener()
             .schemaChanged(column.getReferenceRefback().getSchemaName());
@@ -495,16 +543,13 @@ public class SqlColumnExecutor {
           .dropColumnIfExists(field(name(column.getName())))
           .execute();
     }
-    MetadataUtils.deleteColumn(jooq, column);
+    deleteColumn(jooq, column);
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {
-    if (column.isRef()) {
+    if (column.isReference()) {
       SqlColumnRefExecutor.removeRefConstraints(jooq, column);
-    } else if (column.isRefArray()) {
       removeRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 
@@ -512,8 +557,8 @@ public class SqlColumnExecutor {
     if (newColumn.getDefaultValue() != null && newColumn.isReference()) {
       // we can't do this for references yet
       Object defaultValue = newColumn.getDefaultValue();
-      if (newColumn.getDefaultValue().startsWith("=")) {
-        defaultValue = executeJavascript(newColumn.getDefaultValue().substring(1));
+      if (newColumn.hasComputedDefaultValue()) {
+        defaultValue = executeJavascript(newColumn.getDefaultValueExpression());
       }
       defaultValue = getTypedValue(defaultValue, newColumn.getPrimitiveColumnType());
       jooq.alterTable(newColumn.getJooqTable())

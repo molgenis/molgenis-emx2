@@ -33,6 +33,8 @@ class CsvApiTest extends ApiTestBase {
 
   private static final String SCHEMA_NAME = CsvApiTest.class.getSimpleName();
 
+  private static final String NON_EXISTING_SCHEMA = "nonexisting";
+
   public static final String TABLE_NAME_WITH_SPACES = "table with spaces";
 
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
@@ -312,24 +314,6 @@ class CsvApiTest extends ApiTestBase {
   }
 
   @Test
-  void givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
-    Response response =
-        given().accept(ACCEPT_CSV).when().get("/" + SCHEMA_NAME + "/api/csv/changelog");
-
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-        {
-          "errors" : [
-            {
-              "message" : "Unauthorized to get schema changelog"
-            }
-          ]
-        }""",
-        response.body().asString());
-  }
-
-  @Test
   void shouldFilterTable() {
     String result =
         given()
@@ -355,6 +339,34 @@ class CsvApiTest extends ApiTestBase {
   }
 
   @Test
+  void givenColumns_whenDownloadingTable_thenOnlyThoseColumns() {
+    String result =
+        given()
+            .sessionId(sessionId)
+            .queryParam("columns", "weight,name")
+            .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + SCHEMA_NAME + "/api/csv/Pet")
+            .asString();
+    assertEquals("weight,name", result.lines().findFirst().orElseThrow());
+    assertEquals("9.4,pooky", result.lines().skip(1).findFirst().orElseThrow());
+  }
+
+  @Test
+  void givenUnknownColumn_whenDownloadingTable_thenBadRequest() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .queryParam("columns", "colour")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + SCHEMA_NAME + "/api/csv/Pet");
+    assertEquals(400, response.getStatusCode());
+    assertTrue(response.asString().contains("colour"));
+  }
+
+  @Test
   void shouldUpdateTableMetadata() throws IOException {
 
     // fresh schema for testing
@@ -363,56 +375,56 @@ class CsvApiTest extends ApiTestBase {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\n";
+        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,cascadeDelete,refLabel,defaultValue,validation,visible,computed,semantics,allowedValues,profiles,label,description\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         schemaName,
-        "tableName,description,semantics\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
+        "tableName,description,semantics\nTestMetaTable,TestDesc,:TestSem",
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:TestSem,,,,TestDesc\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName\nTestMetaTable",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:TestSem,,,,TestDesc\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:TestSem,,,,NewTestDesc\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,semantics\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,NewTestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,,,NewTestDesc\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
-        "tableName,description,semantics\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,NewTestSem,,,\n");
+        "tableName,description,semantics\nTestMetaTable,,:NewTestSem",
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:NewTestSem,,,,\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,,,\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
-        "tableName,description,semantics\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\n");
+        "tableName,description,semantics\nTestMetaTable,TestDesc,\":TestSem1,:TestSem2\"",
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,\":TestSem1,:TestSem2\",,,,TestDesc\n");
   }
 
   @Test
@@ -473,6 +485,90 @@ class CsvApiTest extends ApiTestBase {
     assertTrue(result.contains("green,,,colors"));
   }
 
+  @Test
+  void shouldUpdateTableDataUsingModeParam() {
+    String schemaName = SCHEMA_NAME + "Mode";
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.create(
+        table(
+            "Person",
+            column("id", STRING).setKey(1),
+            column("name", STRING),
+            column("age", STRING)));
+
+    String path = "/" + schemaName + "/api/csv/Person";
+
+    // insert initial row with both 'name' and 'age' set
+    given()
+        .sessionId(sessionId)
+        .body("id,name,age\r\np1,Joop,30\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    // default mode is 'overwrite': the omitted 'name' column should be cleared
+    given()
+        .sessionId(sessionId)
+        .body("id,age\r\np1,31\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    String result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
+    assertTrue(result.contains("p1,,31"));
+
+    // restore the initial row
+    given()
+        .sessionId(sessionId)
+        .body("id,name,age\r\np1,Joop,30\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    // mode=update should preserve the omitted 'name' column
+    given()
+        .sessionId(sessionId)
+        .queryParam("mode", "update")
+        .body("id,age\r\np1,31\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
+    assertTrue(result.contains("p1,Joop,31"));
+  }
+
+  @Test
+  void givenInvalidModeValue_thenBadRequest() {
+    String schemaName = SCHEMA_NAME + "ModeInvalid";
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.create(table("Person", column("id", STRING).setKey(1)));
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .queryParam("mode", "bogus")
+            .body("id\r\np1\r\n")
+            .when()
+            .post("/" + schemaName + "/api/csv/Person");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Invalid mode: bogus"
+            }
+          ]
+        }""",
+        response.body().asString());
+  }
+
   private String[] toSortedArray(String string) {
     String[] lines = string.split("\n");
     Arrays.sort(lines);
@@ -486,10 +582,9 @@ class CsvApiTest extends ApiTestBase {
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
     File tempFile = File.createTempFile("some", extension);
     tempFile.deleteOnExit();
-    OutputStream os = new FileOutputStream(tempFile);
-    os.write(zipContents);
-    os.flush();
-    os.close();
+    try (OutputStream os = new FileOutputStream(tempFile)) {
+      os.write(zipContents);
+    }
     return tempFile;
   }
 
@@ -519,5 +614,79 @@ class CsvApiTest extends ApiTestBase {
     acceptFileUpload(addUpdateTableFile, schemaName, "molgenis", false);
     String actual = getContentAsString(schemaName + "/api/csv");
     assertEquals(header + expected, actual);
+  }
+
+  @Test
+  void getMetadataForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void mergeMetadataForUnknownSchema_isRejected() {
+    Response response =
+        given().body("tableName\nPet\n").when().post("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void discardMetadataForUnknownSchema_isRejected() {
+    Response response =
+        given().body("tableName\nPet\n").when().delete("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void getSettingsForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/settings");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void getChangelogForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/changelog");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Schema 'nonexisting' unknown. Might you need to sign in or ask permission?"
+            }
+          ]
+        }""",
+        response.getBody().asString());
+  }
+
+  @Test
+  void getMembersForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/members");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Unauthorized to get schema members"
+            }
+          ]
+        }""",
+        response.getBody().asString());
+  }
+
+  private static void assertUnknownSchema(Response response) {
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Schema nonexisting unknown"
+            }
+          ]
+        }""",
+        response.getBody().asString());
   }
 }

@@ -22,10 +22,10 @@ test.beforeEach(async ({ page }) => {
 test.afterEach(async ({ page }) => {
   const targetCell = await page.getByRole("cell", { name: "e2e", exact: true });
   await expect(targetCell).toBeVisible();
-  await page
-    .getByText("deletee2e", { exact: true })
-    .filter({ visible: false })
-    .dispatchEvent("click");
+  await page.getByRole("searchbox", { name: "Search Pet" }).click();
+  await page.getByRole("searchbox", { name: "Search Pet" }).fill("e2e");
+  await page.getByRole("row").nth(1).hover();
+  await page.getByRole("button", { name: 'delete {"name":"e2e"}' }).click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
 });
 
@@ -46,6 +46,8 @@ test("add new row", async ({ page }) => {
   await page.getByRole("textbox", { name: "weight Required" }).click();
   await page.getByRole("textbox", { name: "weight Required" }).fill("23");
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  // wait for the insert to finish, closing the modal earlier skips the table refresh
+  await expect(page.getByText("inserted Pet")).toBeVisible();
   await page.getByRole("button", { name: "Close modal", exact: true }).click();
 
   await expect(

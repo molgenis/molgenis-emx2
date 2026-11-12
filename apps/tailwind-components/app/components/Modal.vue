@@ -1,22 +1,32 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
+import {
+  onBeforeUnmount,
+  onMounted,
+  onUnmounted,
+  provide,
+  useTemplateRef,
+  watchEffect,
+} from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import { Teleport } from "vue";
-import { registerModal } from "../utils/modalManager";
+import { MODAL_TELEPORT_TARGET, registerModal } from "../utils/modalManager";
 import OptionalFocusTrap from "./OptionalFocusTrap.vue";
 
 withDefaults(
   defineProps<{
+    id?: string;
     title?: string;
     subtitle?: string;
     maxWidth?: string;
     type?: "center" | "left" | "right";
     backgroundAccessible?: boolean;
+    size?: "small" | "medium" | "large";
   }>(),
   {
     type: "center",
     maxWidth: "max-w-xl",
     backgroundAccessible: false,
+    size: "large",
   }
 );
 
@@ -25,6 +35,9 @@ const visible = defineModel("visible", {
 });
 
 const emit = defineEmits(["closed"]);
+
+const dialog = useTemplateRef<HTMLElement>("dialog");
+provide(MODAL_TELEPORT_TARGET, dialog);
 
 // needed for case where modal is show/hidden but not added /removed from DOM
 watchEffect(() => {
@@ -72,6 +85,7 @@ function hide() {
             target="modal-title"
           >
             <div
+              :id="id"
               role="dialog"
               aria-labelledby="modal-title"
               :aria-modal="true"
@@ -88,9 +102,12 @@ function hide() {
               />
 
               <div
-                class="bg-modal w-3/4 relative rounded-alt h-[95vh] flex flex-col pointer-events-auto"
+                class="bg-modal w-3/4 relative rounded-alt max-h-[95dvh] min-h-[18.75rem] flex flex-col pointer-events-auto"
                 :class="[
                   {
+                    'h-[95vh]': size === 'large',
+                    'h-[50vh]': size === 'medium',
+                    'h-[33vh]': size === 'small',
                     'm-auto': type === 'center',
                     'ml-auto rounded-r-none': type === 'right',
                     'mr-auto rounded-l-none': type === 'left',

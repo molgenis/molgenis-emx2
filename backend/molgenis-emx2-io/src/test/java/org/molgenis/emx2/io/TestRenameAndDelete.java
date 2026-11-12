@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
@@ -106,5 +107,31 @@ public class TestRenameAndDelete {
 
     assertNull(schema.getTable("Category"));
     assertNotNull(schema.getTable("Type"));
+  }
+
+  @Test
+  public void testRenamedTableStillAcceptsInsertsViaCsvImport() {
+    Schema renameSchema = db.dropCreateSchema("TestRenameThenInsert");
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
+    store.writeTable(
+        "molgenis",
+        List.of("tableName", "columnName", "key"),
+        List.of(
+            new Row("tableName", "myTable"),
+            new Row("tableName", "myTable", "columnName", "a", "key", "1")));
+    new ImportMetadataTask(renameSchema, store, true).run();
+    renameSchema.getTable("myTable").insert(new Row("a", "before"));
+
+    store = new TableStoreForCsvInMemory();
+    store.writeTable(
+        "molgenis",
+        List.of("tableName", "oldName"),
+        List.of(new Row("tableName", "otherTable", "oldName", "myTable")));
+    new ImportMetadataTask(renameSchema, store, true).run();
+
+    db.clearCache();
+    Schema reloaded = db.getSchema("TestRenameThenInsert");
+    reloaded.getTable("otherTable").insert(new Row("a", "after"));
+    assertEquals(2, reloaded.getTable("otherTable").retrieveRows().size());
   }
 }

@@ -2,6 +2,7 @@
 import { defineNuxtConfig } from "nuxt/config";
 import * as fs from "fs";
 import { resolve } from "path";
+import { apiBase } from "../dev-env.js";
 
 const sourceCodeMapPath = resolve("./sourceCodeMap.json");
 const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
@@ -61,9 +62,11 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.CI
-        ? "http://localhost:8080/"
-        : "https://emx2.dev.molgenis.org/",
+      apiBase: apiBase(
+        process.env.CI
+          ? "http://localhost:8080/"
+          : "https://emx2.dev.molgenis.org/"
+      ),
       sourceCodeMap: sourceCodeMap,
     },
   },

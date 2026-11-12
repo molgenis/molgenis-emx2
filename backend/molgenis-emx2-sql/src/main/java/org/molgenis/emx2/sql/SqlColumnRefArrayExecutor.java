@@ -17,7 +17,7 @@ import org.molgenis.emx2.Reference;
  * Create refArray constraints. Might be composite key so therefore using Column...column
  * parameters.
  */
-class SqlColumnRefArrayExecutor {
+final class SqlColumnRefArrayExecutor {
   private SqlColumnRefArrayExecutor() {
     // hide
   }
@@ -31,20 +31,15 @@ class SqlColumnRefArrayExecutor {
 
   static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
-        "DROP TRIGGER IF EXISTS {0} ON {1}",
-        name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
-    jooq.execute(
-        "DROP FUNCTION IF EXISTS {0} ",
+        "DROP FUNCTION IF EXISTS {0} CASCADE",
         name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
     jooq.execute(
-        "DROP TRIGGER IF EXISTS {0} ON {1}",
-        name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
-    jooq.execute(
-        "DROP FUNCTION IF EXISTS {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
+        "DROP FUNCTION IF EXISTS {0} CASCADE", name(ref.getSchemaName(), getReferedCheckName(ref)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
   // changed/deleted in such a way that we get dangling foreign key references.
+  @SuppressWarnings("PMD.UnusedPrivateMethod")
   private static void createUpdateReferedCheck(DSLContext jooq, Column column) {
     // only support singular keys
     Name toTable = name(column.getTable().getSchema().getName(), column.getRefTableName());

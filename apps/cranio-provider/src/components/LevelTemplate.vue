@@ -5,10 +5,13 @@ import { ref, computed } from "vue";
 import { DashboardRow, MessageBox } from "molgenis-viz";
 import ProviderDashboard from "./ProviderDashboard.vue";
 import LevelGroupedColumnChart from "./LevelGroupedColumnChart.vue";
-import { getDashboardPage } from "../utils/getDashboardData";
+import { getDashboardPage } from "../../../metadata-utils/src/viz/getUiDashboardPage.js";
 
-import type { IDashboardPages, ICharts } from "../types/schema.js";
-import type { IAppPage } from "../types/app";
+import type {
+  IDashboardPages,
+  ICharts,
+} from "../../../metadata-utils/src/viz/UiDashboard";
+import type { IAppPage } from "../types";
 import type { ISiteErnCleftTypeCounts } from "../types/index.js";
 
 interface LevelTemplateProps {
@@ -43,8 +46,8 @@ async function getPageData() {
     props.name
   );
 
-  dashboardPage.value = currentProvider[0];
-  ernPageData.value = ernData[0];
+  dashboardPage.value = currentProvider[0] as IDashboardPages;
+  ernPageData.value = ernData[0] as IDashboardPages;
 }
 
 getPageData().catch((err) => (error.value = err));

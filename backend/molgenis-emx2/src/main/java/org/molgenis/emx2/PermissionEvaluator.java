@@ -15,12 +15,26 @@ public final class PermissionEvaluator {
   }
 
   public static AggregateLevel getAggregateLevel(Schema schema, TableMetadata table) {
-    if (canView(schema, table)) return AggregateLevel.COUNT;
-    if (hasRole(schema, COUNT)) return AggregateLevel.COUNT;
-    if (hasRole(schema, AGGREGATOR)) return AggregateLevel.AGGREGATOR;
-    if (hasRole(schema, RANGE)) return AggregateLevel.RANGE;
-    if (hasRole(schema, EXISTS)) return AggregateLevel.EXISTS;
+    if (canView(schema, table)) {
+      return AggregateLevel.COUNT;
+    }
+    if (hasRole(schema, COUNT)) {
+      return AggregateLevel.COUNT;
+    }
+    if (hasRole(schema, AGGREGATOR)) {
+      return AggregateLevel.AGGREGATOR;
+    }
+    if (hasRole(schema, RANGE)) {
+      return AggregateLevel.RANGE;
+    }
+    if (hasRole(schema, EXISTS)) {
+      return AggregateLevel.EXISTS;
+    }
     return AggregateLevel.NONE;
+  }
+
+  public static boolean canCount(Schema schema, TableMetadata table) {
+    return tablePermissionAtLeast(schema, table, AggregateLevel.COUNT);
   }
 
   public static boolean canRange(Schema schema, TableMetadata table) {
@@ -57,6 +71,11 @@ public final class PermissionEvaluator {
 
   public static boolean isAdmin(Schema schema) {
     return schema.getDatabase().isAdmin();
+  }
+
+  public static boolean isRowLevelRestricted(Schema schema, TableMetadata table) {
+    return !canManage(schema)
+        && permissionFor(schema, table).map(TablePermission::hasRowLevel).orElse(false);
   }
 
   private static boolean hasRole(Schema schema, Privileges privilege) {

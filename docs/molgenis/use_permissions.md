@@ -16,6 +16,53 @@ In addition we have special roles to allow for specific permissions around aggre
 * **range** - context: schema: Has permission to count table rows, with a step-size of 10 (e.g. 10,20..120,130 etc.), and to view ontology data
 * **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
 
+Finally there is one role that carries no permission on data at all:
+
+* **member** - context: schema. Marks membership of a schema: the schema is visible in the schema list
+  and can be used. Every other role, standard or custom, is a member of this role. Unlike **exists**
+  it does not bypass row-level security, so a user who only reaches a table through **member** sees
+  aggregates over the rows they are allowed to see, and nothing more.
+
+## What each role can query in GraphQL
+
+Roles inherit from each other in this order: **member** < **exists** < **range** < **aggregator** <
+**count** < **viewer** < **editor** < **manager** < **owner**. Each role can do everything the roles
+before it can. For every table the [GraphQL API](dev_graphql.md#table-query-and-mutation-functions)
+offers a row query (`Pet`), an aggregate query (`Pet_agg`) and a grouped aggregate query
+(`Pet_groupBy`). Which of these you can use depends on your role:
+
+| Query | Member | Exists | Range | Aggregator | Count | Viewer and up |
+|-------|--------|--------|-------|------------|-------|---------------|
+| Retrieve rows: `Pet { name }` | – | – | – | – | – | ✓ |
+| `Pet_agg { exists }` | – | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `Pet_agg { count }` | – | – | rounded up to 10, 20, 30, … | exact, but at least 10 | exact | exact |
+| `Pet_agg { min, max, avg, sum }` | – | – | – | – | – | ✓ |
+| `Pet_groupBy { count }` | – | – | – | – | exact | exact |
+| `Pet_groupBy { sum }` | – | – | – | – | - | ✓ |
+| Group by an ontology column: `Pet_groupBy { count, tags { name } }` | – | – | – | – | ✓ | ✓ |
+| Group by any other column: `Pet_groupBy { count, category { name } }` | – | – | – | – | – | ✓ |
+| `filter` and `search` arguments on the queries above | – | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Retrieve rows from ontology tables: `Tag { name }` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+The same number of matching rows is reported differently per role in `Pet_agg { count }`:
+
+| Actual number of rows | Range | Aggregator | Count, Viewer and up |
+|-----------------------|-------|------------|----------------------|
+| 0 | 0 | 10 | 0 |
+| 3 | 10 | 10 | 3 |
+| 10 | 10 | 10 | 10 |
+| 14 | 20 | 14 | 14 |
+| 27 | 30 | 27 | 27 |
+
+Notes:
+
+* A query field that your role does not allow is left out of the GraphQL schema, so asking for it
+  returns a validation error rather than an empty result.
+* A custom role that has been granted **select** on a table gets the same access as **viewer** on
+  that table, limited to the rows it may see when [row-level security](#row-level-security) is
+  enabled. Without **select** on a table, a custom role cannot query that table at all.
+* Ontology tables can be read by every role, including **member**.
+
 
 ## Custom roles
 
@@ -34,6 +81,8 @@ does not automatically inherit Viewer, Editor, or any other standard role — th
 specific tables that have been explicitly granted to their role.
 
 Custom roles can be created, updated, and deleted through the [GraphQL API](dev_graphql.md#table-level-permissions-api).
+Admins can list the custom roles of all schemas, with their permissions and users, through
+`_admin { customRoles }` on the root API.
 
 ## Row-level security
 
@@ -46,23 +95,38 @@ When RLS is enabled for a role on a table:
 2. Each row is tagged with exactly one role name that owns it, e.g. `mg_roles: ["TeamA"]`.
 3. A user with only an RLS role can see, update, or delete rows where their role appears in `mg_roles`.
 4. Rows with an empty `mg_roles` are **not** visible to users who only hold an RLS role — they are
-   visible exclusively to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+   readable only by Viewer and up, and counted by the aggregate roles.
 
 > **Current limitation:** `mg_roles` is stored as an array for future extensibility, but at present
 > only **one role per row** is supported. Setting more than one value in `mg_roles` is not yet
 > supported and the behaviour is undefined.
 
+**Automatic row ownership:**
+
+When a user whose only write access to a table comes from an RLS role inserts or saves a row without
+providing `mg_roles` (or providing an empty one), the backend tags the row with that user's role. A
+row would otherwise match no role and be rejected.
+
+Users who are not restricted by RLS on that table (Editor, Manager, Owner, admin, or a plain
+non-RLS grant) are unaffected: their rows stay untagged unless they set `mg_roles` themselves.
+Updates never rewrite the `mg_roles` of an existing row.
+
 **Who bypasses row-level security:**
 
 RLS is bypassed in three cases:
 
-- **Viewer** role: bypass for SELECT only. Viewers see all rows regardless of `mg_roles`. A user
-  can hold both an RLS role and the Viewer role at the same time — in that case they see all rows
-  (including rows with an empty `mg_roles`) but their write operations are still limited to rows
-  tagged with their RLS role.
+- **Exists** and up: bypass for SELECT only. Because roles inherit, this one rule covers the
+  aggregate roles **Exists**, **Range**, **Aggregator** and **Count** as well as **Viewer** and up.
+  Aggregate roles are schema-wide, so their counts stay over the whole table when row-level security
+  is enabled; they still cannot retrieve rows. **Viewer** and up do read all rows. A user can hold
+  both an RLS role and Viewer at the same time — they then read all rows (including rows with an
+  empty `mg_roles`) but their writes stay limited to rows tagged with their RLS role.
 - **Editor**, **Manager**, or **Owner** role: bypass for all operations.
 - A non-RLS custom role granted on the same table: bypass for all operations on that table.
   Granting RLS to one role does not restrict another role that has a plain (non-RLS) grant.
+
+A custom role never bypasses row-level security by itself, not even for aggregates: it holds the
+**Member** role rather than **Exists**, so its counts only cover the rows it may see.
 
 **Example:**
 

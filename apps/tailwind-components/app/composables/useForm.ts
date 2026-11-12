@@ -9,6 +9,7 @@ import {
   type Ref,
 } from "vue";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
+import { simplePostClient } from "../../../metadata-utils/src/simplePostClient";
 import type {
   columnId,
   columnValue,
@@ -21,7 +22,6 @@ import { getColumnError } from "../../../molgenis-components/src/components/form
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 import { useSession } from "./useSession";
-import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -84,6 +84,58 @@ export default function useForm(
     return params;
   };
 
+  // setup computed value signals, only re-evaluated when a referenced field changes
+  const computedValueMap = metadata.value.columns.reduce((acc, column) => {
+    if (!column.computed?.trim() || column.columnType === "AUTO_ID") {
+      return acc;
+    }
+    const params: string[] = extractParamsFromExpression(
+      column.computed
+    ).filter((param) => param !== column.id);
+    let computedFunction: Function;
+    try {
+      computedFunction = new Function(
+        "simplePostClient",
+        params.join(", "),
+        "return eval(`" + column.computed.replaceAll("`", "\\`") + "`)"
+      );
+    } catch (e) {
+      const error = "Computed expression failed: " + e;
+      acc[column.id] = computed(() => ({ value: null, error }));
+      return acc;
+    }
+    acc[column.id] = computed(() => {
+      try {
+        return {
+          value: computedFunction.apply(null, [
+            simplePostClient,
+            ...params.map(getValue),
+          ]),
+        };
+      } catch (e) {
+        return { value: null, error: "Computed expression failed: " + e };
+      }
+    });
+    return acc;
+  }, {} as Record<columnId, ComputedRef<{ value: columnValue; error?: string }>>);
+
+  function getValue(id: columnId): columnValue {
+    const computedValue = computedValueMap[id];
+    return computedValue ? computedValue.value.value : formValues.value[id];
+  }
+
+  function getValuesWithComputed(): IRow {
+    return {
+      ...formValues.value,
+      ...Object.fromEntries(
+        Object.entries(computedValueMap).map(([id, result]) => [
+          id,
+          result.value.value,
+        ])
+      ),
+    };
+  }
+
   // setup visibility signals
   const visibilityMap = metadata.value.columns.reduce((acc, column) => {
     const cleanExpression = column.visible?.replaceAll('"', "'") || "true";
@@ -99,11 +151,7 @@ export default function useForm(
 
     // use function with apply to pass parameters dynamically while keeping reactivity
     acc[column.id] = computed(
-      () =>
-        !!visibilityFunction.apply(
-          null,
-          params.map((p) => formValues.value[p])
-        )
+      () => !!visibilityFunction.apply(null, params.map(getValue))
     );
 
     return acc;
@@ -131,11 +179,7 @@ export default function useForm(
           "return eval(`" + cleanExpression + "`)"
         );
         acc[column.id] = computed(
-          () =>
-            !!requiredFunction.apply(
-              null,
-              params.map((p) => formValues.value[p])
-            )
+          () => !!requiredFunction.apply(null, params.map(getValue))
         );
       } catch (e) {
         console.error(
@@ -264,11 +308,10 @@ export default function useForm(
         if (column.columnType === "BOOL") {
           //boolean required fields are considered filled when they are either true or false
           return (
-            formValues.value[column.id] === undefined ||
-            formValues.value[column.id] === null
+            getValue(column.id) === undefined || getValue(column.id) === null
           );
         } else {
-          return !formValues.value[column.id];
+          return !getValue(column.id);
         }
       }) || []
     );
@@ -365,7 +408,11 @@ export default function useForm(
   };
 
   const validateColumn = (column: IColumn) => {
-    const error = getColumnError(column, formValues.value, metadata.value);
+    const error = getColumnError(
+      column,
+      getValuesWithComputed(),
+      metadata.value
+    );
     if (error) {
       errorMap.value[column.id] = error;
     } else {
@@ -424,7 +471,7 @@ export default function useForm(
   };
 
   const insertInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(getValuesWithComputed());
     const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
@@ -441,7 +488,7 @@ export default function useForm(
   };
 
   const updateInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(getValuesWithComputed());
     const query = `mutation update($value:[${metadata.value.id}Input]){update(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
@@ -527,9 +574,16 @@ export default function useForm(
   // reactive intersection of visible columns and error columns
   const visibleColumnErrors = computed(() => {
     const visibleColIds = visibleColumns.value.map((col) => col.id);
-    const visibleErrors = Object.entries(errorMap.value).filter(([key]) =>
-      visibleColIds.includes(key)
-    );
+    const computedErrors: Record<columnId, string> = {};
+    Object.entries(computedValueMap).forEach(([key, result]) => {
+      if (result.value.error) {
+        computedErrors[key] = result.value.error;
+      }
+    });
+    const visibleErrors = Object.entries({
+      ...errorMap.value,
+      ...computedErrors,
+    }).filter(([key]) => visibleColIds.includes(key));
     return Object.fromEntries(visibleErrors);
   });
 
@@ -623,9 +677,8 @@ export default function useForm(
   const rowKey = ref<Record<string, columnValue>>({});
 
   async function resetRowKey(): Promise<Record<string, columnValue>> {
-    console.log("Resetting row key, based on", values.value);
-    const resp = await fetchRowPrimaryKey(
-      values.value,
+    const resp = await getPrimaryKey(
+      getValuesWithComputed(),
       metadata.value.id,
       metadata.value.schemaId
     );
@@ -672,6 +725,7 @@ export default function useForm(
     isValid,
     isDraftValid,
     values,
+    getValue,
     resetRowKey,
     rowKey,
     showLegend,
@@ -683,6 +737,7 @@ export default function useForm(
 
 export interface UseForm {
   values: ComputedRef<IRow>;
+  getValue: (id: columnId) => columnValue;
   rowKey: Ref<Record<string, columnValue>>;
   getScrollContainerId: () => Ref<string>;
   setScrollContainerId: (id: string) => void;

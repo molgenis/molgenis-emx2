@@ -9,6 +9,7 @@
       :tableId="tableId"
       :tableLable="tableLabel"
       :pkey="pkey"
+      :additionalMsg="additionalMsg"
       @close="handleClose"
       @confirmed="handleExecuteDelete"
     />
@@ -48,7 +49,13 @@ export default {
     return {
       isModalShown: false,
       client: null,
+      cascadeDeleteMsg: null,
     };
+  },
+  watch: {
+    isModalShown(newValue) {
+      this.cascadeDeleteMsg = newValue ? this.fetchCascadeDeleteMsg() : null;
+    },
   },
   methods: {
     async handleExecuteDelete() {
@@ -77,6 +84,25 @@ export default {
     handleClose() {
       this.isModalShown = false;
       this.$emit("close");
+    },
+    async fetchCascadeDeleteMsg() {
+      if (!this.client) {
+        this.client = Client.newClient(this.schemaId);
+      }
+      return await this.client
+        .fetchCascadeDeleteMsg(this.tableId)
+        .then((response) => {
+          this.$emit("cascadeDeleteMsg", response);
+        })
+        .catch((error) => {
+          const errorMessage =
+            error?.response?.data?.errors &&
+            Array.isArray(error?.response?.data?.errors)
+              ? error.response.data.errors[0].message
+              : "Failed to fetch cascade delete info from table ";
+
+          this.$emit("error", { errorMessage, error });
+        });
     },
   },
 };

@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
@@ -9,11 +10,13 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column extends HasLabelsDescriptionsAndSettings<Column> implements Comparable<Column> {
+public class Column extends HasLabelsDescriptionsAndSettings<Column>
+    implements Comparable<Column>, HasSemantics {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -41,8 +44,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String[] semantics = null; // absolute IRI or prefixed name
+  private Semantic[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
+  private String[] allowedValues = null; // permitted values of ENUM/ENUM_ARRAY, in order
 
   private Boolean readonly = false;
   private String defaultValue = null;
@@ -94,13 +98,34 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public String[] getSemantics() {
+  @Nullable
+  @Override
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
-  public Column setSemantics(String... semantics) {
+  public Column setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
     return this;
+  }
+
+  public Column setSemantics(String... semantics) {
+    return setSemantics(
+        semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
+  }
+
+  public String[] getAllowedValues() {
+    return allowedValues;
+  }
+
+  public Column setAllowedValues(String... allowedValues) {
+    this.allowedValues = allowedValues;
+    return this;
+  }
+
+  @Override
+  public SemanticPrefixes getSemanticPrefixes() {
+    return getSchema().getSemanticPrefixes();
   }
 
   public String[] getProfiles() {
@@ -138,6 +163,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     semantics = column.semantics;
     profiles = column.profiles;
     visible = column.visible;
+    allowedValues = column.allowedValues;
   }
 
   public TableMetadata getTable() {
@@ -195,7 +221,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     SchemaMetadata schema = getSchema();
     if (this.refSchemaName != null) {
       try {
-        schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
+        schema = getSchema().getSchemaMetadataProvider().getSchemaMetadata(this.refSchemaName);
       } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
@@ -210,14 +236,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
     if (this.refTable != null && getTable() != null) {
       // self relation (same name, same schema), prevent endless loop
-      if ((schema == null || getSchema().getName().equals(schema.getName()))
+      if ((schema == null || Objects.equals(getSchema().getName(), schema.getName()))
           && this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }
 
       // other relation
       else if (schema != null) {
-        return schema.getTableMetadata(this.refTable);
+        TableMetadata refTableMetadata = schema.getTableMetadata(this.refTable);
+        if (refTableMetadata == null) {
+          throw new MissingRefTableException(
+              "refTable '"
+                  + this.refTable
+                  + "' does not exist or permission denied in schema '"
+                  + schema.getName()
+                  + "', referenced by column '"
+                  + this.getQualifiedName()
+                  + "'");
+        }
+        return refTableMetadata;
       }
     }
     throw new MolgenisException(
@@ -248,7 +285,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isRequired() {
-    return required != null && required.equalsIgnoreCase("true");
+    return required != null && "true".equalsIgnoreCase(required);
   }
 
   public Column setRequired(Boolean required) {
@@ -313,6 +350,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return indexed;
   }
 
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append(getName()).append(" ");
@@ -325,7 +363,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     if (getKey() > 0) {
       builder.append(" key" + getKey());
     }
-    if (Boolean.TRUE.equals(isRequired())) builder.append(" required");
+    if (Boolean.TRUE.equals(isRequired())) {
+      builder.append(" required");
+    }
     return builder.toString();
   }
 
@@ -338,7 +378,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getTableName() {
-    if (this.table != null) return this.table.getTableName();
+    if (this.table != null) {
+      return this.table.getTableName();
+    }
     return null;
   }
 
@@ -380,7 +422,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public List<Field> getCompositeFields() {
     if (this.isReference()) {
-      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+      return getReferences().stream().map(Reference::getJooqField).toList();
     } else {
       return List.of(getJooqField());
     }
@@ -404,8 +446,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
     // in complex table rename scenarios the refTable might not be available
     // todo, never have to check if null
-    if (this.getRefTable() != null) {
-      for (Column c : this.getRefTable().getColumns()) {
+    TableMetadata refTableMetadata;
+    try {
+      refTableMetadata = this.getRefTable();
+    } catch (MissingRefTableException refTableNotAvailable) {
+      return null;
+    }
+    if (refTableMetadata != null) {
+      for (Column c : refTableMetadata.getColumns()) {
         if (c.isRefback()
             && c.getRefTableName().equals(this.getTableName())
             && c.getRefSchemaName().equals(this.getSchemaName())
@@ -466,7 +514,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     List<Reference> refColumns = new ArrayList<>();
 
     // check if primary key exists
-    if (pkeys.size() == 0) {
+    if (pkeys.isEmpty()) {
       throw new MolgenisException(
           "Error in column '"
               + getName()
@@ -498,7 +546,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           if (name == null) {
             name = getName();
             // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
-            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
+            if (pkeys.size() > 1 || !keyPart.getReferences().isEmpty()) {
               name += COMPOSITE_REF_SEPARATOR + ref.getColumnName();
             }
           }
@@ -550,7 +598,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
 
     // remove duplicates
-    HashSet<Object> seen = new HashSet<>();
+    Set<Object> seen = new HashSet<>();
     refColumns.removeIf(e -> !seen.add(e.getColumnName()));
     return refColumns;
   }
@@ -568,7 +616,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
                 + getName()
                 + "': composite key");
       }
-    } else return getColumnType().getBaseType();
+    } else {
+      return getColumnType().getBaseType();
+    }
   }
 
   public String getRefLabel() {
@@ -576,7 +626,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getRefLabelDefault() {
-    if (!isReference()) return null;
+    if (!isReference()) {
+      return null;
+    }
     List<Column> allPk = getRefTable().getPrimaryKeyColumns();
     Set<String> excludedPkeyFields =
         allPk.stream()
@@ -660,6 +712,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return getKey() == 1;
   }
 
+  public boolean isInherited() {
+    TableMetadata table = getTable();
+    if (table == null) {
+      return false;
+    }
+    TableMetadata inheritedTable = table.getInheritedTable();
+    return inheritedTable != null && inheritedTable.getColumn(getName()) != null;
+  }
+
   public boolean isRefArray() {
     return getColumnType().isRefArray();
   }
@@ -677,7 +738,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isSystemAddUpdateByUserColumn() {
-    return this.getName().equals(MG_INSERTEDBY) || this.getName().equals(MG_UPDATEDBY);
+    return MG_INSERTEDBY.equals(this.getName()) || MG_UPDATEDBY.equals(this.getName());
   }
 
   public boolean isHeading() {
@@ -719,7 +780,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public String getLabel() {
-    if (getLabels().get("en") != null && !getLabels().get("en").trim().equals("")) {
+    if (getLabels().get("en") != null && !"".equals(getLabels().get("en").trim())) {
       return getLabels().get("en");
     } else {
       return getName();
@@ -730,25 +791,19 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return defaultValue != null;
   }
 
+  public boolean hasComputedDefaultValue() {
+    return defaultValue != null && defaultValue.startsWith("=");
+  }
+
+  public String getDefaultValueExpression() {
+    return hasComputedDefaultValue() ? defaultValue.substring(1) : null;
+  }
+
   public boolean hasComputed() {
     return computed != null;
   }
 
   public boolean isAutoId() {
     return AUTO_ID.equals(getColumnType());
-  }
-
-  public boolean isMgEditRoleColumn() {
-    return MG_EDIT_ROLE.equals(this.getName());
-  }
-
-  public boolean hasDependencyOn(Column column) {
-    boolean onComputed = getComputed() != null && getComputed().contains(column.getName());
-    boolean onDefaultValue =
-        getDefaultValue() != null && getDefaultValue().contains(column.getName());
-    boolean onRequired = getRequired() != null && getRequired().contains(column.getName());
-    boolean onValidate = getValidation() != null && getValidation().contains(column.getName());
-    boolean onVisible = getVisible() != null && getVisible().contains(column.getName());
-    return onComputed || onDefaultValue || onRequired || onValidate || onVisible;
   }
 }

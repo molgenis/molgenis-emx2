@@ -66,8 +66,11 @@ public class FilteringTermsFetcher {
   public Set<FilteringTerm> getFilteringTermsFromOneTable(
       String schemaName, String tableToQuery, Collection<String> tableNamesInSchema) {
     Set<FilteringTerm> filteringTerms = new HashSet<>();
+    // Any non-atomic, non-ontology fields, which are headings, files and regular (non-ontological)
+    // references are ignored.
     if (tableNamesInSchema.contains(tableToQuery)) {
-      TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
+      TableMetadata metadata =
+          database.getSchemaMetadata(schemaName).getTableMetadata(tableToQuery);
       // todo: now extended columns are ignored because make the query super complicated
       for (Column column : metadata.getLocalColumns()) {
         if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
@@ -121,9 +124,6 @@ public class FilteringTermsFetcher {
                     tableToQuery);
             filteringTerms.add(filteringTerm);
           }
-        } else {
-          // ignore any non-atomic, non-ontology fields, which are headings, files and regular
-          // (non-ontological) references
         }
       }
     }

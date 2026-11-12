@@ -8,18 +8,20 @@ import type {
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
+import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import { watch } from "vue";
 import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
 import { definePageMeta } from "#imports";
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import type { IRow } from "../../../../../metadata-utils/src/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -64,9 +66,9 @@ const tableSettings = ref<ITableSettings>({
     direction: orderbyDirection.value,
   },
   search: search.value || "",
-  orderedColumnsIds: route.query.columns
+  orderedVisibleColumnsIds: route.query.columns
     ? (route.query.columns as string).split(",")
-    : [],
+    : undefined,
 });
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
@@ -83,9 +85,7 @@ function handleSettingsUpdate() {
         ? undefined
         : tableSettings.value.search,
     page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
-    columns: tableSettings.value.orderedColumnsIds.length
-      ? tableSettings.value.orderedColumnsIds.join(",")
-      : undefined,
+    columns: tableSettings.value.orderedVisibleColumnsIds?.join(","),
     pagesize:
       tableSettings.value.pageSize === constants.PAGE_SIZE_DEFAULT
         ? undefined
@@ -117,7 +117,9 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin, session } = await useSession(schemaId);
+const { session } = await useSession(schemaId);
+const { canView, canInsert, canUpdate, canDelete, isRowLevel, userRoles } =
+  useTablePermission(session, schemaId, tableId, tableMetadata.tableType);
 const enableFilters = true;
 </script>
 <template>
@@ -132,12 +134,23 @@ const enableFilters = true;
       </template>
     </PageHeader>
 
+    <Message v-if="!canView" id="table-no-view-permission" invalid>
+      You don't have permission to view this table. Please sign in or contact
+      your administrator to request access.
+    </Message>
+
     <TableEMX2
+      v-else
       :schemaId="schemaId"
       :tableId="tableId"
       :enable-filters="enableFilters"
       v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+      :canInsert="canInsert"
+      :canUpdate="canUpdate"
+      :canDelete="canDelete"
+      :isRowLevel="isRowLevel"
+      :userRoles="userRoles"
+      @view-details="handleViewRowRequest"
     >
       <template #additional-row-actions="{ row }">
         <Button
@@ -145,7 +158,6 @@ const enableFilters = true;
           :icon-only="true"
           type="inline"
           icon="info"
-          size="small"
           label="view row details"
           @click="handleViewRowRequest(row)"
         />

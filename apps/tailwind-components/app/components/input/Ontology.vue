@@ -798,7 +798,7 @@ function toStringArray(value: string | string[]): string[] {
     size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
-    :class="{ 'pl-4': hasChildren && !displayAsSelect }"
+    :class="{ 'ml-4': hasChildren && !displayAsSelect }"
   >
     Clear
   </Button>

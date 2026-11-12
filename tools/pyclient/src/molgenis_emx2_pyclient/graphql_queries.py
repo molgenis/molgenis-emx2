@@ -207,6 +207,7 @@ def list_schema_meta():
                     readonly
                     computed
                     semantics
+                    allowedValues
                 }
                 semantics
                 tableType
@@ -260,7 +261,7 @@ def version_number():
     )
 
 
-def task_status(task_id: str) -> str:
+def task_status(task_id: str | int) -> str:
     """GraphQL query to retrieve a task's status."""
     return (
         """

@@ -8,6 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -19,7 +22,8 @@ import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
-  public static final int ROW_ACCESS_WINDOW_SIZE = 100;
+  private static final int ROW_ACCESS_WINDOW_SIZE = 100;
+  private static final int MAX_CELL_TEXT_LENGTH = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
   private final Path excelFilePath;
   private List<String> sheetNames;
 
@@ -41,8 +45,8 @@ public class TableStoreForXlsxFile implements TableStore {
           sheetNames.add(workbook.getSheetName(i));
         }
         return sheetNames;
-      } catch (Throwable e) {
-        throw new MolgenisException("Error reading excel file", new Exception(e));
+      } catch (Exception e) {
+        throw new MolgenisException("Error reading excel file", e);
       }
     }
     return sheetNames;
@@ -50,46 +54,40 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    SXSSFWorkbook wb;
+    writeTableStreaming(name, columnNames, rows::forEach);
+  }
+
+  @Override
+  public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
     try {
-      if (name.length() > 30)
+      if (name.length() > 30) {
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
-      // streaming workbook
-      if (!Files.exists(excelFilePath)) {
-        wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
-      } else {
-        // move to a temp file, so we can merge result into the original file location
-        File tempFile = getTempFile("temp", ".xlsx");
-        Path temp =
-            Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
       }
-      if (rows.iterator().hasNext()) {
+      try (SXSSFWorkbook wb = openWorkbook()) {
         writeRowsToSheet(name, columnNames, rows, wb);
-      } else {
-        writeHeaderOnlyToSheet(name, columnNames, wb);
-      }
-      // write contents to a temp file and overwrite original
-      try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
-        wb.write(outputStream);
-      } finally {
-        wb.close();
+        // write contents to a temp file and overwrite original
+        try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
+          wb.write(outputStream);
+        }
       }
     } catch (Exception ife) {
       throw new MolgenisException("Writing of excel failed", ife);
     }
   }
 
-  private void writeHeaderOnlyToSheet(String name, List<String> columnNames, Workbook wb) {
-    Sheet sheet = wb.createSheet(name);
-    org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(0);
-    for (int i = 0; i < columnNames.size(); i++) {
-      excelRow.createCell(i).setCellValue(columnNames.get(i));
+  /** Streaming workbook, with the existing file's contents if there is one */
+  private SXSSFWorkbook openWorkbook() throws IOException, InvalidFormatException {
+    if (!Files.exists(excelFilePath)) {
+      return new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
     }
+    // move to a temp file, so we can merge result into the original file location
+    File tempFile = getTempFile("temp", ".xlsx");
+    Path temp = Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    return new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
   }
 
   private void writeRowsToSheet(
-      String name, List<String> columnNames, Iterable<Row> rows, SXSSFWorkbook wb)
+      String name, List<String> columnNames, RowProducer rows, SXSSFWorkbook wb)
       throws IOException {
 
     // create the sheet
@@ -97,44 +95,44 @@ public class TableStoreForXlsxFile implements TableStore {
     // buffer the row so it gets flushed
     sheet.setRandomAccessWindowSize(wb.getRandomAccessWindowSize());
     Map<String, Integer> columnNameIndexMap = new LinkedHashMap<>();
-    int rowNum = 0;
-
-    // write the data
-    for (Row row : rows) {
-      // create header row
-      if (rowNum == 0) {
-        int columnIndex = 0;
-        // define the column indexes
-        for (String columnName : columnNames) {
-          columnNameIndexMap.put(columnName, columnIndex++);
-        }
-        // write a header row
-        org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
-        for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
-          excelRow.createCell(entry.getValue()).setCellValue(entry.getKey());
-        }
-        rowNum++;
-      }
-      // write a contents row
-      org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
-      for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
-        try {
-          String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
-          excelRow.createCell(entry.getValue()).setCellValue(cellValue);
-        } catch (IllegalArgumentException e) {
-          throw new MolgenisException(
-              "Error writing table '"
-                  + name
-                  + "', column '"
-                  + entry.getKey()
-                  + "', at row "
-                  + rowNum
-                  + ": "
-                  + e.getMessage());
-        }
-      }
-      rowNum++;
+    int columnIndex = 0;
+    for (String columnName : columnNames) {
+      columnNameIndexMap.put(columnName, columnIndex);
+      columnIndex++;
     }
+
+    // write a header row
+    org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+    for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
+      headerRow.createCell(entry.getValue()).setCellValue(entry.getKey());
+    }
+
+    AtomicInteger rowNum = new AtomicInteger(1);
+    rows.produce(
+        row -> {
+          int currentRow = rowNum.getAndIncrement();
+          org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(currentRow);
+          for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
+            String cellLocation =
+                "table '" + name + "', column '" + entry.getKey() + "', at row " + currentRow;
+            String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
+            if (cellValue != null && cellValue.length() > MAX_CELL_TEXT_LENGTH) {
+              throw new MolgenisException(
+                  "Cannot export "
+                      + cellLocation
+                      + " to Excel: value has "
+                      + cellValue.length()
+                      + " characters, while Excel allows at most "
+                      + MAX_CELL_TEXT_LENGTH
+                      + " characters per cell. Please use CSV export instead.");
+            }
+            try {
+              excelRow.createCell(entry.getValue()).setCellValue(cellValue);
+            } catch (IllegalArgumentException e) {
+              throw new MolgenisException("Error writing " + cellLocation + ": " + e.getMessage());
+            }
+          }
+        });
     sheet.flushRows();
   }
 

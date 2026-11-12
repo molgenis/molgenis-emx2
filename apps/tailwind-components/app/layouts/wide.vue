@@ -35,6 +35,7 @@
       </Header>
 
       <main>
+        <Banner v-if="banner" v-html="banner" />
         <slot />
       </main>
 
@@ -56,9 +57,11 @@ import FooterComponent from "../components/FooterComponent.vue";
 import FooterVersion from "../components/FooterVersion.vue";
 import AccountMenu from "../components/AccountMenu.vue";
 import { useLayoutState } from "../composables/useLayoutState.js";
+import { useBanner } from "../composables/useBanner.js";
 
 const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
   await useLayoutState();
 const slots = useSlots();
 const hasAccountDropdownSlot = computed(() => !!slots["account-dropdown"]);
+const banner = await useBanner();
 </script>

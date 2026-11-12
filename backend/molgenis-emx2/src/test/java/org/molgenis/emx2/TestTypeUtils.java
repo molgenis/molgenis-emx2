@@ -195,11 +195,30 @@ class TestTypeUtils {
     for (ColumnType columnType : EXCLUDE_FILE_REFERENCE_HEADING) {
       try {
         TypeUtils.getTypedValue(object, columnType);
+      } catch (UnsupportedOperationException e) {
+        fail("ColumnType not covered: " + columnType);
       } catch (RuntimeException e) {
-        if (e instanceof UnsupportedOperationException) {
-          fail("ColumnType not covered: " + columnType);
-        }
+        // other conversion errors are fine here
       }
     }
+  }
+
+  @Test
+  void enumTypesAreStringBackedAndMapToEachOtherAsArray() {
+    assertEquals(ColumnType.STRING, ColumnType.ENUM.getBaseType());
+    assertEquals(ColumnType.STRING_ARRAY, ColumnType.ENUM_ARRAY.getBaseType());
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM));
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM_ARRAY));
+    assertEquals(ColumnType.STRING_ARRAY, TypeUtils.getArrayType(ColumnType.STRING));
+    assertTrue(ColumnType.ENUM.isEnum() && ColumnType.ENUM_ARRAY.isEnum());
+    assertFalse(ColumnType.STRING.isEnum() || ColumnType.STRING_ARRAY.isEnum());
+  }
+
+  @Test
+  void allowedValuesKeepOrderAndSurviveColumnCopy() {
+    Column column =
+        column("status").setType(ColumnType.ENUM).setAllowedValues("yes", "no", "unknown");
+    assertArrayEquals(new String[] {"yes", "no", "unknown"}, new Column(column).getAllowedValues());
+    assertNull(column("other").getAllowedValues());
   }
 }

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.fairmapper.preprocessing;
 
-import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.Repository;
 
 /**
  * Optional pre-processing step in the DCAT harvesting pipeline, applied after RDF extraction and
@@ -17,5 +17,5 @@ public interface RdfPreProcessor {
    * <p>Implementations may read from and write to the same repository. All mutations must be
    * committed before this method returns so that subsequent pipeline steps see the enriched graph.
    */
-  void process(SailRepository repository);
+  void process(Repository repository);
 }

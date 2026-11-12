@@ -1,9 +1,3 @@
-<template>
-  <div class="provider-display">
-    <slot></slot>
-  </div>
-</template>
-
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -28,3 +22,9 @@ onMounted(() => {
   });
 });
 </script>
+
+<template>
+  <div class="provider-display">
+    <slot></slot>
+  </div>
+</template>

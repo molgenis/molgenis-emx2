@@ -5,23 +5,34 @@ import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFil
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.DownloadApiUtils.requestedColumns;
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
+import org.molgenis.emx2.io.emx2.DownloadColumns;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.emx2.Emx2Changelog;
 import org.molgenis.emx2.io.emx2.Emx2Members;
@@ -33,10 +44,11 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.tasks.Task;
 
-public class CsvApi {
+public final class CsvApi {
 
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
+  private static final String MODE_PARAM = "mode";
 
   private CsvApi() {
     // hide constructor
@@ -62,8 +74,11 @@ public class CsvApi {
 
   private static void getChangelog(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!PermissionEvaluator.canManage(schema)) {
-      throw new MolgenisException("Unauthorized to get schema changelog");
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException(
+          "Schema '"
+              + ctx.pathParam(SCHEMA)
+              + "' unknown. Might you need to sign in or ask permission?");
     }
 
     int limit = parseIntParam(ctx, "limit").orElse(DEFAULT_CHANGELOG_LIMIT);
@@ -110,17 +125,27 @@ public class CsvApi {
   }
 
   private static void discardMetadata(Context ctx) {
-    SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-    getSchema(ctx).discard(schema);
+    SchemaMetadata schemaMetadata = Emx2.fromRowList(getRowList(ctx));
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
+    schema.discard(schemaMetadata);
     ctx.status(200);
     ctx.result("remove metadata items success");
   }
 
   static void mergeMetadata(Context ctx) {
     String fileName = ctx.header("fileName");
-    boolean fileNameMatchesTable = getSchema(ctx).hasTableWithNameOrIdCaseInsensitive(fileName);
+    Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
 
-    if (fileNameMatchesTable) { // so we assume it isn't meta data
+    boolean fileNameMatchesTable = schema.hasTableWithNameOrIdCaseInsensitive(fileName);
+
+    if (fileNameMatchesTable) { // so we assume it isn't metadata
       Table table = MolgenisWebservice.getTableByIdOrName(ctx, fileName);
       if (ctx.queryParam("async") != null) {
         TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
@@ -136,8 +161,8 @@ public class CsvApi {
         ctx.result("{ \"message\": \"imported number of rows: \" + " + count + " }");
       }
     } else {
-      SchemaMetadata schema = Emx2.fromRowList(getRowList(ctx));
-      getSchema(ctx).migrate(schema);
+      SchemaMetadata schemaMetadata = Emx2.fromRowList(getRowList(ctx));
+      schema.migrate(schemaMetadata);
       ctx.status(200);
       ctx.result("{ \"message\": \"add/update metadata success\" }");
     }
@@ -145,6 +170,10 @@ public class CsvApi {
 
   static void getMetadata(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
         Emx2.toRowList(schema.getMetadata()),
@@ -162,7 +191,7 @@ public class CsvApi {
 
   private static void getMembers(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    if (!PermissionEvaluator.canManage(schema)) {
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Unauthorized to get schema members");
     }
 
@@ -170,10 +199,10 @@ public class CsvApi {
     Character separator = getSeparator(ctx);
     TableStore tableStore = new TableStoreForCsvInMemory(separator);
 
-    Emx2Members.outputRoles(tableStore, schema);
+    Emx2Members.outputMembers(tableStore, schema);
 
     CsvTableWriter.write(
-        tableStore.readTable(Emx2Members.ROLES_TABLE),
+        tableStore.readTable(Emx2Members.MEMBERS_TABLE),
         List.of(Emx2Members.USER, Emx2Members.ROLE),
         writer,
         separator);
@@ -189,6 +218,9 @@ public class CsvApi {
 
   private static void getSettings(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
 
     StringWriter writer = new StringWriter();
     Character separator = getSeparator(ctx);
@@ -212,46 +244,87 @@ public class CsvApi {
 
   private static void tableRetrieve(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
-    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeparator(ctx));
-    store.writeTable(table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
-    ctx.contentType(ACCEPT_CSV);
-    ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
-    ctx.status(200);
-    ctx.res().setCharacterEncoding("UTF-8");
-    ctx.result(store.getCsvString(table.getName()));
+    List<String> columnNames = getDownloadColumns(ctx, table);
+    List<Column> columns = table.getMetadata().getColumns();
+    Database database = table.getSchema().getDatabase();
+    Query query = getDownloadQuery(ctx, table);
+
+    // The cursor's transaction holds an ACCESS SHARE lock that blocks ALTER TABLE, so it is
+    // closed before the client, whose speed we do not control, is written to.
+    // the enclosing directory is created private to this user, the temp file alone would not be
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    Path csv = tempDir.resolve("download.csv");
+    try {
+      try (Writer writer = Files.newBufferedWriter(csv, StandardCharsets.UTF_8)) {
+        Consumer<Row> rowWriter =
+            CsvTableWriter.newRowWriter(columnNames, writer, getSeparator(ctx));
+        query.streamRows(
+            row -> {
+              ResolveComputedValue.apply(database, columns, List.of(row));
+              rowWriter.accept(row);
+            });
+      }
+
+      ctx.contentType(ACCEPT_CSV);
+      ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
+      ctx.status(200);
+      ctx.res().setCharacterEncoding("UTF-8");
+      try (InputStream in = Files.newInputStream(csv);
+          OutputStream out = ctx.outputStream()) {
+        in.transferTo(out);
+      }
+    } finally {
+      // nested: a failure to delete the file must not skip the directory
+      try {
+        Files.deleteIfExists(csv);
+      } finally {
+        Files.deleteIfExists(tempDir);
+      }
+    }
   }
 
   public static List<String> getDownloadColumns(Context ctx, Table table) {
-    boolean includeSystem = includeSystemColumns(ctx);
-    return table.getMetadata().getDownloadColumnNames().stream()
-        .map(Column::getName)
-        .filter(name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystem)
-        .toList();
+    return DownloadColumns.resolve(
+        table.getMetadata(), requestedColumns(ctx), includeSystemColumns(ctx));
   }
 
-  public static List<Row> getDownloadRows(Context ctx, Table table) throws JsonProcessingException {
-    Query q = table.query();
+  static Query getDownloadQuery(Context ctx, Table table) throws JsonProcessingException {
+    Query query = table.query();
     // extract filter argument if exists
     if (ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT) != null) {
       // gonna use the graphql filter parser so we can easily reuse graphql table level filter
       // expressions
-      q.where(
+      query.where(
           convertMapToFilterArray(
               table.getMetadata(),
               new ObjectMapper()
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
-    List<Row> rows = q.retrieveRows();
-    List<Column> columns = table.getMetadata().getColumns();
-    ResolveComputedValue.apply(columns, rows);
-    return rows;
+    return query;
   }
 
   private static void tableUpdate(Context ctx) {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
+
+    String modeParam = ctx.queryParam(MODE_PARAM);
+
+    UpdateMode updateMode = UpdateMode.DEFAULT_MODE;
+
+    try {
+      if (modeParam != null) {
+        String normalizedMode = modeParam.trim().toUpperCase(java.util.Locale.ROOT);
+        if ("OVERRIDE".equals(normalizedMode)) {
+          normalizedMode = UpdateMode.OVERWRITE.name();
+        }
+        updateMode = UpdateMode.valueOf(normalizedMode);
+      }
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse("Invalid mode: " + modeParam);
+    }
+
     tableStore.setCsvString(table.getName(), ctx.body());
-    Task task = new ImportTableTask(tableStore, table, false);
+    Task task = new ImportTableTask(tableStore, table, false, updateMode);
     task.run();
     ctx.status(200);
     ctx.contentType(ACCEPT_CSV);

@@ -27,6 +27,7 @@ export interface INewClient {
   deleteAllTableData: (tableId: string) => Promise<any>;
   fetchSchemaMetaData: () => Promise<any>;
   fetchTableMetaData: (tableId: string) => Promise<ITableMetaData>;
+  fetchCascadeDeleteMsg: (tableId: string) => Promise<string>;
   fetchTableData: (tableId: string, properties: IQueryMetaData) => Promise<any>;
   fetchTableDataValues: (
     tableId: string,

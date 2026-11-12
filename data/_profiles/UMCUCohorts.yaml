@@ -5,7 +5,7 @@ profileTags: UMCUCohorts
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
-settings:
+settings: _settings/datacatalogue_cohortstaging
 
 # special options
 ontologiesToFixedSchema: CatalogueOntologies

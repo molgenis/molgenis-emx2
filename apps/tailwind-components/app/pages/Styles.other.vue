@@ -1,6 +1,14 @@
 <template>
   <h1 class="text-heading-3xl text-title">Theme Styles</h1>
 
+  <h2 class="text-heading-2xl text-title py-4">Surfaces</h2>
+
+  <h3 class="text-heading-1xl text-title py-3">surface-inverted</h3>
+  <div class="surface-inverted bg-gray-900 p-6 rounded-base w-full md:w-96">
+    <a href="#" class="text-link">A link on an inverted surface</a>
+    <BaseIcon name="info" class="w-6 h-6 text-icon-neutral ml-2" />
+  </div>
+
   <h2 class="text-heading-2xl text-title py-4">Colors</h2>
 
   <h3 class="text-heading-1xl text-title py-3">blue</h3>

@@ -3,6 +3,7 @@
     <div class="bg-white container" :key="JSON.stringify(session)">
       <h1>Up/Download for {{ schema }}</h1>
       <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <div v-if="taskId" class="pb-3">
         <h4>Progress of current upload:</h4>
@@ -13,7 +14,7 @@
       </div>
       <div v-else class="pb-3">
         <h4>Upload</h4>
-        <MessageWarning v-if="!session?.roles?.includes('Editor')">
+        <MessageWarning v-if="!canUpload">
           You don't have permission to upload data. Might you need to login?
         </MessageWarning>
         <div v-else>
@@ -110,11 +111,11 @@
 import {
   ButtonAction,
   InputFile,
-  Spinner,
   MessageError,
   MessageSuccess,
   MessageWarning,
   Molgenis,
+  Spinner,
   Task,
 } from "molgenis-components";
 import { request } from "graphql-request";
@@ -138,6 +139,7 @@ export default {
       tables: [],
       file: null,
       error: null,
+      warning: null,
       success: null,
       loading: false,
       taskId: null,
@@ -145,11 +147,27 @@ export default {
     };
   },
   computed: {
+    canUpload() {
+      return (
+        this.session?.roles?.includes("Editor") ||
+        this.session?.tablePermissions?.some(
+          (permission) =>
+            permission.canInsert || permission.canUpdate || permission.canDelete
+        ) ||
+        false
+      );
+    },
     visibleTables() {
       if (this.session?.roles?.includes("Viewer")) {
         return this.tables;
       } else {
-        return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
+        return this.tables.filter(
+          (table) =>
+            table.tableType === "ONTOLOGIES" ||
+            this.session?.tablePermissions?.some(
+              (permission) => permission.id === table.id && permission.canView
+            )
+        );
       }
     },
     isManagerOrOwner() {
@@ -204,6 +222,7 @@ export default {
                   } else {
                     // it's a regular response
                     this.success = response.message;
+                    this.warning = response.warning ? response.warning : null;
                   }
                   this.error = null;
                 });

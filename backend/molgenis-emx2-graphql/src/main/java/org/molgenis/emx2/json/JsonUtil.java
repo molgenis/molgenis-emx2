@@ -14,13 +14,16 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.jooq.DSLContext;
 import org.jooq.JSON;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class JsonUtil {
+public final class JsonUtil {
 
   private JsonUtil() {
     // hide constructor
@@ -84,23 +87,48 @@ public class JsonUtil {
   }
 
   public static ObjectWriter getWriter() {
-
     if (writer == null) {
       DefaultPrettyPrinter printer =
           new DefaultPrettyPrinter()
               .withArrayIndenter(new DefaultIndenter("  ", "\n"))
               .withObjectIndenter(new DefaultIndenter("  ", "\n"));
-      writer =
+
+      ObjectMapper mapper =
           new ObjectMapper()
               .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)
               .addMixIn(TableMetadata.class, MixinForJsonIgnore.class)
               .addMixIn(Column.class, MixinForJsonIgnore.class)
               .addMixIn(SqlDatabase.class, MixinForJsonIgnore.class)
               .addMixIn(DSLContext.class, MixinForJsonIgnore.class)
-              .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-              .setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
-              .writer(printer);
+              .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+      mapper
+          .configOverride(List.class)
+          .setInclude(
+              JsonInclude.Value.construct(
+                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+
+      mapper
+          .configOverride(Set.class)
+          .setInclude(
+              JsonInclude.Value.construct(
+                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+
+      mapper
+          .configOverride(Collection.class)
+          .setInclude(
+              JsonInclude.Value.construct(
+                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+
+      mapper
+          .configOverride(Object[].class)
+          .setInclude(
+              JsonInclude.Value.construct(
+                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+
+      writer = mapper.writer(printer);
     }
+
     return writer;
   }
 
@@ -126,5 +154,5 @@ public class JsonUtil {
   }
 
   @JsonIgnoreType
-  private static class MixinForJsonIgnore {}
+  private static final class MixinForJsonIgnore {}
 }

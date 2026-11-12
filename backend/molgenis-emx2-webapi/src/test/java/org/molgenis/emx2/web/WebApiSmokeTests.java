@@ -126,58 +126,58 @@ class WebApiSmokeTests extends ApiTestBase {
     given().sessionId(sessionId).body(createUserQuery).post("/api/graphql").asString();
 
     int threadCount = 10;
-    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
     CountDownLatch readyLatch = new CountDownLatch(threadCount);
     CountDownLatch startLatch = new CountDownLatch(1);
     CountDownLatch doneLatch = new CountDownLatch(threadCount);
 
-    ConcurrentLinkedQueue<Throwable> failures = new ConcurrentLinkedQueue<>();
+    Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
 
-    for (int i = 0; i < threadCount; i++) {
-      executor.submit(
-          () -> {
-            try {
-              readyLatch.countDown();
-              startLatch.await();
-
-              String signinResult =
-                  given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
-
+    try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)) {
+      for (int i = 0; i < threadCount; i++) {
+        executor.submit(
+            () -> {
               try {
-                assertTrue(
-                    signinResult.contains("Signed in"),
-                    "Login failed in thread: " + Thread.currentThread().getName());
-              } catch (AssertionError e) {
-                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                readyLatch.countDown();
+                startLatch.await();
+
+                String signinResult =
+                    given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
+
+                try {
+                  assertTrue(
+                      signinResult.contains("Signed in"),
+                      "Login failed in thread: " + Thread.currentThread().getName());
+                } catch (AssertionError e) {
+                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                }
+
+                String sessionResult =
+                    given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
+
+                assertFalse(
+                    sessionResult.contains(ADMIN_USER),
+                    "ADMIN_USER present in thread: " + Thread.currentThread().getName());
+
+                try {
+                  assertTrue(
+                      sessionResult.contains(testUser),
+                      "Session check failed in thread: " + Thread.currentThread().getName());
+                } catch (AssertionError e) {
+                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                }
+
+              } catch (Exception | AssertionError t) {
+                failures.add(t); // only assertFalse failure or unexpected errors will be added
+              } finally {
+                doneLatch.countDown();
               }
+            });
+      }
 
-              String sessionResult =
-                  given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
-
-              assertFalse(
-                  sessionResult.contains(ADMIN_USER),
-                  "ADMIN_USER present in thread: " + Thread.currentThread().getName());
-
-              try {
-                assertTrue(
-                    sessionResult.contains(testUser),
-                    "Session check failed in thread: " + Thread.currentThread().getName());
-              } catch (AssertionError e) {
-                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
-              }
-
-            } catch (Throwable t) {
-              failures.add(t); // only assertFalse failure or unexpected errors will be added
-            } finally {
-              doneLatch.countDown();
-            }
-          });
+      readyLatch.await();
+      startLatch.countDown();
+      doneLatch.await();
     }
-
-    readyLatch.await();
-    startLatch.countDown();
-    doneLatch.await();
-    executor.shutdown();
 
     if (!failures.isEmpty()) {
       for (Throwable t : failures) {
@@ -378,8 +378,7 @@ class WebApiSmokeTests extends ApiTestBase {
   void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
-    String schemaCSV =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
+    given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
 
     // create a new schema for excel
     database.dropCreateSchema("pet store excel");
@@ -408,9 +407,10 @@ class WebApiSmokeTests extends ApiTestBase {
     // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (poll.body().asString().contains("UNKNOWN")
         || poll.body().asString().contains("RUNNING")) {
-      if (count++ > 100) {
+      if (count > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
+      count++;
       poll = given().sessionId(sessionId).when().get(url);
       Thread.sleep(500);
     }
@@ -445,10 +445,9 @@ class WebApiSmokeTests extends ApiTestBase {
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
     File tempFile = File.createTempFile("some", extension);
     tempFile.deleteOnExit();
-    OutputStream os = new FileOutputStream(tempFile);
-    os.write(zipContents);
-    os.flush();
-    os.close();
+    try (OutputStream os = new FileOutputStream(tempFile)) {
+      os.write(zipContents);
+    }
     return tempFile;
   }
 
@@ -757,7 +756,7 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testRdfApiRequest() {
-    final String urlPrefix = "http://localhost:" + PORT;
+    final String urlPrefix = "http://localhost:" + port;
 
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
@@ -847,7 +846,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
+            .get("http://localhost:" + port + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
 
@@ -857,7 +856,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .get("http://localhost:" + port + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
             .getBody()
             .asString();
 
@@ -866,7 +865,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?shacls")
+            .get("http://localhost:" + port + "/api/rdf?shacls")
             .getBody()
             .asString();
 
@@ -875,7 +874,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/rdf")
+            .get("http://localhost:" + port + "/pet store/api/rdf")
             .getBody()
             .asString();
 
@@ -883,7 +882,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.0.2")
             .getBody()
             .asString();
 
@@ -1070,9 +1069,10 @@ class WebApiSmokeTests extends ApiTestBase {
     int count = 0;
     // poll while running
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
-      if (count++ > 10) {
+      if (count > 10) {
         throw new MolgenisException("failed: polling took too long, result is: " + result);
       }
+      count++;
       Thread.sleep(1000);
       result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
@@ -1083,7 +1083,7 @@ class WebApiSmokeTests extends ApiTestBase {
 
     String outputURL = "/api/tasks/" + taskId + "/output";
     result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
-    if (result.equals("Readme")) {
+    if ("Readme".equals(result)) {
       System.out.println("testScriptExcution error: " + result);
     }
     assertEquals("Readme", result);
@@ -1110,9 +1110,10 @@ class WebApiSmokeTests extends ApiTestBase {
     // poll while running
     // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
-      if (count++ > 10) {
+      if (count > 10) {
         throw new MolgenisException("failed: polling took too long, result is: " + result);
       }
+      count++;
       Thread.sleep(1000);
       result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
@@ -1126,8 +1127,9 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testScriptScheduling() throws JsonProcessingException, InterruptedException {
-    // make sure the 'test' script is not there already from a previous test
-    database.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
+    // clear stale job rows so waitForScriptToComplete does not pick up an old one
+    deleteJobsForScript("hello world");
+    deleteJobsForScript("test");
     try {
       database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
     } catch (MolgenisException e) {
@@ -1268,14 +1270,15 @@ class WebApiSmokeTests extends ApiTestBase {
                 logging.getLogger("requests").setLevel(logging.WARNING)
                 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-                async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                async with Client('http://localhost:%d', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
                     await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
                                 template="PET_STORE", include_demo_data=False)
 
             if __name__ == '__main__':
                 asyncio.run(main())
 
-            """;
+            """
+            .formatted(port);
     jobs.insert(
         row(
             "name",
@@ -1333,14 +1336,15 @@ class WebApiSmokeTests extends ApiTestBase {
     String status = "WAITING";
     int count = 0;
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
-      if (count++ > 30) {
+      if (count > 30) {
         throw new MolgenisException("failed: polling took too long, result is: " + result);
       }
+      count++;
       Thread.sleep(1000);
       result = given().sessionId(sessionId).get(url).asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
     }
-    return !status.equals("ERROR");
+    return !"ERROR".equals(status);
   }
 
   private static String getToken(String email, String password) throws JsonProcessingException {
@@ -1437,7 +1441,12 @@ class WebApiSmokeTests extends ApiTestBase {
   @Test
   void testAnalyticsApi() throws JsonProcessingException {
 
-    database.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
+    // clear a "my-trigger" row a previous run may have left behind
+    Table triggerTable = database.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger");
+    List<Row> staleTrigger = triggerTable.where(f("name", EQUALS, "my-trigger")).retrieveRows();
+    if (!staleTrigger.isEmpty()) {
+      triggerTable.delete(staleTrigger);
+    }
     String adminToken = getToken("admin", "admin");
 
     // add a trigger
@@ -1500,6 +1509,14 @@ class WebApiSmokeTests extends ApiTestBase {
     assertTrue(token.length() > 10);
   }
 
+  private void deleteJobsForScript(String scriptName) {
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    List<Row> staleJobs = jobs.where(f("script", f("name", EQUALS, scriptName))).retrieveRows();
+    if (!staleJobs.isEmpty()) {
+      jobs.delete(staleJobs);
+    }
+  }
+
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
     Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
     Filter f = f("script", f("name", EQUALS, scriptName));
@@ -1508,7 +1525,7 @@ class WebApiSmokeTests extends ApiTestBase {
     // should run every 5 secs, lets give it some time to complete at least 1 job
     while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
       List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
-      if (jobList.size() > 0) {
+      if (!jobList.isEmpty()) {
         firstJob = jobList.get(0);
       }
       count++; // timing could make this test flakey
@@ -1524,6 +1541,46 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testGraphqlUnknownSchemaReturns404() {
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    given()
+        .queryParam("query", "{_schema{id}}")
+        .when()
+        .get("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    // a schema the user cannot see returns the same 404, so the response does
+    // not reveal whether a schema exists
+    given()
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(404)
+        .body("errors[0].message", containsString("unknown"));
+
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
   void testMetricsEndpoint() {
     given()
         .expect()
@@ -1531,5 +1588,24 @@ class WebApiSmokeTests extends ApiTestBase {
         .body(containsString("jvm_memory_used_bytes"))
         .when()
         .get(MetricsController.METRICS_PATH);
+  }
+
+  @Test
+  void testClearTasks() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/pet store/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
   }
 }

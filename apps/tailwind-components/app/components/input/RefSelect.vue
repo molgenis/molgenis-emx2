@@ -25,13 +25,16 @@ import { fetchGraphql } from "#imports";
 import fetchTableData from "../../composables/fetchTableData";
 
 import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
+import { visibleColumns } from "../../utils/visibleColumns";
 import { fetchTableMetadata } from "#imports";
 import type { ITableDataResponse } from "../../composables/fetchTableData";
 import type { IInputProps } from "../../../types/types";
 import type {
+  IColumn,
   ITableMetaData,
   columnValueObject,
   recordValue,
+  IInputValue,
   IInputValueLabel,
 } from "../../../../metadata-utils/src/types";
 
@@ -149,6 +152,12 @@ async function loadOptions(filter: IQueryMetaData) {
   }
 }
 
+const optionColumns = computed<IColumn[]>(() =>
+  visibleColumns(tableMetadata.value?.columns ?? [], {
+    showMgColumns: props.showMgColumns,
+  })
+);
+
 const namesForOrderByInput = computed<IInputValueLabel[]>(() => {
   return (
     tableMetadata.value?.columns
@@ -219,6 +228,17 @@ function clearSelection() {
   showSelectionMap.value = false;
   selectionMap.value = {};
   emit("update:modelValue", props.multiselect ? [] : undefined);
+}
+
+function handleSortChange(
+  value: IInputValueLabel | IInputValue | null | undefined
+) {
+  const sortValue =
+    typeof value === "object" && value !== null && "value" in value
+      ? value.value
+      : value;
+
+  sortMethod.value = sortValue == null ? undefined : String(sortValue);
 }
 
 function loadMore() {
@@ -407,8 +427,9 @@ watch(
               :id="`${id}-ref-dropdown-sorting`"
               :labelId="`${id}-ref-dropdown-sort-input-label`"
               :options="namesForOrderByInput"
-              @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
+              @update:model-value="handleSortChange"
               :enable-search="false"
+              showClearButton
               placeholder="Sort by"
             />
           </div>
@@ -476,9 +497,11 @@ watch(
                 :collapse-hidden-content="!isExpanded ? true : null"
               >
                 <DisplayRecord
-                  :table-metadata="tableMetadata"
-                  :input-row-data="(option as recordValue)"
-                  :showMgColumns="showMgColumns"
+                  v-if="tableMetadata"
+                  :columns="optionColumns"
+                  :row="(option as recordValue)"
+                  :show-table-of-contents="false"
+                  layout="PLAIN"
                 />
               </InputRefSelectInputOption>
             </div>

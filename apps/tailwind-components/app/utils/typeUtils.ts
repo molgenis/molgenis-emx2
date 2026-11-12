@@ -1,4 +1,4 @@
-import type { Link, Menu } from "../../types/types";
+import type { Link, Menu, MgError } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -27,6 +27,8 @@ export function getInitialFormValues(metadata: ITableMetaData) {
           }
         } else if (column.columnType === "BOOL") {
           accum[column.id] = getBooleanValue(column.defaultValue);
+        } else if (column.columnType === "ENUM_ARRAY") {
+          accum[column.id] = splitCsvString(column.defaultValue);
         } else {
           accum[column.id] = column.defaultValue;
         }
@@ -219,6 +221,33 @@ function isEmptyObject(column: columnValue) {
   );
 }
 
+export function isMgError(error: unknown): error is MgError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as any).message === "string" &&
+    "statusCode" in error &&
+    typeof (error as any).statusCode === "number" &&
+    "data" in error &&
+    typeof (error as any).data === "object" &&
+    (error as any).data !== null &&
+    "errors" in (error as any).data &&
+    Array.isArray((error as any).data.errors) &&
+    (error as any).data.errors.every(
+      (err: any) =>
+        typeof err === "object" &&
+        err !== null &&
+        "message" in err &&
+        typeof err.message === "string"
+    )
+  );
+}
+
+export function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
 export function isLink(value: unknown): value is Link {
   return (
     typeof value === "object" &&
@@ -249,4 +278,28 @@ export function getIntInput(inputValue?: string | number | null) {
       typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
     return numericValue;
   }
+}
+
+function splitCsvString(value: string): string[] {
+  const parts: string[] = [];
+  let inQuotes = false;
+  let current = "";
+  for (const char of value) {
+    if (char === "," && !inQuotes) {
+      parts.push(current);
+      current = "";
+    } else {
+      if (char === '"') inQuotes = !inQuotes;
+      current += char;
+    }
+  }
+  parts.push(current);
+  return parts
+    .map((part) =>
+      part
+        .trim()
+        .replace(/^"(.*)"$/s, "$1")
+        .trim()
+    )
+    .filter((part) => part !== "");
 }

@@ -1,3 +1,4 @@
+import { proxyOriginHeaders } from "../../utils/proxyOriginHeaders";
 import { joinURL } from "ufo";
 import { createConsola } from "consola";
 import { defineEventHandler, readBody, getRouterParam, proxyRequest } from "h3";
@@ -25,5 +26,7 @@ export default defineEventHandler((event) => {
 
   logger.info("to : ", target);
 
-  return proxyRequest(event, target);
+  return proxyRequest(event, target, {
+    headers: proxyOriginHeaders(event, target),
+  });
 });
