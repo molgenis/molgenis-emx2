@@ -56,7 +56,7 @@ import { vizDelay, vizDurations } from "../../../utils/cms/constants.ts";
 const props = withDefaults(defineProps<IStatisticalCharts>(), {
   chartWidth: 300,
   chartHeight: 300,
-  topMargin: 10,
+  topMargin: 35,
   rightMargin: 10,
   bottomMargin: 70,
   leftMargin: 45,
