@@ -496,7 +496,6 @@ jobs:
     - pre_steps
     - restore_gradle_deps
 
-    # same resource_class, but 15GB against the plain executor's 8GB, which postgres OOMs on
     - setup_remote_docker
 
     - restore_gradle_build_cache
@@ -580,7 +579,7 @@ jobs:
 
     - post_steps
 
-  sonar:
+  submit_to_sonar:
     <<: *test_config
 
     steps:
@@ -595,8 +594,8 @@ jobs:
         name: push results to sonar
         # sonar rejects an empty pullrequest.key, and master has no PR, so the
         # pull-request flags are only passed when there is one.
-        # Two invocations: with compileTestJava in the graph, jacocoMergedReport's fileTree(dir: '.') fails
-        # validation once `-x test` drops its ordering. -x :apps:testClasses: root testClasses builds the frontend.
+        # One gradle call fails validation of jacocoMergedReport, because -x test drops its order after compileTestJava.
+        # -x :apps:testClasses, because root testClasses would build the frontend.
         command: |
           SONAR_PR_ARGS=""
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
@@ -809,7 +808,7 @@ workflows:
         filters:
           branches:
             ignore: master
-    - sonar:
+    - submit_to_sonar:
         requires:
           - test-backend
           - test-data
@@ -819,7 +818,7 @@ workflows:
          - test-backend
          - test-data
          - test-e2e
-         - sonar
+         - submit_to_sonar
        filters:
          branches:
            only: master
