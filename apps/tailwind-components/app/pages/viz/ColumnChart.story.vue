@@ -118,6 +118,7 @@ const recruitmentByGender: IChartData[] = [
 
 const chartClick1 = ref<Record<string, number>>();
 const chartClick2 = ref<Record<string, number>>();
+const chartClick3 = ref<Record<string, number>>();
 </script>
 
 <template>
@@ -136,7 +137,7 @@ const chartClick2 = ref<Record<string, number>>();
         :yAxisMaxValue="100"
         :yAxisTicks="[0, 25, 50, 75, 100]"
         :enableAnimations="true"
-        :enableClickEvents="false"
+        :enableClickEvents="true"
         :enableHoverEvents="true"
         @column-clicked="chartClick1 = $event"
       />
@@ -160,7 +161,7 @@ const chartClick2 = ref<Record<string, number>>();
         :enableAnimations="true"
         :enableClickEvents="true"
         :enableHoverEvents="true"
-        @column-clicked="chartClick2 = $event"
+        @columnClicked="chartClick2 = $event"
       />
       <ComponentOutput class="my-2.5">
         Clicked element: {{ chartClick2 }}
@@ -177,11 +178,15 @@ const chartClick2 = ref<Record<string, number>>();
         primaryGroupValue="primaryGroupValue"
         yAxisTitle="Number of participants"
         :enableAnimations="true"
-        :enableClickEvents="false"
+        :enableClickEvents="true"
         :enableHoverEvents="true"
         :legendIsEnabled="true"
         :legendPosition="{ name: 'top' }"
+        @columnClicked="chartClick3 = $event"
       />
+      <ComponentOutput class="my-2.5">
+        Clicked element: {{ chartClick3 }}
+      </ComponentOutput>
     </div>
   </div>
 </template>
