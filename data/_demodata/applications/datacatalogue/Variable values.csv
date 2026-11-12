@@ -24,3 +24,7 @@ ATHLETE,outcome_ath,edR_eval_,2,Parentally reported,,false,,1.0.1,,
 testNetwork1,cdm_1,testVarCategorical_,1,No,,false,,,,
 testNetwork1,cdm_1,testVarCategorical_,2,Yes,,false,,,,
 testNetwork1,cdm_1,testVarCategorical_,0,not available,,true,,,,
+testCohort1,test table for testCohort1,var1,1,Yes,,,,,,false
+testCohort1,test table for testCohort1,var1,2,No,,,,,,false
+testCohort1,test table for testCohort1,var1,0,not applicable,,,,,,false
+
