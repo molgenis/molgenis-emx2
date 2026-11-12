@@ -1,0 +1,6 @@
+resource,name,standard,certification number,has certification
+bbmri-eric:ID:EXT_QBB,ISO 9001,iso-9001,,true
+bbmri-eric:ID:EXT_QBB,ISO 20387:2018,ISO-20387-2018,,true
+bbmri-eric:ID:EXT_QBB,ISO 27001:2013,iso-27001-2013,,true
+bbmri-eric:ID:AT_MUI,ISO 9001,iso-9001,,true
+bbmri-eric:ID:EXT_76823,ISO 9001,iso-9001,,true

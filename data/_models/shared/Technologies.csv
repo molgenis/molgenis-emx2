@@ -1,0 +1,8 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue,visible
+Technologies,,,,,,,,,,,,"Technologies, methodological approaches, instruments, or computational platforms used. This includes specific instruments, assays, pipeliines, platforms or computational implementations.","DataCatalogueFlat,BiobanksStaging",,,
+Technologies,,name,string,1,TRUE,,,,,,foaf:name,"Name of the applied measuring technique/assay.","DataCatalogueFlat,BiobanksStaging",,,
+Technologies,,description,text,,,,,,,,,"Text description of the applied measuring technique/assay.","DataCatalogueFlat,BiobanksStaging",,,
+Technologies,,provider,string,,,,,,,,,"Name of the vendor whose measuring technique/assay was applied in creating the dataset.","DataCatalogueFlat,BiobanksStaging",,,
+Technologies,,device,string,,,,,,,,,"The vendor-stated name of the measuring device or platform applied to measure/derive data.","DataCatalogueFlat,BiobanksStaging",,,
+Technologies,,software name,string,,,,,,,,,"Software/firmware name of the measuring device applied.","DataCatalogueFlat,BiobanksStaging",,,
+Technologies,,software version,string,,,,,,,,,"Software/firmware version of the measuring device applied.","DataCatalogueFlat,BiobanksStaging",,,
