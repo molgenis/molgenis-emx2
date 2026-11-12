@@ -1,6 +1,9 @@
 import { defineNuxtRouteMiddleware, navigateTo } from "#app";
 import { useSettings } from "../../../tailwind-components/app/composables/useSettings";
-import { parseLinkSetting } from "../../../tailwind-components/app/utils/typeUtils";
+import {
+  parseLinkSetting,
+  resolveLinkLocation,
+} from "../../../tailwind-components/app/utils/typeUtils";
 
 const SYSTEM_LANDING_PAGE = "SYSTEM_LANDING_PAGE";
 
@@ -10,9 +13,12 @@ export default defineNuxtRouteMiddleware(async () => {
 
   if (setting.value?.SYSTEM_LANDING_PAGE) {
     const link = parseLinkSetting(setting.value.SYSTEM_LANDING_PAGE as string);
-    return await navigateTo(link.link, {
-      replace: true,
-      external: !link.isSpaLink,
-    });
+    const location = resolveLinkLocation(link);
+    if (location) {
+      return await navigateTo(location, {
+        replace: true,
+        external: link.linkType !== "spaLink",
+      });
+    }
   }
 });
