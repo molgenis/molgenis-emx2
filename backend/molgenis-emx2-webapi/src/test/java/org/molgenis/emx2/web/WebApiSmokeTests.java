@@ -1195,6 +1195,12 @@ class WebApiSmokeTests extends ApiTestBase {
             .asString();
 
     Row jobMetadata = waitForScriptToComplete("hello world");
+    // fail with the job status and log instead of an opaque error from the output endpoint
+    assertNotNull(jobMetadata, "no job row found for 'hello world'");
+    assertEquals(
+        "COMPLETED",
+        jobMetadata.getString("status"),
+        "python job did not complete: " + jobMetadata.getString("log"));
     // retrieve the file
     result =
         given()
@@ -1546,7 +1552,10 @@ class WebApiSmokeTests extends ApiTestBase {
     Row firstJob = null;
     // python jobs create a venv and run pip first, which can take well over a minute on slow CI
     // agents, so allow up to ~3 minutes
-    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 180) {
+    while ((firstJob == null
+            || !("COMPLETED".equals(firstJob.getString("status"))
+                || "ERROR".equals(firstJob.getString("status"))))
+        && count < 180) {
       List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
       if (!jobList.isEmpty()) {
         firstJob = jobList.get(0);
