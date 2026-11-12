@@ -51,6 +51,8 @@ import type {
   CategoricalAxisTickData,
 } from "../../../../types/viz";
 
+import { vizDelay, vizDurations } from "../../../utils/cms/constants.ts";
+
 const props = withDefaults(defineProps<IStatisticalCharts>(), {
   chartWidth: 300,
   chartHeight: 300,
@@ -74,6 +76,7 @@ const parentElem = computed<HTMLElement>(() => {
 
 const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
+const chartColumns = ref(); // receives d3.select rect
 
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
@@ -263,16 +266,16 @@ function onMouseOut(event: Event, row: IChartData) {
 
 function renderColumns() {
   const chartColumnArea = chartArea.value.select("g.columns");
-  const columns = chartColumnArea.selectAll("rect").data(props.chartData);
+  chartColumns.value = chartColumnArea.selectAll("rect").data(props.chartData);
 
-  let rectElem = columns;
+  let rectElem = chartColumns.value;
   if (props.enableAnimations) {
-    rectElem = columns
+    rectElem = chartColumns.value
       .attr("y", yScale.value(0))
       .attr("height", 0)
       .transition()
-      .delay(100)
-      .duration(500);
+      .delay(vizDelay)
+      .duration(vizDurations.withAnimations);
   }
 
   rectElem
@@ -288,7 +291,7 @@ function renderColumns() {
     });
 
   if (props.enableHoverEvents) {
-    columns
+    chartColumns.value
       .style("cursor", "pointer")
       .on("mouseover", onMouseOver)
       .on("mouseout", (event: Event, row: IChartData) =>
@@ -297,7 +300,7 @@ function renderColumns() {
   }
 
   if (props.enableClickEvents) {
-    columns
+    chartColumns.value
       .style("cursor", "pointer")
       .on("click", (_: Event, row: IChartData) => {
         emits("column-clicked", row);
@@ -316,6 +319,34 @@ function renderChart() {
 
   renderChartAxes();
   renderColumns();
+}
+
+function onLegendMouseOver(event: string) {
+  const delay = props.enableAnimations
+    ? vizDurations.withAnimations
+    : vizDurations.withoutAnimations;
+
+  const columns = chartColumns.value
+    .transition()
+    .delay(vizDelay)
+    .duration(delay);
+
+  columns.attr("opacity", (row: IChartData) => {
+    return row.xValue !== event ? 0.2 : 1;
+  });
+}
+
+function onLegendMouseOut() {
+  const delay = props.enableAnimations
+    ? vizDurations.withAnimations
+    : vizDurations.withoutAnimations;
+
+  const columns = chartColumns.value
+    .transition()
+    .delay(vizDelay)
+    .duration(delay);
+
+  columns.attr("opacity", 1);
 }
 
 onMounted(() => {
@@ -355,6 +386,10 @@ watch(
       v-if="isGroupedColumnChart && legendIsEnabled"
       :legend-id="`${id}-legend`"
       :data="colorPalette"
+      :enableClicks="false"
+      :enableHovering="enableHoverEvents"
+      @legend-item-mouseover="enableHoverEvents && onLegendMouseOver($event)"
+      @legend-item-mouseout="enableHoverEvents && onLegendMouseOut()"
       style="grid-area: legend"
     />
     <div style="grid-area: chart">
@@ -392,6 +427,7 @@ watch(
                   :fill="(colorPalette[nestedRow.xValue as keyof IChartPalette] as string)"
                   :stroke="strokeColor ? strokeColor : undefined"
                   :stroke-width="strokeColor ? '1' : undefined"
+                  :opacity="1"
                 />
                 <text
                   class="fill-chart-text text-body-base"
