@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { IHeaders, IFile } from "../../../../types/cms";
-const props = defineProps<
-  IHeaders & { image?: IFile } & { isEditable: boolean }
->();
+const props = withDefaults(
+  defineProps<IHeaders & { image?: IFile } & { isEditable?: boolean }>(),
+  {
+    isEditable: false,
+  }
+);
 const emit = defineEmits(["updateTitle", "updateSubtitle"]);
 </script>
 
