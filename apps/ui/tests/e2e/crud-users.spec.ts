@@ -5,6 +5,8 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/ui/";
 
+const E2E_TEST_USER = "e2e-test-user";
+
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}admin`);
   if (await page.getByRole("button", { name: "Signin" })) {
@@ -24,7 +26,7 @@ test("user crud", async ({ page }) => {
   // Add user
   await page.getByRole("button", { name: "Create User" }).click();
   await page.locator('[id="New username"]').click();
-  await page.locator('[id="New username"]').fill("e2e-test-user");
+  await page.locator('[id="New username"]').fill(E2E_TEST_USER);
   await page.locator('[id="New user password"]').click();
   await page.locator('[id="New user password"]').fill("testtest");
   await page.locator('[id="New user password second time"]').click();
@@ -34,9 +36,9 @@ test("user crud", async ({ page }) => {
   // Edit user - add role, disable
   await page
     .getByRole("searchbox", { name: "Search users" })
-    .fill("e2e-test-user");
-  await page.getByRole("cell", { name: "e2e-test-user", exact: true }).hover();
-  await page.getByRole("button", { name: "Edit user: e2e-test-user" }).click();
+    .fill(E2E_TEST_USER);
+  await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
+  await page.getByRole("button", { name: "Edit user: E2E_TEST_USER" }).click();
   await page.getByRole("button", { name: "Add role" }).click();
   await page
     .locator("#disabledUserRadio-radio-group")
@@ -45,8 +47,8 @@ test("user crud", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
 
   // Edit user - enable user
-  await page.getByRole("cell", { name: "e2e-test-user", exact: true }).hover();
-  await page.getByRole("button", { name: "Edit user: e2e-test-user" }).click();
+  await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
+  await page.getByRole("button", { name: "Edit user: E2E_TEST_USER" }).click();
   await page
     .locator("#disabledUserRadio-radio-group")
     .getByText("Enabled")
@@ -54,12 +56,12 @@ test("user crud", async ({ page }) => {
   await page.getByRole("button", { name: "Save" }).click();
 
   // Delete user
-  await page.getByRole("cell", { name: "e2e-test-user", exact: true }).hover();
+  await page.getByRole("cell", { name: E2E_TEST_USER }).hover();
   await page
-    .getByRole("button", { name: "Delete user: e2e-test-user" })
+    .getByRole("button", { name: "Delete user: E2E_TEST_USER" })
     .click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Edit user: e2e-test-user" })
+    page.getByRole("button", { name: "Edit user: E2E_TEST_USER" })
   ).not.toBeVisible();
 });
