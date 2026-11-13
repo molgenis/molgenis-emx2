@@ -5,7 +5,7 @@ interface IVizDurations {
 
 export const vizDelay = 100;
 export const vizDurations: IVizDurations = {
-  withAnimations: 500,
+  withAnimations: 300,
   withoutAnimations: 125,
 };
 
