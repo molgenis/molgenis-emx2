@@ -117,8 +117,8 @@ import {
       <h2 id="section-aims-title">Aims of the ILIAD registry</h2>
       <p>
         We intend to develop a single, trans-ERN “meta-registry” (ILIAD) of
-        patients with developmental anomalies (dysmorphic/Multiple Congenitital
-        Anomalies syndromes and/or Iintellectual Disabilities) recruited by ERN
+        patients with developmental anomalies (dysmorphic/Multiple Congenital
+        Anomalies syndromes and/or Intellectual Disabilities) recruited by ERN
         ITHACA, patients with several developmental disorders affecting the head
         recruited by ERN-CRANIO, and patients with connective tissue disorders
         recruited by ERN SKIN.
