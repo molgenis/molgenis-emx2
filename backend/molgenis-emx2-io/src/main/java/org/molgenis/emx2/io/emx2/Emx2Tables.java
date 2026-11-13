@@ -25,16 +25,15 @@ public final class Emx2Tables {
     TableMetadata metadata = table.getMetadata();
     List<String> downloadColumnNames =
         table.getMetadata().getDownloadColumnNames().stream()
-            .filter(
-                c ->
-                    // note that refs have . in the name, these we also allow
-                    c.getName().contains(".")
-                        // we skip file output unless supported by the format, currently csv.zip and
-                        // directory
-                        // get original metadata because download columns are format string instead
-                        // of file
-                        || isFileType(c, metadata)
-                        || store instanceof TableAndFileStore)
+            .filter(c ->
+                // note that refs have . in the name, these we also allow
+                c.getName().contains(".")
+                    // we skip file output unless supported by the format, currently csv.zip and
+                    // directory
+                    // get original metadata because download columns are format string instead
+                    // of file
+                    || isFileType(c, metadata)
+                    || store instanceof TableAndFileStore)
             .map(Column::getName)
             .filter(name -> DownloadColumns.isIncluded(name, includeSystemColumns))
             .toList();

@@ -34,12 +34,12 @@ class TestGraphqlObjectFilters {
   void givenEquals_thenResultHasName() throws IOException {
     String query =
         """
-        {
-          Person (filter: { equals: { name: "John" } }) {
-            name
+          {
+            Person (filter: { equals: { name: "John" } }) {
+              name
+            }
           }
-        }
-      """;
+        """;
 
     ExecutionResult execute = graphql.executeWithoutSession(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");
@@ -52,12 +52,12 @@ class TestGraphqlObjectFilters {
   void givenNotEquals_thenResultDoesntHaveName() throws IOException {
     String query =
         """
-        {
-          Person (filter: { not_equals: { name: "John" } }) {
-            name
+          {
+            Person (filter: { not_equals: { name: "John" } }) {
+              name
+            }
           }
-        }
-      """;
+        """;
 
     ExecutionResult execute = graphql.executeWithoutSession(query);
     JsonNode jsonNode = MAPPER.valueToTree(execute.toSpecification()).get("data").get("Person");

@@ -69,7 +69,8 @@ class RemoteDataUploaderTest extends ApiTestBase {
               "message" : "schema cannot be null"
             }
           ]
-        }""",
+        }\
+        """,
         exception.getMessage());
     assertNoLeftoverTempDirectories("non-existent-schema");
   }

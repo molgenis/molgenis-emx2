@@ -103,42 +103,37 @@ public abstract class RdfGenerator {
     schemas.stream()
         .filter(schema -> schema.getMetadata().getSemanticPrefixes().isDefaultNamespaces())
         .findFirst()
-        .ifPresent(
-            schema ->
-                schema
-                    .getMetadata()
-                    .getSemanticPrefixes()
-                    .getAllNamespaces()
-                    .forEach(
-                        namespace -> {
-                          processedPrefixes.add(namespace.getPrefix());
-                          processedNames.add(namespace.getName());
-                          getWriter().processNamespace(namespace);
-                        }));
+        .ifPresent(schema ->
+            schema
+                .getMetadata()
+                .getSemanticPrefixes()
+                .getAllNamespaces()
+                .forEach(namespace -> {
+                  processedPrefixes.add(namespace.getPrefix());
+                  processedNames.add(namespace.getName());
+                  getWriter().processNamespace(namespace);
+                }));
 
     // Add namespaces specific for each schema.
     schemas.stream()
         .map(schema -> getSchemaNamespace(getBaseURL(), schema.getMetadata()))
-        .forEach(
-            namespace -> {
-              processedPrefixes.add(namespace.getPrefix());
-              processedNames.add(namespace.getName());
-              getWriter().processNamespace(namespace);
-            });
+        .forEach(namespace -> {
+          processedPrefixes.add(namespace.getPrefix());
+          processedNames.add(namespace.getName());
+          getWriter().processNamespace(namespace);
+        });
 
     // Add custom namespaces.
     schemas.stream()
         .flatMap(schema -> schema.getMetadata().getSemanticPrefixes().getAllNamespaces().stream())
-        .filter(
-            namespace ->
-                !processedPrefixes.contains(namespace.getPrefix())
-                    && !processedNames.contains(namespace.getName()))
-        .forEach(
-            namespaces -> {
-              processedPrefixes.add(namespaces.getPrefix());
-              processedNames.add(namespaces.getName());
-              getWriter().processNamespace(namespaces);
-            });
+        .filter(namespace ->
+            !processedPrefixes.contains(namespace.getPrefix())
+                && !processedNames.contains(namespace.getName()))
+        .forEach(namespaces -> {
+          processedPrefixes.add(namespaces.getPrefix());
+          processedNames.add(namespaces.getName());
+          getWriter().processNamespace(namespaces);
+        });
   }
 
   protected void generateCustomRdf(Schema schema) {

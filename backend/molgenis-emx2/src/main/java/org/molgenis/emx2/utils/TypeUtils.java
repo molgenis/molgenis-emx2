@@ -405,18 +405,17 @@ public class TypeUtils {
 
   private static String joinCsvString(Object[] v) {
     return Stream.of(v)
-        .map(
-            s -> {
-              if (s == null) {
-                return "";
-              }
-              String str = s.toString();
-              if (str.contains(",")) {
-                return "\"" + s.toString() + "\"";
-              } else {
-                return str;
-              }
-            })
+        .map(s -> {
+          if (s == null) {
+            return "";
+          }
+          String str = s.toString();
+          if (str.contains(",")) {
+            return "\"" + s.toString() + "\"";
+          } else {
+            return str;
+          }
+        })
         .collect(Collectors.joining(","));
   }
 

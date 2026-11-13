@@ -308,13 +308,14 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
   private static String errorMessage(String message) {
     return """
-      {
-        "errors" : [
-          {
-            "message" : "%s"
-          }
-        ]
-      }"""
+    {
+      "errors" : [
+        {
+          "message" : "%s"
+        }
+      ]
+    }\
+    """
         .formatted(message);
   }
 }

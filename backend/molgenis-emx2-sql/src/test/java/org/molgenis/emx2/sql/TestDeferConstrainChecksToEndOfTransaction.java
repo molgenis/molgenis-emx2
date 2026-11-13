@@ -45,27 +45,26 @@ public class TestDeferConstrainChecksToEndOfTransaction {
     StopWatch.start("foreignKeysInTransactionsAraProtected");
 
     try {
-      database.tx(
-          db -> {
-            Schema schema = db.dropCreateSchema("TestDeffered3");
+      database.tx(db -> {
+        Schema schema = db.dropCreateSchema("TestDeffered3");
 
-            Table subjectTable = schema.create(table("Subject", column("id").setPkey()));
+        Table subjectTable = schema.create(table("Subject", column("id").setPkey()));
 
-            Table sampleTable =
-                schema.create(
-                    table("Sample").add(column("subject").setType(REF).setRefTable("Subject")));
+        Table sampleTable =
+            schema.create(
+                table("Sample").add(column("subject").setType(REF).setRefTable("Subject")));
 
-            StopWatch.print("schema created");
+        StopWatch.print("schema created");
 
-            Row subject1 = new Row().set("id", UUID.randomUUID());
-            Row sample1 = new Row().setUuid("subject", UUID.randomUUID());
-            Row sample2 = new Row().setUuid("subject", UUID.randomUUID());
+        Row subject1 = new Row().set("id", UUID.randomUUID());
+        Row sample1 = new Row().setUuid("subject", UUID.randomUUID());
+        Row sample2 = new Row().setUuid("subject", UUID.randomUUID());
 
-            sampleTable.insert(sample1, sample2);
-            subjectTable.insert(subject1);
+        sampleTable.insert(sample1, sample2);
+        subjectTable.insert(subject1);
 
-            StopWatch.print("data added");
-          });
+        StopWatch.print("data added");
+      });
       StopWatch.print("transaction committed)");
       fail("should have failed on wrong fkey");
     } catch (MolgenisException e) {

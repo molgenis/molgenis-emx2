@@ -231,11 +231,10 @@ class CrawlingRdfExtractorTest {
           """
               .formatted(part.toUri()));
 
-      assertDoesNotThrow(
-          () ->
-              new CrawlingRdfExtractor(false)
-                  .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
-                  .addRdfToRepository(repository, root.toUri()));
+      assertDoesNotThrow(() ->
+          new CrawlingRdfExtractor(false)
+              .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
+              .addRdfToRepository(repository, root.toUri()));
 
       try (RepositoryConnection connection = repository.getConnection()) {
         assertStatementCount(repository, 3);

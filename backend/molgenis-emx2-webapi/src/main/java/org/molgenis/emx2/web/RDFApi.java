@@ -166,13 +166,12 @@ public final class RDFApi {
     try (TempFile tmp = new TempFile(TMP_FILENAME)) {
       try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tmp.get().toFile()))) {
         try (RdfRootService service = new RdfRootService(baseUrl, format, out)) {
-          db.tx(
-              database -> {
-                for (int i = 0; i < schemas.length; i++) {
-                  schemas[i] = db.getSchema(schemaNamesArr[i]);
-                }
-                service.getGenerator().generate(List.of(schemas));
-              });
+          db.tx(database -> {
+            for (int i = 0; i < schemas.length; i++) {
+              schemas[i] = db.getSchema(schemaNamesArr[i]);
+            }
+            service.getGenerator().generate(List.of(schemas));
+          });
         }
       }
       tmp.streamTo(ctx.outputStream());

@@ -163,12 +163,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
     try {
       // short transaction
-      jooq.transaction(
-          config -> {
-            DSLContext j = config.dsl();
-            j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
-            j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
-          });
+      jooq.transaction(config -> {
+        DSLContext j = config.dsl();
+        j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+        j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
+      });
 
       Migrations.initOrMigrate(this);
 
@@ -253,30 +252,29 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   private void initSystemSchema() {
-    this.tx(
-        tdb -> {
-          if (!this.hasSchema(SYSTEM_SCHEMA)) {
-            this.createSchema(SYSTEM_SCHEMA);
-          }
+    this.tx(tdb -> {
+      if (!this.hasSchema(SYSTEM_SCHEMA)) {
+        this.createSchema(SYSTEM_SCHEMA);
+      }
 
-          Schema schema;
-          if (!this.hasSchema(SYSTEM_SCHEMA)) {
-            schema = this.createSchema(SYSTEM_SCHEMA);
-          } else {
-            schema = this.getSchema(SYSTEM_SCHEMA);
-          }
+      Schema schema;
+      if (!this.hasSchema(SYSTEM_SCHEMA)) {
+        schema = this.createSchema(SYSTEM_SCHEMA);
+      } else {
+        schema = this.getSchema(SYSTEM_SCHEMA);
+      }
 
-          if (!schema.getTableNames().contains("Templates")) {
-            schema.create(
-                table(
-                    "Templates",
-                    column("endpoint").setPkey(),
-                    column("schema").setPkey(),
-                    column("tableName"),
-                    column("template").setType(ColumnType.TEXT)));
-            addTemplatesTableReference((SqlDatabase) tdb);
-          }
-        });
+      if (!schema.getTableNames().contains("Templates")) {
+        schema.create(
+            table(
+                "Templates",
+                column("endpoint").setPkey(),
+                column("schema").setPkey(),
+                column("tableName"),
+                column("template").setType(ColumnType.TEXT)));
+        addTemplatesTableReference((SqlDatabase) tdb);
+      }
+    });
   }
 
   static void addTemplatesTableReference(SqlDatabase db) {
@@ -314,20 +312,19 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public SqlSchema createSchema(String name, String description) {
     long start = System.currentTimeMillis();
-    this.tx(
-        db -> {
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          validateSchemaIdentifierIsUnique(metadata, db);
-          executeCreateSchema((SqlDatabase) db, metadata);
-          // copy
-          SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
-          // make current user a manager
-          if (db.getActiveUser() != null && !ADMIN_USER.equals(db.getActiveUser())) {
-            schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
-          }
-          // refresh
-          db.clearCache();
-        });
+    this.tx(db -> {
+      SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+      validateSchemaIdentifierIsUnique(metadata, db);
+      executeCreateSchema((SqlDatabase) db, metadata);
+      // copy
+      SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
+      // make current user a manager
+      if (db.getActiveUser() != null && !ADMIN_USER.equals(db.getActiveUser())) {
+        schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
+      }
+      // refresh
+      db.clearCache();
+    });
     getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
     return getSchema(name);
@@ -348,14 +345,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public Schema updateSchema(String name, String description) {
     long start = System.currentTimeMillis();
-    this.tx(
-        db -> {
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
+    this.tx(db -> {
+      SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+      saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
 
-          // refresh
-          db.clearCache();
-        });
+      // refresh
+      db.clearCache();
+    });
     getListener().schemaChanged(name);
     this.log(start, "updated schema " + name);
     return getSchema(name);
@@ -402,14 +398,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    tx(
-        database -> {
-          SqlDatabase sqlDatabase = (SqlDatabase) database;
-          SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
-          sqlDatabase.schemaNames.remove(name);
-          sqlDatabase.schemaInfos.clear();
-          sqlDatabase.schemaCache.remove(name);
-        });
+    tx(database -> {
+      SqlDatabase sqlDatabase = (SqlDatabase) database;
+      SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
+      sqlDatabase.schemaNames.remove(name);
+      sqlDatabase.schemaInfos.clear();
+      sqlDatabase.schemaCache.remove(name);
+    });
 
     listener.schemaRemoved(name);
     log(start, "dropped schema " + name);
@@ -422,15 +417,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public Schema dropCreateSchema(String name, String description) {
-    tx(
-        db -> {
-          if (getSchema(name) != null) {
-            SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) db, name);
-          }
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          executeCreateSchema((SqlDatabase) db, metadata);
-          ((SqlDatabase) db).schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
-        });
+    tx(db -> {
+      if (getSchema(name) != null) {
+        SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) db, name);
+      }
+      SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+      executeCreateSchema((SqlDatabase) db, metadata);
+      ((SqlDatabase) db).schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
+    });
     return getSchema(name);
   }
 
@@ -481,16 +475,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
-      tx(
-          db -> {
-            String currentUser = db.getActiveUser();
-            try {
-              db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userNameTrimmed);
-            } finally {
-              db.setActiveUser(currentUser);
-            }
-          });
+      tx(db -> {
+        String currentUser = db.getActiveUser();
+        try {
+          db.becomeAdmin();
+          executeCreateUser((SqlDatabase) db, userNameTrimmed);
+        } finally {
+          db.setActiveUser(currentUser);
+        }
+      });
       log(start, "created user " + userNameTrimmed);
     }
     return getUser(userNameTrimmed);
@@ -516,13 +509,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           "Set password failed for user '" + userName + "': password too short");
     }
     long start = System.currentTimeMillis();
-    tx(
-        db -> {
-          if (!db.hasUser(userName)) {
-            db.addUser(userName);
-          }
-          MetadataUtils.setUserPassword(((SqlDatabase) db).getJooq(), userName, password);
-        });
+    tx(db -> {
+      if (!db.hasUser(userName)) {
+        db.addUser(userName);
+      }
+      MetadataUtils.setUserPassword(((SqlDatabase) db).getJooq(), userName, password);
+    });
     log(start, "set password for user '" + userName + "'");
   }
 
@@ -559,13 +551,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
     log(start, "removed user " + user);
 
-    tx(
-        db ->
-            ((SqlDatabase) db)
-                .getJooq()
-                .deleteFrom(USERS_METADATA)
-                .where(USER_NAME.eq(user))
-                .execute());
+    tx(db ->
+        ((SqlDatabase) db)
+            .getJooq()
+            .deleteFrom(USERS_METADATA)
+            .where(USER_NAME.eq(user))
+            .execute());
     log(start, "removed metadata from user " + user);
   }
 
@@ -585,14 +576,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               + user
               + "' doesn't exist");
     }
-    tx(
-        db ->
-            ((SqlDatabase) db)
-                .getJooq()
-                .update(USERS_METADATA)
-                .set(USER_ENABLED, enabled)
-                .where(USER_NAME.eq(user))
-                .execute());
+    tx(db ->
+        ((SqlDatabase) db)
+            .getJooq()
+            .update(USERS_METADATA)
+            .set(USER_ENABLED, enabled)
+            .where(USER_NAME.eq(user))
+            .execute());
     log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
@@ -615,14 +605,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
               + user
               + "' doesn't exist");
     }
-    tx(
-        db ->
-            ((SqlDatabase) db)
-                .getJooq()
-                .update(USERS_METADATA)
-                .set(USER_ADMIN, admin)
-                .where(USER_NAME.eq(user))
-                .execute());
+    tx(db ->
+        ((SqlDatabase) db)
+            .getJooq()
+            .update(USERS_METADATA)
+            .set(USER_ADMIN, admin)
+            .where(USER_NAME.eq(user))
+            .execute());
     log(start, (admin ? "Granting" : "Revoking") + " admin rights to user " + user);
     listener.onSchemaChange();
   }
@@ -696,15 +685,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       SqlDatabase db = new SqlDatabase(jooq, this);
       this.tableListeners.forEach(db::addTableListener);
       try {
-        jooq.transaction(
-            config -> {
-              db.inTx = true;
-              DSLContext ctx = DSL.using(config);
-              ctx.execute("SET CONSTRAINTS ALL DEFERRED");
-              db.setJooq(ctx);
-              transaction.run(db);
-              db.tableListenersExecutePostCommit();
-            });
+        jooq.transaction(config -> {
+          db.inTx = true;
+          DSLContext ctx = DSL.using(config);
+          ctx.execute("SET CONSTRAINTS ALL DEFERRED");
+          db.setJooq(ctx);
+          transaction.run(db);
+          db.tableListenersExecutePostCommit();
+        });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
         if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
@@ -749,15 +737,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // sync the existing schema cache, add missing
       from.schemaCache
           .entrySet()
-          .forEach(
-              s -> {
-                if (this.schemaCache.containsKey(s.getKey())) {
-                  this.schemaCache.get(s.getKey()).sync(s.getValue());
-                } else {
-                  this.schemaCache.put(
-                      s.getKey(), new SqlSchemaMetadata(this, from.schemaCache.get(s.getKey())));
-                }
-              });
+          .forEach(s -> {
+            if (this.schemaCache.containsKey(s.getKey())) {
+              this.schemaCache.get(s.getKey()).sync(s.getValue());
+            } else {
+              this.schemaCache.put(
+                  s.getKey(), new SqlSchemaMetadata(this, from.schemaCache.get(s.getKey())));
+            }
+          });
     }
   }
 
@@ -897,10 +884,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public TableListener getTableListener(String schemaName, String tableName) {
     Optional<TableListener> result =
         tableListeners.stream()
-            .filter(
-                tableListener ->
-                    tableListener.getTableName().equals(tableName)
-                        && tableListener.getSchemaName().equals(schemaName))
+            .filter(tableListener ->
+                tableListener.getTableName().equals(tableName)
+                    && tableListener.getSchemaName().equals(schemaName))
             .findFirst();
     if (result.isPresent()) {
       return result.get();
@@ -939,12 +925,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void revokeRoles(String userName, List<Map<String, String>> members) {
     try {
-      members.forEach(
-          member -> {
-            String prefixedRole = MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
-            jooq.execute(
-                "REVOKE {0} FROM {1}", name(prefixedRole), name(MG_USER_PREFIX + userName));
-          });
+      members.forEach(member -> {
+        String prefixedRole = MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
+        jooq.execute("REVOKE {0} FROM {1}", name(prefixedRole), name(MG_USER_PREFIX + userName));
+      });
       listener.onSchemaChange();
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Removal of role failed", dae);
@@ -958,26 +942,24 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void updateRoles(String userName, List<Map<String, String>> members) {
     try {
-      members.forEach(
-          member -> {
-            String schemaId = member.get("schemaId");
-            String role = member.get(ROLE);
-            String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
-            String prefixedName = MG_USER_PREFIX + userName;
+      members.forEach(member -> {
+        String schemaId = member.get("schemaId");
+        String role = member.get(ROLE);
+        String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
+        String prefixedName = MG_USER_PREFIX + userName;
 
-            List<Member> existingUserRoles =
-                this.getSchema(schemaId).getMembers().stream()
-                    .filter(mem -> mem.getUser().equals(userName))
-                    .toList();
-            if (existingUserRoles.iterator().hasNext()) {
-              existingUserRoles.forEach(
-                  existingRole -> {
-                    String oldRole = MG_ROLE_PREFIX + schemaId + "/" + existingRole.getRole();
-                    jooq.execute("REVOKE {0} FROM {1}", name(oldRole), name(prefixedName));
-                  });
-            }
-            jooq.execute("GRANT {0} TO {1}", name(prefixedRole), name(prefixedName));
+        List<Member> existingUserRoles =
+            this.getSchema(schemaId).getMembers().stream()
+                .filter(mem -> mem.getUser().equals(userName))
+                .toList();
+        if (existingUserRoles.iterator().hasNext()) {
+          existingUserRoles.forEach(existingRole -> {
+            String oldRole = MG_ROLE_PREFIX + schemaId + "/" + existingRole.getRole();
+            jooq.execute("REVOKE {0} FROM {1}", name(oldRole), name(prefixedName));
           });
+        }
+        jooq.execute("GRANT {0} TO {1}", name(prefixedRole), name(prefixedName));
+      });
       listener.onSchemaChange();
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Updating of role failed", dae);

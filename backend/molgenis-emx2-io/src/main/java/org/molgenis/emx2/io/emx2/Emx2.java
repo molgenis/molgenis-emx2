@@ -89,24 +89,22 @@ public final class Emx2 {
         // labels i18n
         row.getColumnNames().stream()
             .filter(name -> name.startsWith(LABEL + ":"))
-            .forEach(
-                value -> {
-                  schema
-                      .getTableMetadata(tableName)
-                      .setLabel(row.getString(value, false), value.split(":")[1]);
-                });
+            .forEach(value -> {
+              schema
+                  .getTableMetadata(tableName)
+                  .setLabel(row.getString(value, false), value.split(":")[1]);
+            });
         if (row.containsName(DESCRIPTION)) {
           schema.getTableMetadata(tableName).setDescription(row.getString(DESCRIPTION, false));
         }
         // description i18n
         row.getColumnNames().stream()
             .filter(name -> name.startsWith(DESCRIPTION + ":"))
-            .forEach(
-                value -> {
-                  schema
-                      .getTableMetadata(tableName)
-                      .setDescription(row.getString(value, false), value.split(":")[1]);
-                });
+            .forEach(value -> {
+              schema
+                  .getTableMetadata(tableName)
+                  .setDescription(row.getString(value, false), value.split(":")[1]);
+            });
       }
 
       // load column metadata
@@ -154,10 +152,9 @@ public final class Emx2 {
           // description i18n
           row.getColumnNames().stream()
               .filter(name -> name.startsWith(DESCRIPTION + ":"))
-              .forEach(
-                  value -> {
-                    column.setDescription(row.getString(value), value.split(":")[1]);
-                  });
+              .forEach(value -> {
+                column.setDescription(row.getString(value), value.split(":")[1]);
+              });
           if (row.notEmpty(VALIDATION)) {
             column.setValidation(row.getString(VALIDATION));
           }
@@ -203,10 +200,9 @@ public final class Emx2 {
           // labels i18n
           row.getColumnNames().stream()
               .filter(name -> name.startsWith(LABEL + ":"))
-              .forEach(
-                  value -> {
-                    column.setLabel(row.getString(value), value.split(":")[1]);
-                  });
+              .forEach(value -> {
+                column.setLabel(row.getString(value), value.split(":")[1]);
+              });
           if (row.notEmpty(COLUMN_FORM_LABEL)) {
             column.setFormLabel(row.getString(COLUMN_FORM_LABEL));
           }
@@ -289,11 +285,10 @@ public final class Emx2 {
     // export ontology table metadata if label or description are set
     for (TableMetadata table :
         schema.getTables().stream()
-            .filter(
-                t ->
-                    !t.getTableType().equals(TableType.ONTOLOGIES)
-                        || t.getDescription() != null
-                        || t.getLabel() != null)
+            .filter(t ->
+                !t.getTableType().equals(TableType.ONTOLOGIES)
+                    || t.getDescription() != null
+                    || t.getLabel() != null)
             .toList()) {
       Row row = new Row();
       // set null columns to ensure sensible order

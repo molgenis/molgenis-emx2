@@ -64,115 +64,110 @@ class TestGraphqlAdminFields {
   @Test
   void testUsers() {
     // put in transaction so user count is not affected by other operations
-    database.tx(
-        tdb -> {
-          tdb.becomeAdmin();
-          tdb.dropCreateSchema(SCHEMA_NAME);
+    database.tx(tdb -> {
+      tdb.becomeAdmin();
+      tdb.dropCreateSchema(SCHEMA_NAME);
 
-          try {
-            JsonNode result = execute("{_admin{users{email} userCount}}");
-            assertTrue(result.at("/_admin/userCount").intValue() > 0);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-          // test that only admin can do this
-          tdb.setActiveUser(ANONYMOUS);
-          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+      try {
+        JsonNode result = execute("{_admin{users{email} userCount}}");
+        assertTrue(result.at("/_admin/userCount").intValue() > 0);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      // test that only admin can do this
+      tdb.setActiveUser(ANONYMOUS);
+      graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
-          try {
-            assertNull(execute("{_admin{userCount}}").textValue());
-          } catch (Exception e) {
-            assertTrue(e.getMessage().contains("FieldUndefined"));
-          }
-          tdb.becomeAdmin();
-        });
+      try {
+        assertNull(execute("{_admin{userCount}}").textValue());
+      } catch (Exception e) {
+        assertTrue(e.getMessage().contains("FieldUndefined"));
+      }
+      tdb.becomeAdmin();
+    });
   }
 
   @Test
   void shouldListCustomRolesPerSchemaForAdmin() {
-    database.tx(
-        tdb -> {
-          tdb.becomeAdmin();
-          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
-          schema.create(
-              table("Patient").add(column("id").setPkey()).add(column("name")),
-              table("Doctor").add(column("id").setPkey()).add(column("name")));
-          String patientViewer = "PatientViewer";
-          schema.createRole(patientViewer);
-          schema.grant(patientViewer, new TablePermission("Patient").select(true).rowLevel(false));
-          tdb.addUser(TEST_PERSOON);
-          tdb.setEnabledUser(TEST_PERSOON, true);
-          tdb.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, patientViewer);
+    database.tx(tdb -> {
+      tdb.becomeAdmin();
+      Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+      schema.create(
+          table("Patient").add(column("id").setPkey()).add(column("name")),
+          table("Doctor").add(column("id").setPkey()).add(column("name")));
+      String patientViewer = "PatientViewer";
+      schema.createRole(patientViewer);
+      schema.grant(patientViewer, new TablePermission("Patient").select(true).rowLevel(false));
+      tdb.addUser(TEST_PERSOON);
+      tdb.setEnabledUser(TEST_PERSOON, true);
+      tdb.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, patientViewer);
 
-          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+      graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
-          try {
-            JsonNode customRoles =
-                execute(
-                        "{_admin{customRoles{schemaId role users permissions{table select insert update delete isRowLevel}}}}")
-                    .at("/_admin/customRoles");
+      try {
+        JsonNode customRoles =
+            execute(
+                    "{_admin{customRoles{schemaId role users permissions{table select insert update delete isRowLevel}}}}")
+                .at("/_admin/customRoles");
 
-            List<JsonNode> testCustomRoles = new ArrayList<>();
-            for (JsonNode entry : customRoles) {
-              if (SCHEMA_NAME.equals(entry.get("schemaId").asText())) {
-                testCustomRoles.add(entry);
-              }
-            }
-            assertEquals(1, testCustomRoles.size());
-
-            JsonNode customRole = testCustomRoles.get(0);
-            assertEquals(patientViewer, customRole.get("role").asText());
-            JsonNode permission = customRole.at("/permissions/0");
-            assertEquals("Patient", permission.get("table").asText());
-            assertTrue(permission.get("select").asBoolean());
-            assertFalse(permission.path("insert").asBoolean());
-            assertFalse(permission.path("isRowLevel").asBoolean());
-            String user = customRole.at("/users/0").asText();
-            assertEquals(TEST_PERSOON, user);
-
-          } catch (IOException e) {
-            throw new RuntimeException(e);
+        List<JsonNode> testCustomRoles = new ArrayList<>();
+        for (JsonNode entry : customRoles) {
+          if (SCHEMA_NAME.equals(entry.get("schemaId").asText())) {
+            testCustomRoles.add(entry);
           }
+        }
+        assertEquals(1, testCustomRoles.size());
 
-          tdb.removeUser(TEST_PERSOON);
-          tdb.setActiveUser(ANONYMOUS);
-          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
-          MolgenisException exception =
-              assertThrows(
-                  MolgenisException.class, () -> execute("{_admin{customRoles{schemaId}}}"));
-          assertTrue(exception.getMessage().contains("FieldUndefined"));
-          tdb.becomeAdmin();
-        });
+        JsonNode customRole = testCustomRoles.get(0);
+        assertEquals(patientViewer, customRole.get("role").asText());
+        JsonNode permission = customRole.at("/permissions/0");
+        assertEquals("Patient", permission.get("table").asText());
+        assertTrue(permission.get("select").asBoolean());
+        assertFalse(permission.path("insert").asBoolean());
+        assertFalse(permission.path("isRowLevel").asBoolean());
+        String user = customRole.at("/users/0").asText();
+        assertEquals(TEST_PERSOON, user);
+
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+
+      tdb.removeUser(TEST_PERSOON);
+      tdb.setActiveUser(ANONYMOUS);
+      graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+      MolgenisException exception =
+          assertThrows(MolgenisException.class, () -> execute("{_admin{customRoles{schemaId}}}"));
+      assertTrue(exception.getMessage().contains("FieldUndefined"));
+      tdb.becomeAdmin();
+    });
   }
 
   @Test
   void shouldDropCustomRoleOfSchema() {
-    database.tx(
-        tdb -> {
-          tdb.becomeAdmin();
-          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
-          schema.create(table("Patient").add(column("id").setPkey()).add(column("name")));
-          schema.createRole("PatientViewer");
-          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+    database.tx(tdb -> {
+      tdb.becomeAdmin();
+      Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+      schema.create(table("Patient").add(column("id").setPkey()).add(column("name")));
+      schema.createRole("PatientViewer");
+      graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
-          try {
-            String message =
-                execute(
-                        "mutation{drop(roles:[{schemaId:\""
-                            + SCHEMA_NAME
-                            + "\",roles:\"PatientViewer\"}]){message}}")
-                    .at("/drop/message")
-                    .asText();
-            assertEquals(
-                "Dropped role 'PatientViewer' from schema '" + SCHEMA_NAME + "'.", message);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+      try {
+        String message =
+            execute(
+                    "mutation{drop(roles:[{schemaId:\""
+                        + SCHEMA_NAME
+                        + "\",roles:\"PatientViewer\"}]){message}}")
+                .at("/drop/message")
+                .asText();
+        assertEquals("Dropped role 'PatientViewer' from schema '" + SCHEMA_NAME + "'.", message);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
 
-          assertTrue(
-              tdb.getSchema(SCHEMA_NAME).getRoleInfos().stream()
-                  .noneMatch(role -> "PatientViewer".equals(role.name())));
-        });
+      assertTrue(
+          tdb.getSchema(SCHEMA_NAME).getRoleInfos().stream()
+              .noneMatch(role -> "PatientViewer".equals(role.name())));
+    });
   }
 
   @Test
@@ -187,16 +182,16 @@ class TestGraphqlAdminFields {
     // give testAdmin user admin privileges
     executeDb(
         """
-      mutation {
-        updateUser(updateUser:  {
-           email: "testAdmin",
-           admin: true
-        }) {
-          message
+        mutation {
+          updateUser(updateUser:  {
+             email: "testAdmin",
+             admin: true
+          }) {
+            message
+          }
         }
-      }
 
-      """);
+        """);
 
     executeDb("mutation{signout{message}}");
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
@@ -206,16 +201,16 @@ class TestGraphqlAdminFields {
     String lastUpdateResult =
         executeDb(
             """
-      query {
-        _lastUpdate {
-          operation
-          stamp
-          userId
-          tableName
-          schemaName
-        }
-      }
-      """);
+            query {
+              _lastUpdate {
+                operation
+                stamp
+                userId
+                tableName
+                schemaName
+              }
+            }
+            """);
     assertTrue(lastUpdateResult.contains("lastUpdate"));
   }
 
@@ -245,48 +240,47 @@ class TestGraphqlAdminFields {
 
   @Test
   void testUpdateUser() {
-    database.tx(
-        testDatabase -> {
-          testDatabase.becomeAdmin();
-          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+    database.tx(testDatabase -> {
+      testDatabase.becomeAdmin();
+      graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
 
-          try {
-            // setup
-            testDatabase.addUser(TEST_PERSOON);
-            testDatabase.setEnabledUser(TEST_PERSOON, true);
-            testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, "Owner");
-            testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
+      try {
+        // setup
+        testDatabase.addUser(TEST_PERSOON);
+        testDatabase.setEnabledUser(TEST_PERSOON, true);
+        testDatabase.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, "Owner");
+        testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
-            // test
-            String query =
-                "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
-            Map<String, Object> variables = createUpdateUserVar();
-            String queryResult =
-                convertExecutionResultToJson(graphql.executeWithoutSession(query, variables));
-            JsonNode node = new ObjectMapper().readTree(queryResult);
-            if (node.get("errors") != null) {
-              throw new MolgenisException(node.get("errors").get(0).get("message").asText());
-            }
+        // test
+        String query =
+            "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
+        Map<String, Object> variables = createUpdateUserVar();
+        String queryResult =
+            convertExecutionResultToJson(graphql.executeWithoutSession(query, variables));
+        JsonNode node = new ObjectMapper().readTree(queryResult);
+        if (node.get("errors") != null) {
+          throw new MolgenisException(node.get("errors").get(0).get("message").asText());
+        }
 
-            // assert results
-            User user = testDatabase.getUser(TEST_PERSOON);
-            assertEquals("testPersoon", user.getUsername());
-            assertFalse(user.getEnabled());
+        // assert results
+        User user = testDatabase.getUser(TEST_PERSOON);
+        assertEquals("testPersoon", user.getUsername());
+        assertFalse(user.getEnabled());
 
-            List<Member> members = testDatabase.getSchema(SCHEMA_NAME).getMembers();
-            assertTrue(members.isEmpty());
+        List<Member> members = testDatabase.getSchema(SCHEMA_NAME).getMembers();
+        assertTrue(members.isEmpty());
 
-            Member anotherSchemaMember =
-                testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
-            assertEquals("Owner", anotherSchemaMember.getRole());
-            assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
+        Member anotherSchemaMember =
+            testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
+        assertEquals("Owner", anotherSchemaMember.getRole());
+        assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
 
-            // clean up
-            testDatabase.removeUser(TEST_PERSOON);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-        });
+        // clean up
+        testDatabase.removeUser(TEST_PERSOON);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
   }
 
   @NotNull

@@ -116,8 +116,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
         .sessionId(sessionId)
         .body(
             """
-              {"query":"mutation{change(roles:[{name:\\"ForbiddenRole\\"}]){message}}"}
-              """)
+            {"query":"mutation{change(roles:[{name:\\"ForbiddenRole\\"}]){message}}"}
+            """)
         .post(SCHEMA_GQL)
         .then()
         .statusCode(400)

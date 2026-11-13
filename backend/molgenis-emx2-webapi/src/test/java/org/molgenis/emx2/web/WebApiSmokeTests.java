@@ -134,44 +134,43 @@ class WebApiSmokeTests extends ApiTestBase {
 
     try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)) {
       for (int i = 0; i < threadCount; i++) {
-        executor.submit(
-            () -> {
-              try {
-                readyLatch.countDown();
-                startLatch.await();
+        executor.submit(() -> {
+          try {
+            readyLatch.countDown();
+            startLatch.await();
 
-                String signinResult =
-                    given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
+            String signinResult =
+                given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
 
-                try {
-                  assertTrue(
-                      signinResult.contains("Signed in"),
-                      "Login failed in thread: " + Thread.currentThread().getName());
-                } catch (AssertionError e) {
-                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
-                }
+            try {
+              assertTrue(
+                  signinResult.contains("Signed in"),
+                  "Login failed in thread: " + Thread.currentThread().getName());
+            } catch (AssertionError e) {
+              logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+            }
 
-                String sessionResult =
-                    given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
+            String sessionResult =
+                given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
 
-                assertFalse(
-                    sessionResult.contains(ADMIN_USER),
-                    "ADMIN_USER present in thread: " + Thread.currentThread().getName());
+            assertFalse(
+                sessionResult.contains(ADMIN_USER),
+                "ADMIN_USER present in thread: " + Thread.currentThread().getName());
 
-                try {
-                  assertTrue(
-                      sessionResult.contains(testUser),
-                      "Session check failed in thread: " + Thread.currentThread().getName());
-                } catch (AssertionError e) {
-                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
-                }
+            try {
+              assertTrue(
+                  sessionResult.contains(testUser),
+                  "Session check failed in thread: " + Thread.currentThread().getName());
+            } catch (AssertionError e) {
+              logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+            }
 
-              } catch (Exception | AssertionError t) {
-                failures.add(t); // only assertFalse failure or unexpected errors will be added
-              } finally {
-                doneLatch.countDown();
-              }
-            });
+          } catch (Exception | AssertionError t) {
+            failures.add(t); // only assertFalse failure or unexpected errors will be added
+          } finally {
+            doneLatch.countDown();
+          }
+        });
       }
 
       readyLatch.await();
@@ -906,14 +905,16 @@ class WebApiSmokeTests extends ApiTestBase {
                       version: 3.0.0
                       sources:
                       - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v2.0.2""")),
+                    - id: hri-v2.0.2\
+                    """)),
         () ->
             assertTrue(
                 resultShaclNonTurtleSucceed.contains(
                     """
-                            "@type": [
-                                        "http://www.w3.org/ns/shacl#ValidationReport"
-                                    ],""")));
+                    "@type": [
+                                "http://www.w3.org/ns/shacl#ValidationReport"
+                            ],\
+                    """)));
   }
 
   /**
@@ -1260,24 +1261,24 @@ class WebApiSmokeTests extends ApiTestBase {
     database.dropSchemaIfExists("ScriptWithFileUpload");
     String script =
         """
-            import asyncio
-            import logging
-            import os
-            from molgenis_emx2_pyclient import Client
+        import asyncio
+        import logging
+        import os
+        from molgenis_emx2_pyclient import Client
 
-            async def main():
-                logging.basicConfig(level='INFO')
-                logging.getLogger("requests").setLevel(logging.WARNING)
-                logging.getLogger("urllib3").setLevel(logging.WARNING)
+        async def main():
+            logging.basicConfig(level='INFO')
+            logging.getLogger("requests").setLevel(logging.WARNING)
+            logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-                async with Client('http://localhost:%d', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
-                    await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
-                                template="PET_STORE", include_demo_data=False)
+            async with Client('http://localhost:%d', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
+                            template="PET_STORE", include_demo_data=False)
 
-            if __name__ == '__main__':
-                asyncio.run(main())
+        if __name__ == '__main__':
+            asyncio.run(main())
 
-            """
+        """
             .formatted(port);
     jobs.insert(
         row(
@@ -1350,8 +1351,8 @@ class WebApiSmokeTests extends ApiTestBase {
   private static String getToken(String email, String password) throws JsonProcessingException {
     String mutation =
         """
-            mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
-            """
+        mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+        """
             .formatted(email, password);
 
     Map<String, String> request = new HashMap<>();

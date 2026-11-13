@@ -186,16 +186,15 @@ final class SqlTableMetadataExecutor {
 
     String keyValues =
         table.getPrimaryKeyColumns().stream()
-            .map(
-                keyColumn -> {
-                  if (keyColumn.isReference()) {
-                    return keyColumn.getReferences().stream()
-                        .map(ref -> "OLD." + name(ref.getColumnName()))
-                        .collect(Collectors.joining("||','||"));
-                  } else {
-                    return "OLD." + name(keyColumn.getName());
-                  }
-                })
+            .map(keyColumn -> {
+              if (keyColumn.isReference()) {
+                return keyColumn.getReferences().stream()
+                    .map(ref -> "OLD." + name(ref.getColumnName()))
+                    .collect(Collectors.joining("||','||"));
+              } else {
+                return "OLD." + name(keyColumn.getName());
+              }
+            })
             .collect(Collectors.joining("||','||"));
 
     dropMgTableClassCannotUpdateCheck(table, jooq);

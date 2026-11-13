@@ -82,15 +82,11 @@ public class TestAggregatePermission {
   public void testCountCanGroupByOntologyFieldsWithExactCountsAndSums()
       throws JsonProcessingException {
     String json =
-        queryAsCountUser(
-            asCount ->
-                asCount
-                    .query(
-                        "Pet_groupBy",
-                        s(COUNT_FIELD),
-                        s(SUM_FIELD, s("weight")),
-                        s("tags", s("name")))
-                    .retrieveJSON());
+        queryAsCountUser(asCount ->
+            asCount
+                .query(
+                    "Pet_groupBy", s(COUNT_FIELD), s(SUM_FIELD, s("weight")), s("tags", s("name")))
+                .retrieveJSON());
     List<Integer> counts =
         MAPPER
             .readTree(json)
@@ -107,11 +103,10 @@ public class TestAggregatePermission {
     assertThrows(
         MolgenisException.class,
         () ->
-            queryAsCountUser(
-                asCount ->
-                    asCount
-                        .query("Pet_groupBy", s(COUNT_FIELD), s("category", s("name")))
-                        .retrieveJSON()));
+            queryAsCountUser(asCount ->
+                asCount
+                    .query("Pet_groupBy", s(COUNT_FIELD), s("category", s("name")))
+                    .retrieveJSON()));
   }
 
   private static String queryAsCountUser(Function<Schema, String> query) {

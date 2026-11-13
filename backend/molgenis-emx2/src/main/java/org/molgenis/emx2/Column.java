@@ -632,11 +632,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     List<Column> allPk = getRefTable().getPrimaryKeyColumns();
     Set<String> excludedPkeyFields =
         allPk.stream()
-            .filter(
-                pk ->
-                    isRefback()
-                        ? pk.getName().equals(getRefBack())
-                        : pk.isReference() && getTableName().equals(pk.getRefTableName()))
+            .filter(pk ->
+                isRefback()
+                    ? pk.getName().equals(getRefBack())
+                    : pk.isReference() && getTableName().equals(pk.getRefTableName()))
             .flatMap(c -> c.getCompositeFields().stream())
             .map(Field::getName)
             .collect(Collectors.toSet());

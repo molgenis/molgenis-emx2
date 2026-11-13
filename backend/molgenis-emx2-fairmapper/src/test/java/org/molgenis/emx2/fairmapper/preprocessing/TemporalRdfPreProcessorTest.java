@@ -92,20 +92,18 @@ class TemporalRdfPreProcessorTest {
   private void assertHasStartYear(IRI subject, int expectedYear) {
     int startYear =
         getYear(subject, DCAT.START_DATE)
-            .orElseThrow(
-                () ->
-                    new AssertionError(
-                        "Expected dcat:startDate on <%s> but found none".formatted(subject)));
+            .orElseThrow(() ->
+                new AssertionError(
+                    "Expected dcat:startDate on <%s> but found none".formatted(subject)));
     assertEquals(expectedYear, startYear);
   }
 
   private void assertHasEndYear(IRI subject, int expectedYear) {
     int endYear =
         getYear(subject, DCAT.END_DATE)
-            .orElseThrow(
-                () ->
-                    new AssertionError(
-                        "Expected dcat:endDate on <%s> but found none".formatted(subject)));
+            .orElseThrow(() ->
+                new AssertionError(
+                    "Expected dcat:endDate on <%s> but found none".formatted(subject)));
     assertEquals(expectedYear, endYear);
   }
 

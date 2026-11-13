@@ -17,14 +17,13 @@ public class GraphqlManifesFieldFactory {
   public GraphQLFieldDefinition queryVersionField(Database db) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_manifest")
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              Map<String, Object> result = new HashMap<>();
-              result.put(IMPLEMENTATION_VERSION, Version.getImplementationVersion());
-              result.put(SPECIFICATION_VERSION, Version.getSpecificationVersion());
-              result.put(DATABASE_VERSION, db.getDatabaseVersion());
-              return result;
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          Map<String, Object> result = new HashMap<>();
+          result.put(IMPLEMENTATION_VERSION, Version.getImplementationVersion());
+          result.put(SPECIFICATION_VERSION, Version.getSpecificationVersion());
+          result.put(DATABASE_VERSION, db.getDatabaseVersion());
+          return result;
+        })
         .type(
             GraphQLObjectType.newObject()
                 .name("MolgenisManifest")

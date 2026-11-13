@@ -218,19 +218,18 @@ public class QueryEntryType {
   private Templates resolveTemplates(Database database) {
     Map<String, ResolvedTemplate> bySchema = new HashMap<>();
     String endpoint = "beacon_" + entryType.getName();
-    database.tx(
-        tx -> {
-          String activeUser = tx.getActiveUser();
-          try {
-            tx.becomeAdmin();
-            Table templatesTable = tx.getSchema(SYSTEM_SCHEMA).getTable("Templates");
-            templatesTable.retrieveRows().stream()
-                .filter(r -> endpoint.equals(r.getString("endpoint")))
-                .forEach(r -> bySchema.putIfAbsent(r.getString("schema"), toResolvedTemplate(r)));
-          } finally {
-            tx.setActiveUser(activeUser);
-          }
-        });
+    database.tx(tx -> {
+      String activeUser = tx.getActiveUser();
+      try {
+        tx.becomeAdmin();
+        Table templatesTable = tx.getSchema(SYSTEM_SCHEMA).getTable("Templates");
+        templatesTable.retrieveRows().stream()
+            .filter(r -> endpoint.equals(r.getString("endpoint")))
+            .forEach(r -> bySchema.putIfAbsent(r.getString("schema"), toResolvedTemplate(r)));
+      } finally {
+        tx.setActiveUser(activeUser);
+      }
+    });
     return new Templates(bySchema, new ResolvedTemplate(entryType.getId(), null));
   }
 

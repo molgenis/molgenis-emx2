@@ -111,12 +111,11 @@ public class TestSettings {
 
   @Test
   public void testDatabaseSetting() {
-    database.tx(
-        db -> {
-          db.setActiveUser("admin");
-          db.setSetting("it-db-setting-key", "it-db-setting-value");
-          assertEquals("it-db-setting-value", db.getSetting("it-db-setting-key"));
-        });
+    database.tx(db -> {
+      db.setActiveUser("admin");
+      db.setSetting("it-db-setting-key", "it-db-setting-value");
+      assertEquals("it-db-setting-value", db.getSetting("it-db-setting-key"));
+    });
   }
 
   @Test
@@ -124,33 +123,30 @@ public class TestSettings {
     assertThrows(
         MolgenisException.class,
         () -> {
-          database.tx(
-              db -> {
-                db.setActiveUser("testsettingsmanager");
-                db.setSetting("it-db-setting-key", "it-db-setting-value");
-              });
+          database.tx(db -> {
+            db.setActiveUser("testsettingsmanager");
+            db.setSetting("it-db-setting-key", "it-db-setting-value");
+          });
         });
   }
 
   @Test
   public void testDeleteDatabaseSetting() {
     // setup
-    database.tx(
-        db -> {
-          db.setActiveUser("admin");
-          db.setSetting("delete-me", "life is short");
-        });
+    database.tx(db -> {
+      db.setActiveUser("admin");
+      db.setSetting("delete-me", "life is short");
+    });
 
     // note, we refresh session on these changes so reload db
     database = TestDatabaseFactory.getTestDatabase();
     assertEquals(database.getSetting("delete-me"), "life is short");
 
     // execute
-    database.tx(
-        db -> {
-          db.setActiveUser("admin");
-          db.removeSetting("delete-me");
-        });
+    database.tx(db -> {
+      db.setActiveUser("admin");
+      db.removeSetting("delete-me");
+    });
 
     database = TestDatabaseFactory.getTestDatabase();
     assertNull(database.getSetting("delete-me"));
@@ -161,11 +157,10 @@ public class TestSettings {
     assertThrows(
         MolgenisException.class,
         () -> {
-          database.tx(
-              db -> {
-                db.setActiveUser("testsettingsmanager");
-                db.removeSetting("delete-me");
-              });
+          database.tx(db -> {
+            db.setActiveUser("testsettingsmanager");
+            db.removeSetting("delete-me");
+          });
         });
   }
 

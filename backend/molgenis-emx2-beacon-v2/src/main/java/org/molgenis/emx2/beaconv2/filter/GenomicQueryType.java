@@ -8,7 +8,8 @@ public enum GenomicQueryType {
         { refseqAssemblyId: {equals: "%s" } },
         { referenceAllele: { like: "%s" } },
         { alternateAllele: {like: "%s" } }
-      ]}"""),
+      ]}\
+      """),
   RANGE(
       """
       { _or: [
@@ -20,7 +21,8 @@ public enum GenomicQueryType {
           { refseqAssemblyId: { equals: "%1$s" } },
           { stopPosition: { between: [%2$d , %3$d] } }
         ]}
-      ]}"""),
+      ]}\
+      """),
   GENE_ID("{ geneId: { equals: { name: \"%s\"} } }"),
   BRACKET(
       """
@@ -28,7 +30,8 @@ public enum GenomicQueryType {
         { refseqAssemblyId: { equals: "%s" } },
         { startPosition: { between: [ %d, %d ] } },
         { stopPosition: { between: [ %d, %d ]  } }
-      ]}"""),
+      ]}\
+      """),
   NO_PARAMS(null);
 
   private final String graphQlQuery;

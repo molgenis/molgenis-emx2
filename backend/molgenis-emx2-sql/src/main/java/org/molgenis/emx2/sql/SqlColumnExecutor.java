@@ -472,16 +472,14 @@ public final class SqlColumnExecutor {
         AtomicBoolean foundOverlap = new AtomicBoolean(false);
         refLink
             .getReferences()
-            .forEach(
-                ref -> {
-                  c.getReferences()
-                      .forEach(
-                          ref2 -> {
-                            if (ref.getTargetTable().equals(ref2.getTargetTable())) {
-                              foundOverlap.set(true);
-                            }
-                          });
-                });
+            .forEach(ref -> {
+              c.getReferences()
+                  .forEach(ref2 -> {
+                    if (ref.getTargetTable().equals(ref2.getTargetTable())) {
+                      foundOverlap.set(true);
+                    }
+                  });
+            });
         if (!foundOverlap.get()) {
           throw new MolgenisException(
               String.format(

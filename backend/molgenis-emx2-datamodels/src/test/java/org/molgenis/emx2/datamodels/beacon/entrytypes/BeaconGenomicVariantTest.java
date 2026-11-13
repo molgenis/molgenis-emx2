@@ -125,7 +125,8 @@ public class BeaconGenomicVariantTest extends TestLoaders {
             "testMode": false,
             "requestedGranularity": "record"
           }
-        }""";
+        }\
+        """;
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addRequestParameters(request);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);

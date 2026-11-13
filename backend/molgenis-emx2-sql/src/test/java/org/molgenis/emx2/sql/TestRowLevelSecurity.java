@@ -220,12 +220,9 @@ class TestRowLevelSecurity {
 
     database.setActiveUser(managerUser);
     Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
-    assertDoesNotThrow(
-        () ->
-            articles.insert(
-                new Row()
-                    .setString("id", "mg_manager_assign")
-                    .set(MG_ROLES, new String[] {"TeamA"})));
+    assertDoesNotThrow(() ->
+        articles.insert(
+            new Row().setString("id", "mg_manager_assign").set(MG_ROLES, new String[] {"TeamA"})));
 
     database.becomeAdmin();
     assertArrayEquals(
@@ -375,12 +372,10 @@ class TestRowLevelSecurity {
   @Test
   void mgRolesDefaultsToOwnRoleOnInsertWhenOmitted() {
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(ARTICLES)
-                .insert(
-                    new Row().setString("id", "mg_default").setString("title", "No role given")));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(ARTICLES)
+            .insert(new Row().setString("id", "mg_default").setString("title", "No role given")));
 
     database.becomeAdmin();
     assertArrayEquals(
@@ -394,15 +389,14 @@ class TestRowLevelSecurity {
   @Test
   void mgRolesDefaultsToOwnRoleOnSaveWhenEmptyArrayGiven() {
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(ARTICLES)
-                .save(
-                    new Row()
-                        .setString("id", "mg_default_save")
-                        .setString("title", "Empty roles given")
-                        .set(MG_ROLES, new String[] {})));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(ARTICLES)
+            .save(
+                new Row()
+                    .setString("id", "mg_default_save")
+                    .setString("title", "Empty roles given")
+                    .set(MG_ROLES, new String[] {})));
 
     database.becomeAdmin();
     assertArrayEquals(
@@ -417,23 +411,21 @@ class TestRowLevelSecurity {
   @Test
   void mgRolesDefaultIsVisibleToOwnRoleOnly() {
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db -> {
-          Table articles = db.getSchema(SCHEMA).getTable(ARTICLES);
-          articles.insert(new Row().setString("id", "mg_default_visible"));
-          assertTrue(
-              articles.retrieveRows().stream()
-                  .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
-              "inserter should see its own row");
-        });
+    database.tx(db -> {
+      Table articles = db.getSchema(SCHEMA).getTable(ARTICLES);
+      articles.insert(new Row().setString("id", "mg_default_visible"));
+      assertTrue(
+          articles.retrieveRows().stream()
+              .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
+          "inserter should see its own row");
+    });
 
     database.setActiveUser(USER_TEAM_B);
-    database.tx(
-        db ->
-            assertFalse(
-                db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
-                    .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
-                "other role should not see the row"));
+    database.tx(db ->
+        assertFalse(
+            db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
+                .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
+            "other role should not see the row"));
 
     database.becomeAdmin();
     database
@@ -452,11 +444,10 @@ class TestRowLevelSecurity {
     database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
 
     database.setActiveUser(editorUser);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(ARTICLES)
-                .insert(new Row().setString("id", "mg_editor").setString("title", "Editor row")));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(ARTICLES)
+            .insert(new Row().setString("id", "mg_editor").setString("title", "Editor row")));
 
     database.becomeAdmin();
     assertNull(
@@ -479,11 +470,10 @@ class TestRowLevelSecurity {
                 .set(MG_ROLES, new String[] {"TeamA"}));
 
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(ARTICLES)
-                .update(new Row().setString("id", "mg_update").setString("title", "after")));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(ARTICLES)
+            .update(new Row().setString("id", "mg_update").setString("title", "after")));
 
     database.becomeAdmin();
     Row updated = retrieveArticle("mg_update");
@@ -506,11 +496,10 @@ class TestRowLevelSecurity {
                 .set(MG_ROLES, new String[] {"TeamA"}));
 
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(ARTICLES)
-                .save(new Row().setString("id", "mg_save_existing").setString("title", "after")));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(ARTICLES)
+            .save(new Row().setString("id", "mg_save_existing").setString("title", "after")));
 
     database.becomeAdmin();
     Row saved = retrieveArticle("mg_save_existing");
@@ -541,14 +530,13 @@ class TestRowLevelSecurity {
         assertThrows(
             SqlMolgenisException.class,
             () ->
-                database.tx(
-                    db ->
-                        db.getSchema(SCHEMA)
-                            .getTable(ARTICLES)
-                            .save(
-                                new Row()
-                                    .setString("id", "mg_save_foreign")
-                                    .setString("title", "hijacked"))));
+                database.tx(db ->
+                    db.getSchema(SCHEMA)
+                        .getTable(ARTICLES)
+                        .save(
+                            new Row()
+                                .setString("id", "mg_save_foreign")
+                                .setString("title", "hijacked"))));
     assertTrue(e.getMessage().contains("row-level security policy"), e.getMessage());
 
     database.becomeAdmin();
@@ -572,36 +560,33 @@ class TestRowLevelSecurity {
   @Test
   void teamAUserSeesOnlyTeamARows() {
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db -> {
-          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
-          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
-          assertTrue(ids.contains("a1"), "should see TeamA row");
-          assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
-          assertFalse(ids.contains("b1"), "should NOT see TeamB-only row");
-        });
+    database.tx(db -> {
+      List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("a1"), "should see TeamA row");
+      assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
+      assertFalse(ids.contains("b1"), "should NOT see TeamB-only row");
+    });
   }
 
   @Test
   void teamBUserSeesOnlyTeamBRows() {
     database.setActiveUser(USER_TEAM_B);
-    database.tx(
-        db -> {
-          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
-          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
-          assertTrue(ids.contains("b1"), "should see TeamB row");
-          assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
-          assertFalse(ids.contains("a1"), "should NOT see TeamA-only row");
-        });
+    database.tx(db -> {
+      List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("b1"), "should see TeamB row");
+      assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
+      assertFalse(ids.contains("a1"), "should NOT see TeamA-only row");
+    });
   }
 
   @Test
   void userWithNoGrantCannotSelectTable() {
     database.setActiveUser(USER_NO_ACCESS);
-    database.tx(
-        db ->
-            assertThrows(
-                Exception.class, () -> db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows()));
+    database.tx(db ->
+        assertThrows(
+            Exception.class, () -> db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows()));
   }
 
   @Test
@@ -622,18 +607,17 @@ class TestRowLevelSecurity {
   @Test
   void teamAUserCanInsertRowVisibleToOwnTeam() {
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db -> {
-          db.getSchema(SCHEMA)
-              .getTable(ARTICLES)
-              .insert(
-                  new Row()
-                      .setString("id", "a2")
-                      .setString("title", "Inserted by TeamA")
-                      .set(MG_ROLES, new String[] {"TeamA"}));
-          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
-          assertTrue(rows.stream().anyMatch(r -> "a2".equals(r.getString("id"))));
-        });
+    database.tx(db -> {
+      db.getSchema(SCHEMA)
+          .getTable(ARTICLES)
+          .insert(
+              new Row()
+                  .setString("id", "a2")
+                  .setString("title", "Inserted by TeamA")
+                  .set(MG_ROLES, new String[] {"TeamA"}));
+      List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+      assertTrue(rows.stream().anyMatch(r -> "a2".equals(r.getString("id"))));
+    });
 
     // Cleanup
     database.becomeAdmin();
@@ -643,11 +627,10 @@ class TestRowLevelSecurity {
   @Test
   void teamAUserCannotUpdateTeamBRow() {
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(ARTICLES)
-                .update(new Row().setString("id", "b1").setString("title", "hacked")));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(ARTICLES)
+            .update(new Row().setString("id", "b1").setString("title", "hacked")));
 
     database.becomeAdmin();
     Row b1 =
@@ -729,21 +712,19 @@ class TestRowLevelSecurity {
 
     // User should see ALL rows (VIEWER bypass in SELECT policy)
     database.setActiveUser(user);
-    database.tx(
-        db -> {
-          List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
-          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
-          assertTrue(ids.contains("wo1"), "should see own row");
-          assertTrue(ids.contains("wo2"), "should see row owned by no-one");
-        });
+    database.tx(db -> {
+      List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("wo1"), "should see own row");
+      assertTrue(ids.contains("wo2"), "should see row owned by no-one");
+    });
 
     // User can update their own row
     database.setActiveUser(user);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(table)
-                .update(new Row().setString("id", "wo1").setString("title", "updated")));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(table)
+            .update(new Row().setString("id", "wo1").setString("title", "updated")));
     database.becomeAdmin();
     Row wo1 =
         database.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
@@ -754,11 +735,10 @@ class TestRowLevelSecurity {
 
     // User cannot update a row they don't own (DML policy: no EDITOR, no mg_roles match)
     database.setActiveUser(user);
-    database.tx(
-        db ->
-            db.getSchema(SCHEMA)
-                .getTable(table)
-                .update(new Row().setString("id", "wo2").setString("title", "hacked")));
+    database.tx(db ->
+        db.getSchema(SCHEMA)
+            .getTable(table)
+            .update(new Row().setString("id", "wo2").setString("title", "hacked")));
     database.becomeAdmin();
     Row wo2 =
         database.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
@@ -835,23 +815,21 @@ class TestRowLevelSecurity {
 
     // RLS user sees only their row
     database.setActiveUser(rlsUser);
-    database.tx(
-        db -> {
-          List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
-          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
-          assertTrue(ids.contains("m1"), "RLS user should see their row");
-          assertFalse(ids.contains("m2"), "RLS user should NOT see unowned row");
-        });
+    database.tx(db -> {
+      List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("m1"), "RLS user should see their row");
+      assertFalse(ids.contains("m2"), "RLS user should NOT see unowned row");
+    });
 
     // Plain user sees ALL rows — the RLS grant for MixedRlsRole must not restrict MixedPlainRole
     database.setActiveUser(plainUser);
-    database.tx(
-        db -> {
-          List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
-          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
-          assertTrue(ids.contains("m1"), "plain user should see RLS row");
-          assertTrue(ids.contains("m2"), "plain user should see plain row");
-        });
+    database.tx(db -> {
+      List<Row> rows = db.getSchema(SCHEMA).getTable(table).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("m1"), "plain user should see RLS row");
+      assertTrue(ids.contains("m2"), "plain user should see plain row");
+    });
 
     // Cleanup
     database.becomeAdmin();
@@ -902,16 +880,14 @@ class TestRowLevelSecurity {
         "permission should report row level after the switch");
 
     database.setActiveUser(user);
-    database.tx(
-        db -> {
-          List<String> ids =
-              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
-                  .map(r -> r.getString("id"))
-                  .toList();
-          assertTrue(ids.contains("f1"), "should see own row");
-          assertFalse(
-              ids.contains("f2"), "should NOT see unowned row after switching to row level");
-        });
+    database.tx(db -> {
+      List<String> ids =
+          db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+              .map(r -> r.getString("id"))
+              .toList();
+      assertTrue(ids.contains("f1"), "should see own row");
+      assertFalse(ids.contains("f2"), "should NOT see unowned row after switching to row level");
+    });
 
     // Cleanup
     database.becomeAdmin();
@@ -954,12 +930,11 @@ class TestRowLevelSecurity {
     schema.addMember(user, role);
 
     database.setActiveUser(user);
-    database.tx(
-        db ->
-            assertFalse(
-                db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
-                    .anyMatch(r -> "g2".equals(r.getString("id"))),
-                "unowned row should be hidden while row level is on"));
+    database.tx(db ->
+        assertFalse(
+            db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                .anyMatch(r -> "g2".equals(r.getString("id"))),
+            "unowned row should be hidden while row level is on"));
 
     database.becomeAdmin();
     schema.grant(
@@ -980,15 +955,14 @@ class TestRowLevelSecurity {
         "row level security should be disabled once the last row level grant is gone");
 
     database.setActiveUser(user);
-    database.tx(
-        db -> {
-          List<String> ids =
-              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
-                  .map(r -> r.getString("id"))
-                  .toList();
-          assertTrue(ids.contains("g1"), "should see own row");
-          assertTrue(ids.contains("g2"), "should see unowned row after switching row level off");
-        });
+    database.tx(db -> {
+      List<String> ids =
+          db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+              .map(r -> r.getString("id"))
+              .toList();
+      assertTrue(ids.contains("g1"), "should see own row");
+      assertTrue(ids.contains("g2"), "should see unowned row after switching row level off");
+    });
   }
 
   @Test
@@ -1024,15 +998,14 @@ class TestRowLevelSecurity {
         "row level should be preserved when isRowLevel is not specified");
 
     database.setActiveUser(user);
-    database.tx(
-        db -> {
-          List<String> ids =
-              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
-                  .map(r -> r.getString("id"))
-                  .toList();
-          assertTrue(ids.contains("k1"), "should see own row");
-          assertFalse(ids.contains("k2"), "should NOT see unowned row");
-        });
+    database.tx(db -> {
+      List<String> ids =
+          db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+              .map(r -> r.getString("id"))
+              .toList();
+      assertTrue(ids.contains("k1"), "should see own row");
+      assertFalse(ids.contains("k2"), "should NOT see unowned row");
+    });
 
     database.becomeAdmin();
     schema.getTable(table).delete(new Row().setString("id", "k1"));
@@ -1063,19 +1036,18 @@ class TestRowLevelSecurity {
     schema.addMember(user, Privileges.VIEWER.toString());
 
     database.setActiveUser(user);
-    database.tx(
-        db -> {
-          List<TablePermission> perms = db.getSchema(SCHEMA).getPermissionsForActiveUser();
-          TablePermission articlesPerm =
-              perms.stream()
-                  .filter(p -> ARTICLES.equals(p.table()))
-                  .findFirst()
-                  .orElseThrow(() -> new AssertionError("No permission found for " + ARTICLES));
-          assertEquals(
-              Boolean.TRUE,
-              articlesPerm.isRowLevel(),
-              "isRowLevel should be true for a user whose access comes from an RLS role");
-        });
+    database.tx(db -> {
+      List<TablePermission> perms = db.getSchema(SCHEMA).getPermissionsForActiveUser();
+      TablePermission articlesPerm =
+          perms.stream()
+              .filter(p -> ARTICLES.equals(p.table()))
+              .findFirst()
+              .orElseThrow(() -> new AssertionError("No permission found for " + ARTICLES));
+      assertEquals(
+          Boolean.TRUE,
+          articlesPerm.isRowLevel(),
+          "isRowLevel should be true for a user whose access comes from an RLS role");
+    });
 
     database.becomeAdmin();
     schema.removeMember(user);
@@ -1084,42 +1056,38 @@ class TestRowLevelSecurity {
   @Test
   void viewerSeesAllRowsDespiteRls() {
     database.setActiveUser(USER_VIEWER);
-    database.tx(
-        db -> {
-          List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
-          List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
-          assertTrue(ids.contains("a1"), "Viewer should see TeamA row");
-          assertTrue(ids.contains("b1"), "Viewer should see TeamB row");
-          assertTrue(ids.contains("open"), "Viewer should see public row");
-        });
+    database.tx(db -> {
+      List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
+      List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
+      assertTrue(ids.contains("a1"), "Viewer should see TeamA row");
+      assertTrue(ids.contains("b1"), "Viewer should see TeamB row");
+      assertTrue(ids.contains("open"), "Viewer should see public row");
+    });
   }
 
   @Test
   void countRoleCountsAllRowsDespiteRls() {
     database.setActiveUser(USER_COUNT);
-    database.tx(
-        db -> {
-          Schema schema = db.getSchema(SCHEMA);
-          assertThrows(
-              MolgenisException.class,
-              () -> schema.getTable(ARTICLES).retrieveRows(),
-              "Count role must not be able to read rows");
-          assertEquals(
-              3,
-              aggregateCount(schema),
-              "Count role should count every row, row level security must not filter aggregates");
-        });
+    database.tx(db -> {
+      Schema schema = db.getSchema(SCHEMA);
+      assertThrows(
+          MolgenisException.class,
+          () -> schema.getTable(ARTICLES).retrieveRows(),
+          "Count role must not be able to read rows");
+      assertEquals(
+          3,
+          aggregateCount(schema),
+          "Count role should count every row, row level security must not filter aggregates");
+    });
   }
 
   @Test
   void existsRoleSeesDataDespiteRls() {
     database.setActiveUser(USER_EXISTS);
-    database.tx(
-        db -> {
-          String json =
-              db.getSchema(SCHEMA).query(ARTICLES + "_agg", s(EXISTS_FIELD)).retrieveJSON();
-          assertTrue(readAgg(json).get(EXISTS_FIELD).asBoolean(), "Exists role should see data");
-        });
+    database.tx(db -> {
+      String json = db.getSchema(SCHEMA).query(ARTICLES + "_agg", s(EXISTS_FIELD)).retrieveJSON();
+      assertTrue(readAgg(json).get(EXISTS_FIELD).asBoolean(), "Exists role should see data");
+    });
   }
 
   @Test
@@ -1127,12 +1095,11 @@ class TestRowLevelSecurity {
     // the select bypass keys on the 'Exists' system role; a custom (row level) role only holds
     // 'Member', so its aggregates stay filtered by the row policies
     database.setActiveUser(USER_TEAM_A);
-    database.tx(
-        db ->
-            assertEquals(
-                1,
-                aggregateCount(db.getSchema(SCHEMA)),
-                "TeamA should only count the rows it is allowed to see"));
+    database.tx(db ->
+        assertEquals(
+            1,
+            aggregateCount(db.getSchema(SCHEMA)),
+            "TeamA should only count the rows it is allowed to see"));
   }
 
   private static int aggregateCount(Schema schema) {
@@ -1206,57 +1173,52 @@ class TestRowLevelSecurity {
 
     // INSERT on subclass via TeamA
     database.setActiveUser(userA);
-    database.tx(
-        db ->
-            db.getSchema(schema.getName())
-                .getTable(child)
-                .insert(
-                    new Row()
-                        .setString("id", "c1")
-                        .setString("title", "team a child")
-                        .setString("childField", "x")
-                        .set(MG_ROLES, new String[] {roleA})));
+    database.tx(db ->
+        db.getSchema(schema.getName())
+            .getTable(child)
+            .insert(
+                new Row()
+                    .setString("id", "c1")
+                    .setString("title", "team a child")
+                    .setString("childField", "x")
+                    .set(MG_ROLES, new String[] {roleA})));
 
     // SELECT on subclass: TeamA sees their row
     database.setActiveUser(userA);
-    database.tx(
-        db -> {
-          List<String> ids =
-              db.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
-                  .map(r -> r.getString("id"))
-                  .toList();
-          assertTrue(ids.contains("c1"), "TeamA should see their inserted row on the subclass");
-        });
+    database.tx(db -> {
+      List<String> ids =
+          db.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
+              .map(r -> r.getString("id"))
+              .toList();
+      assertTrue(ids.contains("c1"), "TeamA should see their inserted row on the subclass");
+    });
 
     // SELECT on root: TeamA can see the row through the root table too
     database.setActiveUser(userA);
-    database.tx(
-        db -> {
-          List<String> ids =
-              db.getSchema(schema.getName()).getTable(root).retrieveRows().stream()
-                  .map(r -> r.getString("id"))
-                  .toList();
-          assertTrue(ids.contains("c1"), "TeamA should see the row when querying root");
-        });
+    database.tx(db -> {
+      List<String> ids =
+          db.getSchema(schema.getName()).getTable(root).retrieveRows().stream()
+              .map(r -> r.getString("id"))
+              .toList();
+      assertTrue(ids.contains("c1"), "TeamA should see the row when querying root");
+    });
 
     // TeamB has no insert grant: should not see TeamA's row
     database.setActiveUser(userB);
-    database.tx(
-        db -> {
-          List<String> ids =
-              db.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
-                  .map(r -> r.getString("id"))
-                  .toList();
-          assertFalse(ids.contains("c1"), "TeamB should NOT see TeamA's row");
-        });
+    database.tx(db -> {
+      List<String> ids =
+          db.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
+              .map(r -> r.getString("id"))
+              .toList();
+      assertFalse(ids.contains("c1"), "TeamB should NOT see TeamA's row");
+    });
 
     // UPDATE through subclass
     database.setActiveUser(userA);
-    database.tx(
-        db ->
-            db.getSchema(schema.getName())
-                .getTable(child)
-                .update(new Row().setString("id", "c1").setString("title", "updated")));
+    database.tx(db ->
+        db.getSchema(schema.getName())
+            .getTable(child)
+            .update(new Row().setString("id", "c1").setString("title", "updated")));
     database.becomeAdmin();
     Row updated =
         database.getSchema(schema.getName()).getTable(child).retrieveRows().stream()
@@ -1267,9 +1229,8 @@ class TestRowLevelSecurity {
 
     // DELETE through subclass
     database.setActiveUser(userA);
-    database.tx(
-        db ->
-            db.getSchema(schema.getName()).getTable(child).delete(new Row().setString("id", "c1")));
+    database.tx(db ->
+        db.getSchema(schema.getName()).getTable(child).delete(new Row().setString("id", "c1")));
     database.becomeAdmin();
     assertTrue(
         database.getSchema(schema.getName()).getTable(child).retrieveRows().isEmpty(),
@@ -1309,24 +1270,22 @@ class TestRowLevelSecurity {
 
     // Insert via subclass as TeamC: root insert must satisfy root's RLS
     database.setActiveUser(userC);
-    database.tx(
-        db ->
-            db.getSchema(schema.getName())
-                .getTable(child)
-                .insert(
-                    new Row()
-                        .setString("id", "k1")
-                        .setString("title", "via subclass")
-                        .setString("childField", "y")
-                        .set(MG_ROLES, new String[] {roleC})));
+    database.tx(db ->
+        db.getSchema(schema.getName())
+            .getTable(child)
+            .insert(
+                new Row()
+                    .setString("id", "k1")
+                    .setString("title", "via subclass")
+                    .setString("childField", "y")
+                    .set(MG_ROLES, new String[] {roleC})));
 
     // SELECT on root joins all subclasses (LEFT JOIN); user must have grant on subclasses
     database.setActiveUser(userC);
-    database.tx(
-        db -> {
-          List<Row> rows = db.getSchema(schema.getName()).getTable(root).retrieveRows();
-          assertTrue(rows.stream().anyMatch(r -> "k1".equals(r.getString("id"))));
-        });
+    database.tx(db -> {
+      List<Row> rows = db.getSchema(schema.getName()).getTable(root).retrieveRows();
+      assertTrue(rows.stream().anyMatch(r -> "k1".equals(r.getString("id"))));
+    });
   }
 
   @Test
@@ -1361,25 +1320,23 @@ class TestRowLevelSecurity {
     // Insert on the leaf — three physical inserts must each satisfy RLS on
     // grand, mid, and leaf.
     database.setActiveUser(userD);
-    database.tx(
-        db ->
-            db.getSchema(schema.getName())
-                .getTable(leaf)
-                .insert(
-                    new Row()
-                        .setString("id", "l1")
-                        .setString("title", "deep")
-                        .setString("midField", "m")
-                        .setString("leafField", "l")
-                        .set(MG_ROLES, new String[] {roleD})));
+    database.tx(db ->
+        db.getSchema(schema.getName())
+            .getTable(leaf)
+            .insert(
+                new Row()
+                    .setString("id", "l1")
+                    .setString("title", "deep")
+                    .setString("midField", "m")
+                    .setString("leafField", "l")
+                    .set(MG_ROLES, new String[] {roleD})));
 
     database.setActiveUser(userD);
-    database.tx(
-        db -> {
-          assertEquals(1, db.getSchema(schema.getName()).getTable(leaf).retrieveRows().size());
-          assertEquals(1, db.getSchema(schema.getName()).getTable(mid).retrieveRows().size());
-          assertEquals(1, db.getSchema(schema.getName()).getTable(grand).retrieveRows().size());
-        });
+    database.tx(db -> {
+      assertEquals(1, db.getSchema(schema.getName()).getTable(leaf).retrieveRows().size());
+      assertEquals(1, db.getSchema(schema.getName()).getTable(mid).retrieveRows().size());
+      assertEquals(1, db.getSchema(schema.getName()).getTable(grand).retrieveRows().size());
+    });
   }
 
   @Test
@@ -1461,10 +1418,8 @@ class TestRowLevelSecurity {
 
     // Sanity: grant propagated — can read the subclass.
     database.setActiveUser(userE);
-    database.tx(
-        db ->
-            assertDoesNotThrow(
-                () -> db.getSchema(schema.getName()).getTable(child).retrieveRows()));
+    database.tx(db ->
+        assertDoesNotThrow(() -> db.getSchema(schema.getName()).getTable(child).retrieveRows()));
 
     database.becomeAdmin();
     schema.revoke(roleE, root);
@@ -1477,10 +1432,8 @@ class TestRowLevelSecurity {
 
     // Subclass access must also be gone — the user should no longer be able to read it.
     database.setActiveUser(userE);
-    database.tx(
-        db ->
-            assertThrows(
-                Exception.class,
-                () -> db.getSchema(schema.getName()).getTable(child).retrieveRows()));
+    database.tx(db ->
+        assertThrows(
+            Exception.class, () -> db.getSchema(schema.getName()).getTable(child).retrieveRows()));
   }
 }

@@ -106,10 +106,9 @@ class TestRowLevelSecurityPerformance {
     long[] holder = new long[1];
     database.setActiveUser(user);
     try {
-      database.tx(
-          db ->
-              holder[0] =
-                  time(label, () -> db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().size()));
+      database.tx(db ->
+          holder[0] =
+              time(label, () -> db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().size()));
     } finally {
       database.becomeAdmin();
     }

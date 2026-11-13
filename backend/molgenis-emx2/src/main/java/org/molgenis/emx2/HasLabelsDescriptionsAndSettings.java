@@ -15,10 +15,9 @@ public class HasLabelsDescriptionsAndSettings<T> extends HasSettings<T> {
     Objects.requireNonNull(newLabels);
     // strip empty strings
     newLabels.entrySet().stream()
-        .forEach(
-            entry -> {
-              this.setLabel(entry.getValue(), entry.getKey());
-            });
+        .forEach(entry -> {
+          this.setLabel(entry.getValue(), entry.getKey());
+        });
     return (T) this;
   }
 
@@ -44,10 +43,9 @@ public class HasLabelsDescriptionsAndSettings<T> extends HasSettings<T> {
   public T setDescriptions(Map<String, String> newDescriptions) {
     // strip empty strings
     newDescriptions.entrySet().stream()
-        .forEach(
-            entry -> {
-              this.setDescription(entry.getValue(), entry.getKey());
-            });
+        .forEach(entry -> {
+          this.setDescription(entry.getValue(), entry.getKey());
+        });
     return (T) this;
   }
 

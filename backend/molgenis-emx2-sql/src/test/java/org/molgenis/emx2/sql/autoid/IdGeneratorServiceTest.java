@@ -82,9 +82,10 @@ class IdGeneratorServiceTest {
     assertEquals(
         id.toString(),
         """
-              (
-                select "MOLGENIS".mg_generate_autoid('IdGeneratorServiceTest', 'Person', 'column', '0123456789', 2, '', '')
-              )""");
+        (
+          select "MOLGENIS".mg_generate_autoid('IdGeneratorServiceTest', 'Person', 'column', '0123456789', 2, '', '')
+        )\
+        """);
   }
 
   @Test
@@ -142,11 +143,10 @@ class IdGeneratorServiceTest {
       database.getJooq().insertInto(t1.getJooqTable(), service.generateIdForColumn(c1)).execute();
     }
 
-    assertDoesNotThrow(
-        () ->
-            database
-                .getJooq()
-                .insertInto(t2.getJooqTable(), service.generateIdForColumn(c2))
-                .execute());
+    assertDoesNotThrow(() ->
+        database
+            .getJooq()
+            .insertInto(t2.getJooqTable(), service.generateIdForColumn(c2))
+            .execute());
   }
 }

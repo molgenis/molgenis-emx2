@@ -25,20 +25,20 @@ public class TypicalAgeRdfPreProcessor implements RdfPreProcessor {
 
   private static final String CONSTRUCT =
       """
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-          PREFIX healthdcatap: <http://healthdataportal.eu/ns/health#>
-          PREFIX dcat: <http://www.w3.org/ns/dcat#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX healthdcatap: <http://healthdataportal.eu/ns/health#>
+      PREFIX dcat: <http://www.w3.org/ns/dcat#>
 
-          CONSTRUCT {
-              ?Resources healthdcatap:maximumTypicalAge ?maxAge .
-              ?Resources healthdcatap:minimumTypicalAge ?minAge .
-          }
-          WHERE {
-              ?Resources rdf:type dcat:Dataset .
-              OPTIONAL { ?Resources healthdcatap:maxTypicalAge ?maxAge . }
-              OPTIONAL { ?Resources healthdcatap:minTypicalAge ?minAge . }
-          }
-          """;
+      CONSTRUCT {
+          ?Resources healthdcatap:maximumTypicalAge ?maxAge .
+          ?Resources healthdcatap:minimumTypicalAge ?minAge .
+      }
+      WHERE {
+          ?Resources rdf:type dcat:Dataset .
+          OPTIONAL { ?Resources healthdcatap:maxTypicalAge ?maxAge . }
+          OPTIONAL { ?Resources healthdcatap:minTypicalAge ?minAge . }
+      }
+      """;
 
   @Override
   public void process(Repository repository) {

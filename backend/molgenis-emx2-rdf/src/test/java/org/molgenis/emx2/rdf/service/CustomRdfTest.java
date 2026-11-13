@@ -30,9 +30,9 @@ class CustomRdfTest extends RdfServiceTestRunner {
 
     final String customRdf =
         """
-      @prefix example: <http://example.com/> .
-      <https://molgenis.org/> example:test "Molgenis" .
-      """;
+        @prefix example: <http://example.com/> .
+        <https://molgenis.org/> example:test "Molgenis" .
+        """;
 
     Schema schema = database.dropCreateSchema(schemaName);
     // Test default behaviour.
@@ -65,8 +65,8 @@ class CustomRdfTest extends RdfServiceTestRunner {
 
     final String customRdf =
         """
-      <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
-      """;
+        <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
+        """;
 
     Schema schema = database.dropCreateSchema(schemaName);
     schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);

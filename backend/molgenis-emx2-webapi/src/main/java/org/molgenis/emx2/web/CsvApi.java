@@ -113,15 +113,13 @@ public final class CsvApi {
 
   private static Optional<Integer> parseIntParam(Context ctx, String param) {
     return Optional.ofNullable(ctx.queryParam(param))
-        .map(
-            arg -> {
-              try {
-                return Integer.valueOf(arg);
-              } catch (NumberFormatException e) {
-                throw new MolgenisException(
-                    "Invalid " + param + " provided, should be a number", e);
-              }
-            });
+        .map(arg -> {
+          try {
+            return Integer.valueOf(arg);
+          } catch (NumberFormatException e) {
+            throw new MolgenisException("Invalid " + param + " provided, should be a number", e);
+          }
+        });
   }
 
   private static void discardMetadata(Context ctx) {
@@ -258,11 +256,10 @@ public final class CsvApi {
       try (Writer writer = Files.newBufferedWriter(csv, StandardCharsets.UTF_8)) {
         Consumer<Row> rowWriter =
             CsvTableWriter.newRowWriter(columnNames, writer, getSeparator(ctx));
-        query.streamRows(
-            row -> {
-              ResolveComputedValue.apply(database, columns, List.of(row));
-              rowWriter.accept(row);
-            });
+        query.streamRows(row -> {
+          ResolveComputedValue.apply(database, columns, List.of(row));
+          rowWriter.accept(row);
+        });
       }
 
       ctx.contentType(ACCEPT_CSV);

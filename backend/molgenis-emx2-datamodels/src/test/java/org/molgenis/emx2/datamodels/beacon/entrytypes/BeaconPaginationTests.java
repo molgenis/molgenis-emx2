@@ -16,14 +16,15 @@ public class BeaconPaginationTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
-                          {
-                            "query": {
-                              "pagination": {
-                                "limit": 2,
-                                "skip": 0
-                              }
-                            }
-                          }""");
+            {
+              "query": {
+                "pagination": {
+                  "limit": 2,
+                  "skip": 0
+                }
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -38,14 +39,15 @@ public class BeaconPaginationTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
-                          {
-                            "query": {
-                              "pagination": {
-                                "limit": 2,
-                                "skip": 2
-                              }
-                            }
-                          }""");
+            {
+              "query": {
+                "pagination": {
+                  "limit": 2,
+                  "skip": 2
+                }
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -60,14 +62,15 @@ public class BeaconPaginationTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
-                          {
-                            "query": {
-                              "pagination": {
-                                "limit": 0,
-                                "skip": 0
-                              }
-                            }
-                          }""");
+            {
+              "query": {
+                "pagination": {
+                  "limit": 0,
+                  "skip": 0
+                }
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 

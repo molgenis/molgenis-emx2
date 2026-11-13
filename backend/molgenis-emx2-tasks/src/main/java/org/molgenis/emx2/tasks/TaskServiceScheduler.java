@@ -96,14 +96,13 @@ public class TaskServiceScheduler {
       quartzScheduler.deleteJob(jobKey);
       quartzScheduler
           .getCurrentlyExecutingJobs()
-          .forEach(
-              jobExecutionContext -> {
-                // stop jobs spawned from this jobkey
-                if (jobExecutionContext.getJobInstance() instanceof SubmitJob submitJob
-                    && jobExecutionContext.getJobDetail().getKey().getName().equals(name)) {
-                  submitJob.stop();
-                }
-              });
+          .forEach(jobExecutionContext -> {
+            // stop jobs spawned from this jobkey
+            if (jobExecutionContext.getJobInstance() instanceof SubmitJob submitJob
+                && jobExecutionContext.getJobDetail().getKey().getName().equals(name)) {
+              submitJob.stop();
+            }
+          });
     } catch (Exception e) {
       throw new MolgenisException(String.format("Error deleting ScheduledJob %s", name), e);
     }

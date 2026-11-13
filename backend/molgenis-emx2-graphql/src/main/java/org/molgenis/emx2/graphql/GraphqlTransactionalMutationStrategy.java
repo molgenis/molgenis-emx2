@@ -62,14 +62,13 @@ class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy 
     try {
       schema
           .getDatabase()
-          .tx(
-              db -> {
-                context.getGraphQLContext().put(Schema.class, db.getSchema(schema.getName()));
-                result.set(super.execute(context, parameters).join());
-                if (!result.get().getErrors().isEmpty()) {
-                  throw new MolgenisException("Mutation rolled back because of errors");
-                }
-              });
+          .tx(db -> {
+            context.getGraphQLContext().put(Schema.class, db.getSchema(schema.getName()));
+            result.set(super.execute(context, parameters).join());
+            if (!result.get().getErrors().isEmpty()) {
+              throw new MolgenisException("Mutation rolled back because of errors");
+            }
+          });
     } catch (MolgenisException e) {
       if (result.get() == null || result.get().getErrors().isEmpty()) {
         result.set(errorResult(e.toString()));

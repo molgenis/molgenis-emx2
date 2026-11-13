@@ -25,11 +25,11 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 public abstract class CustomAssertions {
   public static final String SHACL_TURTLE_SUCCEED =
       """
-    @prefix sh: <http://www.w3.org/ns/shacl#> .
+      @prefix sh: <http://www.w3.org/ns/shacl#> .
 
-    [] a sh:ValidationReport;
-      sh:conforms true .
-    """;
+      [] a sh:ValidationReport;
+        sh:conforms true .
+      """;
 
   public static void assertRdfEquals(InMemoryRDFHandler expected, InMemoryRDFHandler actual) {
     AssertionFailureBuilder failureBuilder = assertionFailure();

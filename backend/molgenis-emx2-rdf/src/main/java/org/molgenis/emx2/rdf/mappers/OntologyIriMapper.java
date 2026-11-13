@@ -60,13 +60,12 @@ public class OntologyIriMapper {
       ontology
           .query()
           .select(s("name"), s("ontologyTermURI"))
-          .streamRows(
-              row -> {
-                String uri = row.getString("ontologyTermURI");
-                if (uri != null) {
-                  irisPerName.put(row.getString("name"), Values.iri(uri));
-                }
-              });
+          .streamRows(row -> {
+            String uri = row.getString("ontologyTermURI");
+            if (uri != null) {
+              irisPerName.put(row.getString("name"), Values.iri(uri));
+            }
+          });
       irisPerOntology.put(ontology.getName(), irisPerName);
       irisPerSchema.put(ontology.getSchema().getName(), irisPerOntology);
     }

@@ -840,11 +840,10 @@ public class GraphqlTableFieldFactory {
   private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
       return aTable.getColumnsIncludingSubclasses().stream()
-          .filter(
-              c ->
-                  c.getIdentifier().equals(id)
-                      || (c.getIdentifier() + "_agg").equals(id)
-                      || (c.getIdentifier() + "_groupBy").equals(id))
+          .filter(c ->
+              c.getIdentifier().equals(id)
+                  || (c.getIdentifier() + "_agg").equals(id)
+                  || (c.getIdentifier() + "_groupBy").equals(id))
           .findFirst();
     } else {
       return Optional.empty();
@@ -977,34 +976,33 @@ public class GraphqlTableFieldFactory {
       StringBuilder result = new StringBuilder();
       transactionalSchema
           .getDatabase()
-          .tx(
-              db -> {
-                Schema txSchema = db.getSchema(schema.getName());
-                for (Table table : txSchema.getTablesSorted()) {
-                  List<Map<String, Object>> rowsAsListOfMaps =
-                      environment.getArgument(table.getMetadata().getIdentifier());
-                  if (rowsAsListOfMaps == null) {
-                    continue;
-                  }
-                  String tableName = table.getName();
-                  List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAsListOfMaps);
-                  result.append(
-                      switch (mutationType) {
-                        case INSERT ->
-                            "inserted %d records to %s%n".formatted(table.insert(rows), tableName);
-                        case UPDATE ->
-                            "updated %d records to %s%n".formatted(table.update(rows), tableName);
-                        case SAVE ->
-                            "upserted %d records to %s%n".formatted(table.save(rows), tableName);
-                        case DELETE ->
-                            "delete %d records from %s%n"
-                                .formatted(
-                                    table.delete(
-                                        rows, environment.getArgumentOrDefault("strict", false)),
-                                    tableName);
-                      });
-                }
-              });
+          .tx(db -> {
+            Schema txSchema = db.getSchema(schema.getName());
+            for (Table table : txSchema.getTablesSorted()) {
+              List<Map<String, Object>> rowsAsListOfMaps =
+                  environment.getArgument(table.getMetadata().getIdentifier());
+              if (rowsAsListOfMaps == null) {
+                continue;
+              }
+              String tableName = table.getName();
+              List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAsListOfMaps);
+              result.append(
+                  switch (mutationType) {
+                    case INSERT ->
+                        "inserted %d records to %s%n".formatted(table.insert(rows), tableName);
+                    case UPDATE ->
+                        "updated %d records to %s%n".formatted(table.update(rows), tableName);
+                    case SAVE ->
+                        "upserted %d records to %s%n".formatted(table.save(rows), tableName);
+                    case DELETE ->
+                        "delete %d records from %s%n"
+                            .formatted(
+                                table.delete(
+                                    rows, environment.getArgumentOrDefault("strict", false)),
+                                tableName);
+                  });
+            }
+          });
       return new GraphqlApiMutationResult(SUCCESS, result.toString());
     };
   }

@@ -24,7 +24,8 @@ class JsonApiTest extends ApiTestBase {
               "message" : "Schema nonexisting unknown"
             }
           ]
-        }""",
+        }\
+        """,
         response.getBody().asString());
   }
 }

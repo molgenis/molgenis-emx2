@@ -105,17 +105,16 @@ class TestEnumColumns {
             "BlankValue", column("bad").setType(ENUM).setAllowedValues("a", " "),
             "DuplicateValue", column("bad").setType(ENUM).setAllowedValues("a", "b", "a"),
             "ValuesOnString", column("bad").setType(STRING).setAllowedValues("a", "b"));
-    wrongLists.forEach(
-        (tableName, badColumn) -> {
-          MolgenisException error =
-              assertThrows(
-                  MolgenisException.class,
-                  () -> schema.create(table(tableName).add(column(ID).setPkey()).add(badColumn)),
-                  tableName);
-          assertTrue(error.getMessage().contains("bad"), error.getMessage());
-          db.clearCache();
-          assertNull(db.getSchema(SCHEMA_NAME).getTable(tableName), tableName);
-        });
+    wrongLists.forEach((tableName, badColumn) -> {
+      MolgenisException error =
+          assertThrows(
+              MolgenisException.class,
+              () -> schema.create(table(tableName).add(column(ID).setPkey()).add(badColumn)),
+              tableName);
+      assertTrue(error.getMessage().contains("bad"), error.getMessage());
+      db.clearCache();
+      assertNull(db.getSchema(SCHEMA_NAME).getTable(tableName), tableName);
+    });
   }
 
   @Test

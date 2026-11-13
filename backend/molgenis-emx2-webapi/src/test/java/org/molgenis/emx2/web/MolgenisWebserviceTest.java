@@ -119,11 +119,10 @@ class MolgenisWebserviceTest extends ApiTestBase {
     URL hostUrlBefore = MolgenisWebservice.hostUrl;
     try {
       new EnvironmentVariables(MOLGENIS_SERVICE_URL, "https://example.org")
-          .execute(
-              () -> {
-                new MolgenisWebservice();
-                assertEquals(new URI("https://example.org").toURL(), MolgenisWebservice.hostUrl);
-              });
+          .execute(() -> {
+            new MolgenisWebservice();
+            assertEquals(new URI("https://example.org").toURL(), MolgenisWebservice.hostUrl);
+          });
     } finally {
       MolgenisWebservice.hostUrl = hostUrlBefore;
     }
@@ -133,10 +132,9 @@ class MolgenisWebserviceTest extends ApiTestBase {
   void malformedServiceUrlShouldThrowException() throws Exception {
     // a space is not allowed in a URI
     new EnvironmentVariables(MOLGENIS_SERVICE_URL, "http://example.com/foo bar")
-        .execute(
-            () -> {
-              assertThrows(MolgenisException.class, MolgenisWebservice::new);
-            });
+        .execute(() -> {
+          assertThrows(MolgenisException.class, MolgenisWebservice::new);
+        });
   }
 
   private static Schema setupSchema(String schemaName) {
@@ -148,16 +146,16 @@ class MolgenisWebserviceTest extends ApiTestBase {
 
   private String menuForRole(String role) {
     return """
-          [
-            {
-              "label": "Tables",
-              "href": "from-menu",
-              "role": "%s",
-              "key": "y0768",
-              "submenu": []
-            }
-          ]
-          """
+    [
+      {
+        "label": "Tables",
+        "href": "from-menu",
+        "role": "%s",
+        "key": "y0768",
+        "submenu": []
+      }
+    ]
+    """
         .formatted(role);
   }
 }

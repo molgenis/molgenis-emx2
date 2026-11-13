@@ -87,38 +87,33 @@ final class SqlColumnRefArrayExecutor {
 
     String unnestRefs =
         references.stream()
-            .map(
-                r -> {
-                  // can be overlapping with non_array reference
-                  if (r.isOverlappingRef()) {
-                    return name(r.getColumnName()) + " AS " + name(r.getReferencedColumnName());
-                  } else {
-                    return "UNNEST("
-                        + name(r.getColumnName())
-                        + ") AS "
-                        + name(r.getReferencedColumnName());
-                  }
-                })
+            .map(r -> {
+              // can be overlapping with non_array reference
+              if (r.isOverlappingRef()) {
+                return name(r.getColumnName()) + " AS " + name(r.getReferencedColumnName());
+              } else {
+                return "UNNEST("
+                    + name(r.getColumnName())
+                    + ") AS "
+                    + name(r.getReferencedColumnName());
+              }
+            })
             .collect(Collectors.joining(","));
 
     String oldEqualsAnyRef =
         references.stream()
-            .map(
-                r -> {
-                  // can be overlapping with non_array reference
-                  if (r.isOverlappingRef()) {
-                    return "OLD."
-                        + name(r.getReferencedColumnName())
-                        + "="
-                        + name(r.getColumnName());
-                  } else {
-                    return "OLD."
-                        + name(r.getReferencedColumnName())
-                        + "=ANY("
-                        + name(r.getColumnName())
-                        + ")";
-                  }
-                })
+            .map(r -> {
+              // can be overlapping with non_array reference
+              if (r.isOverlappingRef()) {
+                return "OLD." + name(r.getReferencedColumnName()) + "=" + name(r.getColumnName());
+              } else {
+                return "OLD."
+                    + name(r.getReferencedColumnName())
+                    + "=ANY("
+                    + name(r.getColumnName())
+                    + ")";
+              }
+            })
             .collect(Collectors.joining(" AND "));
 
     String keyColumns =
@@ -128,12 +123,11 @@ final class SqlColumnRefArrayExecutor {
 
     String oldEqualsTo =
         references.stream()
-            .map(
-                r ->
-                    "OLD."
-                        + name(r.getReferencedColumnName())
-                        + "= "
-                        + name(r.getReferencedColumnName()))
+            .map(r ->
+                "OLD."
+                    + name(r.getReferencedColumnName())
+                    + "= "
+                    + name(r.getReferencedColumnName()))
             .collect(Collectors.joining(" AND "));
 
     String oldValuesAsString =
@@ -148,12 +142,11 @@ final class SqlColumnRefArrayExecutor {
 
     String newNotEqualsOld =
         references.stream()
-            .map(
-                r ->
-                    "OLD."
-                        + name(r.getReferencedColumnName())
-                        + " <> NEW."
-                        + name(r.getReferencedColumnName()))
+            .map(r ->
+                "OLD."
+                    + name(r.getReferencedColumnName())
+                    + " <> NEW."
+                    + name(r.getReferencedColumnName()))
             .collect(Collectors.joining(" OR "));
 
     jooq.execute(
@@ -242,45 +235,40 @@ final class SqlColumnRefArrayExecutor {
 
     String errorColumns =
         references.stream()
-            .map(
-                r ->
-                    "COALESCE(error_row."
-                        + name(r.getReferencedColumnName()).toString()
-                        + ",'NULL')")
+            .map(r ->
+                "COALESCE(error_row." + name(r.getReferencedColumnName()).toString() + ",'NULL')")
             .collect(Collectors.joining("||','||"));
 
     String exceptFilter =
         references.stream()
-            .map(
-                r -> {
-                  if (r.isOverlappingRef()) {
-                    return name(r.getReferencedColumnName()) + " = NEW." + name(r.getColumnName());
-                  } else {
-                    return name(r.getReferencedColumnName())
-                        + " = ANY (NEW."
-                        + name(r.getColumnName())
-                        + ")";
-                  }
-                })
+            .map(r -> {
+              if (r.isOverlappingRef()) {
+                return name(r.getReferencedColumnName()) + " = NEW." + name(r.getColumnName());
+              } else {
+                return name(r.getReferencedColumnName())
+                    + " = ANY (NEW."
+                    + name(r.getColumnName())
+                    + ")";
+              }
+            })
             .collect(Collectors.joining(" AND "));
 
     String unnestRefs =
         references.stream()
-            .map(
-                r -> {
-                  // can be overlapping with non_array reference
-                  if (r.isOverlappingRef()) {
-                    return "NEW."
-                        + name(r.getColumnName())
-                        + " AS "
-                        + name(r.getReferencedColumnName());
-                  } else {
-                    return "UNNEST(NEW."
-                        + name(r.getColumnName())
-                        + ") AS "
-                        + name(r.getReferencedColumnName());
-                  }
-                })
+            .map(r -> {
+              // can be overlapping with non_array reference
+              if (r.isOverlappingRef()) {
+                return "NEW."
+                    + name(r.getColumnName())
+                    + " AS "
+                    + name(r.getReferencedColumnName());
+              } else {
+                return "UNNEST(NEW."
+                    + name(r.getColumnName())
+                    + ") AS "
+                    + name(r.getReferencedColumnName());
+              }
+            })
             .collect(Collectors.joining(","));
 
     String nonRefLinkFieldsAreNotNull =

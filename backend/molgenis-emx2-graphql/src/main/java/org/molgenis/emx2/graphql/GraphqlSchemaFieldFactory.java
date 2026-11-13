@@ -532,17 +532,16 @@ public class GraphqlSchemaFieldFactory {
 
   static List<Map<String, Object>> permissionsToList(Role role) {
     return role.permissions().stream()
-        .map(
-            p -> {
-              Map<String, Object> permMap = new LinkedHashMap<>();
-              permMap.put(TABLE, p.table());
-              permMap.put(SELECT, p.select());
-              permMap.put(INSERT, p.insert());
-              permMap.put(UPDATE, p.update());
-              permMap.put(DELETE, p.delete());
-              permMap.put(IS_ROW_LEVEL, p.isRowLevel());
-              return permMap;
-            })
+        .map(p -> {
+          Map<String, Object> permMap = new LinkedHashMap<>();
+          permMap.put(TABLE, p.table());
+          permMap.put(SELECT, p.select());
+          permMap.put(INSERT, p.insert());
+          permMap.put(UPDATE, p.update());
+          permMap.put(DELETE, p.delete());
+          permMap.put(IS_ROW_LEVEL, p.isRowLevel());
+          return permMap;
+        })
         .toList();
   }
 
@@ -581,19 +580,17 @@ public class GraphqlSchemaFieldFactory {
       StringBuilder message = new StringBuilder();
       schema
           .getDatabase()
-          .tx(
-              db -> {
-                Schema s = db.getSchema(schema.getName());
-                dropTables(s, dataFetchingEnvironment, message);
-                dropMembers(s, dataFetchingEnvironment, message);
-                dropRoles(s, dataFetchingEnvironment, message);
-                dropColumns(s, dataFetchingEnvironment, message);
-                dropSettings(s, dataFetchingEnvironment, message);
-                // this sync is a bit sad.
-                ((SqlSchemaMetadata) schema.getMetadata())
-                    .sync((SqlSchemaMetadata) s.getMetadata());
-                db.getListener().onSchemaChange();
-              });
+          .tx(db -> {
+            Schema s = db.getSchema(schema.getName());
+            dropTables(s, dataFetchingEnvironment, message);
+            dropMembers(s, dataFetchingEnvironment, message);
+            dropRoles(s, dataFetchingEnvironment, message);
+            dropColumns(s, dataFetchingEnvironment, message);
+            dropSettings(s, dataFetchingEnvironment, message);
+            // this sync is a bit sad.
+            ((SqlSchemaMetadata) schema.getMetadata()).sync((SqlSchemaMetadata) s.getMetadata());
+            db.getListener().onSchemaChange();
+          });
       Map<String, String> result = new LinkedHashMap<>();
       result.put(DETAIL, message.toString());
       return result;
@@ -643,20 +640,19 @@ public class GraphqlSchemaFieldFactory {
   private static void truncateTables(Schema schema, List<String> tables) {
     schema
         .getDatabase()
-        .tx(
-            db -> {
-              Schema s = db.getSchema(schema.getName());
-              if (tables != null) {
-                for (String tableName : tables) {
-                  Table table = s.getTable(tableName);
-                  if (table == null) {
-                    throw new GraphqlException("Truncate failed: table " + tableName + " unknown");
-                  } else {
-                    table.truncate();
-                  }
-                }
+        .tx(db -> {
+          Schema s = db.getSchema(schema.getName());
+          if (tables != null) {
+            for (String tableName : tables) {
+              Table table = s.getTable(tableName);
+              if (table == null) {
+                throw new GraphqlException("Truncate failed: table " + tableName + " unknown");
+              } else {
+                table.truncate();
               }
-            });
+            }
+          }
+        });
   }
 
   private static void dropColumns(
@@ -801,12 +797,11 @@ public class GraphqlSchemaFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_changes")
         .type(GraphQLList.list(changesMetadataType))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              int limit = dataFetchingEnvironment.getArgumentOrDefault("limit", 100);
-              int offset = dataFetchingEnvironment.getArgumentOrDefault("offset", 0);
-              return schema.getChanges(limit, offset);
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          int limit = dataFetchingEnvironment.getArgumentOrDefault("limit", 100);
+          int offset = dataFetchingEnvironment.getArgumentOrDefault("offset", 0);
+          return schema.getChanges(limit, offset);
+        })
         .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt));
   }
@@ -824,29 +819,27 @@ public class GraphqlSchemaFieldFactory {
         .argument(
             GraphQLArgument.newArgument().name(KEYS).type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsType))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              final List<String> selectedKeys =
-                  dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
-              final boolean includePages =
-                  selectedKeys.stream().anyMatch(selectedKey -> selectedKey.startsWith("page."));
+        .dataFetcher(dataFetchingEnvironment -> {
+          final List<String> selectedKeys =
+              dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
+          final boolean includePages =
+              selectedKeys.stream().anyMatch(selectedKey -> selectedKey.startsWith("page."));
 
-              return Stream.concat(
-                      schema.getMetadata().getSettings().entrySet().stream()
-                          .filter(
-                              setting ->
-                                  selectedKeys.isEmpty()
-                                      || selectedKeys.contains(setting.getKey())
-                                      || (includePages && setting.getKey().startsWith("page.")))
-                          .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue())),
-                      Stream.of(
-                          Map.of(
-                              "key",
-                              IS_OIDC_ENABLED,
-                              VALUE,
-                              String.valueOf(schema.getDatabase().isOidcEnabled()))))
-                  .toList();
-            });
+          return Stream.concat(
+                  schema.getMetadata().getSettings().entrySet().stream()
+                      .filter(setting ->
+                          selectedKeys.isEmpty()
+                              || selectedKeys.contains(setting.getKey())
+                              || (includePages && setting.getKey().startsWith("page.")))
+                      .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue())),
+                  Stream.of(
+                      Map.of(
+                          "key",
+                          IS_OIDC_ENABLED,
+                          VALUE,
+                          String.valueOf(schema.getDatabase().isOidcEnabled()))))
+              .toList();
+        });
   }
 
   public GraphQLFieldDefinition changeMutation(Schema schema) {
@@ -878,23 +871,21 @@ public class GraphqlSchemaFieldFactory {
     return dataFetchingEnvironment -> {
       schema
           .getDatabase()
-          .tx(
-              db -> {
-                try {
-                  Schema s = db.getSchema(schema.getName());
-                  changeTables(s, dataFetchingEnvironment);
-                  changeRoles(s, dataFetchingEnvironment);
-                  changeMembers(s, dataFetchingEnvironment);
-                  changeColumns(s, dataFetchingEnvironment);
-                  changeSettings(s, dataFetchingEnvironment);
-                  // this sync is a bit sad.
-                  ((SqlSchemaMetadata) schema.getMetadata())
-                      .sync((SqlSchemaMetadata) s.getMetadata());
-                  db.getListener().onSchemaChange();
-                } catch (IOException e) {
-                  throw new GraphqlException("Save metadata failed", e);
-                }
-              });
+          .tx(db -> {
+            try {
+              Schema s = db.getSchema(schema.getName());
+              changeTables(s, dataFetchingEnvironment);
+              changeRoles(s, dataFetchingEnvironment);
+              changeMembers(s, dataFetchingEnvironment);
+              changeColumns(s, dataFetchingEnvironment);
+              changeSettings(s, dataFetchingEnvironment);
+              // this sync is a bit sad.
+              ((SqlSchemaMetadata) schema.getMetadata()).sync((SqlSchemaMetadata) s.getMetadata());
+              db.getListener().onSchemaChange();
+            } catch (IOException e) {
+              throw new GraphqlException("Save metadata failed", e);
+            }
+          });
       return new GraphqlApiMutationResult(SUCCESS, "Meta update success");
     };
   }
@@ -945,31 +936,27 @@ public class GraphqlSchemaFieldFactory {
   private void changeSettings(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     List<Map<String, String>> settings = dataFetchingEnvironment.getArgument(SETTINGS);
     if (settings != null) {
-      settings.forEach(
-          entry -> {
-            if (entry.get(TABLE_ID) != null) {
-              Table table = schema.getTableById(entry.get(TABLE_ID));
-              if (table == null) {
-                throw new MolgenisException(
-                    "changeSettings failed: Table with id="
-                        + entry.get(TABLE_ID)
-                        + " cannot be found");
-              }
-              table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
-            } else {
-              schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
-            }
-          });
+      settings.forEach(entry -> {
+        if (entry.get(TABLE_ID) != null) {
+          Table table = schema.getTableById(entry.get(TABLE_ID));
+          if (table == null) {
+            throw new MolgenisException(
+                "changeSettings failed: Table with id=" + entry.get(TABLE_ID) + " cannot be found");
+          }
+          table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+        } else {
+          schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
+        }
+      });
     }
   }
 
   private Map<String, String> convertKeyValueListToMap(List<Map<String, String>> keyValueList) {
     Map<String, String> keyValueMap = new LinkedHashMap<>();
     if (keyValueList != null) {
-      keyValueList.forEach(
-          entry -> {
-            keyValueMap.put(entry.get(KEY), entry.get(VALUE));
-          });
+      keyValueList.forEach(entry -> {
+        keyValueMap.put(entry.get(KEY), entry.get(VALUE));
+      });
     }
     return keyValueMap;
   }
@@ -1031,18 +1018,17 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputSettingsMetadataType)))
         .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              Map<String, Object> result = new LinkedHashMap<>();
-              final String id = dataFetchingEnvironment.getArgument(ID);
-              Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
-              Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
-              Map<String, String> parameters =
-                  convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
-              result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
-              result.put(COUNT, getReportCount(id, schema, parameters));
-              return result;
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          Map<String, Object> result = new LinkedHashMap<>();
+          final String id = dataFetchingEnvironment.getArgument(ID);
+          Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
+          Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
+          Map<String, String> parameters =
+              convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
+          result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
+          result.put(COUNT, getReportCount(id, schema, parameters));
+          return result;
+        })
         .build();
   }
 }

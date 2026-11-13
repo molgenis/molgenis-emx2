@@ -33,32 +33,31 @@ public final class EmailValidator {
 
   public static List<String> validationResponseToReceivers(Map<String, Object> validationResponse) {
     List<String> receivers = flattenAllowTree(validationResponse);
-    receivers.removeIf((e) -> !isValidEmail(e));
+    receivers.removeIf(e -> !isValidEmail(e));
     return receivers;
   }
 
   private static List<String> flattenAllowTree(Map<String, Object> resultMap) {
     List<Object> asDeepList =
         resultMap.values().stream()
-            .map(
-                o -> {
-                  if (o instanceof Map<?, ?>) {
-                    Map<String, Object> b = (Map<String, Object>) o;
-                    if (b.containsKey("key") && b.containsKey("value")) {
-                      return b.get("value");
-                    } else {
-                      return flattenAllowTree(b);
-                    }
-                  } else {
-                    if (o instanceof List<?>) {
-                      return ((List<?>) o)
-                          .stream()
-                              .map(i -> flattenAllowTree((Map<String, Object>) i))
-                              .collect(Collectors.toList());
-                    }
-                  }
-                  return o;
-                })
+            .map(o -> {
+              if (o instanceof Map<?, ?>) {
+                Map<String, Object> b = (Map<String, Object>) o;
+                if (b.containsKey("key") && b.containsKey("value")) {
+                  return b.get("value");
+                } else {
+                  return flattenAllowTree(b);
+                }
+              } else {
+                if (o instanceof List<?>) {
+                  return ((List<?>) o)
+                      .stream()
+                          .map(i -> flattenAllowTree((Map<String, Object>) i))
+                          .collect(Collectors.toList());
+                }
+              }
+              return o;
+            })
             .toList();
 
     return flatten(asDeepList);

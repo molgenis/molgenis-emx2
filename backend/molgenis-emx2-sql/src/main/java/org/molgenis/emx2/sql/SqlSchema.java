@@ -182,11 +182,10 @@ public class SqlSchema implements Schema {
     SchemaMetadata mergeSchema = new SchemaMetadata(discardSchema);
     mergeSchema
         .getTables()
-        .forEach(
-            t -> {
-              t.drop();
-              t.getColumns().forEach(Column::drop);
-            });
+        .forEach(t -> {
+          t.drop();
+          t.getColumns().forEach(Column::drop);
+        });
     migrate(mergeSchema);
   }
 
@@ -396,12 +395,11 @@ public class SqlSchema implements Schema {
     if (table == null) {
       Optional<String> name =
           getTableNames().stream()
-              .filter(
-                  value ->
-                      value
-                          .toLowerCase()
-                          .replace(" ", "")
-                          .equals(tableName.replace(" ", "").toLowerCase()))
+              .filter(value ->
+                  value
+                      .toLowerCase()
+                      .replace(" ", "")
+                      .equals(tableName.replace(" ", "").toLowerCase()))
               .findFirst();
       if (name.isPresent()) {
         table = getTable(name.get());
@@ -413,12 +411,8 @@ public class SqlSchema implements Schema {
   @Override
   public boolean hasTableWithNameOrIdCaseInsensitive(String tableName) {
     return getTableNames().stream()
-        .anyMatch(
-            value ->
-                value
-                    .toLowerCase()
-                    .replace(" ", "")
-                    .equals(tableName.replace(" ", "").toLowerCase()));
+        .anyMatch(value ->
+            value.toLowerCase().replace(" ", "").equals(tableName.replace(" ", "").toLowerCase()));
   }
 
   public DSLContext getJooq() {

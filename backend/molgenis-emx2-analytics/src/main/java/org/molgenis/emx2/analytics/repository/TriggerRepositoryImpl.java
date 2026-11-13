@@ -26,54 +26,52 @@ public class TriggerRepositoryImpl implements TriggerRepository {
   public TriggerRepositoryImpl(Database database) {
     this.database = database;
     String currentUser = database.getActiveUser();
-    this.database.tx(
-        db -> {
-          try {
-            db.becomeAdmin();
+    this.database.tx(db -> {
+      try {
+        db.becomeAdmin();
 
-            Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
-            if (sysSchema == null) {
-              throw new MolgenisException("failed to setup Analytics TriggerRepository");
-            }
+        Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+        if (sysSchema == null) {
+          throw new MolgenisException("failed to setup Analytics TriggerRepository");
+        }
 
-            if (!sysSchema.getTableNames().contains(TRIGGER_TABLE_NAME)) {
-              sysSchema.create(
-                  table(
-                      TRIGGER_TABLE_NAME,
-                      column(NAME).setPkey(),
-                      column(CSS_SELECTOR).setType(ColumnType.TEXT).setRequired(true),
-                      column(APP_NAME).setRequired(false),
-                      column(SCHEMA_NAME).setRequired(false)));
-            }
-          } finally {
-            db.setActiveUser(currentUser);
-          }
-        });
+        if (!sysSchema.getTableNames().contains(TRIGGER_TABLE_NAME)) {
+          sysSchema.create(
+              table(
+                  TRIGGER_TABLE_NAME,
+                  column(NAME).setPkey(),
+                  column(CSS_SELECTOR).setType(ColumnType.TEXT).setRequired(true),
+                  column(APP_NAME).setRequired(false),
+                  column(SCHEMA_NAME).setRequired(false)));
+        }
+      } finally {
+        db.setActiveUser(currentUser);
+      }
+    });
   }
 
   @Override
   public Trigger addTrigger(Trigger trigger) {
     AtomicInteger inserted = new AtomicInteger();
 
-    this.database.tx(
-        db -> {
-          Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
-          if (sysSchema == null) {
-            throw new MolgenisException("failed to add analytics Trigger");
-          }
-          Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
-          Row triggerRow =
-              row(
-                  NAME,
-                  trigger.name(),
-                  CSS_SELECTOR,
-                  trigger.cssSelector(),
-                  APP_NAME,
-                  trigger.appName(),
-                  SCHEMA_NAME,
-                  trigger.schemaName());
-          inserted.set(triggerTable.insert(triggerRow));
-        });
+    this.database.tx(db -> {
+      Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+      if (sysSchema == null) {
+        throw new MolgenisException("failed to add analytics Trigger");
+      }
+      Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
+      Row triggerRow =
+          row(
+              NAME,
+              trigger.name(),
+              CSS_SELECTOR,
+              trigger.cssSelector(),
+              APP_NAME,
+              trigger.appName(),
+              SCHEMA_NAME,
+              trigger.schemaName());
+      inserted.set(triggerTable.insert(triggerRow));
+    });
 
     if (inserted.get() == 1) {
       return trigger;
@@ -85,48 +83,46 @@ public class TriggerRepositoryImpl implements TriggerRepository {
   @Override
   public List<Trigger> getTriggersForSchema(Schema schema) {
     List<Trigger> triggers = new ArrayList<>();
-    this.database.tx(
-        db -> {
-          String currentUser = database.getActiveUser();
+    this.database.tx(db -> {
+      String currentUser = database.getActiveUser();
 
-          if (!schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString())) {
-            throw new MolgenisException(
-                "failed fetch analytics triggers for schema " + schema.getName());
-          }
-          try {
-            db.becomeAdmin();
+      if (!schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString())) {
+        throw new MolgenisException(
+            "failed fetch analytics triggers for schema " + schema.getName());
+      }
+      try {
+        db.becomeAdmin();
 
-            Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
-            if (sysSchema == null) {
-              throw new MolgenisException(
-                  "failed fetch analytics triggers for schema " + schema.getName());
-            }
+        Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+        if (sysSchema == null) {
+          throw new MolgenisException(
+              "failed fetch analytics triggers for schema " + schema.getName());
+        }
 
-            Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
-            List<Trigger> list =
-                triggerTable
-                    .select(
-                        SelectColumn.s(NAME),
-                        SelectColumn.s(CSS_SELECTOR),
-                        SelectColumn.s(SCHEMA_NAME),
-                        SelectColumn.s(APP_NAME))
-                    .where(f(SCHEMA_NAME, EQUALS, schema.getName()))
-                    .retrieveRows()
-                    .stream()
-                    .map(
-                        r ->
-                            new Trigger(
-                                r.getString(NAME),
-                                r.getText(CSS_SELECTOR),
-                                r.getString(SCHEMA_NAME),
-                                r.getString(APP_NAME)))
-                    .toList();
-            triggers.addAll(list);
+        Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
+        List<Trigger> list =
+            triggerTable
+                .select(
+                    SelectColumn.s(NAME),
+                    SelectColumn.s(CSS_SELECTOR),
+                    SelectColumn.s(SCHEMA_NAME),
+                    SelectColumn.s(APP_NAME))
+                .where(f(SCHEMA_NAME, EQUALS, schema.getName()))
+                .retrieveRows()
+                .stream()
+                .map(r ->
+                    new Trigger(
+                        r.getString(NAME),
+                        r.getText(CSS_SELECTOR),
+                        r.getString(SCHEMA_NAME),
+                        r.getString(APP_NAME)))
+                .toList();
+        triggers.addAll(list);
 
-          } finally {
-            db.setActiveUser(currentUser);
-          }
-        });
+      } finally {
+        db.setActiveUser(currentUser);
+      }
+    });
     return triggers;
   }
 
@@ -134,22 +130,20 @@ public class TriggerRepositoryImpl implements TriggerRepository {
   public boolean deleteTrigger(String triggerName) {
     AtomicInteger deleted = new AtomicInteger();
 
-    this.database.tx(
-        db -> {
-          Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
-          if (sysSchema == null) {
-            throw new MolgenisException("failed to delete analytics Trigger");
-          }
+    this.database.tx(db -> {
+      Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+      if (sysSchema == null) {
+        throw new MolgenisException("failed to delete analytics Trigger");
+      }
 
-          Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
-          List<Row> rowList =
-              triggerTable.query().where(f(NAME, EQUALS, triggerName)).retrieveRows();
-          if (1 != rowList.size()) {
-            throw new MolgenisException("failed to delete trigger");
-          }
+      Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
+      List<Row> rowList = triggerTable.query().where(f(NAME, EQUALS, triggerName)).retrieveRows();
+      if (1 != rowList.size()) {
+        throw new MolgenisException("failed to delete trigger");
+      }
 
-          deleted.set(triggerTable.delete(rowList));
-        });
+      deleted.set(triggerTable.delete(rowList));
+    });
 
     if (deleted.get() == 1) {
       return true;
@@ -162,25 +156,24 @@ public class TriggerRepositoryImpl implements TriggerRepository {
   public boolean updateTrigger(Trigger trigger) {
     AtomicInteger updated = new AtomicInteger();
 
-    this.database.tx(
-        db -> {
-          Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
-          if (sysSchema == null) {
-            throw new MolgenisException("failed to update analytics Trigger");
-          }
+    this.database.tx(db -> {
+      Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+      if (sysSchema == null) {
+        throw new MolgenisException("failed to update analytics Trigger");
+      }
 
-          Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
-          List<Row> rowList =
-              triggerTable.query().where(f(NAME, EQUALS, trigger.name())).retrieveRows();
-          if (1 != rowList.size()) {
-            throw new MolgenisException("failed to update trigger");
-          }
+      Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
+      List<Row> rowList =
+          triggerTable.query().where(f(NAME, EQUALS, trigger.name())).retrieveRows();
+      if (1 != rowList.size()) {
+        throw new MolgenisException("failed to update trigger");
+      }
 
-          Row toUpdate = rowList.get(0);
-          toUpdate.setText(CSS_SELECTOR, trigger.cssSelector());
+      Row toUpdate = rowList.get(0);
+      toUpdate.setText(CSS_SELECTOR, trigger.cssSelector());
 
-          updated.set(triggerTable.update(rowList));
-        });
+      updated.set(triggerTable.update(rowList));
+    });
 
     if (updated.get() == 1) {
       return true;

@@ -26,7 +26,8 @@ public class TestExtends {
       """
       tableName,tableExtends,refSchema,columnName,key
       shape,,,,
-      shape,,,name,1""";
+      shape,,,name,1\
+      """;
 
   static Database database;
   static Schema schema;
@@ -59,14 +60,15 @@ public class TestExtends {
     schema = database.createSchema(TestExtends.class.getSimpleName());
     String schemaDef1 =
         """
-                        tableName,tableExtends,columnName,key,description
-                        shape,,,,root class is shape that has general properties
-                        square,shape,,,special shape that has sidelength
-                        circle,shape,,,special shape that has radius
-                        shape,,name,1,should be first column in all shapes
-                        square,,sidelength,,should be second column in square
-                        circle,,radius,,should be second column in circle
-                        shape,,description,,all shapes have description, should be last column in all shapes in this schema""";
+        tableName,tableExtends,columnName,key,description
+        shape,,,,root class is shape that has general properties
+        square,shape,,,special shape that has sidelength
+        circle,shape,,,special shape that has radius
+        shape,,name,1,should be first column in all shapes
+        square,,sidelength,,should be second column in square
+        circle,,radius,,should be second column in circle
+        shape,,description,,all shapes have description, should be last column in all shapes in this schema\
+        """;
 
     // load in memory
     SchemaMetadata sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schemaDef1)));
@@ -95,17 +97,18 @@ public class TestExtends {
     schema2 = database.dropCreateSchema(schema.getName() + "2");
     String schemaDef2 =
         """
-                        tableName,tableExtends,refSchema,columnName,key,description
-                        myshape,shape,TestExtends,,,root class is shape in the other schema
-                        rectangle,myshape,,,,
-                        triangle,myshape,,,,
-                        myshape,,,color,,,all my shapes also have color
-                        triangle,,,adjacent,,,
-                        triangle,,,opposite,,,
-                        triangle,,,hypotenuse,,,
-                        rectangle,,,width,,,
-                        rectangle,,,height,,,
-                        myshape,,,author,,,all my shapes also have author as last column""";
+        tableName,tableExtends,refSchema,columnName,key,description
+        myshape,shape,TestExtends,,,root class is shape in the other schema
+        rectangle,myshape,,,,
+        triangle,myshape,,,,
+        myshape,,,color,,,all my shapes also have color
+        triangle,,,adjacent,,,
+        triangle,,,opposite,,,
+        triangle,,,hypotenuse,,,
+        rectangle,,,width,,,
+        rectangle,,,height,,,
+        myshape,,,author,,,all my shapes also have author as last column\
+        """;
 
     sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schemaDef2)));
     schema2.migrate(sm);
@@ -134,7 +137,8 @@ public class TestExtends {
                     """
                     tableName,tableExtends,refSchema,columnName,key
                     square,shape,%s,,
-                    square,,,sidelength,"""
+                    square,,,sidelength,\
+                    """
                         .formatted(schemaName)))));
 
     assertEquals(schemaName, selfSchema.getMetadata().getTableMetadata("square").getImportSchema());
@@ -189,7 +193,8 @@ public class TestExtends {
                     """
                     tableName,tableExtends,columnName,key
                     myshape,shape,,
-                    myshape,,color,""")));
+                    myshape,,color,\
+                    """)));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> child.migrate(withoutRefSchema));
@@ -213,7 +218,8 @@ public class TestExtends {
                     """
                     tableName,tableExtends,columnName,key
                     Employee,Contact,,
-                    Employee,,salary,""")));
+                    Employee,,salary,\
+                    """)));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> fresh.migrate(danglingParent));
@@ -242,17 +248,17 @@ public class TestExtends {
                     """
                     tableName,tableExtends,refSchema,columnName,key
                     myshape,shape,%s,,
-                    myshape,,,color,"""
+                    myshape,,,color,\
+                    """
                         .formatted(parentName)))));
     return child;
   }
 
   private Row tableRow(SchemaMetadata metadata, String tableName) {
     return Emx2.toRowList(metadata).stream()
-        .filter(
-            row ->
-                tableName.equals(row.getString(Emx2.TABLE_NAME))
-                    && row.getString(Emx2.COLUMN_NAME) == null)
+        .filter(row ->
+            tableName.equals(row.getString(Emx2.TABLE_NAME))
+                && row.getString(Emx2.COLUMN_NAME) == null)
         .findFirst()
         .orElseThrow();
   }

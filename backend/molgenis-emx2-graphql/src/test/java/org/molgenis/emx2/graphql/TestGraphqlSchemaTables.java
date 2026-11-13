@@ -92,7 +92,8 @@ class TestGraphqlSchemaTables {
         mutation{change(tables:[
           {name:"MyShape",inheritName:"%s",inheritSchemaName:"%s",columns:[{name:"surface"}]},
           {name:"Note"}
-        ]){message}}"""
+        ]){message}}\
+        """
             .formatted(PARENT_TABLE, PARENT_SCHEMA));
 
     assertEquals(

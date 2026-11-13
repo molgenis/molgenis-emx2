@@ -131,13 +131,14 @@ class CsvApiTest extends ApiTestBase {
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
+        {
+          "errors" : [
             {
-              "errors" : [
-                {
-                  "message" : "Unauthorized to get schema members"
-                }
-              ]
-            }""",
+              "message" : "Unauthorized to get schema members"
+            }
+          ]
+        }\
+        """,
         response.body().asString());
   }
 
@@ -216,7 +217,8 @@ class CsvApiTest extends ApiTestBase {
     String formatted =
         """
         operation,stamp,userid,tablename,old,new
-        I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
+        I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":\
+        """
             .formatted(settingsSchema.getChanges(1).getFirst().stamp());
 
     assertTrue(response.body().asString().startsWith(formatted));
@@ -259,13 +261,14 @@ class CsvApiTest extends ApiTestBase {
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
-                 {
-                   "errors" : [
-                     {
-                       "message" : "Requested 1001 changes, but the maximum allowed is 1000."
-                     }
-                   ]
-                 }""",
+        {
+          "errors" : [
+            {
+              "message" : "Requested 1001 changes, but the maximum allowed is 1000."
+            }
+          ]
+        }\
+        """,
         response.body().asString());
   }
 
@@ -281,13 +284,14 @@ class CsvApiTest extends ApiTestBase {
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
-                      {
-                        "errors" : [
-                          {
-                            "message" : "Invalid limit provided, should be a number: For input string: \\"invalid-value\\""
-                          }
-                        ]
-                      }""",
+        {
+          "errors" : [
+            {
+              "message" : "Invalid limit provided, should be a number: For input string: \\"invalid-value\\""
+            }
+          ]
+        }\
+        """,
         response.body().asString());
   }
 
@@ -303,13 +307,14 @@ class CsvApiTest extends ApiTestBase {
     assertEquals(400, response.getStatusCode());
     assertEquals(
         """
-                        {
-                          "errors" : [
-                            {
-                              "message" : "Invalid offset provided, should be a number: For input string: \\"invalid-value\\""
-                            }
-                          ]
-                        }""",
+        {
+          "errors" : [
+            {
+              "message" : "Invalid offset provided, should be a number: For input string: \\"invalid-value\\""
+            }
+          ]
+        }\
+        """,
         response.body().asString());
   }
 
@@ -565,7 +570,8 @@ class CsvApiTest extends ApiTestBase {
               "message" : "Invalid mode: bogus"
             }
           ]
-        }""",
+        }\
+        """,
         response.body().asString());
   }
 
@@ -655,7 +661,8 @@ class CsvApiTest extends ApiTestBase {
               "message" : "Schema 'nonexisting' unknown. Might you need to sign in or ask permission?"
             }
           ]
-        }""",
+        }\
+        """,
         response.getBody().asString());
   }
 
@@ -672,7 +679,8 @@ class CsvApiTest extends ApiTestBase {
               "message" : "Unauthorized to get schema members"
             }
           ]
-        }""",
+        }\
+        """,
         response.getBody().asString());
   }
 
@@ -686,7 +694,8 @@ class CsvApiTest extends ApiTestBase {
               "message" : "Schema nonexisting unknown"
             }
           ]
-        }""",
+        }\
+        """,
         response.getBody().asString());
   }
 }

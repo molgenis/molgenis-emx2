@@ -343,12 +343,11 @@ class TestTableRoleManagement {
     assertNull(merged.delete());
 
     assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
-    assertDoesNotThrow(
-        () ->
-            database
-                .getSchema(SCHEMA)
-                .getTable(TABLE_A)
-                .insert(new Row().setString("id", "r_merge").setString("value", "v")));
+    assertDoesNotThrow(() ->
+        database
+            .getSchema(SCHEMA)
+            .getTable(TABLE_A)
+            .insert(new Row().setString("id", "r_merge").setString("value", "v")));
 
     database.becomeAdmin();
     schema.getTable(TABLE_A).delete(new Row().setString("id", "r_merge"));

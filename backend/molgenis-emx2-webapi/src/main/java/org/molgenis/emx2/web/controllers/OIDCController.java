@@ -54,10 +54,8 @@ public class OIDCController {
         securityConfig
             .getClients()
             .findClient(OIDC_CLIENT_NAME)
-            .orElseThrow(
-                () ->
-                    new MolgenisException(
-                        "Expected OIDC client not found in security configuration"));
+            .orElseThrow(() ->
+                new MolgenisException("Expected OIDC client not found in security configuration"));
     HttpAction action;
     try {
       Optional<RedirectionAction> redirectionAction =

@@ -61,13 +61,12 @@ public class SnowflakeIdGeneratorTest {
     ExecutorService executorService = Executors.newFixedThreadPool(4);
     try {
       for (int i = 0; i < 100000; i++) {
-        executorService.submit(
-            () -> {
-              String id = generator.generateId();
-              synchronized (uniqueIds) {
-                uniqueIds.add(id);
-              }
-            });
+        executorService.submit(() -> {
+          String id = generator.generateId();
+          synchronized (uniqueIds) {
+            uniqueIds.add(id);
+          }
+        });
       }
     } finally {
       executorService.shutdown();

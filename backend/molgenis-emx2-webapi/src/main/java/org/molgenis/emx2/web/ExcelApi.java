@@ -111,11 +111,10 @@ public final class ExcelApi {
         table.getName(),
         getDownloadColumns(ctx, table),
         consumer ->
-            query.streamRows(
-                row -> {
-                  ResolveComputedValue.apply(database, columns, List.of(row));
-                  consumer.accept(row);
-                }));
+            query.streamRows(row -> {
+              ResolveComputedValue.apply(database, columns, List.of(row));
+              consumer.accept(row);
+            }));
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header(

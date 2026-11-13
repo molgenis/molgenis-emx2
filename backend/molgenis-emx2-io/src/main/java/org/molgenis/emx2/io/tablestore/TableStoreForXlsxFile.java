@@ -108,31 +108,30 @@ public class TableStoreForXlsxFile implements TableStore {
     }
 
     AtomicInteger rowNum = new AtomicInteger(1);
-    rows.produce(
-        row -> {
-          int currentRow = rowNum.getAndIncrement();
-          org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(currentRow);
-          for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
-            String cellLocation =
-                "table '" + name + "', column '" + entry.getKey() + "', at row " + currentRow;
-            String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
-            if (cellValue != null && cellValue.length() > MAX_CELL_TEXT_LENGTH) {
-              throw new MolgenisException(
-                  "Cannot export "
-                      + cellLocation
-                      + " to Excel: value has "
-                      + cellValue.length()
-                      + " characters, while Excel allows at most "
-                      + MAX_CELL_TEXT_LENGTH
-                      + " characters per cell. Please use CSV export instead.");
-            }
-            try {
-              excelRow.createCell(entry.getValue()).setCellValue(cellValue);
-            } catch (IllegalArgumentException e) {
-              throw new MolgenisException("Error writing " + cellLocation + ": " + e.getMessage());
-            }
-          }
-        });
+    rows.produce(row -> {
+      int currentRow = rowNum.getAndIncrement();
+      org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(currentRow);
+      for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
+        String cellLocation =
+            "table '" + name + "', column '" + entry.getKey() + "', at row " + currentRow;
+        String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
+        if (cellValue != null && cellValue.length() > MAX_CELL_TEXT_LENGTH) {
+          throw new MolgenisException(
+              "Cannot export "
+                  + cellLocation
+                  + " to Excel: value has "
+                  + cellValue.length()
+                  + " characters, while Excel allows at most "
+                  + MAX_CELL_TEXT_LENGTH
+                  + " characters per cell. Please use CSV export instead.");
+        }
+        try {
+          excelRow.createCell(entry.getValue()).setCellValue(cellValue);
+        } catch (IllegalArgumentException e) {
+          throw new MolgenisException("Error writing " + cellLocation + ": " + e.getMessage());
+        }
+      }
+    });
     sheet.flushRows();
   }
 

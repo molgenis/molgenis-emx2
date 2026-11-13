@@ -107,24 +107,23 @@ public final class GraphqlAdminFieldFactory {
 
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_admin")
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              Map<String, Object> result = new LinkedHashMap<>();
-              // check for parameters
-              for (SelectedField selectedField :
-                  dataFetchingEnvironment.getSelectionSet().getImmediateFields()) {
-                if (USERS.equals(selectedField.getName())) {
-                  result.put(USERS, getUsers(selectedField, db));
-                }
-                if (selectedField.getName().equals(userCount)) {
-                  result.put(userCount, db.countUsers());
-                }
-                if (CUSTOM_ROLES.equals(selectedField.getName())) {
-                  result.put(CUSTOM_ROLES, getCustomRoles(db));
-                }
-              }
-              return result;
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          Map<String, Object> result = new LinkedHashMap<>();
+          // check for parameters
+          for (SelectedField selectedField :
+              dataFetchingEnvironment.getSelectionSet().getImmediateFields()) {
+            if (USERS.equals(selectedField.getName())) {
+              result.put(USERS, getUsers(selectedField, db));
+            }
+            if (selectedField.getName().equals(userCount)) {
+              result.put(userCount, db.countUsers());
+            }
+            if (CUSTOM_ROLES.equals(selectedField.getName())) {
+              result.put(CUSTOM_ROLES, getCustomRoles(db));
+            }
+          }
+          return result;
+        })
         .type(adminType)
         .build();
   }
@@ -169,12 +168,11 @@ public final class GraphqlAdminFieldFactory {
         .name("removeUser")
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String email = dataFetchingEnvironment.getArgument(EMAIL);
-              database.removeUser(email);
-              return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          String email = dataFetchingEnvironment.getArgument(EMAIL);
+          database.removeUser(email);
+          return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
+        })
         .build();
   }
 
@@ -184,14 +182,13 @@ public final class GraphqlAdminFieldFactory {
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String email = dataFetchingEnvironment.getArgument(EMAIL);
-              boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
-              database.setEnabledUser(email, enabled);
-              return new GraphqlApiMutationResult(
-                  SUCCESS, "User %s %s ", email, enabled ? "Enabled" : "Disabled");
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          String email = dataFetchingEnvironment.getArgument(EMAIL);
+          boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
+          database.setEnabledUser(email, enabled);
+          return new GraphqlApiMutationResult(
+              SUCCESS, "User %s %s ", email, enabled ? "Enabled" : "Disabled");
+        })
         .build();
   }
 
@@ -248,34 +245,33 @@ public final class GraphqlAdminFieldFactory {
     if (userName == null) {
       return new GraphqlApiMutationResult(FAILED, "No user provided");
     }
-    database.tx(
-        db -> {
-          String password = (String) updatedUser.get(PASSWORD);
-          if (password != null) {
-            db.setUserPassword(userName, password);
-          }
+    database.tx(db -> {
+      String password = (String) updatedUser.get(PASSWORD);
+      if (password != null) {
+        db.setUserPassword(userName, password);
+      }
 
-          List<Map<String, String>> roles = (List<Map<String, String>>) updatedUser.get(ROLES);
-          if (roles != null && roles.iterator().hasNext()) {
-            db.updateRoles(userName, roles);
-          }
+      List<Map<String, String>> roles = (List<Map<String, String>>) updatedUser.get(ROLES);
+      if (roles != null && roles.iterator().hasNext()) {
+        db.updateRoles(userName, roles);
+      }
 
-          List<Map<String, String>> revokedRoles =
-              (List<Map<String, String>>) updatedUser.get("revokedRoles");
-          if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
-            db.revokeRoles(userName, revokedRoles);
-          }
+      List<Map<String, String>> revokedRoles =
+          (List<Map<String, String>>) updatedUser.get("revokedRoles");
+      if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
+        db.revokeRoles(userName, revokedRoles);
+      }
 
-          Boolean enabled = (Boolean) updatedUser.get(ENABLED);
-          if (enabled != null) {
-            db.setEnabledUser(userName, enabled);
-          }
+      Boolean enabled = (Boolean) updatedUser.get(ENABLED);
+      if (enabled != null) {
+        db.setEnabledUser(userName, enabled);
+      }
 
-          Boolean admin = (Boolean) updatedUser.get(ADMIN);
-          if (admin != null) {
-            db.setAdminUser(userName, admin);
-          }
-        });
+      Boolean admin = (Boolean) updatedUser.get(ADMIN);
+      if (admin != null) {
+        db.setAdminUser(userName, admin);
+      }
+    });
     return new GraphqlApiMutationResult(SUCCESS, "User %s updated", userName);
   }
 

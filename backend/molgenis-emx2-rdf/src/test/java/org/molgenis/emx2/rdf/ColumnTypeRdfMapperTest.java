@@ -59,7 +59,7 @@ class ColumnTypeRdfMapperTest {
     // Filters out REFBACK so that it can be added as last step when all REFs are generated.
     List<Column> columnList =
         Arrays.stream(ColumnType.values())
-            .map((value) -> column(value.name(), value))
+            .map(value -> column(value.name(), value))
             .collect(Collectors.toList());
 
     // Defines column-specific settings.
@@ -642,12 +642,11 @@ class ColumnTypeRdfMapperTest {
         .getTable(TEST_TABLE)
         .getMetadata()
         .getColumns()
-        .forEach(
-            c -> {
-              assertThrows(
-                  UnsupportedOperationException.class,
-                  () -> retrieveValues(c.getName()).clear(),
-                  c.getName() + " returns a modifiable set while it should be unmodifiable");
-            });
+        .forEach(c -> {
+          assertThrows(
+              UnsupportedOperationException.class,
+              () -> retrieveValues(c.getName()).clear(),
+              c.getName() + " returns a modifiable set while it should be unmodifiable");
+        });
   }
 }

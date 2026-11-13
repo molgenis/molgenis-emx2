@@ -17,39 +17,39 @@ public class Generator {
 
   private static final String MG_TABLECLASS_INTERFACE =
       """
-                    export interface IMgTableClass {
-                        mg_tableclass?: string;
-                    }
-                    """;
+      export interface IMgTableClass {
+          mg_tableclass?: string;
+      }
+      """;
 
   private static final String FILE_TS_INTERFACE =
       """
-                    export interface IFile {
-                        id?: string;
-                        size?: number;
-                        extension?: string;
-                        filename?: string;
-                        url?: string;
-                    }
-                    """;
+      export interface IFile {
+          id?: string;
+          size?: number;
+          extension?: string;
+          filename?: string;
+          url?: string;
+      }
+      """;
 
   private static final String ONTOLOGY_TS_INTERFACE =
       """
-                    export interface ITreeNode {
-                        name: string;
-                        children?: ITreeNode[];
-                        parent?: {
-                            name: string;
-                        };
-                    }
+      export interface ITreeNode {
+          name: string;
+          children?: ITreeNode[];
+          parent?: {
+              name: string;
+          };
+      }
 
-                    export interface IOntologyNode extends ITreeNode {
-                        code?: string;
-                        definition?: string;
-                        ontologyTermURI?: string;
-                        order?: number;
-                    }
-                    """;
+      export interface IOntologyNode extends ITreeNode {
+          code?: string;
+          definition?: string;
+          ontologyTermURI?: string;
+          order?: number;
+      }
+      """;
 
   public void generate(Schema schema, String fileLocation) {
     try (PrintWriter writer = new PrintWriter(fileLocation, StandardCharsets.UTF_8)) {

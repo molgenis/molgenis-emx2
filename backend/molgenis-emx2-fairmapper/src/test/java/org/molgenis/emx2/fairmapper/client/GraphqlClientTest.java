@@ -106,7 +106,8 @@ class GraphqlClientTest extends ApiTestBase {
                   {"message":"boom"},
                   {"message":"bang"}
                 ]
-              }"""),
+              }\
+              """),
           client -> {
             MolgenisException exception =
                 assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));
@@ -124,7 +125,8 @@ class GraphqlClientTest extends ApiTestBase {
                 "errors": [
                   {"message":"not found"}
                 ]
-              }"""),
+              }\
+              """),
           client -> {
             MolgenisException exception =
                 assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));
@@ -144,7 +146,8 @@ class GraphqlClientTest extends ApiTestBase {
                   {"message":"boom"},
                   {"message":"bang"}
                 ]
-              }"""),
+              }\
+              """),
           client -> {
             MolgenisException exception =
                 assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));

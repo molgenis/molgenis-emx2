@@ -94,9 +94,9 @@ class HarvestingPipelineTest {
         "preprocessed.ttl",
         """
 
-            <https://example.com/test> <http://purl.org/dc/terms/title> "Harvester";
-              <http://purl.org/dc/terms/description> "new description" .
-            """);
+        <https://example.com/test> <http://purl.org/dc/terms/title> "Harvester";
+          <http://purl.org/dc/terms/description> "new description" .
+        """);
   }
 
   @Test

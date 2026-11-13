@@ -53,9 +53,8 @@ public final class HttpHeaderUtils {
       throw new IllegalArgumentException("Empty collection (allowedMediaTypes) not allowed.");
     }
     if (allowedMediaTypes.stream()
-        .anyMatch(
-            mediaType ->
-                mediaType.parameters().keySet().stream().anyMatch(key -> !"q".equals(key)))) {
+        .anyMatch(mediaType ->
+            mediaType.parameters().keySet().stream().anyMatch(key -> !"q".equals(key)))) {
       throw new IllegalArgumentException(
           "allowedMediaTypes should not contain parameters! (currently not supported)");
     }
@@ -71,37 +70,35 @@ public final class HttpHeaderUtils {
     List<MediaType> mediaTypes =
         Arrays.stream(acceptHeader.split(","))
             .map(String::trim)
-            .map(
-                mediaTypeString -> {
-                  try {
-                    return MediaType.parse(mediaTypeString);
-                  } catch (IllegalArgumentException e) {
-                    throw new MolgenisException("Could not parse media type: " + mediaTypeString);
-                  }
-                })
+            .map(mediaTypeString -> {
+              try {
+                return MediaType.parse(mediaTypeString);
+              } catch (IllegalArgumentException e) {
+                throw new MolgenisException("Could not parse media type: " + mediaTypeString);
+              }
+            })
             // Order ensures more specific media types overwrite less specific ones.
             .sorted(MEDIA_TYPE_COMPARATOR)
             // Filters out any media types in header with non-q parameters (not supported).
             // Exception to this is if parameter is "charset=utf-8" to ensure these do get processed
             // correctly (and take higher priority over non-charset definition).
-            .filter(
-                mediaType -> {
-                  Set<String> paramKeys = mediaType.parameters().keySet();
-                  if (paramKeys.isEmpty()) {
-                    return true;
-                  }
-                  for (String key : paramKeys) {
-                    if (!("q".equals(key) || "charset".equals(key))) {
-                      return false;
-                    }
-                    if ("charset".equals(key)
-                        && mediaType.parameters().get("charset").stream()
-                            .noneMatch("utf-8"::equalsIgnoreCase)) {
-                      return false;
-                    }
-                  }
-                  return true;
-                })
+            .filter(mediaType -> {
+              Set<String> paramKeys = mediaType.parameters().keySet();
+              if (paramKeys.isEmpty()) {
+                return true;
+              }
+              for (String key : paramKeys) {
+                if (!("q".equals(key) || "charset".equals(key))) {
+                  return false;
+                }
+                if ("charset".equals(key)
+                    && mediaType.parameters().get("charset").stream()
+                        .noneMatch("utf-8"::equalsIgnoreCase)) {
+                  return false;
+                }
+              }
+              return true;
+            })
             .toList();
 
     // Assign a q-value to each allowedMediaTypes.

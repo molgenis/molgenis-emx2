@@ -148,11 +148,12 @@ class BeaconAuthorityTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
-                          {
-                            "query": {
-                              "requestedGranularity": "count"
-                            }
-                          }""");
+            {
+              "query": {
+                "requestedGranularity": "count"
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
@@ -167,11 +168,12 @@ class BeaconAuthorityTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
-                          {
-                            "query": {
-                              "requestedGranularity": "count"
-                            }
-                          }""");
+            {
+              "query": {
+                "requestedGranularity": "count"
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
@@ -185,11 +187,12 @@ class BeaconAuthorityTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
-                          {
-                            "query": {
-                              "requestedGranularity": "boolean"
-                            }
-                          }""");
+            {
+              "query": {
+                "requestedGranularity": "boolean"
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
@@ -218,11 +221,12 @@ class BeaconAuthorityTests extends TestLoaders {
     BeaconRequestBody beaconRequestBody =
         mockIndividualsPostRequestRegular(
             """
-              {
-                "query": {
-                  "requestedGranularity": "count"
-                }
-              }""");
+            {
+              "query": {
+                "requestedGranularity": "count"
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequestBody);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
@@ -242,11 +246,12 @@ class BeaconAuthorityTests extends TestLoaders {
     BeaconRequestBody beaconRequestBody =
         mockIndividualsPostRequestRegular(
             """
-              {
-                "query": {
-                  "requestedGranularity": "count"
-                }
-              }""");
+            {
+              "query": {
+                "requestedGranularity": "count"
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequestBody);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());

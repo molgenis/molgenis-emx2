@@ -47,26 +47,25 @@ public class ImportSchemaTask extends Task {
     this.start();
     Task commit = new Task("Committing");
     try {
-      schema.tx(
-          db -> {
-            // import metadata, if any
-            Schema s = db.getSchema(schema.getName());
+      schema.tx(db -> {
+        // import metadata, if any
+        Schema s = db.getSchema(schema.getName());
 
-            if (!filter.equals(Filter.DATA_ONLY)) {
-              Task metadataTask = new ImportMetadataTask(s, tableStore, isStrict());
-              this.addSubTask(metadataTask);
-              metadataTask.run();
-            }
+        if (!filter.equals(Filter.DATA_ONLY)) {
+          Task metadataTask = new ImportMetadataTask(s, tableStore, isStrict());
+          this.addSubTask(metadataTask);
+          metadataTask.run();
+        }
 
-            if (!filter.equals(Filter.METADATA_ONLY)) {
-              Task dataTask = new ImportDataTask(s, tableStore, isStrict(), includeTableNames);
-              this.addSubTask(dataTask);
-              dataTask.run();
-            }
+        if (!filter.equals(Filter.METADATA_ONLY)) {
+          Task dataTask = new ImportDataTask(s, tableStore, isStrict(), includeTableNames);
+          this.addSubTask(dataTask);
+          dataTask.run();
+        }
 
-            // committing
-            this.addSubTask(commit.start());
-          });
+        // committing
+        this.addSubTask(commit.start());
+      });
     } catch (Exception e) {
       this.setError("Import failed: " + e.getMessage());
       throw e;

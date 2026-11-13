@@ -203,11 +203,12 @@ public class SqlRoleManager {
     }
     jooq.execute(
         """
-            DO $$ DECLARE m TEXT; BEGIN
-             FOR m IN SELECT rolname FROM pg_roles
-             WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
-             LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
-             END LOOP; END $$;""",
+        DO $$ DECLARE m TEXT; BEGIN
+         FOR m IN SELECT rolname FROM pg_roles
+         WHERE pg_has_role(rolname, {0}, 'member') AND rolname <> {0}
+         LOOP EXECUTE 'REVOKE ' || quote_ident({0}) || ' FROM ' || quote_ident(m);
+         END LOOP; END $$;\
+        """,
         inline(fullRole));
     jooq.execute("DROP ROLE IF EXISTS {0}", name(fullRole));
   }
@@ -241,22 +242,21 @@ public class SqlRoleManager {
     String fullRole = isRowLevel ? rlsFullRole : plainFullRole;
     String supersededRole = isRowLevel ? plainFullRole : rlsFullRole;
     boolean supersededRoleExists = isRowLevel || roleExists(rlsFullRole);
-    database.tx(
-        db -> {
-          DSLContext jooq = ((SqlDatabase) db).getJooq();
-          for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
-            String tableInTreeName = tableInTree.getTableName();
-            if (supersededRoleExists) {
-              revokeAll(jooq, table(name(schemaName, tableInTreeName)), name(supersededRole));
-            }
-            applyPgGrants(jooq, schemaName, fullRole, tableInTreeName, permission);
-          }
-          if (isRowLevel) {
-            enableRowLevelSecurityOnTree(jooq, schemaName, tableMetadata);
-          } else {
-            disableRowLevelSecurityIfUnused(jooq, schemaName, tableMetadata);
-          }
-        });
+    database.tx(db -> {
+      DSLContext jooq = ((SqlDatabase) db).getJooq();
+      for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
+        String tableInTreeName = tableInTree.getTableName();
+        if (supersededRoleExists) {
+          revokeAll(jooq, table(name(schemaName, tableInTreeName)), name(supersededRole));
+        }
+        applyPgGrants(jooq, schemaName, fullRole, tableInTreeName, permission);
+      }
+      if (isRowLevel) {
+        enableRowLevelSecurityOnTree(jooq, schemaName, tableMetadata);
+      } else {
+        disableRowLevelSecurityIfUnused(jooq, schemaName, tableMetadata);
+      }
+    });
     database.getListener().onSchemaChange();
   }
 
@@ -276,21 +276,20 @@ public class SqlRoleManager {
     TableMetadata tableMetadata = requireRootTable(schemaName, tableName);
     String fullRole = fullRoleName(schemaName, roleName);
     String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
-    database.tx(
-        db -> {
-          DSLContext jooq = ((SqlDatabase) db).getJooq();
-          boolean rlsRoleExists =
-              jooq.fetchExists(
-                  jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))));
-          for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
-            Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
-            revokeAll(jooq, jooqTable, name(fullRole));
-            if (rlsRoleExists) {
-              revokeAll(jooq, jooqTable, name(rlsFullRole));
-            }
-          }
-          disableRowLevelSecurityIfUnused(jooq, schemaName, tableMetadata);
-        });
+    database.tx(db -> {
+      DSLContext jooq = ((SqlDatabase) db).getJooq();
+      boolean rlsRoleExists =
+          jooq.fetchExists(
+              jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))));
+      for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
+        Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
+        revokeAll(jooq, jooqTable, name(fullRole));
+        if (rlsRoleExists) {
+          revokeAll(jooq, jooqTable, name(rlsFullRole));
+        }
+      }
+      disableRowLevelSecurityIfUnused(jooq, schemaName, tableMetadata);
+    });
     database.getListener().onSchemaChange();
   }
 
@@ -342,16 +341,15 @@ public class SqlRoleManager {
     }
     String rlsFullRole = fullRoleName(schemaName, rlsRoleName);
     String regularFullRole = fullRoleName(schemaName, roleName);
-    database.tx(
-        db -> {
-          String currentUser = db.getActiveUser();
-          try {
-            db.becomeAdmin();
-            grant(((SqlDatabase) db).getJooq(), name(rlsFullRole), name(regularFullRole));
-          } finally {
-            db.setActiveUser(currentUser);
-          }
-        });
+    database.tx(db -> {
+      String currentUser = db.getActiveUser();
+      try {
+        db.becomeAdmin();
+        grant(((SqlDatabase) db).getJooq(), name(rlsFullRole), name(regularFullRole));
+      } finally {
+        db.setActiveUser(currentUser);
+      }
+    });
   }
 
   private void enableRowLevelSecurityOnTree(
@@ -473,10 +471,9 @@ public class SqlRoleManager {
     Condition pkeyJoin =
         and(
             subclass.getPrimaryKeyFields().stream()
-                .map(
-                    pkeyField ->
-                        field(name("root_row", pkeyField.getName()))
-                            .eq(field(name(pkeyField.getName()))))
+                .map(pkeyField ->
+                    field(name("root_row", pkeyField.getName()))
+                        .eq(field(name(pkeyField.getName()))))
                 .toList());
 
     return exists(
@@ -507,46 +504,44 @@ public class SqlRoleManager {
               + "'. Existing roles are: "
               + currentRoles);
     }
-    database.tx(
-        db -> {
-          SqlDatabase txDb = (SqlDatabase) db;
-          List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
-          String username = MG_USER_PREFIX + member.getUser();
-          String roleName = fullRoleName(schemaName, member.getRole());
-          if (!db.hasUser(member.getUser())) {
-            db.addUser(member.getUser());
-          }
-          boolean newRoleIsSystemRole = Privileges.isSystemRole(member.getRole());
-          for (Member old : currentMembers) {
-            if (old.getUser().equals(member.getUser())
-                && Privileges.isSystemRole(old.getRole()) == newRoleIsSystemRole) {
-              revoke(txDb.getJooq(), name(fullRoleName(schemaName, old.getRole())), name(username));
-            }
-          }
-          try {
-            grant(txDb.getJooq(), name(roleName), name(username));
-          } catch (DataAccessException dae) {
-            throw new SqlMolgenisException("Add member failed", dae);
-          }
-        });
+    database.tx(db -> {
+      SqlDatabase txDb = (SqlDatabase) db;
+      List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
+      String username = MG_USER_PREFIX + member.getUser();
+      String roleName = fullRoleName(schemaName, member.getRole());
+      if (!db.hasUser(member.getUser())) {
+        db.addUser(member.getUser());
+      }
+      boolean newRoleIsSystemRole = Privileges.isSystemRole(member.getRole());
+      for (Member old : currentMembers) {
+        if (old.getUser().equals(member.getUser())
+            && Privileges.isSystemRole(old.getRole()) == newRoleIsSystemRole) {
+          revoke(txDb.getJooq(), name(fullRoleName(schemaName, old.getRole())), name(username));
+        }
+      }
+      try {
+        grant(txDb.getJooq(), name(roleName), name(username));
+      } catch (DataAccessException dae) {
+        throw new SqlMolgenisException("Add member failed", dae);
+      }
+    });
   }
 
   public void removeMembers(String schemaName, List<Member> members) {
     List<String> usernames = members.stream().map(Member::getUser).toList();
     String rolePrefix = rolePrefix(schemaName);
-    database.tx(
-        db -> {
-          DSLContext jooq = ((SqlDatabase) db).getJooq();
-          try {
-            for (Member m : getMembers(jooq, schemaName)) {
-              if (usernames.contains(m.getUser())) {
-                revoke(jooq, name(rolePrefix + m.getRole()), name(MG_USER_PREFIX + m.getUser()));
-              }
-            }
-          } catch (DataAccessException dae) {
-            throw new SqlMolgenisException("Remove of member failed", dae);
+    database.tx(db -> {
+      DSLContext jooq = ((SqlDatabase) db).getJooq();
+      try {
+        for (Member m : getMembers(jooq, schemaName)) {
+          if (usernames.contains(m.getUser())) {
+            revoke(jooq, name(rolePrefix + m.getRole()), name(MG_USER_PREFIX + m.getUser()));
           }
-        });
+        }
+      } catch (DataAccessException dae) {
+        throw new SqlMolgenisException("Remove of member failed", dae);
+      }
+    });
   }
 
   public List<Member> getMembers(String schemaName) {
@@ -567,11 +562,10 @@ public class SqlRoleManager {
         .on(field(name("r", "oid")).eq(field(name("am", "roleid"))))
         .where(roleRolname.like(inline(rolePrefix(schemaName) + "%")))
         .and(memberRolname.like(inline(MG_USER_PREFIX + "%")))
-        .fetch(
-            r ->
-                new Member(
-                    r.get(memberField).substring(MG_USER_PREFIX.length()),
-                    r.get(roleField).substring(rolePrefix(schemaName).length())));
+        .fetch(r ->
+            new Member(
+                r.get(memberField).substring(MG_USER_PREFIX.length()),
+                r.get(roleField).substring(rolePrefix(schemaName).length())));
   }
 
   public List<String> getRoleNames(String schemaName) {
@@ -601,11 +595,10 @@ public class SqlRoleManager {
     }
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
-    database.getJooqAsAdmin(
-        adminJooq ->
-            result.addAll(
-                SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                    adminJooq, schemaName, username.trim())));
+    database.getJooqAsAdmin(adminJooq ->
+        result.addAll(
+            SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                adminJooq, schemaName, username.trim())));
     return withoutInternalRoles(result);
   }
 
@@ -642,15 +635,16 @@ public class SqlRoleManager {
           jooq()
               .fetch(
                   """
-                      SELECT g.table_name,
-                        bool_or(g.privilege_type = 'SELECT') AS can_select,
-                        bool_or(g.privilege_type = 'INSERT') AS can_insert,
-                        bool_or(g.privilege_type = 'UPDATE') AS can_update,
-                        bool_or(g.privilege_type = 'DELETE') AS can_delete,
-                        bool_or(g.grantee = {1}) AS is_row_level
-                       FROM information_schema.role_table_grants g
-                       WHERE g.grantee IN ({0}, {1}) AND g.table_schema = {2}
-                       GROUP BY g.table_name""",
+                  SELECT g.table_name,
+                    bool_or(g.privilege_type = 'SELECT') AS can_select,
+                    bool_or(g.privilege_type = 'INSERT') AS can_insert,
+                    bool_or(g.privilege_type = 'UPDATE') AS can_update,
+                    bool_or(g.privilege_type = 'DELETE') AS can_delete,
+                    bool_or(g.grantee = {1}) AS is_row_level
+                   FROM information_schema.role_table_grants g
+                   WHERE g.grantee IN ({0}, {1}) AND g.table_schema = {2}
+                   GROUP BY g.table_name\
+                  """,
                   inline(fullRole), inline(rlsFullRole), inline(schemaName));
       for (Record row : rows) {
         result.add(
@@ -683,13 +677,12 @@ public class SqlRoleManager {
             .filter(this::isSystemRole)
             .flatMap(r -> systemPermissions(r).stream())
             .filter(p -> "*".equals(p.table()) && p.hasAny())
-            .reduce(
-                (a, b) ->
-                    new TablePermission("*")
-                        .select(orBool(a.select(), b.select()))
-                        .insert(orBool(a.insert(), b.insert()))
-                        .update(orBool(a.update(), b.update()))
-                        .delete(orBool(a.delete(), b.delete())))
+            .reduce((a, b) ->
+                new TablePermission("*")
+                    .select(orBool(a.select(), b.select()))
+                    .insert(orBool(a.insert(), b.insert()))
+                    .update(orBool(a.update(), b.update()))
+                    .delete(orBool(a.delete(), b.delete())))
             .orElse(null);
 
     Map<String, TablePermission> result = new LinkedHashMap<>();
@@ -702,14 +695,13 @@ public class SqlRoleManager {
 
     if (systemWildcard != null) {
       boolean systemHasDml = systemWildcard.hasModify();
-      result.replaceAll(
-          (table, p) ->
-              new TablePermission(table)
-                  .select(orBool(p.select(), systemWildcard.select()))
-                  .insert(orBool(p.insert(), systemWildcard.insert()))
-                  .update(orBool(p.update(), systemWildcard.update()))
-                  .delete(orBool(p.delete(), systemWildcard.delete()))
-                  .rowLevel(systemHasDml ? null : p.isRowLevel()));
+      result.replaceAll((table, p) ->
+          new TablePermission(table)
+              .select(orBool(p.select(), systemWildcard.select()))
+              .insert(orBool(p.insert(), systemWildcard.insert()))
+              .update(orBool(p.update(), systemWildcard.update()))
+              .delete(orBool(p.delete(), systemWildcard.delete()))
+              .rowLevel(systemHasDml ? null : p.isRowLevel()));
       for (String tableName : schema.getTableNames()) {
         if (!result.containsKey(tableName)) {
           TablePermission tp =

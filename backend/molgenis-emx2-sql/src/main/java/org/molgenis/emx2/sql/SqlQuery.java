@@ -100,16 +100,14 @@ public class SqlQuery extends QueryBean {
     try {
       schema
           .getJooq()
-          .transaction(
-              config -> {
-                query.attach(config);
-                try (Cursor<Record> cursor =
-                    query.fetchSize(STREAMING_ROWS_PER_FETCH).fetchLazy()) {
-                  for (Record r : cursor) {
-                    consumer.accept(new SqlRow(r));
-                  }
-                }
-              });
+          .transaction(config -> {
+            query.attach(config);
+            try (Cursor<Record> cursor = query.fetchSize(STREAMING_ROWS_PER_FETCH).fetchLazy()) {
+              for (Record r : cursor) {
+                consumer.accept(new SqlRow(r));
+              }
+            }
+          });
     } catch (MolgenisException e) {
       throw e;
     } catch (Exception e) {
@@ -138,10 +136,9 @@ public class SqlQuery extends QueryBean {
     if (select == null || select.getColumnNames().isEmpty()) {
       for (Column c :
           table.getColumns().stream()
-              .filter(
-                  column ->
-                      Arrays.stream(options).noneMatch(option -> option == EXCLUDE_MG_COLUMNS)
-                          || !column.getName().startsWith("mg_"))
+              .filter(column ->
+                  Arrays.stream(options).noneMatch(option -> option == EXCLUDE_MG_COLUMNS)
+                      || !column.getName().startsWith("mg_"))
               .toList()) {
         if (c.isFile()) {
           if (Arrays.stream(options).anyMatch(option -> option == INCLUDE_FILE_CONTENTS)) {
@@ -201,14 +198,13 @@ public class SqlQuery extends QueryBean {
     List<SelectColumn> result = new ArrayList<>();
     c.getRefTable()
         .getPrimaryKeyColumns()
-        .forEach(
-            key -> {
-              if (key.isReference()) {
-                result.add(s(key.getName(), getRefPrimaryKeySubselect(key)));
-              } else {
-                result.add(s(key.getName()));
-              }
-            });
+        .forEach(key -> {
+          if (key.isReference()) {
+            result.add(s(key.getName(), getRefPrimaryKeySubselect(key)));
+          } else {
+            result.add(s(key.getName()));
+          }
+        });
     return s(c.getName(), result.toArray(SelectColumn[]::new));
   }
 
@@ -256,12 +252,11 @@ public class SqlQuery extends QueryBean {
         // will come from refJoin table
         fields.addAll(
             column.getReferences().stream()
-                .map(
-                    ref ->
-                        field(
-                            name(
-                                alias(tableAlias + "-refbackjoin-" + column.getName()),
-                                ref.getColumnName())))
+                .map(ref ->
+                    field(
+                        name(
+                            alias(tableAlias + "-refbackjoin-" + column.getName()),
+                            ref.getColumnName())))
                 .toList());
       } else if (!column.isHeading()) {
         fields.add(field(name(alias(tableAlias), column.getName()), column.getJooqType()));
@@ -273,13 +268,12 @@ public class SqlQuery extends QueryBean {
   private static void checkNotExpandedBeyondPkey(SelectColumn select, Column column) {
     select
         .getSubselect()
-        .forEach(
-            subselect -> {
-              if (!column.getRefTable().getPrimaryKeys().contains(subselect.getColumn())) {
-                throw new MolgenisException(
-                    "Row subselect can only contain primary keys. Found: " + subselect.getColumn());
-              }
-            });
+        .forEach(subselect -> {
+          if (!column.getRefTable().getPrimaryKeys().contains(subselect.getColumn())) {
+            throw new MolgenisException(
+                "Row subselect can only contain primary keys. Found: " + subselect.getColumn());
+          }
+        });
   }
 
   private Field<String> intervalField(String tableAlias, Column column) {
@@ -554,16 +548,30 @@ public class SqlQuery extends QueryBean {
       // also search in ontology tables linked to current table
       table.getColumns().stream()
           .filter(Column::isOntology)
-          .forEach(
-              ontologyColumn -> {
-                Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
-                if (ontologyColumn.isArray()) {
-                  // include if array overlap between ontology table and our selected values in our
-                  // ref_array
-                  search.add(
-                      condition(
-                          "{0} && ARRAY({1})",
-                          ontologyColumn.getJooqField(),
+          .forEach(ontologyColumn -> {
+            Table<Record> ontologyTable = ontologyColumn.getRefTable().getJooqTable();
+            if (ontologyColumn.isArray()) {
+              // include if array overlap between ontology table and our selected values in our
+              // ref_array
+              search.add(
+                  condition(
+                      "{0} && ARRAY({1})",
+                      ontologyColumn.getJooqField(),
+                      DSL.select(field("name"))
+                          .from(ontologyTable)
+                          .where(
+                              field(
+                                      name(
+                                          ontologyTable.getName(),
+                                          searchColumnName(ontologyTable.getName())))
+                                  .likeIgnoreCase("%" + term + "%"))));
+            } else {
+              // include if our ref is in the ontology terms list that would be found given our
+              // search terms
+              search.add(
+                  ontologyColumn
+                      .getJooqField()
+                      .in(
                           DSL.select(field("name"))
                               .from(ontologyTable)
                               .where(
@@ -572,23 +580,8 @@ public class SqlQuery extends QueryBean {
                                               ontologyTable.getName(),
                                               searchColumnName(ontologyTable.getName())))
                                       .likeIgnoreCase("%" + term + "%"))));
-                } else {
-                  // include if our ref is in the ontology terms list that would be found given our
-                  // search terms
-                  search.add(
-                      ontologyColumn
-                          .getJooqField()
-                          .in(
-                              DSL.select(field("name"))
-                                  .from(ontologyTable)
-                                  .where(
-                                      field(
-                                              name(
-                                                  ontologyTable.getName(),
-                                                  searchColumnName(ontologyTable.getName())))
-                                          .likeIgnoreCase("%" + term + "%"))));
-                }
-              });
+            }
+          });
 
       TableMetadata parent = table.getInheritedTable();
       while (parent != null) {
@@ -805,18 +798,17 @@ public class SqlQuery extends QueryBean {
         // sum precision depends on count
         field
             .getSubselect()
-            .forEach(
-                sub -> {
-                  Column col = getColumnByName(table, sub.getColumn());
-                  sumFields.add(
-                      key(col.getIdentifier())
-                          .value(
-                              field(
-                                  "SUM({0})",
-                                  field(name(alias(subAlias), col.getName())),
-                                  AGGREGATE_COUNT_THRESHOLD)));
-                  nonArraySourceFields.add(col.getJooqField());
-                });
+            .forEach(sub -> {
+              Column col = getColumnByName(table, sub.getColumn());
+              sumFields.add(
+                  key(col.getIdentifier())
+                      .value(
+                          field(
+                              "SUM({0})",
+                              field(name(alias(subAlias), col.getName())),
+                              AGGREGATE_COUNT_THRESHOLD)));
+              nonArraySourceFields.add(col.getJooqField());
+            });
         aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));
       } else {
         Column col = getColumnByName(table, field.getColumn());
@@ -849,10 +841,9 @@ public class SqlQuery extends QueryBean {
           if (col.getRefBackColumn().isRefArray()) {
             subselectFields.addAll(
                 col.getRefBackColumn().getReferences().stream()
-                    .map(
-                        ref ->
-                            field(UNNEST_0, name(ref.getColumnName()))
-                                .as(ref.getReferencedColumnName()))
+                    .map(ref ->
+                        field(UNNEST_0, name(ref.getColumnName()))
+                            .as(ref.getReferencedColumnName()))
                     .toList());
           } else {
             subselectFields.addAll(
@@ -1001,26 +992,23 @@ public class SqlQuery extends QueryBean {
             List<Field> refbackSelection = new ArrayList<>();
             refbackSelection.addAll(
                 column.getReferences().stream()
-                    .map(
-                        ref ->
-                            field("array_agg({0})", name(ref.getReferencedColumnName()))
-                                .as(name(ref.getColumnName())))
+                    .map(ref ->
+                        field("array_agg({0})", name(ref.getReferencedColumnName()))
+                            .as(name(ref.getColumnName())))
                     .toList());
             if (refBack.isRefArray()) {
               refbackSelection.addAll(
                   refBack.getReferences().stream()
-                      .map(
-                          reference ->
-                              field(UNNEST_0, name(reference.getColumnName()))
-                                  .as(name(REFBACK_PREFIX + reference.getReferencedColumnName())))
+                      .map(reference ->
+                          field(UNNEST_0, name(reference.getColumnName()))
+                              .as(name(REFBACK_PREFIX + reference.getReferencedColumnName())))
                       .toList());
             } else {
               refbackSelection.addAll(
                   refBack.getReferences().stream()
-                      .map(
-                          reference ->
-                              field(name(reference.getColumnName()))
-                                  .as(name(REFBACK_PREFIX + reference.getReferencedColumnName())))
+                      .map(reference ->
+                          field(name(reference.getColumnName()))
+                              .as(name(REFBACK_PREFIX + reference.getReferencedColumnName())))
                       .toList());
             }
             // we create a natural joinable representation of refback that looks same as ref_array
@@ -1030,27 +1018,21 @@ public class SqlQuery extends QueryBean {
                             .from(tableWithInheritanceJoin(column.getRefTable()))
                             .groupBy(
                                 refBack.getReferences().stream()
-                                    .map(
-                                        ref ->
-                                            field(
-                                                name(
-                                                    REFBACK_PREFIX
-                                                        + ref.getReferencedColumnName())))
+                                    .map(ref ->
+                                        field(name(REFBACK_PREFIX + ref.getReferencedColumnName())))
                                     .toList())
                             .asTable(name(subAlias)))
                     .on(
                         refBack.getReferences().stream()
-                            .map(
-                                ref ->
-                                    field(
+                            .map(ref ->
+                                field(
+                                        name(
+                                            subAlias,
+                                            REFBACK_PREFIX + ref.getReferencedColumnName()))
+                                    .eq(
+                                        field(
                                             name(
-                                                subAlias,
-                                                REFBACK_PREFIX + ref.getReferencedColumnName()))
-                                        .eq(
-                                            field(
-                                                name(
-                                                    alias(tableAlias),
-                                                    ref.getReferencedColumnName()))))
+                                                alias(tableAlias), ref.getReferencedColumnName()))))
                             .toArray(Condition[]::new));
           }
         }
@@ -1079,10 +1061,9 @@ public class SqlQuery extends QueryBean {
                 // and matches on values or nulls
                 and(
                     column.getReferences().stream()
-                        .map(
-                            ref ->
-                                field(name(alias(subAlias), ref.getReferencedColumnName()))
-                                    .eq(field(name(alias(tableAlias), ref.getColumnName()))))
+                        .map(ref ->
+                            field(name(alias(subAlias), ref.getReferencedColumnName()))
+                                .eq(field(name(alias(tableAlias), ref.getColumnName()))))
                         .toList())));
       }
     } else if (column.isRefArray()) {
@@ -1103,11 +1084,10 @@ public class SqlQuery extends QueryBean {
 
         List<Field<Object>> unnest =
             column.getReferences().stream()
-                .map(
-                    r ->
-                        r.isOverlappingRef()
-                            ? field(name(alias(tableAlias), r.getColumnName()))
-                            : field(UNNEST_0, name(alias(tableAlias), r.getColumnName())))
+                .map(r ->
+                    r.isOverlappingRef()
+                        ? field(name(alias(tableAlias), r.getColumnName()))
+                        : field(UNNEST_0, name(alias(tableAlias), r.getColumnName())))
                 .toList();
         foreignKeyMatch.add(row(to).in(DSL.select(unnest)));
       }
@@ -1116,23 +1096,21 @@ public class SqlQuery extends QueryBean {
       if (refBack.isRef()) {
         foreignKeyMatch.addAll(
             refBack.getReferences().stream()
-                .map(
-                    ref ->
-                        field(name(alias(subAlias), ref.getColumnName()))
-                            .eq(field(name(alias(tableAlias), ref.getReferencedColumnName()))))
+                .map(ref ->
+                    field(name(alias(subAlias), ref.getColumnName()))
+                        .eq(field(name(alias(tableAlias), ref.getReferencedColumnName()))))
                 .toList());
       } else if (refBack.isRefArray()) {
         foreignKeyMatch.addAll(
             refBack.getReferences().stream()
-                .map(
-                    ref ->
-                        ref.isOverlappingRef()
-                            ? field(name(alias(tableAlias), ref.getReferencedColumnName()))
-                                .eq(field(name(alias(subAlias), ref.getColumnName())))
-                            : condition(
-                                ANY_SQL,
-                                field(name(alias(tableAlias), ref.getReferencedColumnName())),
-                                field(name(alias(subAlias), ref.getColumnName()))))
+                .map(ref ->
+                    ref.isOverlappingRef()
+                        ? field(name(alias(tableAlias), ref.getReferencedColumnName()))
+                            .eq(field(name(alias(subAlias), ref.getColumnName())))
+                        : condition(
+                            ANY_SQL,
+                            field(name(alias(tableAlias), ref.getReferencedColumnName())),
+                            field(name(alias(subAlias), ref.getColumnName()))))
                 .toList());
       }
     } else {
@@ -1360,23 +1338,21 @@ public class SqlQuery extends QueryBean {
     if (isArray) {
       return or(
           Arrays.stream(values)
-              .map(
-                  value ->
-                      condition(
-                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
-                          value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)))
+              .map(value ->
+                  condition(
+                      "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
+                      value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)))
               .toList());
     } else {
       // NOTE WE ONLY SEARCH ON LONGER STRINGS
       return or(
           Arrays.stream(values)
-              .map(
-                  value ->
-                      value.length() > 2
-                          ? condition(
-                              "to_tsquery({0}) @@ to_tsvector({1})",
-                              value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName))
-                          : field(columnName).likeIgnoreCase("%" + value + "%"))
+              .map(value ->
+                  value.length() > 2
+                      ? condition(
+                          "to_tsquery({0}) @@ to_tsvector({1})",
+                          value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName))
+                      : field(columnName).likeIgnoreCase("%" + value + "%"))
               .toList());
     }
   }
@@ -1386,20 +1362,18 @@ public class SqlQuery extends QueryBean {
     if (isArray) {
       return or(
           Arrays.stream(values)
-              .map(
-                  value ->
-                      condition(
-                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
-                          value, field(columnName)))
+              .map(value ->
+                  condition(
+                      "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
+                      value, field(columnName)))
               .toList());
     } else {
       return or(
           Arrays.stream(values)
-              .map(
-                  value ->
-                      ((String) value).length() > 2
-                          ? condition("word_similarity({0},{1}) > 0.6", value, field(columnName))
-                          : field(columnName).likeIgnoreCase("%" + value + "%"))
+              .map(value ->
+                  ((String) value).length() > 2
+                      ? condition("word_similarity({0},{1}) > 0.6", value, field(columnName))
+                      : field(columnName).likeIgnoreCase("%" + value + "%"))
               .toList());
     }
   }
@@ -1568,10 +1542,9 @@ public class SqlQuery extends QueryBean {
             // refback is simple ref so just equals on all columns
             and(
                 refBack.getReferences().stream()
-                    .map(
-                        ref ->
-                            field(name(ref.getColumnName()))
-                                .eq(field(name(tableAlias, ref.getTargetColumn()))))
+                    .map(ref ->
+                        field(name(ref.getColumnName()))
+                            .eq(field(name(tableAlias, ref.getTargetColumn()))))
                     .toList())
             // refBack is an array so unnest
             : row(refBack.getReferences().stream()
@@ -1583,11 +1556,10 @@ public class SqlQuery extends QueryBean {
 
     return DSL.select(
             refBack.getTable().getPrimaryKeyColumns().stream()
-                .map(
-                    ref ->
-                        ref.isArray()
-                            ? field(UNNEST_0, name(ref.getName())).as(name(ref.getName()))
-                            : field(name(ref.getName())))
+                .map(ref ->
+                    ref.isArray()
+                        ? field(UNNEST_0, name(ref.getName())).as(name(ref.getName()))
+                        : field(name(ref.getName())))
                 .toList())
         .from(refBack.getJooqTable())
         .where(refBackFilter);
@@ -1644,13 +1616,11 @@ public class SqlQuery extends QueryBean {
         // otherwise exists(unnest(ref_array) natural join (filterQuery))
         List<Field<?>> unnest =
             c.getReferences().stream()
-                .map(
-                    ref ->
-                        ref.isOverlappingRef()
-                            ? field(name(ref.getColumnName()))
-                                .as(name(ref.getReferencedColumnName()))
-                            : field(UNNEST_0, name(ref.getColumnName()))
-                                .as(name(ref.getReferencedColumnName())))
+                .map(ref ->
+                    ref.isOverlappingRef()
+                        ? field(name(ref.getColumnName())).as(name(ref.getReferencedColumnName()))
+                        : field(UNNEST_0, name(ref.getColumnName()))
+                            .as(name(ref.getReferencedColumnName())))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         return exists(selectFrom(DSL.select(unnest).asTable().naturalJoin(subQuery)));
@@ -1677,12 +1647,11 @@ public class SqlQuery extends QueryBean {
             .in(
                 DSL.select(
                         c.getRefBackColumn().getReferences().stream()
-                            .map(
-                                bref ->
-                                    bref.isOverlappingRef()
-                                        ? field(name(bref.getColumnName()))
-                                        : field(UNNEST_0, name(bref.getColumnName()))
-                                            .as(name(bref.getColumnName())))
+                            .map(bref ->
+                                bref.isOverlappingRef()
+                                    ? field(name(bref.getColumnName()))
+                                    : field(UNNEST_0, name(bref.getColumnName()))
+                                        .as(name(bref.getColumnName())))
                             .toList())
                     .from(c.getRefTable().getJooqTable())
                     .where(row(backRefKey).in(subQuery)));
@@ -1709,36 +1678,31 @@ public class SqlQuery extends QueryBean {
   private static @NotNull SelectJoinStep<Record> getRefBackSelect(Column column) {
     return DSL.select(
             column.getRefBackColumn().getReferences().stream()
-                .map(
-                    bref ->
-                        bref.isArray()
-                            ? field(UNNEST_0, name(bref.getColumnName()))
-                                .as(name(bref.getColumnName()))
-                            : field(name(bref.getColumnName())))
+                .map(bref ->
+                    bref.isArray()
+                        ? field(UNNEST_0, name(bref.getColumnName())).as(name(bref.getColumnName()))
+                        : field(name(bref.getColumnName())))
                 .toList())
         .from(column.getRefTable().getJooqTable());
   }
 
   private static Table<Record> getUnnestedRefArrayAsTable(String subAlias, Column containsColumn) {
     return containsColumn.getReferences().stream()
-        .map(
-            ref ->
-                unnest(field(name(ref.getColumnName()), ref.getJooqType()))
-                    .withOrdinality()
-                    .as(
-                        subAlias + "_" + ref.getColumnName() + "_unnested",
-                        "unnested_" + ref.getColumnName(),
-                        "ordinality"))
+        .map(ref ->
+            unnest(field(name(ref.getColumnName()), ref.getJooqType()))
+                .withOrdinality()
+                .as(
+                    subAlias + "_" + ref.getColumnName() + "_unnested",
+                    "unnested_" + ref.getColumnName(),
+                    "ordinality"))
         .reduce(Table::naturalJoin)
         .orElseThrow(() -> new IllegalStateException("No references available"));
   }
 
   private static @NotNull List<Field> getUnnestedRefArrayFields(Column containsColumn) {
     return containsColumn.getReferences().stream()
-        .map(
-            ref ->
-                field(
-                    name("unnested_" + ref.getColumnName()), ref.getJooqType().getArrayBaseType()))
+        .map(ref ->
+            field(name("unnested_" + ref.getColumnName()), ref.getJooqType().getArrayBaseType()))
         .toList();
   }
 
@@ -1746,22 +1710,20 @@ public class SqlQuery extends QueryBean {
       String subAlias, Column refColumn, Object[] values) {
     return DSL.values(
             Arrays.stream(values)
-                .map(
-                    value ->
-                        row(
-                            refColumn.getReferences().stream()
-                                .map(
-                                    ref ->
-                                        val(
-                                            ((Row) value)
-                                                .get(
-                                                    ref.getTargetColumn(),
-                                                    refColumn
-                                                        .getRefTable()
-                                                        .getColumn(ref.getTargetColumn())
-                                                        .getPrimitiveColumnType()),
-                                            ref.getJooqType().getArrayBaseDataType()))
-                                .toArray(Field[]::new)))
+                .map(value ->
+                    row(
+                        refColumn.getReferences().stream()
+                            .map(ref ->
+                                val(
+                                    ((Row) value)
+                                        .get(
+                                            ref.getTargetColumn(),
+                                            refColumn
+                                                .getRefTable()
+                                                .getColumn(ref.getTargetColumn())
+                                                .getPrimitiveColumnType()),
+                                    ref.getJooqType().getArrayBaseDataType()))
+                            .toArray(Field[]::new)))
                 .toArray(RowN[]::new))
         .as(
             subAlias + "_" + refColumn.getName() + "_values",

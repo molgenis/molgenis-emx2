@@ -58,7 +58,8 @@ class TestGraphqlEnumColumns {
           {name:"id",key:1},
           {name:"level",columnType:"ENUM",allowedValues:["low","medium","high"]},
           {name:"flags",columnType:"ENUM_ARRAY",allowedValues:["z","a","m"]}
-        ]}]){message}}""");
+        ]}]){message}}\
+        """);
 
     database.clearCache();
     graphql = new GraphqlExecutor(database.getSchema(SCHEMA_NAME));
@@ -84,7 +85,8 @@ class TestGraphqlEnumColumns {
                 """
                 mutation{change(tables:[{name:"NoValues",columns:[
                   {name:"id",key:1},{name:"level",columnType:"ENUM"}
-                ]}]){message}}"""));
+                ]}]){message}}\
+                """));
 
     assertFalse(execute(COLUMNS_QUERY).toString().contains("\"name\":\"NoValues\""));
   }
@@ -140,7 +142,8 @@ class TestGraphqlEnumColumns {
         """
         mutation{change(tables:[{name:"PlainNote",columns:[
           {name:"id",key:1},{name:"note",allowedValues:[]}
-        ]}]){message}}""");
+        ]}]){message}}\
+        """);
 
     for (JsonNode table : execute(COLUMNS_QUERY).at("/_schema/tables")) {
       if ("PlainNote".equals(table.path("name").asText())) {

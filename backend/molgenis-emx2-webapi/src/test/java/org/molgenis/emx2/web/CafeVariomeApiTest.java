@@ -24,7 +24,8 @@ class CafeVariomeApiTest extends ApiTestBase {
               "message" : "Schema nonexisting unknown"
             }
           ]
-        }""",
+        }\
+        """,
         response.getBody().asString());
   }
 }

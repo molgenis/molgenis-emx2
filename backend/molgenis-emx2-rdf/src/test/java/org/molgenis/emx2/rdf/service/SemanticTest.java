@@ -71,9 +71,9 @@ class SemanticTest extends RdfServiceTestRunner {
 
     final String customPrefixes =
         """
-  dcat,http://www.w3.org/ns/dcat#
-  dcterms,http://purl.org/dc/terms/
-  """;
+        dcat,http://www.w3.org/ns/dcat#
+        dcterms,http://purl.org/dc/terms/
+        """;
 
     // Test default behaviour.
     assertFalse(schema.hasSetting(SETTING_SEMANTIC_PREFIXES));
@@ -129,13 +129,13 @@ class SemanticTest extends RdfServiceTestRunner {
 
     final String customPrefixes1 =
         """
-      dcterms,http://purl.org/dc/terms/
-      """;
+        dcterms,http://purl.org/dc/terms/
+        """;
 
     final String customPrefixes2 =
         """
-      dcterms,http://purl.org/dc/terms/
-      """;
+        dcterms,http://purl.org/dc/terms/
+        """;
 
     validateNamespaces(
         SCHEMA_NAME + "_PrefixSettingEqual", expectedNamespace, customPrefixes1, customPrefixes2);
@@ -153,13 +153,13 @@ class SemanticTest extends RdfServiceTestRunner {
 
     final String customPrefixes1 =
         """
-      dcterms1,http://purl.org/dc/terms/
-      """;
+        dcterms1,http://purl.org/dc/terms/
+        """;
 
     final String customPrefixes2 =
         """
-      dcterms2,http://purl.org/dc/terms/
-      """;
+        dcterms2,http://purl.org/dc/terms/
+        """;
 
     validateNamespaces(
         SCHEMA_NAME + "_PrefixSettingName", expectedNamespace, customPrefixes1, customPrefixes2);
@@ -178,13 +178,13 @@ class SemanticTest extends RdfServiceTestRunner {
 
     final String customPrefixes1 =
         """
-      name,http://purl.org/dc/terms/
-         """;
+        name,http://purl.org/dc/terms/
+        """;
 
     final String customPrefixes2 =
         """
-      name,http://www.w3.org/2000/01/rdf-schema#
-         """;
+        name,http://www.w3.org/2000/01/rdf-schema#
+        """;
 
     validateNamespaces(
         SCHEMA_NAME + "_PrefixSettingNameIri", expectedNamespace, customPrefixes1, customPrefixes2);
@@ -203,9 +203,9 @@ class SemanticTest extends RdfServiceTestRunner {
 
     final String customPrefixes1 =
         """
-    example,http://example.com/example/
-    dcat,http://example.com/dcat/
-    """;
+        example,http://example.com/example/
+        dcat,http://example.com/dcat/
+        """;
 
     validateNamespaces(
         SCHEMA_NAME + "_PrefixSettingDefaultPriority", expectedNamespaces, customPrefixes1, null);

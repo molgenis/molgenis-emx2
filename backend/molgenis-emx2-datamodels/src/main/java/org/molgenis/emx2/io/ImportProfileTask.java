@@ -60,13 +60,12 @@ public class ImportProfileTask extends Task {
     Task schemaTask = this.addSubTask("Create schema and metadata");
     schemaTask.start();
     Task commitTask = new Task("Committing");
-    this.database.tx(
-        db -> {
-          Schema s = importSchemaFunction.apply(db);
-          this.schema = s;
-          loadSchemaOnly(s, schemaTask);
-          schemaTask.addSubTask(commitTask);
-        });
+    this.database.tx(db -> {
+      Schema s = importSchemaFunction.apply(db);
+      this.schema = s;
+      loadSchemaOnly(s, schemaTask);
+      schemaTask.addSubTask(commitTask);
+    });
     commitTask.complete();
     schemaTask.complete();
   }
@@ -78,12 +77,11 @@ public class ImportProfileTask extends Task {
     Task demoDataTask = this.addSubTask("Import demo data");
     demoDataTask.start();
     Task commitTask = new Task("Committing");
-    this.database.tx(
-        db -> {
-          Schema s = db.getSchema(schema.getName());
-          loadDemoData(s, demoDataTask);
-          demoDataTask.addSubTask(commitTask);
-        });
+    this.database.tx(db -> {
+      Schema s = db.getSchema(schema.getName());
+      loadDemoData(s, demoDataTask);
+      demoDataTask.addSubTask(commitTask);
+    });
     commitTask.complete();
     demoDataTask.complete();
   }
@@ -95,12 +93,11 @@ public class ImportProfileTask extends Task {
     Task ontologyTask = this.addSubTask("Import ontology data");
     ontologyTask.start();
     Task commitTask = new Task("Committing");
-    this.database.tx(
-        db -> {
-          Schema ontologySchema = db.getSchema(ontologySchemaName);
-          loadOntologyData(ontologySchema, ontologyTask);
-          ontologyTask.addSubTask(commitTask);
-        });
+    this.database.tx(db -> {
+      Schema ontologySchema = db.getSchema(ontologySchemaName);
+      loadOntologyData(ontologySchema, ontologyTask);
+      ontologyTask.addSubTask(commitTask);
+    });
     commitTask.complete();
     ontologyTask.complete();
   }

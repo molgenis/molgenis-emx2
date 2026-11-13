@@ -49,7 +49,7 @@ class SqlQueryBuilderHelpersTest {
                     .add(new Column("testColumn2").setType(ColumnType.INT)));
   }
 
-  @AfterAll()
+  @AfterAll
   static void afterAll() {
     testDb.dropSchemaIfExists(testSchemaName);
   }

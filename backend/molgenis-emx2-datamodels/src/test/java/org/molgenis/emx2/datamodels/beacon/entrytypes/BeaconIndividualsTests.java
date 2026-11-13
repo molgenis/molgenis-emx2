@@ -57,17 +57,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C28421",
-                            		"value": "ncit:C16576",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C28421",
+            		"value": "ncit:C16576",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
@@ -79,22 +80,23 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                                  "id": "ncit:C28421",
-                                  "value": "ncit:C16576",
-                                  "operator": "="
-                            	  },
-                            	  {
-                                  "id": "ncit:C28421",
-                                  "value": "ncit:C20197",
-                                  "operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+                  "id": "ncit:C28421",
+                  "value": "ncit:C16576",
+                  "operator": "="
+            	  },
+            	  {
+                  "id": "ncit:C28421",
+                  "value": "ncit:C20197",
+                  "operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
@@ -105,17 +107,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestRegular(
             """
-                            {
-                              "query": {
-                                "filters": [
-                                  {
-                                    "id": "NCIT:C28421",
-                                    "value": ["GSSO_000124", "GSSO_000123"],
-                                    "operator": "="
-                                  }
-                                ]
-                              }
-                            }""");
+            {
+              "query": {
+                "filters": [
+                  {
+                    "id": "NCIT:C28421",
+                    "value": ["GSSO_000124", "GSSO_000123"],
+                    "operator": "="
+                  }
+                ]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
@@ -127,17 +130,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestRegular(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "NCIT:C28421",
-                            		"value": "GSSO_000123",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "NCIT:C28421",
+            		"value": "GSSO_000123",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
@@ -149,17 +153,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "NCIT_C28421",
-                            		"value": "ncit:C16577",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "NCIT_C28421",
+            		"value": "ncit:C16577",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -173,17 +178,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C2991",
-                            		"value": "Orphanet_1895",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C2991",
+            		"value": "Orphanet_1895",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -198,15 +204,16 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "Orphanet_1895"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "Orphanet_1895"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
@@ -218,22 +225,23 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C2991",
-                            		"value": "Orphanet_1895",
-                            		"operator": "="
-                            	  },
-                            	  {
-                            		"id": "ncit:C2991",
-                            		"value": "Orphanet_1955",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C2991",
+            		"value": "Orphanet_1895",
+            		"operator": "="
+            	  },
+            	  {
+            		"id": "ncit:C2991",
+            		"value": "Orphanet_1955",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -245,17 +253,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C2991",
-                            		"value": "Orphanet_1955",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C2991",
+            		"value": "Orphanet_1955",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -268,17 +277,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C2991",
-                            		"value": "Orphanet_18730",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C2991",
+            		"value": "Orphanet_18730",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
@@ -290,17 +300,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C83164",
-                            		"value": 32,
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C83164",
+            		"value": 32,
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -314,17 +325,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C83164",
-                            		"value": 30,
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C83164",
+            		"value": 30,
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -337,17 +349,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C83164",
-                            		"value": 50,
-                            		"operator": "<"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C83164",
+            		"value": 50,
+            		"operator": "<"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -361,17 +374,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C83164",
-                            		"value": 33,
-                            		"operator": "<"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C83164",
+            		"value": 33,
+            		"operator": "<"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -385,17 +399,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C83164",
-                            		"value": 2,
-                            		"operator": "<="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C83164",
+            		"value": 2,
+            		"operator": "<="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -409,17 +424,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C83164",
-                            		"value": 2,
-                            		"operator": "<"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C83164",
+            		"value": 2,
+            		"operator": "<"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -431,17 +447,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C124353",
-                            		"value": 32,
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C124353",
+            		"value": 32,
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -454,17 +471,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C124353",
-                            		"value": 91,
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C124353",
+            		"value": 91,
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -476,17 +494,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C124353",
-                            		"value": 25,
-                            		"operator": ">"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C124353",
+            		"value": 25,
+            		"operator": ">"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -499,17 +518,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C124353",
-                            		"value": 89,
-                            		"operator": ">"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C124353",
+            		"value": 89,
+            		"operator": ">"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -521,17 +541,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C124353",
-                            		"value": 89,
-                            		"operator": ">="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C124353",
+            		"value": 89,
+            		"operator": ">="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -544,17 +565,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C156420",
-                            		"value": 2,
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C156420",
+            		"value": 2,
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -567,17 +589,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C156420",
-                            		"value": 50,
-                            		"operator": "<"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C156420",
+            		"value": 50,
+            		"operator": "<"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -590,17 +613,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "ncit:C15642",
-                            		"value": 50,
-                            		"operator": "<"
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "ncit:C15642",
+            		"value": 50,
+            		"operator": "<"
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -613,17 +637,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "edam:data_2295",
-                            		"value": "TTN",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "edam:data_2295",
+            		"value": "TTN",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -636,17 +661,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "edam:data_2295",
-                            		"value": ["TTN"],
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "edam:data_2295",
+            		"value": ["TTN"],
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 
@@ -659,17 +685,18 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestVp(
             """
-                            {
-                              "query": {
-                            	"filters": [
-                            	  {
-                            		"id": "edam:data_2295",
-                            		"value": "COL7A1",
-                            		"operator": "="
-                            	  }
-                            	]
-                              }
-                            }""");
+            {
+              "query": {
+            	"filters": [
+            	  {
+            		"id": "edam:data_2295",
+            		"value": "COL7A1",
+            		"operator": "="
+            	  }
+            	]
+              }
+            }\
+            """);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
     JsonNode json = queryEntryType.query(patientRegistry);
 

@@ -20,17 +20,16 @@ import org.junit.jupiter.api.Test;
 class URLUtilsTest {
   private void runTestConfig(Handler handler, String expected, String host, String contextPath) {
     Javalin app =
-        Javalin.create(
-            config -> {
-              config.router.ignoreTrailingSlashes = true;
-              config.router.treatMultipleSlashesAsSingleSlash = true;
-              if (host != null) {
-                config.contextResolver.host = ctx -> host;
-              }
-              if (contextPath != null) {
-                config.router.contextPath = contextPath;
-              }
-            });
+        Javalin.create(config -> {
+          config.router.ignoreTrailingSlashes = true;
+          config.router.treatMultipleSlashesAsSingleSlash = true;
+          if (host != null) {
+            config.contextResolver.host = ctx -> host;
+          }
+          if (contextPath != null) {
+            config.router.contextPath = contextPath;
+          }
+        });
     app.get("/test", handler);
 
     JavalinTest.test(
@@ -55,7 +54,7 @@ class URLUtilsTest {
   @Test
   void testBaseUrlMolgenis() {
     runTestConfig(
-        (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
+        ctx -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
         "http://molgenis.org",
         "molgenis.org",
         null);
@@ -64,7 +63,7 @@ class URLUtilsTest {
   @Test
   void testBaseUrlMolgenis80() {
     runTestConfig(
-        (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
+        ctx -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
         "http://molgenis.org",
         "molgenis.org:80",
         null);
@@ -73,7 +72,7 @@ class URLUtilsTest {
   @Test
   void testBaseUrlMolgenis8080() {
     runTestConfig(
-        (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
+        ctx -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
         "http://molgenis.org:8080",
         "molgenis.org:8080",
         null);
@@ -83,7 +82,7 @@ class URLUtilsTest {
   @Test
   void testBaseUrlMolgenisSubdir8080() {
     runTestConfig(
-        (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
+        ctx -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
         "http://molgenis.org:8080/subdir",
         "molgenis.org:8080",
         "/subdir");
@@ -92,7 +91,7 @@ class URLUtilsTest {
   @Test
   void testContextPathTrailingSlash() {
     runTestConfig(
-        (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
+        ctx -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
         "http://molgenis.org:8080/subdir",
         "molgenis.org:8080",
         "/subdir/");

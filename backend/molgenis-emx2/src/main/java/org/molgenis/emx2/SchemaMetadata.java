@@ -186,18 +186,16 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     // sorted on alphabet
     Set<String> result = new TreeSet<>();
     getTables()
-        .forEach(
-            table -> {
-              result.addAll(table.getLabels().keySet());
-              result.addAll(table.getDescriptions().keySet());
-              table
-                  .getColumns()
-                  .forEach(
-                      column -> {
-                        result.addAll(column.getLabels().keySet());
-                        result.addAll(column.getDescriptions().keySet());
-                      });
-            });
+        .forEach(table -> {
+          result.addAll(table.getLabels().keySet());
+          result.addAll(table.getDescriptions().keySet());
+          table
+              .getColumns()
+              .forEach(column -> {
+                result.addAll(column.getLabels().keySet());
+                result.addAll(column.getDescriptions().keySet());
+              });
+        });
     return result;
   }
 }

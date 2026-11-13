@@ -102,18 +102,18 @@ class CsvwPreProcessorTest {
   void givenMultipleTableGroupsWithDifferentType_whenProcessed_thenDatasetLinksOnlyTheTableGroup() {
     load(
         """
-      <https://example.com/dataset/1> a dcat:Dataset ;
-          healthdcatap:hasVariables <https://example.com/csvw/1>, <https://example.com/csvw/2> .
+        <https://example.com/dataset/1> a dcat:Dataset ;
+            healthdcatap:hasVariables <https://example.com/csvw/1>, <https://example.com/csvw/2> .
 
-      <https://example.com/csvw/1> a csvw:TableGroup ;
-          csvw:table <https://example.com/csvw/1/table/1> .
+        <https://example.com/csvw/1> a csvw:TableGroup ;
+            csvw:table <https://example.com/csvw/1/table/1> .
 
-      <https://example.com/csvw/2> a dcat:Distribution ;
-          csvw:table <https://example.com/csvw/2/table/1> .
+        <https://example.com/csvw/2> a dcat:Distribution ;
+            csvw:table <https://example.com/csvw/2/table/1> .
 
-      <https://example.com/csvw/1/table/1> a csvw:Table .
-      <https://example.com/csvw/2/table/1> a csvw:Table .
-      """);
+        <https://example.com/csvw/1/table/1> a csvw:Table .
+        <https://example.com/csvw/2/table/1> a csvw:Table .
+        """);
 
     new CsvwPreProcessor().process(repository);
 

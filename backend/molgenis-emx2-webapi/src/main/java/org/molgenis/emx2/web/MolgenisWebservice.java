@@ -54,21 +54,19 @@ public class MolgenisWebservice {
 
   public MolgenisWebservice() {
     app =
-        Javalin.create(
-            config -> {
-              config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
-              config.router.ignoreTrailingSlashes = true;
-              config.router.treatMultipleSlashesAsSingleSlash = true;
-              config.jsonMapper(
-                  new JavalinJackson()
-                      .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
-              config.jetty.modifyServletContextHandler(
-                  context -> {
-                    context.setMaxFormContentSize(Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
-                    // keep the session cookie off cross-site posts (CSRF)
-                    context.getSessionHandler().setSameSite(HttpCookie.SameSite.LAX);
-                  });
-            });
+        Javalin.create(config -> {
+          config.http.maxRequestSize = MAX_REQUEST_SIZE; // Javalin limit
+          config.router.ignoreTrailingSlashes = true;
+          config.router.treatMultipleSlashesAsSingleSlash = true;
+          config.jsonMapper(
+              new JavalinJackson()
+                  .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
+          config.jetty.modifyServletContextHandler(context -> {
+            context.setMaxFormContentSize(Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
+            // keep the session cookie off cross-site posts (CSRF)
+            context.getSessionHandler().setSameSite(HttpCookie.SameSite.LAX);
+          });
+        });
 
     hostUrlFromEnvironment = setServiceUrl();
   }

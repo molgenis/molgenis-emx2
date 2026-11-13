@@ -47,22 +47,21 @@ public class SqlRawQueryForSchema {
     builder.append(sql.substring(i, sql.length()));
     final String finalSql = builder.toString();
 
-    schema.tx(
-        db -> {
-          // set schema search path
-          DSLContext jooq = ((SqlDatabase) db).getJooq();
-          jooq.execute("SET search_path TO {0}", name(schema.getName()));
-          try {
-            logger.info(schema.getDatabase().getActiveUser() + " tries to execute" + finalSql);
-            Result<Record> fetch = jooq.fetch(finalSql, bindings.toArray());
-            for (Record r : fetch) {
-              result.add(new SqlRow(r));
-            }
-            logger.info(schema.getDatabase().getActiveUser() + " completed" + finalSql);
-          } catch (SQLException sqle) {
-            throw new SqlMolgenisException("query failed", sqle);
-          }
-        });
+    schema.tx(db -> {
+      // set schema search path
+      DSLContext jooq = ((SqlDatabase) db).getJooq();
+      jooq.execute("SET search_path TO {0}", name(schema.getName()));
+      try {
+        logger.info(schema.getDatabase().getActiveUser() + " tries to execute" + finalSql);
+        Result<Record> fetch = jooq.fetch(finalSql, bindings.toArray());
+        for (Record r : fetch) {
+          result.add(new SqlRow(r));
+        }
+        logger.info(schema.getDatabase().getActiveUser() + " completed" + finalSql);
+      } catch (SQLException sqle) {
+        throw new SqlMolgenisException("query failed", sqle);
+      }
+    });
     return result;
   }
 

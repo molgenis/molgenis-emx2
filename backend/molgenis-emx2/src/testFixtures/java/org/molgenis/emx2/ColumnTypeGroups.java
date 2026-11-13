@@ -24,10 +24,9 @@ public final class ColumnTypeGroups {
 
     EXCLUDE_FILE_PERIOD_REFERENCE_HEADING =
         EXCLUDE_FILE_REFERENCE_HEADING.stream()
-            .filter(
-                columnType ->
-                    !Set.of(ColumnType.PERIOD, ColumnType.PERIOD_ARRAY)
-                        .contains(columnType.getBaseType()))
+            .filter(columnType ->
+                !Set.of(ColumnType.PERIOD, ColumnType.PERIOD_ARRAY)
+                    .contains(columnType.getBaseType()))
             .collect(Collectors.toUnmodifiableSet());
 
     EXCLUDE_ARRAY_FILE_REFERENCE_HEADING =

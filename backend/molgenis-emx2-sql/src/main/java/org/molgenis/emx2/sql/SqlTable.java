@@ -97,10 +97,9 @@ public class SqlTable implements Table {
 
   @Override
   public void truncate() {
-    db.tx(
-        database -> {
-          truncateTransaction((SqlDatabase) database, getSchema().getName(), getName());
-        });
+    db.tx(database -> {
+      truncateTransaction((SqlDatabase) database, getSchema().getName(), getName());
+    });
   }
 
   // use static to ensure we don't touch 'this' until transaction completed
@@ -156,94 +155,93 @@ public class SqlTable implements Table {
               + " cannot process row insert/update/delete requests because no primary key is defined");
     }
 
-    db.tx(
-        db2 -> {
-          for (Row row : rows) {
+    db.tx(db2 -> {
+      for (Row row : rows) {
 
-            // set table class if not set, and see for first time
-            if (row.notEmpty(MG_TABLECLASS)
-                && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
+        // set table class if not set, and see for first time
+        if (row.notEmpty(MG_TABLECLASS)
+            && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
 
-              // validate
-              String rowTableName = row.getString(MG_TABLECLASS);
-              if (!rowTableName.contains(".")) {
-                if (schema.getTable(rowTableName) != null) {
-                  row.setString(MG_TABLECLASS, schemaName + "." + rowTableName);
-                } else {
-                  throw new MolgenisException(
-                      MG_TABLECLASS
-                          + " value failed in row "
-                          + count.get()
-                          + ": found '"
-                          + rowTableName
-                          + "'");
-                }
-              } else {
-                String rowSchemaName = rowTableName.split("\\.")[0];
-                String rowTableName2 = rowTableName.split("\\.")[1];
-                if (db.getSchema(rowSchemaName) == null
-                    || db.getSchema(rowSchemaName).getTable(rowTableName2) == null) {
-                  throw new MolgenisException(
-                      "invalid value in column '"
-                          + MG_TABLECLASS
-                          + "' on row "
-                          + count.get()
-                          + ": found '"
-                          + rowTableName
-                          + "'");
-                }
-              }
+          // validate
+          String rowTableName = row.getString(MG_TABLECLASS);
+          if (!rowTableName.contains(".")) {
+            if (schema.getTable(rowTableName) != null) {
+              row.setString(MG_TABLECLASS, schemaName + "." + rowTableName);
             } else {
-              row.set(MG_TABLECLASS, tableClass);
+              throw new MolgenisException(
+                  MG_TABLECLASS
+                      + " value failed in row "
+                      + count.get()
+                      + ": found '"
+                      + rowTableName
+                      + "'");
             }
-
-            // create batches for each table class
-            String subclassName = row.getString(MG_TABLECLASS);
-            if (!subclassRows.containsKey(subclassName)) {
-              subclassRows.put(subclassName, new ArrayList<>());
-            }
-
-            // check columns provided didn't change
-            if (columnsProvided.get(subclassName) == null) {
-              columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
-            }
-
-            // execute batch; or columns provided changes
-            if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
-                || subclassRows.get(subclassName).size() >= 100) {
-              executeBatch(
-                  (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
-                  transactionType,
-                  count,
-                  subclassRows,
-                  subclassName,
-                  columnsProvided.get(subclassName));
-              // reset columns provided
-              columnsProvided.get(subclassName).clear();
-              columnsProvided.get(subclassName).addAll(row.getColumnNames());
-            }
-
-            // add to batch list, and execute if batch is large enough
-            subclassRows.get(subclassName).add(row);
-          }
-
-          // execute any remaining batches
-          for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
-            if (!batch.getValue().isEmpty()) {
-              executeBatch(
-                  (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
-                  transactionType,
-                  count,
-                  subclassRows,
-                  batch.getKey(),
-                  columnsProvided.get(batch.getKey()));
+          } else {
+            String rowSchemaName = rowTableName.split("\\.")[0];
+            String rowTableName2 = rowTableName.split("\\.")[1];
+            if (db.getSchema(rowSchemaName) == null
+                || db.getSchema(rowSchemaName).getTable(rowTableName2) == null) {
+              throw new MolgenisException(
+                  "invalid value in column '"
+                      + MG_TABLECLASS
+                      + "' on row "
+                      + count.get()
+                      + ": found '"
+                      + rowTableName
+                      + "'");
             }
           }
-          // listeners
-          if (table.getTableListener() != null) {
-            table.getTableListener().preparePostSave(rows);
-          }
-        });
+        } else {
+          row.set(MG_TABLECLASS, tableClass);
+        }
+
+        // create batches for each table class
+        String subclassName = row.getString(MG_TABLECLASS);
+        if (!subclassRows.containsKey(subclassName)) {
+          subclassRows.put(subclassName, new ArrayList<>());
+        }
+
+        // check columns provided didn't change
+        if (columnsProvided.get(subclassName) == null) {
+          columnsProvided.put(subclassName, new LinkedHashSet<>(row.getColumnNames()));
+        }
+
+        // execute batch; or columns provided changes
+        if (columnsProvidedAreDifferent(columnsProvided.get(subclassName), row)
+            || subclassRows.get(subclassName).size() >= 100) {
+          executeBatch(
+              (SqlSchema) db2.getSchema(subclassName.split("\\.")[0]),
+              transactionType,
+              count,
+              subclassRows,
+              subclassName,
+              columnsProvided.get(subclassName));
+          // reset columns provided
+          columnsProvided.get(subclassName).clear();
+          columnsProvided.get(subclassName).addAll(row.getColumnNames());
+        }
+
+        // add to batch list, and execute if batch is large enough
+        subclassRows.get(subclassName).add(row);
+      }
+
+      // execute any remaining batches
+      for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
+        if (!batch.getValue().isEmpty()) {
+          executeBatch(
+              (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
+              transactionType,
+              count,
+              subclassRows,
+              batch.getKey(),
+              columnsProvided.get(batch.getKey()));
+        }
+      }
+      // listeners
+      if (table.getTableListener() != null) {
+        table.getTableListener().preparePostSave(rows);
+      }
+    });
 
     log(
         db.getActiveUser(),
@@ -412,26 +410,24 @@ public class SqlTable implements Table {
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
     return table.getMetadata().getColumnsWithoutHeadings().stream()
-        .filter(
-            c ->
-                !c.isRefback()
-                    || (c.isReference()
-                        && c.getReferences().stream()
-                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))))
+        .filter(c ->
+            !c.isRefback()
+                || (c.isReference()
+                    && c.getReferences().stream()
+                        .anyMatch(r -> columnsProvided.contains(r.getColumnName()))))
         .toList();
   }
 
   private static List<Column> getUpdateColumns(SqlTable table, Set<String> columnsProvided) {
     return getInsertColumns(table, columnsProvided).stream()
         .filter(c -> !c.isReadonly() && !c.isPrimaryKey())
-        .filter(
-            c ->
-                AUTO_ID.equals(c.getColumnType())
-                    || c.getComputed() != null
-                    || (c.isReference()
-                        ? c.getReferences().stream()
-                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))
-                        : columnsProvided.contains(c.getName())))
+        .filter(c ->
+            AUTO_ID.equals(c.getColumnType())
+                || c.getComputed() != null
+                || (c.isReference()
+                    ? c.getReferences().stream()
+                        .anyMatch(r -> columnsProvided.contains(r.getColumnName()))
+                    : columnsProvided.contains(c.getName())))
         .toList();
   }
 
@@ -680,53 +676,52 @@ public class SqlTable implements Table {
 
     AtomicInteger nrDeleted = new AtomicInteger(0);
     try {
-      db.tx(
-          db2 -> {
-            int batchSize = 1000;
-            int currentBatchSize = 0;
-            int nrRowsToDelete = 0;
+      db.tx(db2 -> {
+        int batchSize = 1000;
+        int currentBatchSize = 0;
+        int nrRowsToDelete = 0;
 
-            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
-            List<Row> batch = new ArrayList<>();
+        SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
+        List<Row> batch = new ArrayList<>();
 
-            for (Row row : rows) {
-              nrRowsToDelete++;
-              batch.add(row);
-              currentBatchSize++;
-              if (currentBatchSize % batchSize == 0) {
-                nrDeleted.addAndGet(deleteBatch(table, batch));
-                batch.clear();
-                currentBatchSize = 0;
-              }
-            }
-
-            // delete remaining elements
+        for (Row row : rows) {
+          nrRowsToDelete++;
+          batch.add(row);
+          currentBatchSize++;
+          if (currentBatchSize % batchSize == 0) {
             nrDeleted.addAndGet(deleteBatch(table, batch));
+            batch.clear();
+            currentBatchSize = 0;
+          }
+        }
 
-            // finally delete in superclass
-            if (table.getMetadata().getInheritName() != null) {
-              table.getInheritedTable().delete(rows);
-            }
+        // delete remaining elements
+        nrDeleted.addAndGet(deleteBatch(table, batch));
 
-            // Validate that we deleted exactly the number of rows we intended to delete
-            if (nrDeleted.get() != nrRowsToDelete && strict) {
-              throw new MolgenisException(
-                  "Delete failed: attempted to delete "
-                      + nrRowsToDelete
-                      + " rows but only deleted "
-                      + nrDeleted.get()
-                      + " row"
-                      + (nrDeleted.get() == 1 ? "" : "s")
-                      + ". Some specified rows do not exist in table "
-                      + getName()
-                      + ". Transaction rolled back.");
-            }
+        // finally delete in superclass
+        if (table.getMetadata().getInheritName() != null) {
+          table.getInheritedTable().delete(rows);
+        }
 
-            // notify handlers
-            if (table.getTableListener() != null) {
-              table.getTableListener().preparePostDelete(rows);
-            }
-          });
+        // Validate that we deleted exactly the number of rows we intended to delete
+        if (nrDeleted.get() != nrRowsToDelete && strict) {
+          throw new MolgenisException(
+              "Delete failed: attempted to delete "
+                  + nrRowsToDelete
+                  + " rows but only deleted "
+                  + nrDeleted.get()
+                  + " row"
+                  + (nrDeleted.get() == 1 ? "" : "s")
+                  + ". Some specified rows do not exist in table "
+                  + getName()
+                  + ". Transaction rolled back.");
+        }
+
+        // notify handlers
+        if (table.getTableListener() != null) {
+          table.getTableListener().preparePostDelete(rows);
+        }
+      });
     } catch (Exception e) {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }

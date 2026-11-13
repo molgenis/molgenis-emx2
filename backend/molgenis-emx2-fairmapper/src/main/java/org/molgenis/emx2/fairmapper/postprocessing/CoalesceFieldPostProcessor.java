@@ -45,17 +45,16 @@ public class CoalesceFieldPostProcessor implements PostProcessor {
     tableStore.processTable(
         table,
         (iterator, source) ->
-            iterator.forEachRemaining(
-                row -> {
-                  Object value = getValue(row);
+            iterator.forEachRemaining(row -> {
+              Object value = getValue(row);
 
-                  if (value == null && strict) {
-                    throw new MolgenisException(
-                        "Cannot derive value for field: " + field + " from table: " + table);
-                  }
+              if (value == null && strict) {
+                throw new MolgenisException(
+                    "Cannot derive value for field: " + field + " from table: " + table);
+              }
 
-                  row.set(field, value);
-                }));
+              row.set(field, value);
+            }));
   }
 
   @Nullable

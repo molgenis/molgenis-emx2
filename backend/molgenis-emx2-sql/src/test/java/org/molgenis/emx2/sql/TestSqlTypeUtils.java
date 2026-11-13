@@ -23,12 +23,11 @@ class TestSqlTypeUtils {
     Column column = mock(Column.class);
     Row row = mock(Row.class);
 
-    EXCLUDE_REFERENCE_HEADING.forEach(
-        columnType -> {
-          when(column.getColumnType()).thenReturn(columnType);
-          when(column.getPrimitiveColumnType()).thenReturn(columnType.getBaseType());
-          SqlTypeUtils.getTypedValue(column, row);
-        });
+    EXCLUDE_REFERENCE_HEADING.forEach(columnType -> {
+      when(column.getColumnType()).thenReturn(columnType);
+      when(column.getPrimitiveColumnType()).thenReturn(columnType.getBaseType());
+      SqlTypeUtils.getTypedValue(column, row);
+    });
   }
 
   @Test

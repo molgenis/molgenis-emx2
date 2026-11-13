@@ -118,17 +118,16 @@ public class TestGrantRolesToUsers {
 
     try {
       database.setActiveUser("user_testRolePermissions_manager");
-      database.tx(
-          db -> {
-            try {
-              db.getSchema("testRolePermissions").create(table("Test"));
-              //                  .getMetadata()
-              //                  .addColumn("ID", ColumnType.INT);
-            } catch (Exception e) {
-              e.printStackTrace();
-              throw e;
-            }
-          });
+      database.tx(db -> {
+        try {
+          db.getSchema("testRolePermissions").create(table("Test"));
+          //                  .getMetadata()
+          //                  .addColumn("ID", ColumnType.INT);
+        } catch (Exception e) {
+          e.printStackTrace();
+          throw e;
+        }
+      });
       database.becomeAdmin();
     } catch (Exception e) {
       fail("role(manager) should be able to createColumn tables"); // should not happen
@@ -139,14 +138,13 @@ public class TestGrantRolesToUsers {
     // test that all can query
     try {
       database.setActiveUser("user_testRolePermissions_viewer");
-      database.tx(
-          db -> {
-            StopWatch.print("getting Table");
-            Table t = db.getSchema("testRolePermissions").getTable("Test");
-            StopWatch.print("got table");
-            t.retrieveRows();
-            StopWatch.print("completed query");
-          });
+      database.tx(db -> {
+        StopWatch.print("getting Table");
+        Table t = db.getSchema("testRolePermissions").getTable("Test");
+        StopWatch.print("got table");
+        t.retrieveRows();
+        StopWatch.print("completed query");
+      });
     } catch (Exception e) {
       e.printStackTrace();
       fail("role(viewers) should  be able to query "); // should not happen
@@ -158,11 +156,10 @@ public class TestGrantRolesToUsers {
     // test that owner manager can assign roles and normal users cant
     try {
       database.setActiveUser("user_testRolePermissions_viewer");
-      database.tx(
-          db -> {
-            StopWatch.print("settings permissions Table");
-            db.getSchema("testRolePermissions").addMember("fail", VIEWER.toString());
-          });
+      database.tx(db -> {
+        StopWatch.print("settings permissions Table");
+        db.getSchema("testRolePermissions").addMember("fail", VIEWER.toString());
+      });
       fail("role(viewers) should not be able to add members");
     } catch (Exception e) {
       // correct
@@ -175,14 +172,13 @@ public class TestGrantRolesToUsers {
           "user_testRolePermissions_success"); // manager cannot create users, needs elevated
       // privilegs
       database.setActiveUser("user_testRolePermissions_manager");
-      database.tx(
-          db -> {
-            StopWatch.print("settings permissions Table");
-            db.getSchema("testRolePermissions")
-                .addMember("user_testRolePermissions_success", VIEWER.toString());
-            db.becomeAdmin();
-            db.removeUser("user_testRolePermissions_success");
-          });
+      database.tx(db -> {
+        StopWatch.print("settings permissions Table");
+        db.getSchema("testRolePermissions")
+            .addMember("user_testRolePermissions_success", VIEWER.toString());
+        db.becomeAdmin();
+        db.removeUser("user_testRolePermissions_success");
+      });
     } catch (Exception e) {
       e.printStackTrace();
       fail("roles(manager) should be able to assign roles, found exception " + e);
@@ -225,10 +221,9 @@ public class TestGrantRolesToUsers {
 
       try {
         database.setActiveUser("testuser");
-        database.tx(
-            db -> {
-              db.getSchema("testRole").create(table("Test"));
-            });
+        database.tx(db -> {
+          db.getSchema("testRole").create(table("Test"));
+        });
         // should throw exception, otherwise fail
         fail();
       } catch (MolgenisException e) {
@@ -238,12 +233,11 @@ public class TestGrantRolesToUsers {
 
       try {
         database.setActiveUser("testadmin");
-        database.tx(
-            db -> {
-              db.getSchema("testRole").create(table("Test"));
-              // this is soo cooool
-              db.getSchema("testRole").addMember("testuser", VIEWER.toString());
-            });
+        database.tx(db -> {
+          db.getSchema("testRole").create(table("Test"));
+          // this is soo cooool
+          db.getSchema("testRole").addMember("testuser", VIEWER.toString());
+        });
 
       } catch (Exception e) {
         // this is NOT expected

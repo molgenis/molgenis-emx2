@@ -249,10 +249,11 @@ public class ScriptTask extends Task {
           "Molgenis script %s failed on %s".formatted(this.getName(), this.getServerUrl());
       String text =
           """
-            Molgenis script %s failed with error:
-            %s
+          Molgenis script %s failed with error:
+          %s
 
-            %s"""
+          %s\
+          """
               .formatted(this.getName(), this.getDescription(), this.getJobUrl());
       EmailMessage emailMessage =
           new EmailMessage(List.of(this.getFailureAddress()), subject, text, Optional.empty());

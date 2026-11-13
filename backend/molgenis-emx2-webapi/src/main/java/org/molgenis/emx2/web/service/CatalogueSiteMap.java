@@ -55,23 +55,22 @@ public class CatalogueSiteMap {
       resourceTable
           .select(s("id"), s(Constants.MG_TABLECLASS))
           .retrieveRows()
-          .forEach(
-              resource -> {
-                String collectionId = resource.getString("id");
-                ResourcePath resourcePath = getResourcePath(resource);
-                if (resourcePath != null) {
-                  try {
-                    wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
-                  } catch (MalformedURLException e) {
-                    logger.error(
-                        "Failed to generate sitemap url (schema: {} , path: {} , id: {})",
-                        schema.getName(),
-                        resourcePath.value,
-                        collectionId,
-                        e);
-                  }
-                }
-              });
+          .forEach(resource -> {
+            String collectionId = resource.getString("id");
+            ResourcePath resourcePath = getResourcePath(resource);
+            if (resourcePath != null) {
+              try {
+                wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
+              } catch (MalformedURLException e) {
+                logger.error(
+                    "Failed to generate sitemap url (schema: {} , path: {} , id: {})",
+                    schema.getName(),
+                    resourcePath.value,
+                    collectionId,
+                    e);
+              }
+            }
+          });
 
       Table variableTable = schema.getTable("Variables");
 
@@ -91,19 +90,18 @@ public class CatalogueSiteMap {
                             Operator.EQUALS,
                             schema.getName() + "." + "Catalogues"))))
             .retrieveRows()
-            .forEach(
-                variable -> {
-                  try {
-                    wsg.addUrl(urlForVariable(variable));
-                  } catch (MalformedURLException e) {
-                    logger.error(
-                        "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
-                        schema.getName(),
-                        "variables",
-                        variable.getString("name"),
-                        e);
-                  }
-                });
+            .forEach(variable -> {
+              try {
+                wsg.addUrl(urlForVariable(variable));
+              } catch (MalformedURLException e) {
+                logger.error(
+                    "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
+                    schema.getName(),
+                    "variables",
+                    variable.getString("name"),
+                    e);
+              }
+            });
       }
 
       return String.join(System.lineSeparator(), wsg.writeAsStrings());

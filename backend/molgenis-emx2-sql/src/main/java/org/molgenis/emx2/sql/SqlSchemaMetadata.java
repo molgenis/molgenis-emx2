@@ -45,14 +45,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       // sync tables metadata
       from.tables
           .entrySet()
-          .forEach(
-              e -> {
-                if (this.tables.containsKey(e.getKey())) {
-                  this.tables.get(e.getKey()).sync(e.getValue());
-                } else {
-                  this.tables.put(e.getKey(), new SqlTableMetadata(this, e.getValue()));
-                }
-              });
+          .forEach(e -> {
+            if (this.tables.containsKey(e.getKey())) {
+              this.tables.get(e.getKey()).sync(e.getValue());
+            } else {
+              this.tables.put(e.getKey(), new SqlTableMetadata(this, e.getValue()));
+            }
+          });
 
       // sync settings
       this.setSettingsWithoutReload(from.getSettings());
@@ -111,33 +110,32 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SchemaMetadata create(TableMetadata... tables) {
     getDatabase()
-        .tx(
-            database -> {
-              SqlSchema s = (SqlSchema) database.getSchema(getName());
-              SqlSchemaMetadata sm = s.getMetadata();
-              if (tables.length > 1) {
-                // make use of dependency sorting etc
-                s.migrate(new SchemaMetadata().create(tables));
-              } else {
-                TableMetadata table = tables[0];
-                List<TableMetadata> tableList = new ArrayList<>();
-                tableList.addAll(List.of(tables));
-                validateTableIdentifierIsUnique(sm, table);
-                SqlTableMetadata result = null;
-                if (TableType.ONTOLOGIES.equals(table.getTableType())) {
-                  result =
-                      new SqlTableMetadata(
-                          sm,
-                          getOntologyTableDefinition(
-                              table.getTableName(), table.getLabels(), table.getDescriptions()));
-                } else {
-                  result = new SqlTableMetadata(sm, table);
-                }
-                sm.tables.put(table.getTableName(), result);
-                executeCreateTable(((SqlDatabase) database).getJooq(), result);
-              }
-              sync(sm);
-            });
+        .tx(database -> {
+          SqlSchema s = (SqlSchema) database.getSchema(getName());
+          SqlSchemaMetadata sm = s.getMetadata();
+          if (tables.length > 1) {
+            // make use of dependency sorting etc
+            s.migrate(new SchemaMetadata().create(tables));
+          } else {
+            TableMetadata table = tables[0];
+            List<TableMetadata> tableList = new ArrayList<>();
+            tableList.addAll(List.of(tables));
+            validateTableIdentifierIsUnique(sm, table);
+            SqlTableMetadata result = null;
+            if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+              result =
+                  new SqlTableMetadata(
+                      sm,
+                      getOntologyTableDefinition(
+                          table.getTableName(), table.getLabels(), table.getDescriptions()));
+            } else {
+              result = new SqlTableMetadata(sm, table);
+            }
+            sm.tables.put(table.getTableName(), result);
+            executeCreateTable(((SqlDatabase) database).getJooq(), result);
+          }
+          sync(sm);
+        });
     getDatabase().getListener().schemaChanged(getName());
     return this;
   }
@@ -175,10 +173,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public SchemaMetadata setSettings(Map<String, String> settings) {
     if (PermissionEvaluator.canManage(getDatabase().getSchema(getName()))) {
       getDatabase()
-          .tx(
-              db -> {
-                sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
-              });
+          .tx(db -> {
+            sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
+          });
       getDatabase().getListener().schemaChanged(getName());
       return this;
     } else {
@@ -196,12 +193,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
     settings
         .entrySet()
-        .forEach(
-            setting -> {
-              if (Constants.IS_CHANGELOG_ENABLED.equals(setting.getKey())) {
-                toggleChangeLogIfNeeded(db, schema, setting.getValue());
-              }
-            });
+        .forEach(setting -> {
+          if (Constants.IS_CHANGELOG_ENABLED.equals(setting.getKey())) {
+            toggleChangeLogIfNeeded(db, schema, setting.getValue());
+          }
+        });
     schema.setSettingsWithoutReload(settings);
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
     return schema;

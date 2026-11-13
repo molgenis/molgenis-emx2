@@ -229,9 +229,8 @@ public class TestColumn {
         // https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
         // https://www.postgresql.org/docs/current/runtime-config-preset.html#GUC-MAX-IDENTIFIER-LENGTH
         () ->
-            assertDoesNotThrow(
-                () ->
-                    new Column("a23456789012345678901234567890123456789012345678901234567890123")),
+            assertDoesNotThrow(() ->
+                new Column("a23456789012345678901234567890123456789012345678901234567890123")),
         // invalid: too long (> 63 characters)
         () ->
             assertThrows(

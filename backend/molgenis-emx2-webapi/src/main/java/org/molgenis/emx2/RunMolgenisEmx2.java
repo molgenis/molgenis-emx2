@@ -84,45 +84,44 @@ public class RunMolgenisEmx2 {
     Database database = new SqlDatabase(true);
 
     // elevate privileges for init
-    database.tx(
-        db -> {
-          db.becomeAdmin();
+    database.tx(db -> {
+      db.becomeAdmin();
 
-          if (!EXCLUDE_PETSTORE_DEMO && db.getSchema(PET_STORE) == null) {
-            DataModels.Profile.PET_STORE.getImportTask(db, PET_STORE, "", true).run();
-            Schema schema = db.getSchema(PET_STORE);
-            schema.getDatabase().setUserPassword("customer", "customer");
-            schema.getDatabase().setUserPassword("shopmanager", "shopmanager");
-            schema.getDatabase().setUserPassword("shopowner", "shopowner");
-            schema.getDatabase().setUserPassword("shopviewer", "shopviewer");
-          }
+      if (!EXCLUDE_PETSTORE_DEMO && db.getSchema(PET_STORE) == null) {
+        DataModels.Profile.PET_STORE.getImportTask(db, PET_STORE, "", true).run();
+        Schema schema = db.getSchema(PET_STORE);
+        schema.getDatabase().setUserPassword("customer", "customer");
+        schema.getDatabase().setUserPassword("shopmanager", "shopmanager");
+        schema.getDatabase().setUserPassword("shopowner", "shopowner");
+        schema.getDatabase().setUserPassword("shopviewer", "shopviewer");
+      }
 
-          if (INCLUDE_TYPE_TEST_DEMO && db.getSchema("type test") == null) {
-            DataModels.Profile.TYPE_TEST.getImportTask(db, "type test", "", true).run();
-          }
+      if (INCLUDE_TYPE_TEST_DEMO && db.getSchema("type test") == null) {
+        DataModels.Profile.TYPE_TEST.getImportTask(db, "type test", "", true).run();
+      }
 
-          if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
-            DataModels.Profile.DATA_CATALOGUE
-                .getImportTask(db, CATALOGUE_DEMO, "from DataCatalogue demo data loader", true)
-                .run();
-          }
-          if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
-            new BiobankDirectoryLoader(
-                    new SchemaLoaderSettings(db, DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo", true))
-                .setStaging(false)
-                .run();
-          }
+      if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
+        DataModels.Profile.DATA_CATALOGUE
+            .getImportTask(db, CATALOGUE_DEMO, "from DataCatalogue demo data loader", true)
+            .run();
+      }
+      if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
+        new BiobankDirectoryLoader(
+                new SchemaLoaderSettings(db, DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo", true))
+            .setStaging(false)
+            .run();
+      }
 
-          if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
-            new PatientRegistryDemoLoader(
-                    new SchemaLoaderSettings(db, "patient registry demo", "", true))
-                .run();
-          }
+      if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
+        new PatientRegistryDemoLoader(
+                new SchemaLoaderSettings(db, "patient registry demo", "", true))
+            .run();
+      }
 
-          if (INCLUDE_CMS && db.getSchema(MG_CMS) == null) {
-            DataModels.Profile.MG_CMS.getImportTask(db, MG_CMS, "", true).run();
-          }
-        });
+      if (INCLUDE_CMS && db.getSchema(MG_CMS) == null) {
+        DataModels.Profile.MG_CMS.getImportTask(db, MG_CMS, "", true).run();
+      }
+    });
 
     // start
     new MolgenisWebservice().start(port);

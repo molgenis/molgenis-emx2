@@ -212,7 +212,8 @@ public class TestSumQuery {
       }
     }
   ]
-}""",
+}\
+""",
         json);
   }
 }

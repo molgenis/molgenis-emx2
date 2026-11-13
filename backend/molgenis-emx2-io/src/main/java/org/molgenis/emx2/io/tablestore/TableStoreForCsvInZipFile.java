@@ -147,14 +147,13 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     List<String> result = new ArrayList<>();
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       zf.stream()
-          .forEach(
-              e -> {
-                String name = e.getName();
-                if (name.toLowerCase().endsWith(".csv") || name.toLowerCase().endsWith(".tsv")) {
-                  name = name.substring(0, name.length() - 4);
-                }
-                result.add(name);
-              });
+          .forEach(e -> {
+            String name = e.getName();
+            if (name.toLowerCase().endsWith(".csv") || name.toLowerCase().endsWith(".tsv")) {
+              name = name.substring(0, name.length() - 4);
+            }
+            result.add(name);
+          });
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed: ", ioe);
     }
@@ -183,13 +182,12 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     List<? extends ZipEntry> result =
         // find all files that have name as prefix
         zf.stream()
-            .filter(
-                entry ->
-                    new File(entry.getName())
-                        .getName()
-                        .replace(" ", "")
-                        .toLowerCase()
-                        .startsWith(nameWithoutSpaces + "."))
+            .filter(entry ->
+                new File(entry.getName())
+                    .getName()
+                    .replace(" ", "")
+                    .toLowerCase()
+                    .startsWith(nameWithoutSpaces + "."))
             .toList();
     if (result.size() > 1) {
       throw new MolgenisException(

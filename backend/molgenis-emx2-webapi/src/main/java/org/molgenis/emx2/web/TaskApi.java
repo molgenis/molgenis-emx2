@@ -202,17 +202,16 @@ public final class TaskApi {
 
     List<Map<String, Object>> tasks =
         taskService.getJobIds().stream()
-            .map(
-                id -> {
-                  Task task = taskService.getTask(id);
-                  Map<String, Object> map = new HashMap<>();
-                  map.put("id", id);
-                  map.put("description", task.getDescription());
-                  map.put("status", task.getStatus());
-                  map.put("url", urlRoot + id);
-                  map.put("deleteUrl", urlRoot + id + "/delete");
-                  return map;
-                })
+            .map(id -> {
+              Task task = taskService.getTask(id);
+              Map<String, Object> map = new HashMap<>();
+              map.put("id", id);
+              map.put("description", task.getDescription());
+              map.put("status", task.getStatus());
+              map.put("url", urlRoot + id);
+              map.put("deleteUrl", urlRoot + id + "/delete");
+              return map;
+            })
             .collect(Collectors.toList());
 
     response.put("tasks", tasks);

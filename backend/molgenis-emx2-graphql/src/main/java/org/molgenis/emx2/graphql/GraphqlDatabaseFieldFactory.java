@@ -58,12 +58,11 @@ public class GraphqlDatabaseFieldFactory {
         .name("deleteSchema")
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String id = dataFetchingEnvironment.getArgument(ID);
-              database.dropSchema(id); // id and name are still equal, might change in future
-              return new GraphqlApiMutationResult(SUCCESS, "Schema %s dropped", id);
-            });
+        .dataFetcher(dataFetchingEnvironment -> {
+          String id = dataFetchingEnvironment.getArgument(ID);
+          database.dropSchema(id); // id and name are still equal, might change in future
+          return new GraphqlApiMutationResult(SUCCESS, "Schema %s dropped", id);
+        });
   }
 
   public GraphQLFieldDefinition.Builder createMutation(Database database, TaskService taskService) {
@@ -80,35 +79,33 @@ public class GraphqlDatabaseFieldFactory {
                 .type(Scalars.GraphQLBoolean))
         .argument(
             GraphQLArgument.newArgument().name(Constants.PARENT_JOB).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String name = dataFetchingEnvironment.getArgument(NAME);
-              String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
-              String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
-              String parentTaskId = dataFetchingEnvironment.getArgument(Constants.PARENT_JOB);
-              Boolean includeDemoData =
-                  dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
+        .dataFetcher(dataFetchingEnvironment -> {
+          String name = dataFetchingEnvironment.getArgument(NAME);
+          String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
+          String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
+          String parentTaskId = dataFetchingEnvironment.getArgument(Constants.PARENT_JOB);
+          Boolean includeDemoData =
+              dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
 
-              GraphqlApiMutationResult result =
-                  new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
+          GraphqlApiMutationResult result =
+              new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
 
-              if (template != null) {
-                Task task =
-                    DataModels.getImportTask(
-                        database, name, description, template, includeDemoData);
-                if (parentTaskId != null) {
-                  Task parentTask = taskService.getTask(parentTaskId);
-                  task.setParentTask(parentTask);
-                }
-                String id = taskService.submit(task);
-                result.setTaskId(id);
-              } else {
-                database.createSchema(name, description);
-                database.getListener().onSchemaChange();
-              }
+          if (template != null) {
+            Task task =
+                DataModels.getImportTask(database, name, description, template, includeDemoData);
+            if (parentTaskId != null) {
+              Task parentTask = taskService.getTask(parentTaskId);
+              task.setParentTask(parentTask);
+            }
+            String id = taskService.submit(task);
+            result.setTaskId(id);
+          } else {
+            database.createSchema(name, description);
+            database.getListener().onSchemaChange();
+          }
 
-              return result;
-            });
+          return result;
+        });
   }
 
   public GraphQLFieldDefinition.Builder updateMutation(Database database) {
@@ -117,13 +114,12 @@ public class GraphqlDatabaseFieldFactory {
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(DESCRIPTION).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String name = dataFetchingEnvironment.getArgument(NAME);
-              String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
-              database.updateSchema(name, description);
-              return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
-            });
+        .dataFetcher(dataFetchingEnvironment -> {
+          String name = dataFetchingEnvironment.getArgument(NAME);
+          String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
+          database.updateSchema(name, description);
+          return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
+        });
   }
 
   public GraphQLFieldDefinition.Builder settingsQueryField(Database database) {
@@ -132,42 +128,40 @@ public class GraphqlDatabaseFieldFactory {
         .argument(
             GraphQLArgument.newArgument().name(KEYS).type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsType))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              final List<String> selectedKeys =
-                  dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
+        .dataFetcher(dataFetchingEnvironment -> {
+          final List<String> selectedKeys =
+              dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
 
-              Map<String, String> filtered = new HashMap<>();
-              for (Map.Entry<String, String> setting : database.getSettings().entrySet()) {
-                if (selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey())) {
-                  filtered.put(setting.getKey(), setting.getValue());
-                }
-              }
-              filtered.put(Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
+          Map<String, String> filtered = new HashMap<>();
+          for (Map.Entry<String, String> setting : database.getSettings().entrySet()) {
+            if (selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey())) {
+              filtered.put(setting.getKey(), setting.getValue());
+            }
+          }
+          filtered.put(Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
 
-              return mapSettingsToGraphql(filtered);
-            });
+          return mapSettingsToGraphql(filtered);
+        });
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schemas")
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              List<Map<String, String>> result = new ArrayList<>();
-              for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
-                Map<String, String> fields = new HashMap<>();
-                fields.put("id", schemaInfo.tableSchema()); // todo if we want identifier here
-                fields.put(
-                    "label", schemaInfo.tableSchema()); // todo if we want something else than name
-                fields.put("name", schemaInfo.tableSchema());
-                if (!Objects.isNull(schemaInfo.description())) {
-                  fields.put("description", schemaInfo.description());
-                }
-                result.add(fields);
-              }
-              return result;
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          List<Map<String, String>> result = new ArrayList<>();
+          for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
+            Map<String, String> fields = new HashMap<>();
+            fields.put("id", schemaInfo.tableSchema()); // todo if we want identifier here
+            fields.put(
+                "label", schemaInfo.tableSchema()); // todo if we want something else than name
+            fields.put("name", schemaInfo.tableSchema());
+            if (!Objects.isNull(schemaInfo.description())) {
+              fields.put("description", schemaInfo.description());
+            }
+            result.add(fields);
+          }
+          return result;
+        })
         .type(GraphQLList.list(outputSchemasType));
   }
 
@@ -195,28 +189,25 @@ public class GraphqlDatabaseFieldFactory {
         .name("_tasks")
         .type(GraphQLList.list(outputTaskType))
         .argument(GraphQLArgument.newArgument().name(TASK_ID).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String id = dataFetchingEnvironment.getArgument(TASK_ID);
-              if (id != null) {
-                return List.of(taskService.getTask(id));
-              }
+        .dataFetcher(dataFetchingEnvironment -> {
+          String id = dataFetchingEnvironment.getArgument(TASK_ID);
+          if (id != null) {
+            return List.of(taskService.getTask(id));
+          }
 
-              GraphqlSessionHandlerInterface sessionHandler =
-                  dataFetchingEnvironment
-                      .getGraphQlContext()
-                      .get(GraphqlSessionHandlerInterface.class);
+          GraphqlSessionHandlerInterface sessionHandler =
+              dataFetchingEnvironment.getGraphQlContext().get(GraphqlSessionHandlerInterface.class);
 
-              boolean isAdmin =
-                  Optional.ofNullable(database.getUser(sessionHandler.getCurrentUser()))
-                      .map(User::isAdmin)
-                      .orElse(false);
-              if (isAdmin) {
-                return taskService.listTasks();
-              }
+          boolean isAdmin =
+              Optional.ofNullable(database.getUser(sessionHandler.getCurrentUser()))
+                  .map(User::isAdmin)
+                  .orElse(false);
+          if (isAdmin) {
+            return taskService.listTasks();
+          }
 
-              throw new MolgenisException("Listing all tasks is only allowed for admin users");
-            })
+          throw new MolgenisException("Listing all tasks is only allowed for admin users");
+        })
         .build();
   }
 
@@ -241,21 +232,18 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputSettingsMetadataType)))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              StringBuilder messageBuilder = new StringBuilder();
-              database.tx(
-                  db -> {
-                    try {
-                      changeUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
-                      changeSettings(
-                          db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
-                    } catch (Exception e) {
-                      throw new GraphqlException("change failed", e);
-                    }
-                  });
-              return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          StringBuilder messageBuilder = new StringBuilder();
+          database.tx(db -> {
+            try {
+              changeUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
+              changeSettings(db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+            } catch (Exception e) {
+              throw new GraphqlException("change failed", e);
+            }
+          });
+          return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
+        })
         .build();
   }
 
@@ -283,22 +271,19 @@ public class GraphqlDatabaseFieldFactory {
                 .type(GraphQLList.list(inputDropSettingType)))
         .argument(
             GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(inputDropRoleType)))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              StringBuilder messageBuilder = new StringBuilder();
-              database.tx(
-                  db -> {
-                    try {
-                      dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
-                      dropSettings(
-                          db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
-                      dropRoles(db, dataFetchingEnvironment.getArgument(ROLES), messageBuilder);
-                    } catch (Exception e) {
-                      throw new GraphqlException("change failed", e);
-                    }
-                  });
-              return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
-            })
+        .dataFetcher(dataFetchingEnvironment -> {
+          StringBuilder messageBuilder = new StringBuilder();
+          database.tx(db -> {
+            try {
+              dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
+              dropSettings(db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+              dropRoles(db, dataFetchingEnvironment.getArgument(ROLES), messageBuilder);
+            } catch (Exception e) {
+              throw new GraphqlException("change failed", e);
+            }
+          });
+          return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
+        })
         .build();
   }
 

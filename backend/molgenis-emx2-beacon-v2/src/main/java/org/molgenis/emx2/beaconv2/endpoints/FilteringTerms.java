@@ -19,14 +19,13 @@ public class FilteringTerms {
   private Handover beaconHandovers;
 
   public FilteringTerms(Database database) {
-    database.tx(
-        db -> {
-          this.meta = new DatasetsMeta("../beaconFilteringTermsResponse.json", "filteringterms");
-          FilteringTerm[] terms = new FilteringTermsFetcher(database).getAllFilteringTerms();
-          this.response = Collections.singletonMap("filteringTerms", terms);
-          this.responseSummary = new ResponseSummary();
-          this.beaconHandovers = new Handover();
-        });
+    database.tx(db -> {
+      this.meta = new DatasetsMeta("../beaconFilteringTermsResponse.json", "filteringterms");
+      FilteringTerm[] terms = new FilteringTermsFetcher(database).getAllFilteringTerms();
+      this.response = Collections.singletonMap("filteringTerms", terms);
+      this.responseSummary = new ResponseSummary();
+      this.beaconHandovers = new Handover();
+    });
   }
 
   public DatasetsMeta getMeta() {

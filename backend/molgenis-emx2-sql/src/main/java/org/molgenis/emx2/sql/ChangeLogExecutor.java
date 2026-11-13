@@ -129,16 +129,15 @@ public final class ChangeLogExecutor {
             .fetch();
 
     return result.stream()
-        .map(
-            r -> {
-              char operation = r.getValue(OPERATION, char.class);
-              Timestamp stamp = r.getValue(STAMP, Timestamp.class);
-              String userId = r.getValue(USERID, String.class);
-              String tableName = r.getValue(TABLENAME, String.class);
-              String oldRowData = r.getValue(OLD, String.class);
-              String newRowData = r.getValue(NEW, String.class);
-              return new Change(operation, stamp, userId, tableName, oldRowData, newRowData);
-            })
+        .map(r -> {
+          char operation = r.getValue(OPERATION, char.class);
+          Timestamp stamp = r.getValue(STAMP, Timestamp.class);
+          String userId = r.getValue(USERID, String.class);
+          String tableName = r.getValue(TABLENAME, String.class);
+          String oldRowData = r.getValue(OLD, String.class);
+          String newRowData = r.getValue(NEW, String.class);
+          return new Change(operation, stamp, userId, tableName, oldRowData, newRowData);
+        })
         .toList();
   }
 
@@ -183,16 +182,15 @@ public final class ChangeLogExecutor {
 
     // transform the result in to records
     return result.stream()
-        .map(
-            r -> {
-              char operation = r.getValue(OPERATION, char.class);
-              Timestamp stamp = r.getValue(STAMP, Timestamp.class);
-              String userId = r.getValue(USERID, String.class);
-              String tableName = r.getValue(TABLENAME, String.class);
-              String schemaName = r.getValue(SCHEMA_NAME, String.class);
+        .map(r -> {
+          char operation = r.getValue(OPERATION, char.class);
+          Timestamp stamp = r.getValue(STAMP, Timestamp.class);
+          String userId = r.getValue(USERID, String.class);
+          String tableName = r.getValue(TABLENAME, String.class);
+          String schemaName = r.getValue(SCHEMA_NAME, String.class);
 
-              return new LastUpdate(operation, stamp, userId, tableName, schemaName);
-            })
+          return new LastUpdate(operation, stamp, userId, tableName, schemaName);
+        })
         .sorted(Comparator.comparing(LastUpdate::stamp))
         .toList();
   }

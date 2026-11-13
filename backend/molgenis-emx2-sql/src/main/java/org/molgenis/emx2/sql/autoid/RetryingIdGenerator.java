@@ -19,10 +19,9 @@ public class RetryingIdGenerator {
     }
     this.autoIdFormat =
         AutoIdFormat.fromComputedString(column.getComputed())
-            .orElseThrow(
-                () ->
-                    new MolgenisException(
-                        "Invalid computed value provided to column: " + column.getComputed()));
+            .orElseThrow(() ->
+                new MolgenisException(
+                    "Invalid computed value provided to column: " + column.getComputed()));
 
     this.schemaName = column.getSchemaName();
     this.tableName = column.getTableName();

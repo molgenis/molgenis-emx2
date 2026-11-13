@@ -21,21 +21,19 @@ class SparqlQueryingExampleTest {
   @Disabled("Used for manual testing purposes")
   @Test
   void testCatalogueQuery() {
-    assertDoesNotThrow(
-        () -> {
-          Database database = TestDatabaseFactory.getTestDatabase();
-          String schemaName = "harvesting";
-          database.dropSchemaIfExists(schemaName);
-          DataModels.Profile.DATA_CATALOGUE
-              .getImportTask(database, schemaName, "DCAT harvesting test", true)
-              .run();
+    assertDoesNotThrow(() -> {
+      Database database = TestDatabaseFactory.getTestDatabase();
+      String schemaName = "harvesting";
+      database.dropSchemaIfExists(schemaName);
+      DataModels.Profile.DATA_CATALOGUE
+          .getImportTask(database, schemaName, "DCAT harvesting test", true)
+          .run();
 
-          SchemaMetadata schema =
-              TestDatabaseFactory.getTestDatabase().getSchemaMetadata("harvesting");
-          TableQueryGenerator generator = new TableQueryGenerator();
-          String query = generator.generate(schema.getTableMetadata("Collections"));
-          System.out.println(query);
-        });
+      SchemaMetadata schema = TestDatabaseFactory.getTestDatabase().getSchemaMetadata("harvesting");
+      TableQueryGenerator generator = new TableQueryGenerator();
+      String query = generator.generate(schema.getTableMetadata("Collections"));
+      System.out.println(query);
+    });
   }
 
   /**
@@ -55,21 +53,20 @@ class SparqlQueryingExampleTest {
   @Disabled("Used for manual testing purposes")
   @Test
   void fileBasedTest() {
-    assertDoesNotThrow(
-        () -> {
-          // Absolute path of a file containing a SPARQL SELECT query.
-          String absoluteQueryPath = "";
-          String query = new String(new FileInputStream(absoluteQueryPath).readAllBytes());
+    assertDoesNotThrow(() -> {
+      // Absolute path of a file containing a SPARQL SELECT query.
+      String absoluteQueryPath = "";
+      String query = new String(new FileInputStream(absoluteQueryPath).readAllBytes());
 
-          // Absolute path of a file containing RDF data in Turtle (.ttl) format.
-          String absoluteTtlPath = "";
-          SailRepository repository = setupRepositoryFromFile(absoluteTtlPath);
+      // Absolute path of a file containing RDF data in Turtle (.ttl) format.
+      String absoluteTtlPath = "";
+      SailRepository repository = setupRepositoryFromFile(absoluteTtlPath);
 
-          repository
-              .getConnection()
-              .prepareTupleQuery(QueryLanguage.SPARQL, query)
-              .evaluate(new SPARQLResultsCSVWriter(new FileOutputStream("results.csv")));
-        });
+      repository
+          .getConnection()
+          .prepareTupleQuery(QueryLanguage.SPARQL, query)
+          .evaluate(new SPARQLResultsCSVWriter(new FileOutputStream("results.csv")));
+    });
   }
 
   private static SailRepository setupRepositoryFromFile(String fileName) {

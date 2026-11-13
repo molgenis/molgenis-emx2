@@ -142,7 +142,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> Values.iri("urn:uuid:" + i));
+            row.getStringArray(column.getName()), i -> Values.iri("urn:uuid:" + i));
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
@@ -161,7 +161,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> literal(i, getCoreDatatype()));
+            row.getStringArray(column.getName()), i -> literal(i, getCoreDatatype()));
       }
     },
     LONG(CoreDatatype.XSD.LONG) {
@@ -180,7 +180,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(
-            row.getDateArray(column.getName()), (i) -> literal(i.toString(), getCoreDatatype()));
+            row.getDateArray(column.getName()), i -> literal(i.toString(), getCoreDatatype()));
       }
     },
     DATETIME(CoreDatatype.XSD.DATETIME) {
@@ -188,7 +188,7 @@ public abstract class ColumnTypeRdfMapper {
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(
             row.getDateTimeArray(column.getName()),
-            (i) -> literal(dateTimeFormatter.format((LocalDateTime) i), getCoreDatatype()));
+            i -> literal(dateTimeFormatter.format((LocalDateTime) i), getCoreDatatype()));
       }
     },
     DURATION(CoreDatatype.XSD.DURATION) {
@@ -215,7 +215,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> Values.iri("mailto:" + i));
+            row.getStringArray(column.getName()), i -> Values.iri("mailto:" + i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
@@ -269,12 +269,11 @@ public abstract class ColumnTypeRdfMapper {
 
         // Generate IRIs
         return itemsToMap.stream()
-            .map(
-                item ->
-                    rowIRI(
-                        rdfMapData.getBaseURL(),
-                        column.getRefTable().getRootTable(),
-                        new PrimaryKey(item)))
+            .map(item ->
+                rowIRI(
+                    rdfMapData.getBaseURL(),
+                    column.getRefTable().getRootTable(),
+                    new PrimaryKey(item)))
             .collect(Collectors.toUnmodifiableSet());
       }
 
@@ -301,14 +300,13 @@ public abstract class ColumnTypeRdfMapper {
                 .map(column.getRefTable().getSchemaName(), column.getRefTableName(), names);
 
         return mappedNames.keySet().stream()
-            .map(
-                i ->
-                    mappedNames.get(i) != null
-                        ? mappedNames.get(i)
-                        : rowIRI(
-                            rdfMapData.getBaseURL(),
-                            column.getRefTable().getRootTable(),
-                            new PrimaryKey(Map.of("name", i))))
+            .map(i ->
+                mappedNames.get(i) != null
+                    ? mappedNames.get(i)
+                    : rowIRI(
+                        rdfMapData.getBaseURL(),
+                        column.getRefTable().getRootTable(),
+                        new PrimaryKey(Map.of("name", i))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },

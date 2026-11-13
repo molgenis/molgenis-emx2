@@ -548,15 +548,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getRowLabelTemplate() {
     return getPrimaryKeyColumns().stream()
-        .flatMap(
-            pk ->
-                pk.isReference()
-                    ? pk.getReferences().stream()
-                        .filter(ref -> !ref.isOverlapping())
-                        .map(
-                            ref ->
-                                "${" + pk.getName() + "." + String.join(".", ref.getPath()) + "}")
-                    : Stream.of("${" + pk.getName() + "}"))
+        .flatMap(pk ->
+            pk.isReference()
+                ? pk.getReferences().stream()
+                    .filter(ref -> !ref.isOverlapping())
+                    .map(ref -> "${" + pk.getName() + "." + String.join(".", ref.getPath()) + "}")
+                : Stream.of("${" + pk.getName() + "}"))
         .collect(Collectors.joining(" "));
   }
 

@@ -198,16 +198,15 @@ public final class ZipApi {
   static Map<String, Object> getReportParameters(Context ctx) {
     Map<String, Object> parameters = new LinkedHashMap<>();
     ctx.queryParamMap()
-        .forEach(
-            (param, values) -> {
-              if (!"id".equals(param)) {
-                if (values.size() > 1) {
-                  parameters.put(param, values);
-                } else {
-                  parameters.put(param, values.get(0));
-                }
-              }
-            });
+        .forEach((param, values) -> {
+          if (!"id".equals(param)) {
+            if (values.size() > 1) {
+              parameters.put(param, values);
+            } else {
+              parameters.put(param, values.get(0));
+            }
+          }
+        });
 
     return parameters;
   }

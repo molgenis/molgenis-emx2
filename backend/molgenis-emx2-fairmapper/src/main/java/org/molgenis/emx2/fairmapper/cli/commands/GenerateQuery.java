@@ -14,9 +14,9 @@ import picocli.CommandLine;
     name = "generate-query",
     description =
         """
-                Generate a sparql query based on a given EMX2 schema and table. Select and where clauses are set up based on
-                schema metadata and how the columns are anotated with Semantics
-                """,
+        Generate a sparql query based on a given EMX2 schema and table. Select and where clauses are set up based on
+        schema metadata and how the columns are anotated with Semantics
+        """,
     mixinStandardHelpOptions = true)
 public class GenerateQuery implements Runnable {
 

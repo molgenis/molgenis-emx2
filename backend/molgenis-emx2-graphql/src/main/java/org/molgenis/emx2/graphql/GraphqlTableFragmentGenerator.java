@@ -48,31 +48,30 @@ public final class GraphqlTableFragmentGenerator {
     String typeName = getTableTypeName(table);
     List<Selection<?>> selections = new ArrayList<>();
 
-    columns.forEach(
-        column -> {
-          if (column.isFile()) {
-            List<Selection<?>> file = new ArrayList<>();
-            file.add(Field.newField("size").build());
-            file.add(Field.newField("id").build());
-            file.add(Field.newField("filename").build());
-            file.add(Field.newField("extension").build());
-            selections.add(
-                Field.newField(column.getIdentifier())
-                    .selectionSet(SelectionSet.newSelectionSet(file).build())
-                    .build());
-          } else if (column.isReference()) {
-            int nextDepth = depth > 0 ? depth - 1 : 0;
-            String nestedName = column.getRefTable().getIdentifier() + "Nested";
-            selections.add(
-                Field.newField(column.getIdentifier())
-                    .selectionSet(
-                        buildFragment(column.getRefTable(), nextDepth, maxDepth, nestedName)
-                            .getSelectionSet())
-                    .build());
-          } else {
-            selections.add(Field.newField(column.getIdentifier()).build());
-          }
-        });
+    columns.forEach(column -> {
+      if (column.isFile()) {
+        List<Selection<?>> file = new ArrayList<>();
+        file.add(Field.newField("size").build());
+        file.add(Field.newField("id").build());
+        file.add(Field.newField("filename").build());
+        file.add(Field.newField("extension").build());
+        selections.add(
+            Field.newField(column.getIdentifier())
+                .selectionSet(SelectionSet.newSelectionSet(file).build())
+                .build());
+      } else if (column.isReference()) {
+        int nextDepth = depth > 0 ? depth - 1 : 0;
+        String nestedName = column.getRefTable().getIdentifier() + "Nested";
+        selections.add(
+            Field.newField(column.getIdentifier())
+                .selectionSet(
+                    buildFragment(column.getRefTable(), nextDepth, maxDepth, nestedName)
+                        .getSelectionSet())
+                .build());
+      } else {
+        selections.add(Field.newField(column.getIdentifier()).build());
+      }
+    });
 
     SelectionSet selectionSet = SelectionSet.newSelectionSet().selections(selections).build();
 

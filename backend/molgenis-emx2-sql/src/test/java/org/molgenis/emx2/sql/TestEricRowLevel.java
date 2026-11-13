@@ -142,20 +142,19 @@ class TestEricRowLevel {
     schema.addMember(TEST_USER, TEST_COUNTRY);
 
     database.setActiveUser(TEST_USER);
-    database.tx(
-        db -> {
-          long start = System.nanoTime();
-          List<Row> rows = db.getSchema(SCHEMA).getTable(BIOBANKS).retrieveRows();
-          long ms = (System.nanoTime() - start) / 1_000_000;
+    database.tx(db -> {
+      long start = System.nanoTime();
+      List<Row> rows = db.getSchema(SCHEMA).getTable(BIOBANKS).retrieveRows();
+      long ms = (System.nanoTime() - start) / 1_000_000;
 
-          System.out.printf(
-              "User '%s' retrieved %d biobanks in %d ms%n", TEST_COUNTRY, rows.size(), ms);
+      System.out.printf(
+          "User '%s' retrieved %d biobanks in %d ms%n", TEST_COUNTRY, rows.size(), ms);
 
-          assertFalse(rows.isEmpty(), TEST_COUNTRY + " user should see at least one biobank");
-          assertTrue(
-              rows.stream().allMatch(r -> TEST_COUNTRY.equals(r.getString("country"))),
-              TEST_COUNTRY + " user should only see biobanks for their country");
-        });
+      assertFalse(rows.isEmpty(), TEST_COUNTRY + " user should see at least one biobank");
+      assertTrue(
+          rows.stream().allMatch(r -> TEST_COUNTRY.equals(r.getString("country"))),
+          TEST_COUNTRY + " user should only see biobanks for their country");
+    });
     database.becomeAdmin();
   }
 
@@ -163,20 +162,19 @@ class TestEricRowLevel {
   @Order(5)
   void countryUserSeesOnlyOwnCollections() {
     database.setActiveUser(TEST_USER);
-    database.tx(
-        db -> {
-          long start = System.nanoTime();
-          List<Row> rows = db.getSchema(SCHEMA).getTable(COLLECTIONS).retrieveRows();
-          long ms = (System.nanoTime() - start) / 1_000_000;
+    database.tx(db -> {
+      long start = System.nanoTime();
+      List<Row> rows = db.getSchema(SCHEMA).getTable(COLLECTIONS).retrieveRows();
+      long ms = (System.nanoTime() - start) / 1_000_000;
 
-          System.out.printf(
-              "User '%s' retrieved %d collections in %d ms%n", TEST_COUNTRY, rows.size(), ms);
+      System.out.printf(
+          "User '%s' retrieved %d collections in %d ms%n", TEST_COUNTRY, rows.size(), ms);
 
-          assertFalse(rows.isEmpty(), TEST_COUNTRY + " user should see at least one collection");
-          assertTrue(
-              rows.stream().allMatch(r -> TEST_COUNTRY.equals(r.getString("country"))),
-              TEST_COUNTRY + " user should only see collections for their country");
-        });
+      assertFalse(rows.isEmpty(), TEST_COUNTRY + " user should see at least one collection");
+      assertTrue(
+          rows.stream().allMatch(r -> TEST_COUNTRY.equals(r.getString("country"))),
+          TEST_COUNTRY + " user should only see collections for their country");
+    });
     database.becomeAdmin();
   }
 
@@ -188,10 +186,8 @@ class TestEricRowLevel {
         allBiobanks.stream()
             .filter(r -> !TEST_COUNTRY.equals(r.getString("country")))
             .findFirst()
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "No non-" + TEST_COUNTRY + " biobank with pid found"));
+            .orElseThrow(() ->
+                new IllegalStateException("No non-" + TEST_COUNTRY + " biobank with pid found"));
 
     otherBiobank.setString("description", "HACKED_BY_" + TEST_COUNTRY + "_USER");
 

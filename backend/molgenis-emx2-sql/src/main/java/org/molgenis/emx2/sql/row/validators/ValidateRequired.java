@@ -47,11 +47,10 @@ public final class ValidateRequired {
                 "Key (%s)=(%s) not present in table \"%s\"",
                 refs.stream().map(Reference::getColumnName).collect(Collectors.joining(",")),
                 refs.stream()
-                    .map(
-                        ref ->
-                            row.isNull(ref.getColumnName(), ref.getPrimitiveType())
-                                ? "NULL"
-                                : row.getValueMap().get(ref.getColumnName()).toString())
+                    .map(ref ->
+                        row.isNull(ref.getColumnName(), ref.getPrimitiveType())
+                            ? "NULL"
+                            : row.getValueMap().get(ref.getColumnName()).toString())
                     .collect(Collectors.joining(",")),
                 column.getRefTableName()));
       }

@@ -38,15 +38,15 @@ class SqlSchemaMetadataTest {
 
     final String customPrefixes1 =
         """
-    dcterms,http://purl.org/dc/terms/
-    dcat,http://www.w3.org/ns/dcat#
-    """;
+        dcterms,http://purl.org/dc/terms/
+        dcat,http://www.w3.org/ns/dcat#
+        """;
 
     final String customPrefixes2 =
         """
-    dcterms,http://purl.org/dc/terms/
-    skos,http://www.w3.org/2004/02/skos/core#
-    """;
+        dcterms,http://purl.org/dc/terms/
+        skos,http://www.w3.org/2004/02/skos/core#
+        """;
 
     final SemanticPrefixes defaultSemantics = new SemanticPrefixes((Collection<Namespace>) null);
 

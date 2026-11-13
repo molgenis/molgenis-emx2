@@ -155,20 +155,18 @@ class SqlTableMetadata extends TableMetadata {
     tm.tableName = newName;
 
     // rename refs.refTable
-    refColumns.forEach(
-        ref -> {
-          ref.setRefTable(newName);
-          saveColumnMetadata(tm.getJooq(), ref);
-          db.getListener().schemaChanged(ref.getSchemaName());
-        });
+    refColumns.forEach(ref -> {
+      ref.setRefTable(newName);
+      saveColumnMetadata(tm.getJooq(), ref);
+      db.getListener().schemaChanged(ref.getSchemaName());
+    });
 
     // rename refbacks.refTable
-    refbackColumns.forEach(
-        refBack -> {
-          refBack.setRefTable(newName);
-          saveColumnMetadata(tm.getJooq(), refBack);
-          db.getListener().schemaChanged(refBack.getSchemaName());
-        });
+    refbackColumns.forEach(refBack -> {
+      refBack.setRefTable(newName);
+      saveColumnMetadata(tm.getJooq(), refBack);
+      db.getListener().schemaChanged(refBack.getSchemaName());
+    });
 
     // recreate triggers for this table
     for (Column column : tm.getStoredColumns()) {
@@ -222,11 +220,8 @@ class SqlTableMetadata extends TableMetadata {
               + getInheritName());
     }
     getDatabase()
-        .tx(
-            db ->
-                sync(
-                    alterColumnTransaction(
-                        getSchemaName(), getTableName(), columnName, column, db)));
+        .tx(db ->
+            sync(alterColumnTransaction(getSchemaName(), getTableName(), columnName, column, db)));
     // reload the state
     ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
     return this;
@@ -392,11 +387,10 @@ class SqlTableMetadata extends TableMetadata {
   public TableMetadata setSettings(Map<String, String> settings) {
     if (PermissionEvaluator.canUpdate(getDatabase().getSchema(getSchemaName()), this)) {
       getDatabase()
-          .tx(
-              db ->
-                  sync(
-                      setSettingTransaction(
-                          (SqlDatabase) db, getSchemaName(), getTableName(), settings)));
+          .tx(db ->
+              sync(
+                  setSettingTransaction(
+                      (SqlDatabase) db, getSchemaName(), getTableName(), settings)));
       getDatabase().getListener().schemaChanged(getSchemaName());
       return this;
     } else {

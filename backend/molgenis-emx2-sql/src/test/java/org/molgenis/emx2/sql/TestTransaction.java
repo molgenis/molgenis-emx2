@@ -23,13 +23,12 @@ public class TestTransaction {
 
     // as long as from same db instance you can use resources in multiple Tx
     try {
-      db.tx(
-          db -> {
-            Schema s2 = db.getSchema("testTransaction");
-            s2.create(table("a"));
-            s2.create(table("b"));
-            throw new RuntimeException("transaction stopped to check if it rolled back");
-          });
+      db.tx(db -> {
+        Schema s2 = db.getSchema("testTransaction");
+        s2.create(table("a"));
+        s2.create(table("b"));
+        throw new RuntimeException("transaction stopped to check if it rolled back");
+      });
     } catch (Exception e) {
       System.out.println(e);
       assertNull(s.getTable("a"));

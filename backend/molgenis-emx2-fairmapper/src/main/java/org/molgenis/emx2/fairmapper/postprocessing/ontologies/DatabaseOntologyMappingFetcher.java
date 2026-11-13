@@ -31,12 +31,11 @@ public class DatabaseOntologyMappingFetcher implements OntologyMappingFetcher {
     table
         .query()
         .select(SelectColumn.s(ONTOLOGY_TERM_URI), SelectColumn.s("name"))
-        .streamRows(
-            row -> {
-              if (row.notEmpty(ONTOLOGY_TERM_URI)) {
-                mapping.put(row.getString(ONTOLOGY_TERM_URI), row.getString("name"));
-              }
-            });
+        .streamRows(row -> {
+          if (row.notEmpty(ONTOLOGY_TERM_URI)) {
+            mapping.put(row.getString(ONTOLOGY_TERM_URI), row.getString("name"));
+          }
+        });
     return mapping;
   }
 }

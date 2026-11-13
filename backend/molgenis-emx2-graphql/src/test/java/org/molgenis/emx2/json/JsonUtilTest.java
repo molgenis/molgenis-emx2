@@ -64,7 +64,8 @@ class JsonUtilTest {
     String json =
         """
         {"tables":[{"name":"Cat","inheritName":"Pet","columns":[{"name":"whiskers"}]},
-                   {"name":"Pet","columns":[{"name":"id","key":1}]}]}""";
+                   {"name":"Pet","columns":[{"name":"id","key":1}]}]}\
+        """;
 
     SchemaMetadata parsed = JsonUtil.jsonToSchema(json);
 
