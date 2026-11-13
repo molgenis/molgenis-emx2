@@ -79,6 +79,8 @@ const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
 const chartColumns = ref(); // receives d3.select rect
 
+const currentTheme = ref<string>("light");
+
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
 });
@@ -119,28 +121,20 @@ const internalChartData = computed<Record<string, IChartData[]> | undefined>(
   }
 );
 
-const yAxisData = computed<NumericAxisTickData>(() => {
-  const ticks: NumericAxisTickData = {
-    ...generateAxisTickData(props.chartData as IChartData[], "yValue"),
-  };
-
-  if (props.yAxisMaxValue) {
-    ticks.limit = props.yAxisMaxValue;
-  }
-
-  if (props.yAxisTicks) {
-    ticks.ticks = props.yAxisTicks;
-  }
-
-  if (props.yAxisMinValue) {
-    ticks.min = props.yAxisMinValue;
-  }
-
-  return ticks;
+const hasNegativeValues = computed<boolean>(() => {
+  const yValues = props.chartData?.map((row: IChartData) =>
+    parseInt(row.yValue)
+  ) as number[];
+  return Math.min(...yValues) < 0;
 });
 
-const hasNegativeValues = computed<boolean>(() => {
-  return yAxisData.value?.min < 0 || false;
+const yAxisData = computed<NumericAxisTickData>(() => {
+  return generateAxisTickData(
+    props.chartData as IChartData[],
+    "yValue",
+    props.yAxisMinValue,
+    props.yAxisMaxValue
+  );
 });
 
 const xAxisData = computed<CategoricalAxisTickData>(() => {
@@ -193,10 +187,9 @@ const xSubScale = computed(() => {
 });
 
 const yScale = computed(() => {
-  const domainMin = yAxisData.value.min < 0 ? yAxisData.value.min : 0;
   return newNumericAxisGenerator({
-    domainLimit: yAxisData.value.limit,
-    domainMin: domainMin,
+    domainLimit: yAxisData.value.max,
+    domainMin: yAxisData.value.min,
     rangeStart: height.value,
   });
 });
@@ -254,16 +247,33 @@ function renderChartAxes() {
   }
 }
 
-function onMouseOver(event: Event) {
+function onMouseOver(event: Event, row: IChartData) {
+  currentTheme.value = document
+    .querySelector("html")
+    ?.getAttribute("data-theme") as string;
   const rect = event.target as HTMLElement;
-  const text = rect.nextSibling as HTMLElement;
+  let text: SVGTextElement;
+  if (isGroupedColumnChart.value) {
+    text = chartArea.value.select(
+      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
+    )._groups[0][0];
+  } else {
+    text = rect.nextSibling as SVGTextElement;
+  }
   rect.style.fill = props.hoverFillColor;
   text.style.opacity = "1";
 }
 
 function onMouseOut(event: Event, row: IChartData) {
   const rect = event.target as HTMLElement;
-  const text = rect.nextSibling as HTMLElement;
+  let text: SVGTextElement;
+  if (isGroupedColumnChart.value) {
+    text = chartArea.value.select(
+      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
+    )._groups[0][0];
+  } else {
+    text = rect.nextSibling as SVGTextElement;
+  }
   rect.style.fill = colorPalette.value[
     row.xValue as keyof IChartPalette
   ] as string;
@@ -317,6 +327,9 @@ function renderColumns() {
 function renderChart() {
   svg.value = d3.select(`#${props.id}`);
   chartArea.value = svg.value.select("g.chart-area");
+  currentTheme.value = document
+    .querySelector("html")
+    ?.getAttribute("data-theme") as string;
 
   width.value =
     (parentElem.value?.offsetWidth || props.chartWidth) -
@@ -370,6 +383,7 @@ watch(
 </script>
 
 <template>
+  <code>y axis data: {{ yAxisData }}</code>
   <div
     ref="container"
     class="grid gap-1 w-full"
@@ -408,6 +422,18 @@ watch(
         preserve-aspect-ratio="xMinYMin"
         :viewBox="`0 0 ${width + internalLeftMargin} ${props.chartHeight}`"
       >
+        <defs>
+          <filter x="0" y="0" width="1" height="1" id="textBackground">
+            <feFlood
+              :flood-color="currentTheme === 'dark' ? '#1e1e1e' : '#fff'"
+              result="bg"
+            />
+            <feMerge>
+              <feMergeNode in="bg" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         <g
           class="chart-area"
           :transform="`translate(${internalLeftMargin * 1.3}, ${topMargin})`"
@@ -419,15 +445,13 @@ watch(
               :transform="`translate(${xSubScale(row[0] as unknown as string)}, 0)`"
               class="rect-group"
             >
-              <g
-                v-for="nestedRow in (row[1] as unknown as IChartData[])"
-                class="rect-subgroup"
-                :key="nestedRow.id"
-                :data-x="nestedRow.xValue"
-                :data-y="nestedRow.yValue"
-                :data-group="nestedRow.primaryGroupValue"
-              >
+              <g class="rect-subgroup">
                 <rect
+                  v-for="nestedRow in (row[1] as unknown as IChartData[])"
+                  :key="nestedRow.id"
+                  :data-x="nestedRow.xValue"
+                  :data-y="nestedRow.yValue"
+                  :data-group="nestedRow.primaryGroupValue"
                   class="column"
                   :x="xScale(nestedRow.xValue as string)"
                   :width="xScale.bandwidth()"
@@ -436,10 +460,21 @@ watch(
                   :stroke-width="strokeColor ? '1' : undefined"
                   :opacity="1"
                 />
+              </g>
+              <g class="text-subgroup">
                 <text
-                  class="fill-chart-text text-body-base"
+                  v-for="nestedRow in (row[1] as unknown as IChartData[])"
+                  :key="nestedRow.id"
+                  :data-x="nestedRow.xValue"
+                  :data-y="nestedRow.yValue"
+                  :data-group="nestedRow.primaryGroupValue"
+                  class="fill-chart-text"
+                  :class="{
+                    'text-body-base': currentTheme === 'light',
+                  }"
                   text-anchor="middle"
                   :opacity="0"
+                  filter="url(#textBackground)"
                   :x="xScale(nestedRow.xValue)"
                   :y="yScale(parseInt(nestedRow.yValue))"
                   :dx="xScale.bandwidth() / 2"
