@@ -182,13 +182,15 @@ const xSubScale = computed(() => {
     return newCategoricalAxisGenerator({
       domains: xSubAxisData.value,
       rangeEnd: width.value,
+      paddingInner: 0.15,
+      paddingOuter: 0.15
     });
   }
 });
 
 const yScale = computed(() => {
   return newNumericAxisGenerator({
-    domainLimit: yAxisData.value.max,
+    domainLimit: yAxisData.value.limit,
     domainMin: yAxisData.value.min,
     rangeStart: height.value,
   });
@@ -383,7 +385,6 @@ watch(
 </script>
 
 <template>
-  <code>y axis data: {{ yAxisData }}</code>
   <div
     ref="container"
     class="grid gap-1 w-full"
