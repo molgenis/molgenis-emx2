@@ -396,15 +396,14 @@ public final class MetadataUtils {
 
   static List<User> loadUsers(SqlDatabase db, int limit, int offset) {
     try {
-      List<User> users = new ArrayList<>();
-      for (Record user :
+      SelectLimitStep<?> query =
           db.getJooq()
               .select(USER_NAME, USER_ENABLED, USER_ADMIN, SETTINGS)
               .from(USERS_METADATA)
-              .orderBy(USER_NAME)
-              .limit(limit)
-              .offset(offset)
-              .fetchArray()) {
+              .orderBy(USER_NAME);
+      Select<?> pagedQuery = limit > 0 ? query.limit(limit).offset(offset) : query.offset(offset);
+      List<User> users = new ArrayList<>();
+      for (Record user : pagedQuery.fetchArray()) {
         User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
         newUser.setEnabled(user.get(USER_ENABLED));
         newUser.setAdmin(user.get(USER_ADMIN));

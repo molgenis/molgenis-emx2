@@ -49,13 +49,13 @@
             </TableHeadRow>
           </template>
           <template #body>
-            <TableRow v-if="!Object.keys(userRoles).length">
+            <TableRow v-if="!Object.keys(userRolesBySchema).length">
               <TableCell></TableCell>
               <TableCell> no roles found </TableCell>
               <TableCell></TableCell>
             </TableRow>
 
-            <TableRow v-else v-for="role in userRoles">
+            <TableRow v-else v-for="role in userRolesBySchema">
               <TableCell>
                 <Button
                   iconOnly
@@ -122,8 +122,16 @@ import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
 import InputRadioGroup from "../../../tailwind-components/app/components/input/RadioGroup.vue";
 import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
-import type { Role, SchemaInfo, User } from "../interfaces/interfaces.ts";
+import type {
+  Role,
+  SchemaInfo,
+  UpdateUser,
+  User,
+} from "../interfaces/interfaces.ts";
 import { isValidPassword, updateUser } from "../util/adminUtils";
+import useAdminSettings from "../composables/useAdminSettings.ts";
+
+const adminSettings = await useAdminSettings();
 
 const props = defineProps<{
   user: User;
@@ -146,17 +154,7 @@ const revokedRoles = ref<Record<string, Role>>({});
 const password = ref<string>("");
 const password2 = ref<string>("");
 
-const userRoles = ref<Record<string, Role>>(getRoles(props.user.roles || []));
-const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
-
-watch(
-  () => props.user,
-  (newUser) => {
-    userRoles.value = getRoles(newUser.roles || []);
-    userTokens.value = newUser.tokens || ([] as string[]);
-    isEnabled.value = newUser.enabled;
-  }
-);
+const userRolesBySchema = ref<Record<string, Role>>(getRoles(props.user.email));
 
 const SchemaIds = computed(() => {
   return props.schemas.map((schema) => schema.id);
@@ -171,7 +169,7 @@ function closeEditUserModal() {
 function addRole() {
   if (schema.value && role.value) {
     delete revokedRoles.value[schema.value];
-    userRoles.value[schema.value] = {
+    userRolesBySchema.value[schema.value] = {
       schemaId: schema.value,
       role: role.value,
     };
@@ -180,10 +178,11 @@ function addRole() {
 
 function removeRole(role: Role) {
   revokedRoles.value[role.schemaId] = role;
-  delete userRoles.value[role.schemaId];
+  delete userRolesBySchema.value[role.schemaId];
 }
 
-function getRoles(roles: Role[]): Record<string, Role> {
+function getRoles(email: string): Record<string, Role> {
+  const roles = adminSettings.getRolesForUser(email);
   return roles.reduce((accum, role) => {
     accum[role.schemaId] = role;
     return accum;
@@ -197,14 +196,16 @@ function isValidUser(): boolean {
 }
 
 async function saveUser() {
-  const editedUser: User = {
+  const editedUser: UpdateUser = {
     email: userName.value,
-    settings: [],
     enabled: isEnabled.value,
-    tokens: userTokens.value,
-    roles: Object.values(userRoles.value),
+    roles: Object.values(userRolesBySchema.value),
     revokedRoles: Object.values(revokedRoles.value),
   };
+
+  if (userName.value === "admin") {
+    delete editedUser.enabled;
+  }
 
   if (password.value) {
     editedUser.password = password.value;

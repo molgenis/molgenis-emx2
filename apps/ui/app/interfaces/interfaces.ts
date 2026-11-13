@@ -1,14 +1,18 @@
 import type { ISetting } from "../../../metadata-utils/src";
+import type { TableRow } from "../../../metadata-utils/src/types";
 
-export interface User {
-  //TODO split into communication and internal interface
+export type User = {
+  email: string;
+  enabled: boolean;
+  roles?: string[];
+  tokens?: string[];
+} & TableRow;
+
+export interface BackendUser {
   email: string;
   settings: ISetting[];
   enabled: boolean;
-  tokens?: string[];
   roles?: Role[];
-  revokedRoles?: Role[];
-  password?: string;
 }
 
 export interface SchemaInfo {
@@ -19,4 +23,12 @@ export interface SchemaInfo {
 export interface Role {
   schemaId: string;
   role: string;
+}
+
+export interface UpdateUser {
+  email: string;
+  enabled?: boolean;
+  password?: string;
+  roles?: Role[];
+  revokedRoles: Role[];
 }

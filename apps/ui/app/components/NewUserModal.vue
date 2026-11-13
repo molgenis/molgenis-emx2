@@ -50,11 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import { computed, ref } from "vue";
-import { isValidPassword } from "~/util/adminUtils";
-import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import Modal from "../../../tailwind-components/app/components/Modal.vue";
+import { isValidPassword } from "../util/adminUtils";
 
 const visible = defineModel("visible", {
   required: true,
