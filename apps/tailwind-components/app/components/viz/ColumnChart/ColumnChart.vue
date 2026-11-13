@@ -49,6 +49,7 @@ import type {
 import type {
   NumericAxisTickData,
   CategoricalAxisTickData,
+  LegendMarkerType,
 } from "../../../../types/viz";
 
 import { vizDelay, vizDurations } from "../../../utils/cms/constants.ts";
@@ -89,6 +90,11 @@ const groupedChartLegendPosition = computed<string>(() => {
 const width = ref<number>(0);
 const height = computed<number>(() => {
   return props.chartHeight - props.topMargin - internalBottomMargin.value;
+});
+
+const legendIcon = computed<LegendMarkerType>(() => {
+  const type = props.legendMarkerType?.name || "circle";
+  return type as LegendMarkerType;
 });
 
 const internalLeftMargin = computed<number>(() => {
@@ -386,6 +392,7 @@ watch(
       v-if="isGroupedColumnChart && legendIsEnabled"
       :legend-id="`${id}-legend`"
       :data="colorPalette"
+      :markerType="legendIcon"
       :enableClicks="false"
       :enableHovering="enableHoverEvents"
       @legend-item-mouseover="enableHoverEvents && onLegendMouseOver($event)"

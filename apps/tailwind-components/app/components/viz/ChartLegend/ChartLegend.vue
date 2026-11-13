@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import ChartLegendMarker from "./ChartLegendMarker.vue";
+import type { LegendMarkerType } from "../../../../types/viz.ts";
 
 interface ILegendProps {
   legendId: string;
@@ -85,7 +86,7 @@ interface ILegendProps {
   enableClicks?: boolean;
   enableHovering?: boolean;
   enableMultiSelect?: boolean;
-  markerType?: "circle" | "square";
+  markerType?: LegendMarkerType;
 }
 
 withDefaults(defineProps<ILegendProps>(), {
