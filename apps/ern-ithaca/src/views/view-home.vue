@@ -53,11 +53,11 @@ import {
       </div>
     </PageSection>
     <PageSection
-      id="section-illiad-info"
-      aria-labelledby="section-illiad-info-title"
+      id="section-iliad-info"
+      aria-labelledby="section-iliad-info-title"
       :verticalPadding="2"
     >
-      <h2 id="section-illiad-info-title">About the ILIAD registry</h2>
+      <h2 id="section-iliad-info-title">About the ILIAD registry</h2>
       <p>ILIAD consists of two components:</p>
 
       <ol>
