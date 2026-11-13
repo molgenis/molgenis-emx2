@@ -59,10 +59,8 @@ import {
     >
       <h2 id="section-iliad-info-title">About the ILIAD registry</h2>
       <p>ILIAD consists of two components:</p>
-
       <ol>
         <li><strong>central, web-based registry, </strong></li>
-
         <li>
           <strong
             >a network of linked satellite/client registries forming the
@@ -70,19 +68,15 @@ import {
           >,
         </li>
       </ol>
-
       <p>
         in databases built according to international interoperability standards
-        from JRC and EJP-RD.&nbsp;
+        from JRC and EJP-RD.
       </p>
-
       <p>
         In addition to the core registry, ILIAD includes
         <strong>thematic sub-registries of patients</strong> with proven
-        monogenic or genomic (chromosomal) diagnoses, curated by ERN
-        teams.&nbsp;
+        monogenic or genomic (chromosomal) diagnoses, curated by ERN teams.
       </p>
-
       <p>
         <strong
           >Based on the <strong>open-source software</strong> MOLGENIS</strong
@@ -90,16 +84,13 @@ import {
         and querying, and a FAIR interface for database exchange. For
         interoperability, the registry is connected to the European Rare Disease
         Registry Infrastructure (ERDRI), uses the JRC’s common data elements and
-        common pseudonymisation tools to link rare disease patient
-        cohorts.&nbsp;
+        common pseudonymisation tools to link rare disease patient cohorts.
       </p>
-
       <p>
         ILIAD has <strong>a strict data access policy</strong> for requesting
         access to the data, governance of the registries, compliance with legal
-        and regulatory requirements on the use of personal data.&nbsp;
+        and regulatory requirements on the use of personal data.
       </p>
-
       <p>
         <strong>ERN-ITHACA patient data</strong> will be analysed to produce
         high-quality epidemiological insights and expert consensus statements,
@@ -108,7 +99,6 @@ import {
         Health Programme: Grant number 947617).
       </p>
     </PageSection>
-
     <PageSection
       id="section-aims"
       aria-labelledby="section-aims-title"
