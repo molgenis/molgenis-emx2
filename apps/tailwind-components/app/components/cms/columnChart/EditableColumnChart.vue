@@ -51,7 +51,7 @@ const showMenu = ref<boolean>(false);
           <a
             :href="`../../StatisticalChartData?displayedInChart.id=${id}`"
             target="_blank"
-            class="text-title-contrast flex justify-start items-center gap-1 underline mt-3 -mb-3"
+            class="text-title-contrast flex justify-start items-center gap-1 underline -mb-2.5"
           >
             <span>edit chart data</span>
             <BaseIcon name="ExternalLink" :width="16" />

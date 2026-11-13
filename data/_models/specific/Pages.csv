@@ -80,7 +80,7 @@ Charts,,chart data,refback,,,,Chart data,displayed in chart,,,,,,sio:SIO_000089,
 Statistical charts,Charts,,,,,,,,,,,,,sio:SIO_000083,"Definitions and configuration of bar charts, column charts, etc.",pages
 Statistical charts,,x,string,,TRUE,,,,,,,TRUE,xValue,sio:SIO_000452,The name of the variable that contains the x-axis data,pages
 Statistical charts,,y,string,,TRUE,,,,,,,TRUE,yValue,sio:SIO_000453,The name of the variable that contains the y-axis data,pages
-Statistical charts,,primary group values,string,,,,,,,,,TRUE,primaryGroupValues,"sio:SIO_000455,sio:SIO_000456",The name of the variable that contains the primary grouping values,pages
+Statistical charts,,primary group values,string,,,,,,,,,TRUE,"primaryGroupValues","sio:SIO_000455,sio:SIO_000456",The name of the variable that contains the primary grouping values,pages
 Statistical charts,,secondary group values,string,,,,,,,,,TRUE,secondaryGroupValues,"sio:SIO_000455,sio:SIO_000457",The name of the variable that contains the secondary grouping values,pages
 Statistical charts,,X Axis Configuration,heading,,,,,,,,,,,sio:SIO_000452,,pages
 Statistical charts,,x axis title,string,,,,,,,,,,,"sio:SIO_000452, sio:SIO_000179",The title of the x-axis,pages

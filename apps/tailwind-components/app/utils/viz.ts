@@ -3,7 +3,6 @@ import type {
   NewNumericAxisGeneratorProps,
   NewCategoricalAxisGeneratorProps,
   LegendPosition,
-  DatasetRow,
 } from "../../types/viz";
 
 import type { IChartData } from "../../types/cms";
@@ -15,7 +14,7 @@ const d3 = { select, scaleLinear, scaleBand };
  * @name setChartLegendLayoutCss
  * @description Sets a chart component layout of title, legend, chart
  *
- * @param legendIsEnabled bool that indicates the the legenis rendered
+ * @param legendIsEnabled bool that indicates the legend is rendered
  * @param legendPosition "top" or "bottom"
  * @returns a CSS string
  */
@@ -65,84 +64,83 @@ export function breakXAxisLabels(svg: any, breakXAxisLabelsAt: string) {
  */
 export function generateAxisTickData(
   data: IChartData[],
-  key: string
+  key: string,
+  minValue?: number,
+  maxValue?: number
 ): NumericAxisTickData {
   const values: number[] = [
     ...data.map((row: Record<string, any>) => row[key] as number),
   ];
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const limit = max < 10 ? 10 : max;
-  const interval = calculateInterval(limit);
-  const limitAdjusted = Math.ceil(limit / interval) * interval;
-  const startingVal = min < 0 ? min : 0;
-  const ticks = seqAlongBy(startingVal, limitAdjusted, interval);
-  return { limit: limitAdjusted, ticks: ticks, max: max, min: min };
+  const max = maxValue || Math.max(...values);
+  const min = minValue || Math.min(...values);
+  const ticks = d3.scaleLinear().domain([min, max]).nice().ticks();
+  const limit = Math.max(...ticks);
+  return { limit: limit, ticks: ticks, max: max, min: min };
 }
 
-/**
- * @name seqAlongBy
- * @description generate a sequence of numbers by interval
- *
- * @param start number to start the sequence (e.g., 0)
- * @param stop number to stop the sequence (e.g., 25)
- * @param by number used to specify the interval in the sequence (e.g., 5)
- *
- * @example
- * ```js
- * seqAlongBy(0, 25, 5)
- * // [0, 5, 10, 15, 25]
- * ```
- *
- * @returns an array of numbers in numerical order
- */
-export function seqAlongBy(
-  start: number,
-  stop: number,
-  by: number = 1
-): number[] {
-  return Array.from(
-    { length: (stop - start) / by + 1 },
-    (_, i) => start + i * by
-  );
-}
+// /**
+//  * @name seqAlongBy
+//  * @description generate a sequence of numbers by interval
+//  *
+//  * @param start number to start the sequence (e.g., 0)
+//  * @param stop number to stop the sequence (e.g., 25)
+//  * @param by number used to specify the interval in the sequence (e.g., 5)
+//  *
+//  * @example
+//  * ```js
+//  * seqAlongBy(0, 25, 5)
+//  * // [0, 5, 10, 15, 25]
+//  * ```
+//  *
+//  * @returns an array of numbers in numerical order
+//  */
+// export function seqAlongBy(
+//   start: number,
+//   stop: number,
+//   by: number = 1
+// ): number[] {
+//   return Array.from(
+//     { length: (stop - start) / by + 1 },
+//     (_, i) => start + i * by
+//   );
+// }
 
-/**
- * @name calculateInterval
- * @description determine the appropriate interval to use based on a given value. In a column in a dataset, this is usually the maximum value (or minimum value if dealing with negative values). This value is also important in the visualization component as it will help adjust the max value so that there are even ticks along the axis. For example, if your max value is 86, it will adjust the max axis value as 100 and generate the ticks accordingly.
- *
- * @param value a number used to determine an interval.
- *
- * @example
- * ```js
- * const data = [{value: 12}, {value: 75}, {value: 90}];
- * const maxValue = Math.max(...data.map(row => row.value));
- * calculateInterval(maxValue);
- * // maxValue: 90
- * // interval: 25
- * ```
- *
- * @returns a number
- */
-export function calculateInterval(value: number): number {
-  if (value > 5000) {
-    return 1000;
-  } else if (value > 1500 && value <= 5000) {
-    return 500;
-  } else if (value > 500 && value <= 1500) {
-    return 250;
-  } else if (value > 100 && value <= 500) {
-    return 100;
-  } else if (value > 50 && value <= 100) {
-    return 25;
-  } else if (value > 10 && value <= 50) {
-    return 10;
-  } else if (value > 5 && value <= 10) {
-    return 2;
-  } else {
-    return 1;
-  }
-}
+// /**
+//  * @name calculateInterval
+//  * @description determine the appropriate interval to use based on a given value. In a column in a dataset, this is usually the maximum value (or minimum value if dealing with negative values). This value is also important in the visualization component as it will help adjust the max value so that there are even ticks along the axis. For example, if your max value is 86, it will adjust the max axis value as 100 and generate the ticks accordingly.
+//  *
+//  * @param value a number used to determine an interval.
+//  *
+//  * @example
+//  * ```js
+//  * const data = [{value: 12}, {value: 75}, {value: 90}];
+//  * const maxValue = Math.max(...data.map(row => row.value));
+//  * calculateInterval(maxValue);
+//  * // maxValue: 90
+//  * // interval: 25
+//  * ```
+//  *
+//  * @returns a number
+//  */
+// export function calculateInterval(value: number): number {
+//   if (value > 5000) {
+//     return 1000;
+//   } else if (value > 1500 && value <= 5000) {
+//     return 500;
+//   } else if (value > 500 && value <= 1500) {
+//     return 250;
+//   } else if (value > 100 && value <= 500) {
+//     return 100;
+//   } else if (value > 50 && value <= 100) {
+//     return 25;
+//   } else if (value > 10 && value <= 50) {
+//     return 10;
+//   } else if (value > 5 && value <= 10) {
+//     return 2;
+//   } else {
+//     return 1;
+//   }
+// }
 
 /**
  * @name newNumericAxisGenerator
