@@ -65,8 +65,8 @@ export function breakXAxisLabels(svg: any, breakXAxisLabelsAt: string) {
 export function generateAxisTickData(
   data: IChartData[],
   key: string,
-  maxValue?: number,
-  minValue?: number
+  minValue?: number,
+  maxValue?: number
 ): NumericAxisTickData {
   const values: number[] = [
     ...data.map((row: Record<string, any>) => row[key] as number),
