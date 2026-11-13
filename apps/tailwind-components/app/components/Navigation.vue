@@ -4,10 +4,6 @@ import BaseIcon from "./BaseIcon.vue";
 import NavigationMenuItems from "./NavigationMenuItems.vue";
 import NavigationMenuLink from "./NavigationMenuLink.vue";
 import type { MenuItem } from "../../types/types";
-import { useAppConfig } from "#app";
-
-const appConfig = useAppConfig();
-const basePath = String(appConfig.basePath ?? "/");
 
 const props = withDefaults(
   defineProps<{
@@ -41,12 +37,11 @@ const moreButtonClass =
   <nav class="flex items-center justify-between gap-6 xl:justify-center">
     <template
       v-for="mainNavItem in mainNavItems"
-      :key="`${mainNavItem.label}-${mainNavItem.link}`"
+      :key="`${mainNavItem.label}-${mainNavItem.location}`"
     >
       <template v-if="!mainNavItem.submenu || mainNavItem.submenu.length === 0">
         <NavigationMenuLink
           :item="mainNavItem"
-          :base-path="basePath"
           :link-class="`${linkClass} ${invert ? 'text-sub-menu' : 'text-menu'}`"
         />
       </template>
@@ -63,7 +58,6 @@ const moreButtonClass =
           <template #popper>
             <NavigationMenuItems
               :items="mainNavItem.submenu"
-              :base-path="basePath"
               :invert="invert"
             />
           </template>
@@ -85,11 +79,7 @@ const moreButtonClass =
       </button>
 
       <template #popper>
-        <NavigationMenuItems
-          :items="overflowItems"
-          :base-path="basePath"
-          :invert="invert"
-        />
+        <NavigationMenuItems :items="overflowItems" :invert="invert" />
       </template>
     </VMenu>
   </nav>

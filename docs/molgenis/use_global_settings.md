@@ -22,21 +22,28 @@ Set the landing page with the optional SYSTEM_LANDING_PAGE setting
 
 ```ts
 interface Link {
-    link: string;
-    isSpaLink?: boolean;
+    location: string;
+    linkType?: "spaLink" | "internalPageLink" | "externalLink"; // optional, default: "spaLink"
 }
 ```
 
-example with external link ( i.e. all links outside of the 'ui' app)
+Link types (```linkType```):
+ - ```spaLink``` (default): a page inside the 'ui' app, for example ```/pet%20store/Pet```.
+ - ```internalPageLink```: a page on this server outside the 'ui' app, for example ```directory-demo/directory#/catalogue```.
+ - ```externalLink```: a full URL to another site, for example ```https://www.google.com```.
+
+The older ```isSpaLink``` property is no longer read. Settings that use ```"isSpaLink": false``` must change it to ```"linkType": "internalPageLink"``` (or ```"externalLink"``` for a full URL to another site); otherwise the link is treated as a ```spaLink```. The ```link``` property has been renamed to ```location```; settings that still use ```"link"``` must be updated.
+
+example with a page outside of the 'ui' app
 
 ```json
-{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
+{"location": "/directory-demo/directory#/catalogue", "linkType": "internalPageLink"}
 ```
 
-example with internal link ( i.e. all within of the 'ui' app)
+example with a page inside the 'ui' app
 
 ```json
-{"link": "pet%20store/Pet", "isSpaLink": true}
+{"location": "/pet%20store/Pet", "linkType": "spaLink"}
 ```
 #### Banner
 Set the application banner with the optional SYSTEM_BANNER_HTML setting:

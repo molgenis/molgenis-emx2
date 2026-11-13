@@ -9,7 +9,6 @@ defineOptions({
 
 defineProps<{
   items: MenuItem[];
-  basePath: string;
   invert: boolean;
 }>();
 
@@ -23,13 +22,9 @@ const submenuButtonClass =
 
 <template>
   <ol :class="submenuListClass">
-    <li v-for="item in items" :key="`${item.label}-${item.link}`">
+    <li v-for="item in items" :key="`${item.label}-${item.location}`">
       <template v-if="!item.submenu || item.submenu.length === 0">
-        <NavigationMenuLink
-          :item="item"
-          :base-path="basePath"
-          :link-class="submenuLinkClass"
-        />
+        <NavigationMenuLink :item="item" :link-class="submenuLinkClass" />
       </template>
       <template v-else>
         <VMenu placement="right-start" :distance="-1">
@@ -45,11 +40,7 @@ const submenuButtonClass =
           </button>
 
           <template #popper>
-            <NavigationMenuItems
-              :items="item.submenu"
-              :base-path="basePath"
-              :invert="invert"
-            />
+            <NavigationMenuItems :items="item.submenu" :invert="invert" />
           </template>
         </VMenu>
       </template>
