@@ -183,7 +183,7 @@ const xSubScale = computed(() => {
       domains: xSubAxisData.value,
       rangeEnd: width.value,
       paddingInner: 0.15,
-      paddingOuter: 0.15
+      paddingOuter: 0.15,
     });
   }
 });
@@ -196,39 +196,39 @@ const yScale = computed(() => {
   });
 });
 
-const colorPalette = computed<Record<string, string>>(() => {
-  let palette: any;
-  let domains: string[];
-  if (isGroupedColumnChart.value && !props.colorPalette) {
-    domains = [...new Set(xAxisData.value.domains)].sort();
-    const length = domains.length === 2 ? 3 : domains.length;
-    const colors = d3.schemeBlues[length as number];
-    palette = d3.scaleOrdinal(colors).domain(domains).unknown("#ccc");
-  } else {
-    domains = xAxisData.value.domains;
-  }
+const colorPalette = computed(() => {
+  let domains: string[] = [...new Set(xAxisData.value.domains)].sort();
+  let colors: string[];
 
-  if (props.colorPalette) {
-    palette = Object.fromEntries(
-      props.colorPalette.map((row: IChartPalette) => [row.value, row.color])
+  if (isGroupedColumnChart.value && props.colorPalette) {
+    const paletteSorted = props.colorPalette.sort(
+      (current: IChartPalette, next: IChartPalette) => {
+        return current.value.localeCompare(next.value);
+      }
     );
+    domains = paletteSorted.map((row: IChartPalette) => row.value);
+    colors = paletteSorted.map((row: IChartPalette) => row.color);
+
+    legendData.value = Object.fromEntries(
+      paletteSorted.map((item) => [item.value, item.color])
+    );
+  } else if (isGroupedColumnChart.value && !props.colorPalette) {
+    const length = domains.length === 2 ? 3 : domains.length;
+    colors = d3.schemeBlues[length as number] as string[];
+
+    legendData.value = Object.fromEntries(
+      domains.map((item, index) => {
+        return [item, colors[index] || "#ccc"];
+      })
+    );
+  } else {
+    colors = Array(domains.length).fill(props.fillColor);
   }
 
-  const valueColorMapping = domains.map((value: string) => {
-    let color;
-    if (xAxisData.value.palette?.[value]) {
-      color = xAxisData.value.palette[value];
-    } else if (props.colorPalette) {
-      color = palette[value];
-    } else if (isGroupedColumnChart.value && !props.colorPalette) {
-      color = palette(value);
-    } else {
-      color = props.fillColor;
-    }
-    return [value, color];
-  });
-  return Object.fromEntries(valueColorMapping);
+  return d3.scaleOrdinal().domain(domains).range(colors).unknown("#ccc");
 });
+
+const legendData = ref<Record<string, any>>({});
 
 function renderChartAxes() {
   if (chartArea.value) {
@@ -276,9 +276,7 @@ function onMouseOut(event: Event, row: IChartData) {
   } else {
     text = rect.nextSibling as SVGTextElement;
   }
-  rect.style.fill = colorPalette.value[
-    row.xValue as keyof IChartPalette
-  ] as string;
+  rect.style.fill = colorPalette.value(row.xValue) as string;
   text.style.opacity = "0";
 }
 
@@ -406,7 +404,7 @@ watch(
     <ChartLegend
       v-if="isGroupedColumnChart && legendIsEnabled"
       :legend-id="`${id}-legend`"
-      :data="colorPalette"
+      :data="(legendData as Record<string,any>)"
       :markerType="legendIcon"
       :enableClicks="false"
       :enableHovering="enableHoverEvents"
@@ -456,7 +454,7 @@ watch(
                   class="column"
                   :x="xScale(nestedRow.xValue as string)"
                   :width="xScale.bandwidth()"
-                  :fill="(colorPalette[nestedRow.xValue as keyof IChartPalette] as string)"
+                  :fill="(colorPalette(nestedRow.xValue) as string)"
                   :stroke="strokeColor ? strokeColor : undefined"
                   :stroke-width="strokeColor ? '1' : undefined"
                   :opacity="1"
@@ -497,7 +495,7 @@ watch(
                 class="column"
                 :x="xScale(row.xValue)"
                 :width="xScale.bandwidth()"
-                :fill="(colorPalette[row.xValue as keyof IChartPalette] as string)"
+                :fill="(colorPalette(row.xValue) as string)"
                 :stroke="strokeColor ? strokeColor : undefined"
                 :stroke-width="strokeColor ? '1' : undefined"
               />
