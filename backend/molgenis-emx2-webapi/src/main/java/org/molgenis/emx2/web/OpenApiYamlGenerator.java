@@ -34,7 +34,7 @@ public final class OpenApiYamlGenerator {
   private static final String JSON = "Json";
   private static final String SCHEMA_REF_PREFIX = "#/components/schemas/";
   private static final List<String> READ_PARAMETERS =
-      List.of("filter", "orderby", "search", "limit", "offset", "query");
+      List.of("filter", "orderby", "search", "limit", "offset", "select");
 
   private OpenApiYamlGenerator() {
     // hide public constructor

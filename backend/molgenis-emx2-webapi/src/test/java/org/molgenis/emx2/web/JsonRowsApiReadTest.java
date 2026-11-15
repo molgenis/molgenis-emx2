@@ -54,6 +54,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
   private static final String ITEM = "Item";
   private static final String EMPTY = "Empty";
   private static final String QUERY = "query";
+  private static final String SELECT = "select";
   private static final String LINK = "Link";
   private static final String PET_SELECTION = "{name,owner{name}}";
   private static final Pattern NEXT_LINK = Pattern.compile("^<(.+)>; rel=\"next\"$");
@@ -184,18 +185,25 @@ class JsonRowsApiReadTest extends ApiTestBase {
   static Stream<Arguments> parameters() {
     return Stream.of(
         Arguments.of(
-            Map.of(QUERY, PET_SELECTION, "filter", "{\"name\":{\"equals\":\"p1\"}}"),
+            Map.of(SELECT, PET_SELECTION, "filter", "{\"name\":{\"equals\":\"p1\"}}"),
             "(filter:{name:{equals:\"p1\"}},orderby:{name:ASC})"),
         Arguments.of(
-            Map.of(QUERY, PET_SELECTION, "orderby", "{\"name\":\"DESC\"}"),
+            Map.of(SELECT, PET_SELECTION, "orderby", "{\"name\":\"DESC\"}"),
             "(orderby:{name:DESC})"),
         Arguments.of(
-            Map.of(QUERY, PET_SELECTION, "search", "p2"), "(search:\"p2\",orderby:{name:ASC})"),
+            Map.of(SELECT, PET_SELECTION, "search", "p2"), "(search:\"p2\",orderby:{name:ASC})"),
         Arguments.of(
             Map.of(
-                QUERY, PET_SELECTION, "orderby", "{\"name\":\"ASC\"}", "limit", "2", "offset", "1"),
+                SELECT,
+                PET_SELECTION,
+                "orderby",
+                "{\"name\":\"ASC\"}",
+                "limit",
+                "2",
+                "offset",
+                "1"),
             "(orderby:{name:ASC},limit:2,offset:1)"),
-        Arguments.of(Map.of(QUERY, "{name,tags{name}}"), "(orderby:{name:ASC})"));
+        Arguments.of(Map.of(SELECT, "{name,tags{name}}"), "(orderby:{name:ASC})"));
   }
 
   @ParameterizedTest
@@ -203,7 +211,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
   void tableReadEqualsTheGraphqlResultForTheSameArguments(
       Map<String, String> parameters, String graphqlArguments) throws JsonProcessingException {
     Response rest = get(ANIMALS, PET, parameters);
-    String selection = parameters.get(QUERY).replace(",", " ");
+    String selection = parameters.get(SELECT).replace(",", " ");
     JsonNode expected =
         MAPPER
             .readTree(graphql(ANIMALS, "{Pet%s%s}".formatted(graphqlArguments, selection), null))
@@ -379,8 +387,8 @@ class JsonRowsApiReadTest extends ApiTestBase {
   static Stream<Arguments> failingReads() {
     return Stream.of(
         Arguments.of(PET, Map.of("filter", "{\"nope\":{\"equals\":\"x\"}}")),
-        Arguments.of(PET, Map.of(QUERY, "{nope}")),
-        Arguments.of(PET, Map.of(QUERY, "{name")),
+        Arguments.of(PET, Map.of(SELECT, "{nope}")),
+        Arguments.of(PET, Map.of(SELECT, "{name")),
         Arguments.of(PET, Map.of("filter", "{not json")),
         Arguments.of(PET, Map.of("filter", "{\"name\":{\"equals\":\"p1\"}}}")),
         Arguments.of(PET, Map.of("offset", "99999999999")),
@@ -388,6 +396,13 @@ class JsonRowsApiReadTest extends ApiTestBase {
         Arguments.of(PET, Map.of("offset", "-1")),
         Arguments.of("_data", Map.of(QUERY, "{Nope{name}}")),
         Arguments.of("_data", Map.of(QUERY, "{Pet{nope}")));
+  }
+
+  @Test
+  void queryParameterOnTheTableRouteIsNotTheSelection() throws JsonProcessingException {
+    Response response = get(ANIMALS, PET, Map.of(QUERY, "{name}"));
+    assertEquals(200, response.statusCode(), response.asString());
+    assertEquals(body(get(ANIMALS, PET, Map.of())), body(response));
   }
 
   @Test
@@ -413,7 +428,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
   void mutationInQueryAnswers400AndStoresNothing(String path, String query)
       throws JsonProcessingException {
     String before = graphql(ANIMALS, ANIMAL_STATE, null);
-    Response response = get(ANIMALS, path, Map.of(QUERY, query));
+    Response response = get(ANIMALS, path, Map.of("_data".equals(path) ? QUERY : SELECT, query));
     assertEquals(400, response.statusCode(), response.asString());
     assertFalse(
         JAVA_CLASS_NAME.matcher(response.jsonPath().getString("errors[0].message")).find(),

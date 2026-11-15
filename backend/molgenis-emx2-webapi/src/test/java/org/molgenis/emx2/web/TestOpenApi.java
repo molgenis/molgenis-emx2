@@ -144,8 +144,13 @@ public class TestOpenApi {
   public void jsonTablePathsListQueryParametersAndStrict() {
     PathItem path = jsonApi().getPaths().get(JSON_PREFIX + "/Pet");
     assertEquals(
-        List.of("filter", "orderby", "search", "limit", "offset", "query"),
+        List.of("filter", "orderby", "search", "limit", "offset", "select"),
         path.getGet().getParameters().stream().map(Parameter::getName).toList());
+    assertEquals(
+        List.of("query"),
+        jsonApi().getPaths().get(JSON_PREFIX + "/_data").getGet().getParameters().stream()
+            .map(Parameter::getName)
+            .toList());
     assertEquals(
         List.of("strict"),
         path.getDelete().getParameters().stream().map(Parameter::getName).toList());

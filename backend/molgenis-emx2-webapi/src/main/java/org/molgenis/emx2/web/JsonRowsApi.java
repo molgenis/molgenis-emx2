@@ -33,13 +33,14 @@ import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.graphql.GraphqlTableFragmentGenerator;
 import org.molgenis.emx2.json.JsonUtil;
 
-public class JsonRowsApi {
+public final class JsonRowsApi {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final ObjectReader STRICT_READER =
       MAPPER.readerFor(Object.class).with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
   private static final String STRICT = "strict";
   private static final String QUERY = "query";
+  private static final String SELECT = "select";
   private static final String FILTER = "filter";
   private static final String ORDERBY = "orderby";
   private static final String SEARCH = "search";
@@ -92,8 +93,8 @@ public class JsonRowsApi {
     Table table = getTableByIdOrName(ctx);
     String id = table.getMetadata().getIdentifier();
     String selection =
-        ctx.queryParam(QUERY) != null
-            ? ctx.queryParam(QUERY)
+        ctx.queryParam(SELECT) != null
+            ? ctx.queryParam(SELECT)
             : GraphqlTableFragmentGenerator.rowSelection(getSchema(ctx), table.getMetadata());
 
     int pageSize = intParam(ctx, LIMIT, DEFAULT_PAGE);
@@ -297,7 +298,7 @@ public class JsonRowsApi {
                 .formatted(declarations.substring(1), operation, arguments.substring(1));
 
     ExecutionResult result = execute(ctx, query, variables);
-    ctx.json(((Map<?, ?>) ((Map<?, ?>) result.getData()).get(operation)));
+    ctx.json((Map<?, ?>) ((Map<?, ?>) result.getData()).get(operation));
   }
 
   private static JsonNode readBody(Context ctx) throws IOException {
