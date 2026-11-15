@@ -615,7 +615,7 @@ class ReferenceColumnSparqlQueryGeneratorTest {
         Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics(semantics));
   }
 
-  private static class ListSchemaMetadataProvider implements SchemaMetadataProvider {
+  private static final class ListSchemaMetadataProvider implements SchemaMetadataProvider {
 
     private final List<SchemaMetadata> schemas;
 

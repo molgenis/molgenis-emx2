@@ -31,7 +31,7 @@ public abstract class CustomAssertions {
       sh:conforms true .
     """;
 
-  public static void equals(InMemoryRDFHandler expected, InMemoryRDFHandler actual) {
+  public static void assertRdfEquals(InMemoryRDFHandler expected, InMemoryRDFHandler actual) {
     AssertionFailureBuilder failureBuilder = assertionFailure();
 
     if (!expected.namespaces.equals(actual.namespaces)) {

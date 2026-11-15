@@ -33,6 +33,8 @@ class CsvApiTest extends ApiTestBase {
 
   private static final String SCHEMA_NAME = CsvApiTest.class.getSimpleName();
 
+  private static final String NON_EXISTING_SCHEMA = "nonexisting";
+
   public static final String TABLE_NAME_WITH_SPACES = "table with spaces";
 
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
@@ -312,24 +314,6 @@ class CsvApiTest extends ApiTestBase {
   }
 
   @Test
-  void givenNoSession_whenDownloadingChangelog_thenUnauthorized() {
-    Response response =
-        given().accept(ACCEPT_CSV).when().get("/" + SCHEMA_NAME + "/api/csv/changelog");
-
-    assertEquals(400, response.getStatusCode());
-    assertEquals(
-        """
-        {
-          "errors" : [
-            {
-              "message" : "Unauthorized to get schema changelog"
-            }
-          ]
-        }""",
-        response.body().asString());
-  }
-
-  @Test
   void shouldFilterTable() {
     String result =
         given()
@@ -352,6 +336,34 @@ class CsvApiTest extends ApiTestBase {
             .asString();
     assertTrue(result.contains("jerry"));
     assertFalse(result.contains("spike"));
+  }
+
+  @Test
+  void givenColumns_whenDownloadingTable_thenOnlyThoseColumns() {
+    String result =
+        given()
+            .sessionId(sessionId)
+            .queryParam("columns", "weight,name")
+            .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + SCHEMA_NAME + "/api/csv/Pet")
+            .asString();
+    assertEquals("weight,name", result.lines().findFirst().orElseThrow());
+    assertEquals("9.4,pooky", result.lines().skip(1).findFirst().orElseThrow());
+  }
+
+  @Test
+  void givenUnknownColumn_whenDownloadingTable_thenBadRequest() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .queryParam("columns", "colour")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + SCHEMA_NAME + "/api/csv/Pet");
+    assertEquals(400, response.getStatusCode());
+    assertTrue(response.asString().contains("colour"));
   }
 
   @Test
@@ -570,10 +582,9 @@ class CsvApiTest extends ApiTestBase {
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
     File tempFile = File.createTempFile("some", extension);
     tempFile.deleteOnExit();
-    OutputStream os = new FileOutputStream(tempFile);
-    os.write(zipContents);
-    os.flush();
-    os.close();
+    try (OutputStream os = new FileOutputStream(tempFile)) {
+      os.write(zipContents);
+    }
     return tempFile;
   }
 
@@ -603,5 +614,79 @@ class CsvApiTest extends ApiTestBase {
     acceptFileUpload(addUpdateTableFile, schemaName, "molgenis", false);
     String actual = getContentAsString(schemaName + "/api/csv");
     assertEquals(header + expected, actual);
+  }
+
+  @Test
+  void getMetadataForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void mergeMetadataForUnknownSchema_isRejected() {
+    Response response =
+        given().body("tableName\nPet\n").when().post("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void discardMetadataForUnknownSchema_isRejected() {
+    Response response =
+        given().body("tableName\nPet\n").when().delete("/" + NON_EXISTING_SCHEMA + "/api/csv");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void getSettingsForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/settings");
+    assertUnknownSchema(response);
+  }
+
+  @Test
+  void getChangelogForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/changelog");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Schema 'nonexisting' unknown. Might you need to sign in or ask permission?"
+            }
+          ]
+        }""",
+        response.getBody().asString());
+  }
+
+  @Test
+  void getMembersForUnknownSchema_isRejected() {
+    Response response = given().when().get("/" + NON_EXISTING_SCHEMA + "/api/csv/members");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Unauthorized to get schema members"
+            }
+          ]
+        }""",
+        response.getBody().asString());
+  }
+
+  private static void assertUnknownSchema(Response response) {
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Schema nonexisting unknown"
+            }
+          ]
+        }""",
+        response.getBody().asString());
   }
 }

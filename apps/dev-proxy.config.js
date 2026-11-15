@@ -1,9 +1,15 @@
 const { appsHost } = require("./dev-env");
+const { rewriteOrigin } = require("./dev-proxy-origin");
 
 const HOST = appsHost("https://emx2.dev.molgenis.org");
 const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet store";
 
-const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
+const opts = {
+  changeOrigin: true,
+  secure: false,
+  logLevel: "debug",
+  configure: rewriteOrigin,
+};
 
 module.exports = {
   "/api/graphql": {

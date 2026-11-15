@@ -36,7 +36,7 @@ public class BeaconCohortsTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode cohorts = queryEntryType.query(database);
+    queryEntryType.query(database);
 
     //    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
     //    assertTrue(json.contains("\"collections\" : [ ]"));

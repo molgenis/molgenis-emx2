@@ -59,22 +59,15 @@ class SemanticTest extends RdfServiceTestRunner {
     Schema schema = database.dropCreateSchema(SCHEMA_NAME + "_PrefixesEdit");
     Namespace schemaNamespace = new SimpleNamespace(schema.getName(), getApi(schema));
 
-    final Set<Namespace> defaultNamespaces =
-        new HashSet<>() {
-          {
-            add(schemaNamespace);
-            addAll(DEFAULT_NAMESPACES);
-          }
-        };
+    final Set<Namespace> defaultNamespaces = new HashSet<>(DEFAULT_NAMESPACES);
+    defaultNamespaces.add(schemaNamespace);
 
     final Set<Namespace> customNamespaces =
-        new HashSet<>() {
-          {
-            add(schemaNamespace);
-            add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
-            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
-          }
-        };
+        new HashSet<>(
+            Set.of(
+                schemaNamespace,
+                new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"),
+                new SimpleNamespace("dcterms", "http://purl.org/dc/terms/")));
 
     final String customPrefixes =
         """
@@ -120,12 +113,7 @@ class SemanticTest extends RdfServiceTestRunner {
     Schema schema = database.dropCreateSchema(SCHEMA_NAME + "_PrefixesEmpty");
     Namespace schemaNamespace = new SimpleNamespace(schema.getName(), getApi(schema));
 
-    final Set<Namespace> expectedNamespaces =
-        new HashSet<>() {
-          {
-            add(schemaNamespace);
-          }
-        };
+    final Set<Namespace> expectedNamespaces = new HashSet<>(Set.of(schemaNamespace));
 
     final String customPrefixes = "";
 
@@ -137,11 +125,7 @@ class SemanticTest extends RdfServiceTestRunner {
   @Test
   void testDuplicateNamespaces() throws IOException {
     final Set<Namespace> expectedNamespace = // schema namespaces are added in validateNamespaces()
-        new HashSet<>() {
-          {
-            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
-          }
-        };
+        new HashSet<>(Set.of(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/")));
 
     final String customPrefixes1 =
         """
@@ -165,11 +149,7 @@ class SemanticTest extends RdfServiceTestRunner {
   @Test
   void testNamespaceDifferentPrefixSameUrl() throws IOException {
     final Set<Namespace> expectedNamespace = // schema namespaces are added in validateNamespaces()
-        new HashSet<>() {
-          {
-            add(new SimpleNamespace("dcterms1", "http://purl.org/dc/terms/"));
-          }
-        };
+        new HashSet<>(Set.of(new SimpleNamespace("dcterms1", "http://purl.org/dc/terms/")));
 
     final String customPrefixes1 =
         """
@@ -194,11 +174,7 @@ class SemanticTest extends RdfServiceTestRunner {
   @Test
   void testNamespaceDifferentUrlSamePrefix() throws IOException {
     final Set<Namespace> expectedNamespace = // schema namespaces are added in validateNamespaces()
-        new HashSet<>() {
-          {
-            add(new SimpleNamespace("name", "http://purl.org/dc/terms/"));
-          }
-        };
+        new HashSet<>(Set.of(new SimpleNamespace("name", "http://purl.org/dc/terms/")));
 
     final String customPrefixes1 =
         """
@@ -221,13 +197,9 @@ class SemanticTest extends RdfServiceTestRunner {
    */
   @Test
   void testDefaultPrefixPriority() throws IOException {
-    final Set<Namespace> expectedNamespaces = // schema namespaces are added in validateNamespaces()
-        new HashSet<>() {
-          {
-            add(new SimpleNamespace("example", "http://example.com/example/"));
-            addAll(DEFAULT_NAMESPACES);
-          }
-        };
+    final Set<Namespace> expectedNamespaces =
+        new HashSet<>(DEFAULT_NAMESPACES); // schema namespaces are added in validateNamespaces()
+    expectedNamespaces.add(new SimpleNamespace("example", "http://example.com/example/"));
 
     final String customPrefixes1 =
         """

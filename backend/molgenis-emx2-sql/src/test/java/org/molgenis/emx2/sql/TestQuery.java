@@ -65,11 +65,6 @@ public class TestQuery {
             .setInt("Father", 1)
             .setInt("Mother", 2);
 
-    Row mickey =
-        new Row().setInt("ID", 6).setString("First_Name", "Mickey").setString("Last_Name", "Mouse");
-    Row minie =
-        new Row().setInt("ID", 7).setString("First_Name", "Minie").setString("Last_Name", "Mouse");
-
     person.insert(donald, katrien, kwik, kwek, kwak);
   }
 

@@ -14,7 +14,7 @@ import org.molgenis.emx2.PermissionEvaluator;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
 
-public class GraphqlTableFragmentGenerator {
+public final class GraphqlTableFragmentGenerator {
   private final Schema schema;
   private final boolean rowShape;
 

@@ -7,7 +7,7 @@ import UploadNeeded from "../UploadNeeded.vue";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,

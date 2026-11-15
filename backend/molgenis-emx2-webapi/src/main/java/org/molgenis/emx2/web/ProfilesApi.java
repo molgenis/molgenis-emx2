@@ -10,7 +10,7 @@ import org.molgenis.emx2.datamodels.profiles.SchemaFromProfile;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.json.JsonUtil;
 
-public class ProfilesApi {
+public final class ProfilesApi {
   private ProfilesApi() {
     // hide constructor
   }

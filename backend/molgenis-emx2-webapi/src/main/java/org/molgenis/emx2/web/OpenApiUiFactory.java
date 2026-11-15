@@ -1,10 +1,13 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import io.javalin.http.Context;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
 
-public class OpenApiUiFactory {
+public final class OpenApiUiFactory {
 
   private OpenApiUiFactory() {
     // hide constructor
@@ -49,7 +52,12 @@ public class OpenApiUiFactory {
 
   static void getOpenApiUserInterface(Context context) {
     context.status(200);
+    Schema schema = getSchema(context);
+    if (schema == null) {
+      throw new MolgenisException("Schema " + context.pathParam(SCHEMA) + " unknown");
+    }
+
     context.contentType("text/html");
-    context.result(createSwaggerUI(getSchema(context).getMetadata().getName()));
+    context.result(createSwaggerUI(schema.getMetadata().getName()));
   }
 }

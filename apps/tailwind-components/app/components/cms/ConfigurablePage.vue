@@ -37,22 +37,25 @@ const sidebarCollapsed = ref(false);
 
 <template>
   <div
+    class="relative"
     :class="{
       flex: isEditable,
       'gap-7.5': isEditable,
     }"
   >
-    <Sidebar
-      id="configurable-page-sidebar"
+    <div
       v-if="isEditable"
-      :collapsed="sidebarCollapsed"
-      :active-filter-count="0"
-      @update:collapsed="sidebarCollapsed = $event"
+      class="sticky top-0 pt-2.5 h-screen overflow-y-scroll bg-sidebar-gradient"
     >
-      <div class="sticky top-0">
+      <Sidebar
+        id="configurable-page-sidebar"
+        :collapsed="sidebarCollapsed"
+        :active-filter-count="0"
+        @update:collapsed="sidebarCollapsed = $event"
+      >
         <AddComponentPalette @dragging="handleDragEvent" />
-      </div>
-    </Sidebar>
+      </Sidebar>
+    </div>
     <div id="configurable-page-main" class="flex-1 min-w-0">
       <template
         v-for="orderedBlock in content.blockOrder"

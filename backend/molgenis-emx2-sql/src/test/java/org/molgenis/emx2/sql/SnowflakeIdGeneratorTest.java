@@ -53,25 +53,27 @@ public class SnowflakeIdGeneratorTest {
     }
   }
 
+  @SuppressWarnings({"PMD.UseTryWithResources"})
   @Test
   public void testUniqueIdsOnFourThreads() throws InterruptedException {
     Set<String> uniqueIds = new HashSet<>();
 
     ExecutorService executorService = Executors.newFixedThreadPool(4);
-
-    for (int i = 0; i < 100000; i++) {
-      executorService.submit(
-          () -> {
-            String id = generator.generateId();
-            synchronized (uniqueIds) {
-              uniqueIds.add(id);
-            }
-          });
+    try {
+      for (int i = 0; i < 100000; i++) {
+        executorService.submit(
+            () -> {
+              String id = generator.generateId();
+              synchronized (uniqueIds) {
+                uniqueIds.add(id);
+              }
+            });
+      }
+    } finally {
+      executorService.shutdown();
+      assertTrue(executorService.awaitTermination(1, TimeUnit.MINUTES));
+      executorService.close();
     }
-
-    // Shut down the executor and wait for tasks to finish
-    executorService.shutdown();
-    executorService.awaitTermination(1, TimeUnit.MINUTES);
 
     // Verify that the number of unique IDs matches the total number of generated IDs
     assertEquals(100000, uniqueIds.size(), "Not all generated IDs are unique.");

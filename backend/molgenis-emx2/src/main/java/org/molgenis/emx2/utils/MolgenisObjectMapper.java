@@ -48,8 +48,9 @@ public enum MolgenisObjectMapper {
     objectMapper.configure(JsonParser.Feature.STRICT_DUPLICATE_DETECTION, true);
   }
 
-  /** Override for specific configs. */
-  void configureSpecific(ObjectMapper objectMapper) {}
+  void configureSpecific(ObjectMapper objectMapper) {
+    // Override for specific configs
+  }
 
   /**
    * @see #validate(JsonNode)

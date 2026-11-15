@@ -38,7 +38,7 @@ public class TestTaskServiceScheduler {
 
     // see if jobs emerge
     int waitCount = 0;
-    while ((service.getJobTable().retrieveRows().size() == 0
+    while ((service.getJobTable().retrieveRows().isEmpty()
             || !TaskStatus.COMPLETED.equals(
                 new ScriptTask(service.getJobTable().retrieveRows().get(0)).getStatus()))
         && waitCount < 10) {
@@ -46,19 +46,20 @@ public class TestTaskServiceScheduler {
       Thread.sleep(500);
     }
     // ok, some jobs were happenning
-    assertTrue(service.getJobTable().retrieveRows().size() > 0);
+    assertFalse(service.getJobTable().retrieveRows().isEmpty());
 
     // ok, give jobs time to terminate, lets check at source
     waitCount = 0;
     List<JobExecutionContext> runningJobs = scheduler.quartzScheduler.getCurrentlyExecutingJobs();
     scheduler.unschedule("test");
-    while (runningJobs.size() > 0) {
+    while (!runningJobs.isEmpty()) {
       logger.debug("Waiting for jobs to terminate: " + runningJobs.size());
       Thread.sleep(1000);
       runningJobs = scheduler.quartzScheduler.getCurrentlyExecutingJobs();
-      if (waitCount++ > 10) {
+      if (waitCount > 10) {
         fail("polling took too long");
       }
+      waitCount++;
     }
     // allowing running steps to finish
     Thread.sleep(5000); // wait for processes to be killed

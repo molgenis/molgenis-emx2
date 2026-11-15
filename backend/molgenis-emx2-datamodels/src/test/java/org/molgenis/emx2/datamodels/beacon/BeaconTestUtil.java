@@ -15,10 +15,14 @@ import org.molgenis.emx2.beaconv2.BeaconSpec;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
-public class BeaconTestUtil {
+public final class BeaconTestUtil {
 
   public static final String SCHEMA_NAME = "patientRegistryTest";
   public static final String TEST_URL = "http://localhost:8080/" + SCHEMA_NAME + "/api/";
+
+  private BeaconTestUtil() {
+    // no instances
+  }
 
   public static Context mockEntryTypeRequest(
       String entryType, Map<String, List<String>> queryParams, BeaconSpec spec) {

@@ -96,9 +96,6 @@ public enum FilterConceptVP {
   }
 
   public boolean isPermittedValue(String[] values) {
-    if (permittedValues != null) {
-      return Arrays.stream(values).allMatch(permittedValues::contains);
-    }
-    return true;
+    return permittedValues == null || Arrays.stream(values).allMatch(permittedValues::contains);
   }
 }

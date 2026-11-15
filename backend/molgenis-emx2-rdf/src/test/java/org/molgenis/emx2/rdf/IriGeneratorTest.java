@@ -15,7 +15,9 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 
+@SuppressWarnings("PMD.UnusedPrivateField")
 class IriGeneratorTest {
+
   private static final String baseURL = "http://example.com";
   private static final String SCHEMA_NAME = "my Schema";
   private static final String TABLE_NAME = "my Table";
