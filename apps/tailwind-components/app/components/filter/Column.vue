@@ -8,14 +8,12 @@ import type {
 import type { CountedOption } from "../../utils/fetchCounts";
 import type { IFilterValue } from "../../../types/filters";
 import {
-  isBoolColumnType,
   isCountableType,
   isEnumColumnType,
   isRangeType,
   nonEmptyRanges,
   treeSelectionToFilterValue,
 } from "../../utils/filterUtils";
-import FilterBool from "./Bool.vue";
 import FilterTree from "./Tree.vue";
 import FilterRange from "./Range.vue";
 import FilterText from "./Text.vue";
@@ -33,7 +31,6 @@ const emit = defineEmits<{
   "update:modelValue": [value: IFilterValue | undefined];
 }>();
 
-const isBool = computed(() => isBoolColumnType(props.column.columnType));
 const showsTree = computed(
   () =>
     isCountableType(props.column.columnType) ||
@@ -70,15 +67,8 @@ function onTreeChange(val: IFilterValue | string[] | undefined) {
 
 <template>
   <div>
-    <FilterBool
-      v-if="isBool"
-      :column="column"
-      :options="options"
-      :model-value="modelValue"
-      @update:model-value="emit('update:modelValue', $event)"
-    />
     <FilterTree
-      v-else-if="showsTree"
+      v-if="showsTree"
       :column="column"
       :options="options"
       :model-value="modelValue"

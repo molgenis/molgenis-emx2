@@ -8,6 +8,7 @@ import FilterTree from "../../../../app/components/filter/Tree.vue";
 import TreeNode from "../../../../app/components/input/TreeNode.vue";
 import NoResultsMessage from "../../../../app/components/text/NoResultsMessage.vue";
 import InputSearch from "../../../../app/components/input/Search.vue";
+import { buildGraphQLFilter } from "../../../../app/utils/buildGqlFilter";
 
 const createMockObserver = () => ({
   observe: vi.fn(),
@@ -903,5 +904,61 @@ describe("expand state preserved across options updates", () => {
         .find("button[aria-controls='parent2']")
         .attributes("aria-expanded")
     ).toBe("true");
+  });
+});
+
+describe("FilterTree for BOOL and BOOL_ARRAY", () => {
+  const boolOptions: CountedOption[] = [
+    { name: "true", label: "Yes", count: 4, overlap: 0 },
+    { name: "false", label: "No", count: 2, overlap: 0 },
+    { name: "_null_", label: "Not set", count: 7, overlap: 0 },
+  ];
+
+  function boolColumn(columnType: "BOOL" | "BOOL_ARRAY"): IColumn {
+    return { id: "active", label: "Active", columnType } as IColumn;
+  }
+
+  it.each(["BOOL", "BOOL_ARRAY"] as const)(
+    "%s lists Yes, No, Not set with counts, without a search box or show-more",
+    (columnType) => {
+      const wrapper = mountTree(boolColumn(columnType), boolOptions);
+      const labels = wrapper
+        .findAll("label")
+        .map((label) => label.text().replace(/\s+/g, " "));
+      expect(labels).toEqual(["Yes (4)", "No (2)", "Not set (7)"]);
+      expect(wrapper.findAllComponents(InputSearch)).toHaveLength(0);
+      expect(wrapper.find("button").exists()).toBe(false);
+    }
+  );
+
+  it("checks the choices held by the modelValue", () => {
+    const wrapper = mountTree(boolColumn("BOOL"), boolOptions, {
+      operator: "equals",
+      value: ["false", "_null_"],
+    });
+    const checked = wrapper
+      .findAll('input[type="checkbox"]')
+      .map((box) => (box.element as HTMLInputElement).checked);
+    expect(checked).toEqual([false, true, true]);
+  });
+
+  it("ticking No and Not set builds equals false joined by _or with is_null", async () => {
+    const column = boolColumn("BOOL_ARRAY");
+    const wrapper = mountTree(column, boolOptions);
+    await wrapper
+      .find('input[id="filter-tree-active-false-input"]')
+      .trigger("click");
+    await wrapper
+      .find('input[id="filter-tree-active-_null_-input"]')
+      .trigger("click");
+    const emitted = wrapper
+      .emitted("update:modelValue")!
+      .at(-1)![0] as IFilterValue;
+    expect(emitted).toEqual({ operator: "equals", value: ["false", "_null_"] });
+    expect(
+      buildGraphQLFilter(new Map([["active", emitted]]), [column], "")
+    ).toEqual({
+      _or: [{ active: { equals: false } }, { active: { is_null: true } }],
+    });
   });
 });

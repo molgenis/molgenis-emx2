@@ -7,7 +7,6 @@ import Column from "../../../../app/components/filter/Column.vue";
 import FilterTree from "../../../../app/components/filter/Tree.vue";
 import FilterRange from "../../../../app/components/filter/Range.vue";
 import FilterText from "../../../../app/components/filter/Text.vue";
-import FilterBool from "../../../../app/components/filter/Bool.vue";
 import GenericInput from "../../../../app/components/Input.vue";
 
 vi.mock("../../../../app/components/Input.vue", () => ({
@@ -243,73 +242,21 @@ describe("Column dispatcher", () => {
     });
   });
 
-  describe("BOOL and BOOL_ARRAY — three-choice boolean input", () => {
+  describe("BOOL and BOOL_ARRAY — counted tree", () => {
     it.each(["BOOL", "BOOL_ARRAY"] as const)(
-      "%s renders Yes, No and Not set checkboxes, not the counted tree",
-      (columnType) => {
-        const wrapper = mountColumn({ ...boolColumn(), columnType });
-        expect(wrapper.findComponent(FilterBool).exists()).toBe(true);
-        expect(wrapper.findComponent(FilterTree).exists()).toBe(false);
-        expect(wrapper.findComponent(FilterText).exists()).toBe(false);
-        expect(wrapper.findAll('input[type="checkbox"]')).toHaveLength(3);
-        expect(wrapper.text()).toContain("Yes");
-        expect(wrapper.text()).toContain("No");
-        expect(wrapper.text()).toContain("Not set");
-      }
-    );
-
-    it.each(["BOOL", "BOOL_ARRAY"] as const)(
-      "%s shows the count beside each choice",
+      "%s renders FilterTree and no boolean component",
       (columnType) => {
         const wrapper = mountColumn({ ...boolColumn(), columnType }, [
           { name: "true", label: "Yes", count: 4, overlap: 0 },
           { name: "false", label: "No", count: 2, overlap: 0 },
           { name: "_null_", label: "Not set", count: 7, overlap: 0 },
         ]);
-        const labels = wrapper
-          .findAll("label")
-          .map((label) => label.text().replace(/\s+/g, " "));
-        expect(labels).toEqual(["Yes (4)", "No (2)", "Not set (7)"]);
+        expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: "Bool" }).exists()).toBe(false);
+        expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+        expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
       }
     );
-
-    it("shows plain labels while the counts are not there", () => {
-      const wrapper = mountColumn(boolColumn(), [], undefined, true);
-      const labels = wrapper.findAll("label").map((label) => label.text());
-      expect(labels).toEqual(["Yes", "No", "Not set"]);
-    });
-
-    it("checks the choices held by the modelValue", () => {
-      const wrapper = mountColumn(boolColumn(), [], {
-        operator: "equals",
-        value: ["false", "_null_"],
-      });
-      const checked = wrapper
-        .findAll('input[type="checkbox"]')
-        .map((box) => (box.element as HTMLInputElement).checked);
-      expect(checked).toEqual([false, true, true]);
-    });
-
-    it("emits equals with the chosen values in Yes, No, Not set order", async () => {
-      const wrapper = mountColumn(boolColumn(), [], {
-        operator: "equals",
-        value: ["_null_"],
-      });
-      await wrapper.findAll('input[type="checkbox"]')[1]!.setValue(true);
-      expect(wrapper.emitted("update:modelValue")!.at(-1)![0]).toEqual({
-        operator: "equals",
-        value: ["false", "_null_"],
-      });
-    });
-
-    it("emits undefined when nothing is chosen", async () => {
-      const wrapper = mountColumn(boolColumn(), [], {
-        operator: "equals",
-        value: ["true"],
-      });
-      await wrapper.findAll('input[type="checkbox"]')[0]!.setValue(false);
-      expect(wrapper.emitted("update:modelValue")!.at(-1)![0]).toBeUndefined();
-    });
   });
 
   describe("range types — renders FilterRange", () => {
