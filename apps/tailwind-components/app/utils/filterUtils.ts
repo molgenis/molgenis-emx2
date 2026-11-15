@@ -23,7 +23,6 @@ export const COUNTABLE_TYPES = new Set([
   "BOOL_ARRAY",
   "RADIO",
   "CHECKBOX",
-  "STRING_ARRAY",
   "REF",
   "REF_ARRAY",
   "REFBACK",
@@ -82,6 +81,7 @@ export const nonEmptyRanges = (
 
 export const TEXT_FILTER_TYPES = new Set([
   "STRING",
+  "STRING_ARRAY",
   "TEXT",
   "EMAIL",
   "HYPERLINK",

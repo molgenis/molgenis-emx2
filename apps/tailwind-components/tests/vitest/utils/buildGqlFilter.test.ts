@@ -819,15 +819,15 @@ describe("buildGraphQLFilter", () => {
     expect(result).toEqual({ score: { between: [null, 5] } });
   });
 
-  it("H3: STRING_ARRAY equals filter produces { tags: { equals: ['a', 'b'] } }", () => {
+  it("H3: STRING_ARRAY like filter produces { tags: { like: ['a', 'b'] } }", () => {
     const columns: IColumn[] = [
       { id: "tags", columnType: "STRING_ARRAY", label: "Tags" },
     ];
     const filters = new Map<string, IFilterValue>([
-      ["tags", { operator: "equals", value: ["a", "b"] }],
+      ["tags", { operator: "like", value: ["a", "b"] }],
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({ tags: { equals: ["a", "b"] } });
+    expect(result).toEqual({ tags: { like: ["a", "b"] } });
   });
 
   it("SELECT single-key plain string uses equals with name key (mirrors REF)", () => {

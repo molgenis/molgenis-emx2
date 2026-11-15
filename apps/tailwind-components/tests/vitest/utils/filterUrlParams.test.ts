@@ -91,6 +91,7 @@ describe("parseFilterValue", () => {
 
   it.each([
     "STRING",
+    "STRING_ARRAY",
     "TEXT",
     "EMAIL",
     "HYPERLINK",
@@ -109,7 +110,7 @@ describe("parseFilterValue", () => {
     }
   );
 
-  it.each(["STRING_ARRAY", "BOOL_ARRAY"] as const)(
+  it.each(["BOOL_ARRAY"] as const)(
     "reads %s as an equals list, one value or many",
     (columnType) => {
       const column: IColumn = { id: "c", columnType };
@@ -882,9 +883,9 @@ describe("multi-value filters through the whole URL", () => {
       { age: "10..20|30..40" },
     ],
     [
-      "STRING_ARRAY tree selection",
+      "STRING_ARRAY text",
       new Map<string, IFilterValue>([
-        ["tags", { operator: "equals", value: ["a", "b"] }],
+        ["tags", { operator: "like", value: ["a", "b"] }],
       ]),
       { tags: "a|b" },
     ],

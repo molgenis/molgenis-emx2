@@ -733,11 +733,11 @@ describe("FilterTree — delta display counts", () => {
 });
 
 describe("H3: type routing (FilterTree)", () => {
-  it("H3: STRING_ARRAY renders Tree (countable), not text search fallback", () => {
+  it("H3: CHECKBOX renders Tree (countable), not text search fallback", () => {
     const col: IColumn = {
       id: "tags",
       label: "Tags",
-      columnType: "STRING_ARRAY",
+      columnType: "CHECKBOX",
     } as IColumn;
     const opts: CountedOption[] = [
       { name: "a", count: 3 },
@@ -751,11 +751,11 @@ describe("H3: type routing (FilterTree)", () => {
     expect(allSearch.length).toBe(0);
   });
 
-  it("H3: STRING_ARRAY emits equals filter on tree selection", async () => {
+  it("H3: CHECKBOX emits equals filter on tree selection", async () => {
     const col: IColumn = {
       id: "tags",
       label: "Tags",
-      columnType: "STRING_ARRAY",
+      columnType: "CHECKBOX",
     } as IColumn;
     const opts: CountedOption[] = [
       { name: "a", count: 3 },

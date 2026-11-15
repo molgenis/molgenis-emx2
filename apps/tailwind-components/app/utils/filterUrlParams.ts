@@ -115,7 +115,6 @@ export function parseFilterValue(
     "ONTOLOGY_ARRAY",
     "BOOL",
     "BOOL_ARRAY",
-    "STRING_ARRAY",
     "RADIO",
     "CHECKBOX",
     "ENUM",

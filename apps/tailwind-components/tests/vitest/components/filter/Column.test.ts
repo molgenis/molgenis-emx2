@@ -204,20 +204,16 @@ describe("Column dispatcher", () => {
       });
     });
 
-    it("H3: STRING_ARRAY renders FilterTree (countable), not text search fallback", () => {
+    it("STRING_ARRAY renders the multi-row text filter, not the tree", () => {
       const col: IColumn = {
         id: "tags",
         label: "Tags",
         columnType: "STRING_ARRAY",
       } as IColumn;
-      const opts: CountedOption[] = [
-        { name: "a", count: 3 },
-        { name: "b", count: 1 },
-      ];
-      const wrapper = mountColumn(col, opts);
-      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+      const wrapper = mountColumn(col, []);
+      expect(wrapper.findComponent(FilterText).exists()).toBe(true);
+      expect(wrapper.findComponent(FilterTree).exists()).toBe(false);
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
-      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
     });
 
     it("renders FilterTree for SELECT column type", () => {

@@ -11,14 +11,8 @@ import { TEXT_FILTER_TYPES, trimmedTerms } from "../../utils/filterUtils";
 import InputArray from "../input/Array.vue";
 import InputSearch from "../input/Search.vue";
 
-const props = defineProps<{
-  column: IColumn;
-  modelValue: IFilterValue | undefined;
-}>();
-
-const emit = defineEmits<{
-  "update:modelValue": [value: IFilterValue | undefined];
-}>();
+const props = defineProps<{ column: IColumn }>();
+const model = defineModel<IFilterValue | undefined>({ required: true });
 
 const label = computed(() => props.column.label || props.column.id);
 const isMultiValue = computed(() =>
@@ -34,7 +28,7 @@ function rowsFromTerms(terms: string[]): columnValue[] {
 }
 
 const rows = ref<columnValue[]>(
-  rowsFromTerms(termsFromModelValue(props.modelValue))
+  rowsFromTerms(termsFromModelValue(model.value))
 );
 const rowsVersion = ref(0);
 const singleText = computed({
@@ -44,15 +38,12 @@ const singleText = computed({
   },
 });
 
-watch(
-  () => props.modelValue,
-  (modelValue) => {
-    const incoming = termsFromModelValue(modelValue);
-    if (termsFromRows(rows.value).join("\n") === incoming.join("\n")) return;
-    rows.value = rowsFromTerms(incoming);
-    rowsVersion.value++;
-  }
-);
+watch(model, (modelValue) => {
+  const incoming = termsFromModelValue(modelValue);
+  if (termsFromRows(rows.value).join("\n") === incoming.join("\n")) return;
+  rows.value = rowsFromTerms(incoming);
+  rowsVersion.value++;
+});
 
 function termsFromRows(values: columnValue[]): string[] {
   return trimmedTerms(values.map((value) => String(value ?? "")));
@@ -60,10 +51,8 @@ function termsFromRows(values: columnValue[]): string[] {
 
 const debouncedEmit = useDebounceFn((values: columnValue[]) => {
   const terms = termsFromRows(values);
-  emit(
-    "update:modelValue",
-    terms.length > 0 ? { operator: "like", value: terms } : undefined
-  );
+  model.value =
+    terms.length > 0 ? { operator: "like", value: terms } : undefined;
 }, FILTER_DEBOUNCE);
 
 watch(rows, (values) => debouncedEmit(values), { deep: true });
