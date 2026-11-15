@@ -15,7 +15,7 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.io.IOAccess;
 import org.molgenis.emx2.MolgenisException;
 
-public class JavaScriptUtils {
+public final class JavaScriptUtils {
 
   private static final Engine engine =
       Engine.newBuilder()

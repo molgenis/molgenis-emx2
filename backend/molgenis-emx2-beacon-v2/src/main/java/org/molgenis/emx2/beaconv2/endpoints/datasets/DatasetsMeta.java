@@ -9,8 +9,8 @@ public class DatasetsMeta extends Meta {
   private String returnedGranularity;
   private ReceivedRequestSummary receivedRequestSummary;
 
-  public DatasetsMeta(String $schema, String entityType) {
-    super($schema, entityType);
+  public DatasetsMeta(String schema, String entityType) {
+    super(schema, entityType);
     this.returnedGranularity = "record";
     this.receivedRequestSummary = new ReceivedRequestSummary("datasets");
   }

@@ -6,7 +6,7 @@ import ComponentActions from "../ComponentActions.vue";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
 
 import type { INavigationCards } from "../../../../types/cms";
 
@@ -37,22 +37,7 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <NavigationCard
-      :id="id"
-      :title="title"
-      :description="description"
-      :url="url"
-      :urlLabel="urlLabel"
-      :urlIsExternal="urlIsExternal"
-    />
+    <NavigationCard v-bind="$props" />
   </VMenu>
-  <NavigationCard
-    v-else
-    :id="id"
-    :title="title"
-    :description="description"
-    :url="url"
-    :urlLabel="urlLabel"
-    :urlIsExternal="urlIsExternal"
-  />
+  <NavigationCard v-else v-bind="$props" />
 </template>

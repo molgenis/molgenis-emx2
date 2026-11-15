@@ -11,8 +11,8 @@ public class BeaconRequestParameters {
 
   String description;
 
-  public BeaconRequestParameters(String $ref, String description) {
-    this.ref = $ref;
+  public BeaconRequestParameters(String ref, String description) {
+    this.ref = ref;
     this.description = description;
   }
 

@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.emx2;
 
-import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 
@@ -9,17 +8,17 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-public class Emx2Tables {
+public final class Emx2Tables {
   private Emx2Tables() {
     // hidden
   }
 
   public static void outputTableWithSystemColumns(TableStore store, Table table) {
-    Emx2Tables.outputTable(store, table, true);
+    outputTable(store, table, true);
   }
 
   public static void outputTable(TableStore store, Table table) {
-    Emx2Tables.outputTable(store, table, false);
+    outputTable(store, table, false);
   }
 
   private static void outputTable(TableStore store, Table table, boolean includeSystemColumns) {
@@ -37,8 +36,7 @@ public class Emx2Tables {
                         || isFileType(c, metadata)
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
-            .filter(
-                name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystemColumns)
+            .filter(name -> DownloadColumns.isIncluded(name, includeSystemColumns))
             .toList();
 
     Query query = table.query();
@@ -56,8 +54,8 @@ public class Emx2Tables {
   }
 
   private static boolean isFileType(Column c, TableMetadata metadata) {
-    if (metadata.getColumn(c.getName()) == null && c.getName().endsWith("_filename")) {
-      return true;
-    } else return !metadata.getColumn(c.getName()).isFile();
+    Column metaDataColumn = metadata.getColumn(c.getName());
+    return (metaDataColumn == null && c.getName().endsWith("_filename"))
+        || (metaDataColumn != null && !metaDataColumn.isFile());
   }
 }

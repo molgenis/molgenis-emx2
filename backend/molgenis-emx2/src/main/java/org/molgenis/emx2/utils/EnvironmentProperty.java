@@ -2,7 +2,11 @@ package org.molgenis.emx2.utils;
 
 import org.molgenis.emx2.ColumnType;
 
-public class EnvironmentProperty {
+public final class EnvironmentProperty {
+  private EnvironmentProperty() {
+    // no instances
+  }
+
   public static Object getParameter(String param, Object defaultValue, ColumnType type) {
     try {
       if (System.getProperty(param) != null) {

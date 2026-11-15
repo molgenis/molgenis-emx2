@@ -7,9 +7,9 @@
       <template #nav>
         <Navigation
           :navigation="[
-            { label: 'Home', link: '#' },
-            { label: 'About', link: '#' },
-            { label: 'Contact', link: '#' },
+            { label: 'Home', location: '#' },
+            { label: 'About', location: '#' },
+            { label: 'Contact', location: '#' },
           ]"
         />
       </template>
@@ -19,9 +19,9 @@
       <template #nav-mobile>
         <Navigation
           :navigation="[
-            { label: 'Home', link: '#' },
-            { label: 'About', link: '#' },
-            { label: 'Contact', link: '#' },
+            { label: 'Home', location: '#' },
+            { label: 'About', location: '#' },
+            { label: 'Contact', location: '#' },
           ]"
         />
       </template>

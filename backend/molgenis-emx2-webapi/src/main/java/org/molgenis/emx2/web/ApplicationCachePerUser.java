@@ -23,7 +23,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApplicationCachePerUser {
+public final class ApplicationCachePerUser {
   private static final long DEFAULT_APP_CACHE_SIZE = 10_000;
   public static final Integer APP_CACHE_DURATION =
       (Integer)

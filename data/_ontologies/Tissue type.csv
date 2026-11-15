@@ -75,6 +75,7 @@ order,name,tags,codesystem,code,ontologyTermURI,definition
 74,uterus,,UBERON,UBERON:0000995,http://purl.obolibrary.org/obo/uberon.owl,The female muscular organ of gestation in which the developing embryo or fetus is nourished until birth. GTex: Uterus
 75,vagina,,UBERON,UBERON:0000996,http://purl.obolibrary.org/obo/uberon.owl,"A fibromuscular tubular tract leading from the uterus to the exterior of the body in female placental mammals and marsupials, or to the cloaca in female birds, monotremes, and some reptiles[WP]. GTex: Vagina"
 76,venous blood,,UBERON,UBERON:0013756,http://purl.obolibrary.org/obo/uberon.owl,A blood that is part of a vein. GTex: Whole Blood
-77,Cells (other),"erdera,RNA,lrGS,OGM",,,,
+77,Cells (other),"erdera,lrGS,OGM",,,,
 78,Unspecified Tissue,"erdera,OGM",NCIT,NCIT_C132256,http://purl.obolibrary.org/obo/NCIT_C132256,A tissue specimen whose anatomic origin is not known or reported.
 79,Bone Marrow Sample,"erdera,OGM",NCIT,C164009,http://purl.obolibrary.org/obo/NCIT_C164009,Bone Marrow Sample
+80,Heart,"erdera,RNA",NCIT,NCIT_C12727,http://purl.obolibrary.org/obo/NCIT_C12727,Tissue of the heart.
