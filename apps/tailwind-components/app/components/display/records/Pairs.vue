@@ -78,18 +78,20 @@ const detailFoldColumns = computed<number | undefined>(() => {
       </template>
     </dl>
   </div>
-  <dl v-else class="mt-3 grid grid-cols-3 gap-x-4 gap-y-1">
-    <template v-for="column in columns" :key="column.id">
-      <dt
-        class="text-title-contrast font-normal opacity-70 first-letter:uppercase"
-      >
-        {{ column.label || column.id }}
-      </dt>
-      <dd class="col-span-2 text-record-value">
-        <ValueEMX2 :metadata="column" :data="row[column.id]" />
-      </dd>
-    </template>
-  </dl>
+  <div v-else class="@container">
+    <dl class="mt-3 grid grid-cols-1 @xs:grid-cols-3 gap-x-4 gap-y-1">
+      <template v-for="column in columns" :key="column.id">
+        <dt
+          class="text-title-contrast font-normal opacity-70 first-letter:uppercase"
+        >
+          {{ column.label || column.id }}
+        </dt>
+        <dd class="@xs:col-span-2 text-record-value">
+          <ValueEMX2 :metadata="column" :data="row[column.id]" />
+        </dd>
+      </template>
+    </dl>
+  </div>
 </template>
 
 <style scoped>

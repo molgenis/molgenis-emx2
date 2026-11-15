@@ -16,7 +16,11 @@ describe("records/Pairs.vue", () => {
     });
 
     expect(wrapper.find("dl").classes()).toContain("grid");
-    expect(wrapper.find("dl").classes()).toContain("grid-cols-3");
+    expect(wrapper.find("dl").classes()).toContain("grid-cols-1");
+    expect(wrapper.find("dl").classes()).toContain("@xs:grid-cols-3");
+    expect(
+      wrapper.find("dl").element.parentElement?.classList.contains("@container")
+    ).toBe(true);
 
     const terms = wrapper.findAll("dl > dt");
     const definitions = wrapper.findAll("dl > dd");
@@ -24,7 +28,7 @@ describe("records/Pairs.vue", () => {
     expect(definitions.length).toBe(2);
     expect(terms[0].text()).toBe("Age");
     expect(definitions[0].text()).toBe("3");
-    expect(definitions[0].classes()).toContain("col-span-2");
+    expect(definitions[0].classes()).toContain("@xs:col-span-2");
 
     const cellComponents = wrapper.findAllComponents(ValueEMX2);
     expect(cellComponents.length).toBe(2);
