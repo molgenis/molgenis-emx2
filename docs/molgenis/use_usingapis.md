@@ -221,11 +221,11 @@ curl -X POST "$S/_data" -H "x-molgenis-token: $TOKEN" -H 'Content-Type: applicat
 | `search` | A text. The rows that contain it match. |
 | `limit` | The number of rows to return. The default is 1000. |
 | `offset` | The number of rows to skip. The default is 0. |
-| `query` | The columns to return, as a GraphQL selection such as `{name,category{name}}`. |
+| `select` | The columns to return, as a GraphQL selection such as `{name,category{name}}`. |
 
 `limit` below 1 and `offset` below 0 answer 400.
 
-Without `query`, a row has the shape that a write takes. A reference is the key of the row it points to, for example `"category":{"name":"ant"}`. A file is an object with `id`, `size`, `filename`, `extension` and `url`. Refbacks and `mg_` columns are left out, except `mg_tableclass` and `mg_draft`. So a draft row that you read can be written back.
+Without `select`, a row has the shape that a write takes. A reference is the key of the row it points to, for example `"category":{"name":"ant"}`. A file is an object with `id`, `size`, `filename`, `extension` and `url`. Refbacks and `mg_` columns are left out, except `mg_tableclass` and `mg_draft`. So a draft row that you read can be written back.
 
 The read examples ran while the rows `docs-example-1` and `docs-example-2` from the write examples existed.
 
@@ -254,12 +254,33 @@ curl -G "$S/Pet" -H "x-molgenis-token: $TOKEN" \
 ]
 ```
 
-Choose the columns with `query`:
+Conditions in one filter object must all hold. To match either of two conditions, put them in a list under `_or`. `_and` takes a list in the same way. This reads the pets that are `sold` or have the name `tom`:
+
+```
+curl -G "$S/Pet" -H "x-molgenis-token: $TOKEN" \
+  --data-urlencode 'filter={"_or":[{"status":{"equals":"sold"}},{"name":{"equals":"tom"}}]}' \
+  --data-urlencode 'select={name,status}'
+```
+
+```
+[
+  {
+    "name" : "spike",
+    "status" : "sold"
+  },
+  {
+    "name" : "tom",
+    "status" : "available"
+  }
+]
+```
+
+Choose the columns with `select`:
 
 ```
 curl -G "$S/Pet" -H "x-molgenis-token: $TOKEN" \
   --data-urlencode 'filter={"name":{"like":"docs-example"}}' \
-  --data-urlencode 'query={name,category{name},weight}'
+  --data-urlencode 'select={name,category{name},weight}'
 ```
 
 ```
