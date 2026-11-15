@@ -29,7 +29,8 @@ const fieldId = computed(
 <template>
   <Field
     class="pb-8 last:pb-64"
-    v-model="form.values.value[column.id]"
+    :modelValue="form.getValue(column.id)"
+    @update:modelValue="form.values.value[column.id] = $event"
     :id="fieldId"
     :type="column.columnType"
     :label="column.formLabel ?? column.label"

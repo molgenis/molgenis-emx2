@@ -1,11 +1,12 @@
 <template>
   <InputTestContainer
     show-state
+    show-required
     v-slot="{ invalid, valid, disabled, required }"
   >
     <form class="space-y-8">
       <div>
-        <h3 class="text-heading-lg mb-2">ENUM: radio group</h3>
+        <h3 class="text-heading-lg mb-2">ENUM: searchable listbox</h3>
         <fieldset>
           <legend id="enum-legend" class="text-title-contrast mb-1">
             Biological sex
@@ -27,7 +28,9 @@
       </div>
 
       <div>
-        <h3 class="text-heading-lg mb-2">ENUM_ARRAY: checkbox group</h3>
+        <h3 class="text-heading-lg mb-2">
+          ENUM_ARRAY: searchable listbox with removable values
+        </h3>
         <fieldset>
           <legend id="enum-array-legend" class="text-title-contrast mb-1">
             Administrative tags

@@ -75,9 +75,10 @@ public class RemoteDataUploader implements DataUploader {
     logger.info("Uploading data to table store: {}", zipPath);
     try (Response response = OK_HTTP_CLIENT.newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        ResponseBody body = response.body();
-        String message = body != null ? body.string() : response.toString();
-        throw new MolgenisException("Unexpected response: " + message);
+        try (ResponseBody body = response.body()) {
+          String message = body != null ? body.string() : response.toString();
+          throw new MolgenisException("Unexpected response: " + message);
+        }
       }
     } catch (InterruptedIOException e) {
       throw new MolgenisException(

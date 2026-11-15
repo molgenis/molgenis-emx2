@@ -56,6 +56,17 @@ test("Re-authentication flow", async ({ page }) => {
   await reAuthenticatePage.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText("Re-authenticated, please")).toBeVisible();
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  // wait for the insert to finish, closing the modal earlier skips the table refresh
+  await expect(page.getByText("inserted Category")).toBeVisible();
   await page.getByRole("button", { name: "Close modal", exact: true }).click();
   await expect(page.getByText("reauth", { exact: true })).toBeVisible();
+
+  // cleanup, so a next run can insert the row again
+  await page.getByRole("searchbox", { name: "Search Category" }).fill("reauth");
+  await page.getByRole("row").nth(1).hover();
+  await page.getByRole("button", { name: 'delete {"name":"reauth"}' }).click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(
+    page.getByRole("cell", { name: "reauth", exact: true })
+  ).not.toBeVisible();
 });

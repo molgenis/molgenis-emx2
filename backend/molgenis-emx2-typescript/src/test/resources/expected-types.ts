@@ -1,11 +1,12 @@
 export interface IMgTableClass {
-    mg_tableclass: string;
+    mg_tableclass?: string;
 }
 
 export interface IFile {
     id?: string;
     size?: number;
     extension?: string;
+    filename?: string;
     url?: string;
 }
 

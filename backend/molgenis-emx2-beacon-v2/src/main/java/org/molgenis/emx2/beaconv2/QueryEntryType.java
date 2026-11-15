@@ -77,14 +77,20 @@ public class QueryEntryType {
 
     for (String schemaName : database.getSchemaNames()) {
       Schema entrySchema = database.getSchema(schemaName);
-      if (entrySchema == null) continue;
+      if (entrySchema == null) {
+        continue;
+      }
       ResolvedTemplate template = templates.forSchema(schemaName);
       Table table = entrySchema.getTable(template.tableId());
-      if (table == null) continue;
+      if (table == null) {
+        continue;
+      }
 
       ArrayNode schemaResultSets = mapper.createArrayNode();
       int schemaResults = queryTable(table, filterParser, schemaResultSets);
-      if (schemaResultSets.isEmpty()) continue;
+      if (schemaResultSets.isEmpty()) {
+        continue;
+      }
 
       numTotalResults += schemaResults;
       resultSets.addAll(schemaResultSets);
@@ -135,7 +141,9 @@ public class QueryEntryType {
   }
 
   private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
-    if (!hasPermissionForGranularity(table.getSchema(), table.getMetadata())) return 0;
+    if (!hasPermissionForGranularity(table.getSchema(), table.getMetadata())) {
+      return 0;
+    }
     int numTotalResults = 0;
     ObjectNode resultSet = mapper.createObjectNode();
     resultSet.put("id", table.getSchema().getName());
@@ -264,7 +272,9 @@ public class QueryEntryType {
 
     JsonNode results = mapper.valueToTree(result.getData());
     JsonNode entryTypeResult = results.get(table.getIdentifier());
-    if (entryTypeResult == null || entryTypeResult.isNull()) return null;
+    if (entryTypeResult == null || entryTypeResult.isNull()) {
+      return null;
+    }
 
     return (ArrayNode) entryTypeResult;
   }

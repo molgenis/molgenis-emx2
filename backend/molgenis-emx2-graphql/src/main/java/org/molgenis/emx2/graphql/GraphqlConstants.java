@@ -1,6 +1,6 @@
 package org.molgenis.emx2.graphql;
 
-public class GraphqlConstants {
+public final class GraphqlConstants {
   public static final String ID = "id";
   public static final String PARAMETERS = "parameters";
   public static final String INPUT = "Input";

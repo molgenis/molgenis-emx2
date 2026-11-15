@@ -105,49 +105,19 @@ def decide_redirect_to_issues(closing_issues):
 
 
 def decide_remove_pr_card(closing_issues, existing_pr_item):
-    """The story's one removal: unconditional, and narrow. True exactly when
-    the PR closes at least one issue AND the PR already has an item on board
-    15 -- never guarded by that item's Status or fields, and never true for
-    an issue's item, which this is never called with. "Removal" is
-    board-only: the card comes off board 15, nothing about the PR itself
-    changes.
-
-    Deliberately action-blind: this function does not know synchronize is
-    excluded from removal. That exclusion lives in the one call site,
-    apply_board_write's `action not in PR_CARD_REMOVAL_ACTIONS` guard --
-    apply_redirected_board_write (and this function) are never reached for
-    synchronize at all. If a second caller is ever added, that guard has to
-    move or be duplicated; it does not enforce itself here."""
+    """True when the PR closes at least one issue AND already has an item on
+    board 15. Board-only: the card comes off board 15, the PR is unchanged.
+    Only opened and a body edit reach this; see PR_CARD_REMOVAL_ACTIONS."""
     return decide_redirect_to_issues(closing_issues) and existing_pr_item is not None
 
 
-def decide_issue_card_update(action, is_draft, existing_issue_item, mapped_team, current_sprint_title):
-    """Pure decision for ONE linked issue's card. existing_issue_item is None
-    when the issue has no item yet on board 15.
-
-    - `synchronize` never touches a linked issue's card at all -- existing or
-      missing, this returns None.
-    - `edited` never touches an EXISTING issue card (Status is not moved by a
-      body edit), but still adds and fills a missing one, because a PR with
-      no card and an issue with no card is the one outcome no aim tolerates.
-      Status is left unwritten on the card it adds -- only opened and the
-      three transitions ever move a linked issue's Status.
-    - `opened` and the three transitions set Status only on an existing card
-      (Team and Sprint stay exactly as a person left them), and fill all
-      three -- Status, Team, Sprint -- on a card they add.
-
-    Returns None for "write nothing", otherwise a fields dict shaped like
-    resolve_and_apply_board_fields expects: {"status", "team", "sprint"},
-    each either a target value or None meaning "leave as-is"."""
+def decide_issue_card_update(is_draft, existing_issue_item, mapped_team, current_sprint_title):
+    """The story a PR closes is kept on board 15 in the right column: an
+    existing card gets its Status moved and nothing else, a missing one is
+    added with Status, Team and Sprint."""
     if existing_issue_item is not None:
-        if action not in ISSUE_STATUS_ACTIONS:
-            return None
         return {"status": decide_status(is_draft, existing_issue_item["status"]), "team": None, "sprint": None}
-
-    if action not in ISSUE_STATUS_ACTIONS and action not in ISSUE_ADD_ONLY_ACTIONS:
-        return None
-    status = target_status_from_draft_state(is_draft) if action in ISSUE_STATUS_ACTIONS else None
-    return {"status": status, "team": mapped_team, "sprint": current_sprint_title}
+    return {"status": target_status_from_draft_state(is_draft), "team": mapped_team, "sprint": current_sprint_title}
 
 
 def strip_emoji_prefix(name):
@@ -190,18 +160,5 @@ def parse_teams_mapping(text):
 
 
 TRANSITION_ACTIONS = ("ready_for_review", "converted_to_draft", "reopened")
-BOARD_UPDATE_ACTIONS = TRANSITION_ACTIONS + ("synchronize", "edited")
-
-# Aim 6, redirected to a linked issue's card instead of the PR's own: which
-# actions may set that card's Status, and which may only add+fill a missing
-# one without ever moving Status. See decide_issue_card_update.
-ISSUE_STATUS_ACTIONS = TRANSITION_ACTIONS + ("opened",)
-ISSUE_ADD_ONLY_ACTIONS = ("edited",)
-
-# The actions that remove the PR's own card when it closes an issue: opened,
-# edited, and the three transitions. NOT synchronize -- a push that removed
-# the PR's card while never adding the issue's would leave zero cards for
-# the same piece of work (owner ruling, review finding F1). For a closing
-# PR, synchronize therefore writes nothing anywhere: not the PR's card
-# (removal or otherwise), not any issue's.
-PR_CARD_REMOVAL_ACTIONS = ISSUE_STATUS_ACTIONS + ISSUE_ADD_ONLY_ACTIONS
+BOARD_UPDATE_ACTIONS = TRANSITION_ACTIONS + ("edited",)
+PR_CARD_REMOVAL_ACTIONS = ("opened", "edited")

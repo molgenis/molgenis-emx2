@@ -12,12 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestFileType {
-  private static Database db;
   private static Schema schema;
 
   @BeforeAll
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    Database db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestFileType.class.getSimpleName());
   }
 

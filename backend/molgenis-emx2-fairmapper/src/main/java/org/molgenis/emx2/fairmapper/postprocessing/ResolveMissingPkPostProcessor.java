@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * later. {@link #process} therefore repeats over all tables until nothing changes anymore, or until
  * {@code MAX_NR_ITERATIONS} passes are done.
  */
-public class ResolveMissingPkPostProcessor implements PostProcessor {
+public final class ResolveMissingPkPostProcessor implements PostProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(ResolveMissingPkPostProcessor.class);
   private static final int MAX_NR_ITERATIONS = 10;
@@ -222,6 +222,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
    *   <li>If it holds none, we assume it points back at {@code row}.
    * </ul>
    */
+  @SuppressWarnings("PMD.SimplifyBooleanReturns") // easier to read
   private static boolean pointsBackAtSelf(
       Row row, Row referencedRow, Column column, Reference reference) {
     if (!column.getTable().getAllInheritNames().contains(reference.getTargetTable())) {

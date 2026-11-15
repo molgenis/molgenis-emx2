@@ -22,7 +22,9 @@ public class Row {
   }
 
   public Row(Object... nameValuePairs) {
-    if (nameValuePairs == null) return;
+    if (nameValuePairs == null) {
+      return;
+    }
     if (nameValuePairs.length % 2 == 1) {
       throw new MolgenisException(
           "Row nameValue constructor should even number of parameters representing name-value pairs: Received "
@@ -46,7 +48,9 @@ public class Row {
     return new Row(nameValuePairs);
   }
 
-  public Row() {}
+  public Row() {
+    // no-op
+  }
 
   public Row(Map<String, ?> values) {
     this();
@@ -368,7 +372,9 @@ public class Row {
   }
 
   public <T> T get(String name, Class<T> type) {
-    if (type == null) return null;
+    if (type == null) {
+      return null;
+    }
     return switch (type.getSimpleName()) {
       case "String" -> (T) getString(name);
       case "String[]" -> (T) getStringArray(name);
@@ -398,6 +404,7 @@ public class Row {
     };
   }
 
+  @Override
   public String toString() {
     return "ROW("
         + values.entrySet().stream()
@@ -411,7 +418,7 @@ public class Row {
   }
 
   public boolean notEmpty(String columnName) {
-    return values.get(columnName) != null && !values.get(columnName).toString().trim().equals("");
+    return values.get(columnName) != null && !"".equals(values.get(columnName).toString().trim());
   }
 
   public boolean isNull(String columnName, ColumnType type) {
