@@ -75,10 +75,8 @@ class TestChangelog {
 
   @Test
   void lastUpdateBranchReadsStampIndex() {
-    String schemaName = "TestChangelogIndex";
-    database.dropSchemaIfExists(schemaName);
-    database.becomeAdmin();
-    Schema schema = database.createSchema(schemaName);
+    String schemaName = TestChangelog.class.getSimpleName() + "Index";
+    Schema schema = database.dropCreateSchema(schemaName);
     schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
     Table table = schema.create(table("Item", column("id").setType(INT).setPkey()));
     List<Row> rows = new ArrayList<>();
@@ -91,7 +89,9 @@ class TestChangelog {
         ((SqlDatabase) database)
             .getJooq()
             .fetch(
-                "EXPLAIN SELECT operation, stamp, userid, tablename FROM \"TestChangelogIndex\".mg_changelog ORDER BY stamp DESC LIMIT 1")
+                "EXPLAIN SELECT operation, stamp, userid, tablename FROM \""
+                    + schemaName
+                    + "\".mg_changelog ORDER BY stamp DESC LIMIT 1")
             .getValues(0, String.class)
             .toString();
     assertTrue(plan.contains("Index Scan"), plan);
@@ -100,14 +100,14 @@ class TestChangelog {
 
   @Test
   void changelogLogsAgainAfterDisableAndEnable() {
-    String schemaName = "TestChangelogToggle";
-    database.dropSchemaIfExists(schemaName);
-    database.becomeAdmin();
-    Schema schema = database.createSchema(schemaName);
+    String schemaName = TestChangelog.class.getSimpleName() + "Toggle";
+    Schema schema = database.dropCreateSchema(schemaName);
     schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
     Table table = schema.create(table("Item", column("id").setType(INT).setPkey()));
-    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.FALSE.toString());
-    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
+    schema
+        .getMetadata()
+        .setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.FALSE.toString())
+        .setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
     int before = schema.getChangesCount();
 
     table.insert(new Row().setInt("id", 1));

@@ -83,11 +83,9 @@ public class ChangeLogExecutor {
   }
 
   static void createStampIndex(DSLContext jooq, String schemaName) {
-    jooq.execute(
-        "CREATE INDEX IF NOT EXISTS {0} ON {1} ({2})",
-        name(STAMP_INDEX),
-        table(name(schemaName, Constants.CHANGELOG_TABLE)),
-        name(Constants.CHANGELOG_STAMP));
+    jooq.createIndexIfNotExists(name(STAMP_INDEX))
+        .on(name(schemaName, Constants.CHANGELOG_TABLE), name(Constants.CHANGELOG_STAMP))
+        .execute();
   }
 
   static void executeDropChangeLogTableForSchema(SqlDatabase db, Schema schema) {

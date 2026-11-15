@@ -215,7 +215,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       SqlDatabase db, SqlSchemaMetadata schema, String settingsValue) {
     boolean currentValue =
         TRUE.equals(TypeUtils.toBool(schema.getSettings().get(Constants.IS_CHANGELOG_ENABLED)));
-    boolean newValue = Boolean.parseBoolean(settingsValue);
+    boolean newValue = TRUE.equals(TypeUtils.toBool(settingsValue));
     if (currentValue != newValue) {
       if (newValue) {
         ChangeLogExecutor.enableChangeLog(db, schema);
