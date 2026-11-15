@@ -117,6 +117,8 @@ dependencies {
 shadowJar {
     zip64 = true
     archiveBaseName = 'molgenis-emx2'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    filesMatching("META-INF/services/**") { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
     mergeServiceFiles()
     archiveVersion = project.version.replace("v","")
 
