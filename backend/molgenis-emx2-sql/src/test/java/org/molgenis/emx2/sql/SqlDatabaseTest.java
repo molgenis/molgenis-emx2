@@ -24,7 +24,7 @@ class SqlDatabaseTest {
   }
 
   @Test
-  void OIDCFlagDefaultsFalse() {
+  void oidcFlagDefaultsFalse() {
     Map<String, String> settings = Maps.newHashMap();
     sqlDatabase.setSettings(settings);
     assertFalse(sqlDatabase.isOidcEnabled());

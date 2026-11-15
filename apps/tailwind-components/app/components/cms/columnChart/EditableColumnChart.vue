@@ -6,7 +6,7 @@ import type { IStatisticalCharts } from "../../../../types/cms.ts";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
 
 const props = withDefaults(
   defineProps<IStatisticalCharts & { isEditable?: boolean }>(),

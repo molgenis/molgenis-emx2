@@ -8,7 +8,7 @@ import java.util.List;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-public class Emx2Roles {
+public final class Emx2Roles {
   public static final String ROLES_TABLE = "molgenis_roles";
   public static final String ROLE = "role";
   public static final String SELECT = "select";

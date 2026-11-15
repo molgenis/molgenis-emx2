@@ -7,7 +7,7 @@ import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.molgenis.emx2.Column;
 
-public class SparqlVariableUtil {
+public final class SparqlVariableUtil {
 
   private static final String CONCAT_ARG = "'|'";
   private static final String SINGLE = "_single";

@@ -6,7 +6,7 @@ import type { IHeadings } from "../../../../types/cms";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
 
 const props = withDefaults(
   defineProps<IHeadings & { isEditable?: boolean }>(),

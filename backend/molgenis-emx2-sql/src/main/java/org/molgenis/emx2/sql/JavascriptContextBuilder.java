@@ -15,7 +15,7 @@ import org.molgenis.emx2.Row;
  * identifiers. Reference columns become nested maps; file columns are omitted. Database-level
  * bindings (e.g. current user) are merged in last.
  */
-public class JavascriptContextBuilder {
+public final class JavascriptContextBuilder {
 
   private JavascriptContextBuilder() {
     // hide constructor
@@ -45,13 +45,13 @@ public class JavascriptContextBuilder {
   public static void updateContext(Map<String, Object> context, Row row, Column column) {
     if (column.isReference()) {
       context.put(column.getIdentifier(), getRefFromRow(row, column));
-    } else if (column.isFile()) {
-      // skip file
-    } else if (column.isArray()) {
-      Object value = Optional.ofNullable(row.get(column)).orElse(new Object[0]);
-      context.put(column.getIdentifier(), value);
-    } else {
-      context.put(column.getIdentifier(), row.get(column));
+    } else if (!column.isFile()) { // files are skipped
+      if (column.isArray()) {
+        Object value = Optional.ofNullable(row.get(column)).orElse(new Object[0]);
+        context.put(column.getIdentifier(), value);
+      } else {
+        context.put(column.getIdentifier(), row.get(column));
+      }
     }
   }
 
@@ -98,9 +98,13 @@ public class JavascriptContextBuilder {
   }
 
   private static void addJavaScriptBindings(Map<String, Object> context, Database database) {
-    if (database == null) return;
+    if (database == null) {
+      return;
+    }
     Map<String, Supplier<Object>> bindings = database.getJavaScriptBindings();
-    if (bindings == null) return;
+    if (bindings == null) {
+      return;
+    }
 
     for (Map.Entry<String, Supplier<Object>> entry : bindings.entrySet()) {
       context.put(entry.getKey(), entry.getValue().get());

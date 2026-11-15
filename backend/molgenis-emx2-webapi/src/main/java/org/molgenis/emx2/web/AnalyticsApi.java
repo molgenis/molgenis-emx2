@@ -16,7 +16,7 @@ import org.molgenis.emx2.web.response.ResponseStatus;
 import org.molgenis.emx2.web.response.Status;
 import org.molgenis.emx2.web.transformers.ActionTransformer;
 
-public class AnalyticsApi {
+public final class AnalyticsApi {
 
   private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();

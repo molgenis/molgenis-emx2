@@ -10,6 +10,18 @@ const listboxState = ref<string>("");
 const searchTerm = ref<string>("");
 const enableSearchField = ref<boolean>(false);
 
+const PAGE_SIZE = 20;
+const allItems = Array.from({ length: 100 }, (_, i) => `Item ${i + 1}`);
+const multipleOptions = ref<string[]>(allItems.slice(0, PAGE_SIZE));
+const multipleValue = ref<string[]>([]);
+
+function loadMoreItems() {
+  multipleOptions.value = allItems.slice(
+    0,
+    multipleOptions.value.length + PAGE_SIZE
+  );
+}
+
 interface Pet {
   name: string;
 }
@@ -78,6 +90,7 @@ onBeforeMount(() => {
         :invalid="listboxState === 'error'"
         :valid="listboxState === 'valid'"
         :disabled="listboxState === 'disabled'"
+        showClearButton
         @update:model-value="(value: any) => (modelValue = value)"
         @search="(value: string) => searchTerm = value"
         :enable-search="enableSearchField"
@@ -130,7 +143,38 @@ onBeforeMount(() => {
       </div>
     </form>
   </div>
-  <div>
+  <div class="sm:w-[65%] mt-8">
+    <h3 class="text-heading-lg mb-2">
+      Multiple, with removable values, Clear and load-more
+    </h3>
+    <InputLabel
+      id="listbox-multiple-label"
+      for="listbox-multiple"
+      class="block mb-3 pl-0"
+      :disabled="listboxState === 'disabled'"
+      :has-error="listboxState === 'error'"
+    >
+      <span>Pick items; scroll the list to load 20 more, up to 100</span>
+    </InputLabel>
+    <InputListbox
+      id="listbox-multiple"
+      multiple
+      showClearButton
+      v-model="multipleValue"
+      :options="multipleOptions"
+      :invalid="listboxState === 'error'"
+      :valid="listboxState === 'valid'"
+      :disabled="listboxState === 'disabled'"
+      @load-more="loadMoreItems"
+    />
+    <output class="block w-full mt-6 border py-3 px-2 pl-6">
+      <code>
+        Multiple selection: {{ multipleValue }} ({{ multipleOptions.length }}
+        options loaded)
+      </code>
+    </output>
+  </div>
+  <div class="mt-8">
     <h3 class="text-heading-lg mb-2">Component output</h3>
     <output class="block w-full mt-2 border py-3 px-2 pl-6">
       <code>Search Term: {{ searchTerm }}</code>

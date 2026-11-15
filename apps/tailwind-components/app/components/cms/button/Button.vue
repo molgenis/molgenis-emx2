@@ -23,8 +23,8 @@ const props = withDefaults(defineProps<IButtons>(), {
       class="inline-block"
       :id="id"
       :label="buttonLabel || buttonLink"
-      :type="buttonType as ButtonType"
-      :size="buttonSize as ButtonSize"
+      :type="(buttonType as ButtonType)"
+      :size="(buttonSize as ButtonSize)"
       :href="buttonLink"
     />
   </div>

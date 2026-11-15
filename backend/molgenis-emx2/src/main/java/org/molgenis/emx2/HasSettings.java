@@ -24,7 +24,9 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
   @Override
   public T setSettings(Map<String, String> settings) {
     this.settings.clear();
-    if (settings == null) return (T) this;
+    if (settings == null) {
+      return (T) this;
+    }
     this.settings.putAll(settings);
     return (T) this;
   }

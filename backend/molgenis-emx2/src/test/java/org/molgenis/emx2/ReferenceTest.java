@@ -119,13 +119,13 @@ public class ReferenceTest {
     // start with 'subpopulation' and it is reported as overlapping. The refLink column ('resource')
     // is itself a REF, so isOverlappingRef() is also true.
     Reference borrowed =
-        refs.stream().filter(r -> r.getColumnName().equals("resource")).findFirst().orElseThrow();
+        refs.stream().filter(r -> "resource".equals(r.getColumnName())).findFirst().orElseThrow();
     assertTrue(borrowed.isOverlapping());
     assertTrue(borrowed.isOverlappingRef());
 
     Reference owned =
         refs.stream()
-            .filter(r -> r.getColumnName().equals("subpopulation"))
+            .filter(r -> "subpopulation".equals(r.getColumnName()))
             .findFirst()
             .orElseThrow();
     assertFalse(owned.isOverlapping());
