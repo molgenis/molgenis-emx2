@@ -136,4 +136,22 @@ class SqlRowProcessorTest {
         assertThrows(MolgenisException.class, () -> new SqlRowProcessor(database, columns));
     assertEquals("Circular dependency between b and a", exception.getMessage());
   }
+
+  @Test
+  void shouldAllowRequiredExpressionsThatReferToEachOther() {
+    List<Column> columns =
+        List.of(
+            column("id").setPkey(),
+            column("email").setRequired("if (phone == null) 'email or phone required'"),
+            column("phone").setRequired("if (email == null) 'email or phone required'"));
+
+    SqlRowProcessor processor = new SqlRowProcessor(database, columns);
+
+    assertDoesNotThrow(
+        () -> processor.validateAndCompute(row("id", "1", "email", "jan@example.com")));
+    assertDoesNotThrow(() -> processor.validateAndCompute(row("id", "2", "phone", "0612345678")));
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> processor.validateAndCompute(row("id", "3")));
+    assertTrue(exception.getMessage().contains("email or phone required"));
+  }
 }

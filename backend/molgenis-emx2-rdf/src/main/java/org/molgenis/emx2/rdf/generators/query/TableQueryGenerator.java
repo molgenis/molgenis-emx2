@@ -3,6 +3,7 @@ package org.molgenis.emx2.rdf.generators.query;
 import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_VARIABLE;
 
 import java.util.*;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
@@ -104,7 +105,10 @@ public class TableQueryGenerator implements QueryGenerator {
 
   private SelectQuery setupQuery(TableMetadata tableMetadata) {
     SelectQuery select = Queries.SELECT();
-    tableMetadata.getSchema().getSemanticPrefixes().getAllNamespaces().forEach(select::prefix);
+    tableMetadata.getSchema().getSemanticPrefixes().getAllNamespaces().stream()
+        .sorted(Comparator.comparing(Namespace::getPrefix))
+        .forEach(select::prefix);
+
     return select;
   }
 }

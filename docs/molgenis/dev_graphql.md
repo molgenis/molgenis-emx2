@@ -34,6 +34,7 @@ Full documentation can be found while visiting the graphql-playground app. You c
   - [drop/remove schema elements](#dropremove-schema-elements)
   - [Table-level permissions API](#table-level-permissions-api)
 - [Table query and mutation functions](#table-query-and-mutation-functions)
+  - [transactions](#transactions)
 - [Implementation hints](#implementation-hints)
 - [GraphQL endpoints for apps](#graphql-endpoints-for-apps)
 - [GraphQL JavaScript Library (Query EMX2)](#graphql-javascript-library-query-emx2)
@@ -376,6 +377,37 @@ effective permissions.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
 - `isRowLevel` — `true` when row-level security is active for this role on that table, `null` when not.
 
+#### Query custom roles across all schemas (admin only)
+
+On the root API (`/api/graphql`), admins can list the custom roles of every schema in one query
+through `_admin { customRoles }`. System roles are left out. Each entry is one role in one schema,
+with its permissions and the users assigned to it.
+
+```graphql
+{
+  _admin {
+    customRoles {
+      schemaId
+      role
+      permissions {
+        table
+        select
+        insert
+        update
+        delete
+        isRowLevel
+      }
+      users
+    }
+  }
+}
+```
+
+- `schemaId` — the schema the role belongs to.
+- `role` — the name of the custom role.
+- `permissions` — same fields as in `_schema { roles { permissions } }` above.
+- `users` — the users who hold this role.
+
 #### Create a custom role and grant permissions
 
 Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
@@ -524,6 +556,25 @@ mutation {
   }
 }
 ```
+
+On the root API (`/api/graphql`) you can drop custom roles from any schema in one call by passing
+the schema with each role. All roles are dropped in one transaction: if one fails, none are
+dropped.
+
+```graphql
+mutation {
+  drop(
+    roles: [
+      { schemaId: "pet store", role: "TableAViewer" }
+      { schemaId: "other schema", role: "TeamA" }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+The call fails if a schema does not exist or you cannot see it.
 
 > **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
 > System roles cannot be created or deleted through this API.
@@ -723,6 +774,59 @@ mutation {
 ```
 
 update, save, delete work exactly the same.
+
+### transactions
+
+All data mutations in one request are executed in a single database transaction: either all of them
+succeed, or none of them is applied. Data mutations are:
+
+- insert, update, save and delete, for one or more tables
+- truncate, to remove all rows from one or more tables
+
+You can combine multiple tables in one mutation, and multiple mutations in one request. They are
+executed in the order in which they are written, so a mutation sees the changes of the mutations
+before it. Foreign key ('ref') checks are done at end of transaction. 
+To use the same mutation more than once, give it an alias.
+
+For example, remove all orders and a pet, and add a category that is used by a pet inserted in the
+same request:
+
+```graphql
+mutation {
+  truncate(tables: ["Order"]) {
+    message
+  }
+  delete(Pet: { name: "tom" }) {
+    message
+  }
+  insert(Category: { name: "fish" }) {
+    message
+  }
+  insertPet: insert(Pet: { name: "nemo", category: { name: "fish" }, weight: 0.1 }) {
+    message
+  }
+}
+```
+
+If one of the mutations fails, all changes of the request are rolled back, the remaining mutations
+are skipped and the response contains the error.
+
+Data mutations cannot be combined with other mutations, such as `change`, `drop` or `signin`. Such a
+request is rejected without executing anything:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Data mutations (truncate, insert, save, update, delete) cannot be combined with other mutations: change"
+    }
+  ]
+}
+```
+
+Send schema changes in a separate request before the data mutations that depend on them.
+`truncate(tables: [...], async: true)` runs as a background task outside the transaction, so it can
+only be used on its own.
 
 ## Implementation hints
 

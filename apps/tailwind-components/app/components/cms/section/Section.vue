@@ -2,14 +2,19 @@
 import type { ISections } from "../../../../types/cms";
 withDefaults(defineProps<ISections & { isEditable?: boolean }>(), {
   columns: 1,
+  enableTopPadding: true,
+  enableBottomPadding: true,
+  enableFullScreenWidth: false,
 });
 </script>
 
 <template>
   <div
-    class="w-full py-8 justify-center items-center"
+    class="w-full justify-center items-center"
     :class="{
       'bg-form-legend': applyShadedBackground,
+      'pt-8': enableTopPadding,
+      'pb-8': enableBottomPadding,
     }"
   >
     <div

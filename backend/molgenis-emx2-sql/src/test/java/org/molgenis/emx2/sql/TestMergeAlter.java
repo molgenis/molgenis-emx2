@@ -48,7 +48,7 @@ public class TestMergeAlter {
         .create(table(targetTableName).add(column(ID_COLUMN).setPkey()))
         .add(
             column(REFBACK_COLUMN)
-                .setType(ColumnType.REFBACK)
+                .setType(REFBACK)
                 .setRefTable(refTableName)
                 .setRefBack(REF_COLUMN));
     newSchema.create(
@@ -107,7 +107,7 @@ public class TestMergeAlter {
         .getMetadata()
         .add(
             new Column(REFBACK_COLUMN)
-                .setType(ColumnType.REFBACK)
+                .setType(REFBACK)
                 .setRefTable(refTableName)
                 .setRefBack(REF_COLUMN));
 
@@ -172,8 +172,6 @@ public class TestMergeAlter {
 
     // now, we check trigger name
     DSLContext jooq = ((SqlSchemaMetadata) schema.getMetadata()).getJooq();
-    jooq.resultQuery(
-        "SELECT trigger_name from information_schema.triggers  WHERE trigger_name LIKE '%testRenameTableRefOld%'");
     assertEquals(
         6,
         jooq
@@ -251,7 +249,7 @@ public class TestMergeAlter {
         },
         "shouldn't be able to create table with name that converts to same identifier");
 
-    Table otherTable = schema.create(table("my other table", column("id").setPkey()));
+    schema.create(table("my other table", column("id").setPkey()));
     assertThrows(
         MolgenisException.class,
         () -> {
@@ -280,7 +278,6 @@ public class TestMergeAlter {
     executeAlterType(INT, 1, DECIMAL, 1.0);
 
     LocalDate date = LocalDate.now();
-    LocalDateTime time = LocalDateTime.now();
     // todo: I would actually like always to get rid to 'T' is that systemwide settable?
     executeAlterType(STRING, date.toString(), DATE, date);
     // rounding error executeAlterType(STRING, time.toString().replace("T", " "), DATETIME, time);

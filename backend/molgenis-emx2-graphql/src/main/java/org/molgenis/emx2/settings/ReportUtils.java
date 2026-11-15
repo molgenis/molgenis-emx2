@@ -12,7 +12,11 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.json.JsonUtil;
 
-public class ReportUtils {
+public final class ReportUtils {
+  private ReportUtils() {
+    // no instances
+  }
+
   public static Map<String, String> getReportById(String reportId, Schema schema) {
     try {
       String reportsJson = schema.getMetadata().getSetting("reports");

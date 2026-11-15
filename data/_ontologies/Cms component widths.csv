@@ -1,0 +1,5 @@
+order,name,parent,codesystem,code,ontologyTermURI,definition
+0,small,,,,,The width of the component will be third of the parent container
+1,medium,,,,,The width of the component will be half of the parent container
+2,large,,,,,The width of the component will fill two thirds of the parent container
+3,full,,,,,The width of the component will fill the entire space of the parent container

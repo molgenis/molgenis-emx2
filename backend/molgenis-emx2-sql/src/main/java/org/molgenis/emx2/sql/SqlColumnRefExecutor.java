@@ -13,7 +13,7 @@ import org.jooq.Name;
 import org.molgenis.emx2.Column;
 
 /** Create ref constraints. Might be composite key so therefore using Column...column parameters. */
-public class SqlColumnRefExecutor {
+public final class SqlColumnRefExecutor {
   private SqlColumnRefExecutor() {
     // hide
   }
@@ -43,8 +43,8 @@ public class SqlColumnRefExecutor {
 
     ConstraintForeignKeyOnStep constraint =
         constraint(fkeyConstraintName)
-            .foreignKey(thisColumns.toArray(new Name[thisColumns.size()]))
-            .references(fkeyTable, otherColumns.toArray(new Name[otherColumns.size()]))
+            .foreignKey(thisColumns.toArray(new Name[0]))
+            .references(fkeyTable, otherColumns.toArray(new Name[0]))
             .onUpdateCascade();
     if (refColumn.isCascadeDelete()) {
       constraint = constraint.onDeleteCascade();
@@ -57,7 +57,7 @@ public class SqlColumnRefExecutor {
         thisTable, fkeyConstraintName);
 
     jooq.createIndex(getIndexName(refColumn))
-        .on(thisTable, thisColumns.toArray(new Name[thisColumns.size()]))
+        .on(thisTable, thisColumns.toArray(new Name[0]))
         .execute();
   }
 

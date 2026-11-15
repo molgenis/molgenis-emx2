@@ -53,6 +53,6 @@ public enum DefaultNamespace {
   }
 
   public static Stream<Namespace> streamAll() {
-    return Arrays.stream(DefaultNamespace.values()).map(DefaultNamespace::getNamespace);
+    return Arrays.stream(values()).map(DefaultNamespace::getNamespace);
   }
 }

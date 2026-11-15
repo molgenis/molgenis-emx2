@@ -15,8 +15,9 @@ If not, then it is assumed to be an IRI.
 
 Multiple values can be defined by separating these by a comma (such as `dcterms:title,http://purl.org/dc/terms/description`).
 
-?>**Note**: Order the semantics from most important to least important. When generating SparQL SELECT queries, the 
-  semantics are prioritised in the order as they are defined.
+?>**Note**: Order the semantics from most important to least important. When generating SparQL SELECT queries, the
+semantics are prioritised in the order as they are defined. When multiple semantics have a matching value for a query, 
+only the first matching semantic is used. The rest is dropped.
 
 ## Defined namespaces
 

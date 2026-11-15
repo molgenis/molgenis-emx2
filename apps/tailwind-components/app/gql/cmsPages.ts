@@ -41,6 +41,8 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 columns
                 enableFullScreenWidth
                 applyShadedBackground
+                enableTopPadding
+                enableBottomPadding
                 
                 # page headings
                 title
@@ -125,6 +127,9 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         url
                         urlLabel
                         urlIsExternal
+                        navigationCardWidth {
+                            name
+                        }
                         
                         # lists: unordered and ordered
                         orderedItems
@@ -136,7 +141,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         }
                         chartTitle
                         chartDescription
-                        chartData {
+                        chartData (orderby: { sortOrder: ASC }){
                             id
                             xValue
                             xLabel

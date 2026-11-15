@@ -23,6 +23,8 @@ public enum ColumnType {
   // STRING
   STRING(String.class, STRING_OPERATORS),
   STRING_ARRAY(String[].class, STRING_ARRAY_OPERATORS),
+  ENUM(STRING),
+  ENUM_ARRAY(STRING_ARRAY),
   TEXT(String.class, STRING_OPERATORS),
   TEXT_ARRAY(String[].class, STRING_ARRAY_OPERATORS),
   JSON(org.jooq.JSONB.class, STRING_OPERATORS),
@@ -86,7 +88,9 @@ public enum ColumnType {
   }
 
   ColumnType(ColumnType baseType, Operator... operators) {
-    if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
+    if (this.baseType != null) {
+      throw new RuntimeException("Cannot extend an extended type");
+    }
     this.baseType = baseType; // use to extend a base type
     this.operators =
         Stream.concat(Arrays.stream(baseType.operators), Arrays.stream(operators))
@@ -94,7 +98,9 @@ public enum ColumnType {
   }
 
   ColumnType(ColumnType baseType, String validationRegexp) {
-    if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
+    if (this.baseType != null) {
+      throw new RuntimeException("Cannot extend an extended type");
+    }
     this.baseType = baseType; // use to extend a base type
     this.operators = this.baseType.operators;
     this.validationRegexp = Pattern.compile(validationRegexp);
@@ -118,7 +124,9 @@ public enum ColumnType {
 
   /** throws exception when invalid */
   public void validate(Object value) {
-    if (validationRegexp == null) return;
+    if (validationRegexp == null) {
+      return;
+    }
     if (value != null) {
       if (isArray()) {
         validate((Object[]) value);
@@ -189,5 +197,9 @@ public enum ColumnType {
 
   public boolean isNumericType() {
     return INT.equals(getBaseType()) || DECIMAL.equals(getBaseType()) || LONG.equals(getBaseType());
+  }
+
+  public boolean isEnum() {
+    return this == ENUM || this == ENUM_ARRAY;
   }
 }

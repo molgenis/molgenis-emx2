@@ -1,4 +1,5 @@
-import type { Link, Menu, MgError } from "../../types/types";
+import type { Link, LinkType, Menu, MgError } from "../../types/types";
+import { LINK_TYPES } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -27,6 +28,8 @@ export function getInitialFormValues(metadata: ITableMetaData) {
           }
         } else if (column.columnType === "BOOL") {
           accum[column.id] = getBooleanValue(column.defaultValue);
+        } else if (column.columnType === "ENUM_ARRAY") {
+          accum[column.id] = splitCsvString(column.defaultValue);
         } else {
           accum[column.id] = column.defaultValue;
         }
@@ -174,14 +177,21 @@ export function assertMenu(menu: unknown): asserts menu is Menu {
         `Expected menu item at index ${index} to have a string 'label' property`
       );
     }
-    if (typeof item.link !== "string") {
+    if (typeof item.location !== "string") {
       throw new Error(
-        `Expected menu item at index ${index} to have a string 'link' property`
+        `Expected menu item at index ${index} to have a string 'location' property`
       );
     }
     if (item.role && typeof item.role !== "string") {
       throw new Error(
         `Expected menu item at index ${index} to have a string 'role' property`
+      );
+    }
+    if (item.linkType !== undefined && !isLinkType(item.linkType)) {
+      throw new Error(
+        `Expected menu item at index ${index} to have a 'linkType' of ${LINK_TYPES.join(
+          ", "
+        )}`
       );
     }
     if (item.key && typeof item.key !== "string") {
@@ -246,25 +256,67 @@ export function isError(error: unknown): error is Error {
   return error instanceof Error;
 }
 
+function isLinkType(value: unknown): value is LinkType {
+  return LINK_TYPES.includes(value as LinkType);
+}
+
+/** Returns the link's linkType, or "spaLink" when it is absent or not a known link type */
+export function resolveLinkType(link: { linkType?: unknown }): LinkType {
+  return isLinkType(link.linkType) ? link.linkType : "spaLink";
+}
+
+const SAFE_EXTERNAL_PROTOCOLS = new Set(["http:", "https:", "mailto:"]);
+
+/**
+ * Returns true when the url is absolute and uses an allowed protocol.
+ * Rejects executable urls such as `javascript:` or `data:` that would run
+ * in the visiting user's session when the link is clicked.
+ */
+export function isSafeExternalUrl(url: string): boolean {
+  try {
+    return SAFE_EXTERNAL_PROTOCOLS.has(new URL(url.trim()).protocol);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolves a link to the href to navigate to.
+ * - spaLink: returned as is, it is a route inside the ui app
+ * - internalPageLink: leading slashes are removed and the '/' prefixed,
+ * - externalLink: returned as is when it uses a safe protocol
+ * Returns undefined when the link must not be navigated to.
+ */
+export function resolveLinkLocation(link: Link): string | undefined {
+  switch (resolveLinkType(link)) {
+    case "externalLink":
+      return isSafeExternalUrl(link.location)
+        ? link.location.trim()
+        : undefined;
+    case "internalPageLink": {
+      return "/" + link.location.trim().replace(/^[/\\]+/, "");
+    }
+    default:
+      return link.location;
+  }
+}
+
 export function isLink(value: unknown): value is Link {
   return (
     typeof value === "object" &&
     value !== null &&
-    "link" in value &&
-    typeof (value as Link).link === "string" &&
-    (typeof (value as Link).isSpaLink === "boolean" ||
-      (value as Link).isSpaLink === undefined)
+    "location" in value &&
+    typeof (value as Link).location === "string" &&
+    ((value as Link).linkType === undefined ||
+      isLinkType((value as Link).linkType))
   );
 }
 
 export function parseLinkSetting(linkSetting: string): Link {
   const linkSettingObject = JSON.parse(linkSetting);
-  isLink(linkSettingObject);
   return {
-    link: linkSettingObject.link,
-    isSpaLink:
-      linkSettingObject.isSpaLink === "true" ||
-      linkSettingObject.isSpaLink === true,
+    location: linkSettingObject.location,
+    linkType: resolveLinkType(linkSettingObject),
   };
 }
 
@@ -276,4 +328,28 @@ export function getIntInput(inputValue?: string | number | null) {
       typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
     return numericValue;
   }
+}
+
+function splitCsvString(value: string): string[] {
+  const parts: string[] = [];
+  let inQuotes = false;
+  let current = "";
+  for (const char of value) {
+    if (char === "," && !inQuotes) {
+      parts.push(current);
+      current = "";
+    } else {
+      if (char === '"') inQuotes = !inQuotes;
+      current += char;
+    }
+  }
+  parts.push(current);
+  return parts
+    .map((part) =>
+      part
+        .trim()
+        .replace(/^"(.*)"$/s, "$1")
+        .trim()
+    )
+    .filter((part) => part !== "");
 }

@@ -26,6 +26,7 @@ public class ImportDataModelTask extends Task {
     return schema;
   }
 
+  @Override
   public boolean isIncludeDemoData() {
     return includeDemoData;
   }

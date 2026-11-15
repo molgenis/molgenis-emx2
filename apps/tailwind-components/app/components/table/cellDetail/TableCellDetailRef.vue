@@ -9,7 +9,7 @@ import type {
 } from "../../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../../types/types";
 import fetchRowData from "../../../composables/fetchRowData";
-import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
+import { getPrimaryKey } from "../../../utils/getPrimaryKey";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
 import DefinitionList from "../../DefinitionList.vue";
 import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
@@ -40,7 +40,7 @@ await fetchData(props.columnValue, props.metadata.refTableId, props.schema);
 
 async function fetchData(row: IRow, tableId: string, schema: string) {
   loading.value = true;
-  const rowKey = await fetchRowPrimaryKey(row, tableId, schema);
+  const rowKey = await getPrimaryKey(row, tableId, schema);
 
   refRow.value = await fetchRowData(schema, tableId, rowKey);
   refRowMetadata.value = await fetchTableMetadata(schema, tableId);

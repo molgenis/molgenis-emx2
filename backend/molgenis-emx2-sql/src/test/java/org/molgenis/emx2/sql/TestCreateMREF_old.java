@@ -95,16 +95,16 @@
 //      aRowList.add(aRow);
 //    }
 //
-////    // add one sided many-to-many
-////    String refName = columnType + "refToA";
-////    bTable.getMetadata().add(column(refName).type(MREF).refTable("A").refColumn(keyOfA));
+//    // add one sided many-to-many
+//    String refName = columnType + "refToA";
+//    bTable.getMetadata().add(column(refName).type(MREF).refTable("A").refColumn(keyOfA));
 //
 //    //    String refReverseName = columnType + "refToB";
 //    // refReverseName, keyOfB
 //
-////    Row bRow =
-////        new Row().set(keyOfB, keyOfB + "1").set(refName, Arrays.copyOfRange(testValues, 1, 3));
-////    bTable.insert(bRow);
+//    Row bRow =
+//        new Row().set(keyOfB, keyOfB + "1").set(refName, Arrays.copyOfRange(testValues, 1, 3));
+//    bTable.insert(bRow);
 //
 //    StopWatch.print("data inserted");
 //
