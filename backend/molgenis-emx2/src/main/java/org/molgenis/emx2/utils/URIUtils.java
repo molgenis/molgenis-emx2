@@ -5,7 +5,7 @@ import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.IRI;
 import org.molgenis.emx2.MolgenisException;
 
-public class URIUtils {
+public final class URIUtils {
   private URIUtils() {
     // static only
   }

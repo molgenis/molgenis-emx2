@@ -332,10 +332,14 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public Column getColumn(String name) {
-    if (columns.containsKey(name)) return new Column(this, columns.get(name));
+    if (columns.containsKey(name)) {
+      return new Column(this, columns.get(name));
+    }
     if (getInheritedTable() != null) {
       Column c = getInheritedTable().getColumn(name);
-      if (c != null) return new Column(c.getTable(), c);
+      if (c != null) {
+        return new Column(c.getTable(), c);
+      }
     }
     return null;
   }
@@ -394,10 +398,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public void dropColumn(String name) {
-    if (Arrays.asList(getPrimaryKeys()).contains(name))
+    if (getPrimaryKeys().contains(name)) {
       throw new MolgenisException("Remove column failed: Column is primary key");
-    if (columns.get(name) == null)
+    }
+    if (columns.get(name) == null) {
       throw new MolgenisException("Remove column failed: Column '" + name + "' unknown");
+    }
     columns.remove(name);
   }
 
@@ -495,6 +501,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getTableName();
   }
 
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();
@@ -643,9 +650,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   @Override
+  @SuppressWarnings(
+      "PMD.OverrideBothEqualsAndHashCodeOnComparable") // sorted by name, equality stays
+  // identity-based
   public int compareTo(Object o) {
     if (o instanceof TableMetadata metadata) {
-      return getTableName().compareTo((metadata).getTableName());
+      return getTableName().compareTo(metadata.getTableName());
     }
     return 0;
   }
@@ -664,7 +674,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public String getLabel() {
-    if (this.getLabels().get("en") != null && !this.getLabels().get("en").trim().equals("")) {
+    if (this.getLabels().get("en") != null && !"".equals(this.getLabels().get("en").trim())) {
       return this.getLabels().get("en");
     } else {
       return this.getTableName();
@@ -673,7 +683,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getDescription() {
     if (this.getDescriptions().get("en") != null
-        && !this.getDescriptions().get("en").trim().equals("")) {
+        && !"".equals(this.getDescriptions().get("en").trim())) {
       return this.getDescriptions().get("en");
     } else {
       return null;

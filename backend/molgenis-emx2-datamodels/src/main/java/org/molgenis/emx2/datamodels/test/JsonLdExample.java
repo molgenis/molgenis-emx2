@@ -9,7 +9,11 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
-public class JsonLdExample {
+public final class JsonLdExample {
+  private JsonLdExample() {
+    // no instances
+  }
+
   public static void create(Schema schema) {
     Table personTable =
         schema.create(

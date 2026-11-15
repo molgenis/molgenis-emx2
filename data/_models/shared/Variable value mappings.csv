@@ -1,0 +1,11 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,defaultValue,semantics,description,profiles,computed,label,refLabel
+Variable value mappings,,,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,resource,ref,,TRUE,,Resources,,,,,,,Resource this variable value mapping belongs to,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,id,auto_id,1,TRUE,,,,,,,,,Autmatically generated identifier,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts","${mg_autoid(format=numbers, length=8)}",,
+Variable value mappings,,source,ref,,TRUE,,Variable values,,,,,,,"Source variable value as defined in Variable values table, if applicable","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,target,ref,,TRUE,,Variable values,,,,,,,"Target variable value as defined in Variable values table, if applicable",DataCatalogueFlat,,,
+Variable value mappings,,target,ref,,TRUE,catalogue,Variable values,,,,,,,"Target variable value as defined in Variable values table, if applicable","RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,,,Mapping status,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,mapping method,ontology,,,CatalogueOntologies,Mapping method,,,,,,,Mapping method,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,reviewed by,,,,,,,,,,,,Reviewed by,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,
+Variable value mappings,,mapping date,date,,,,,,,,,,,Mapping date,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",,,

@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refBack,refLabel,visible,validation,readonly,defaultValue,semantics,description,profiles
 Containers,,,,,,,,,,,,,,,"All page types (configurable, developer, etc.)",pages
-Containers,,name,string,1,TRUE,,,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,,sio:000116,"A unique name for the container. Only letters or hypens are allowed. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
+Containers,,name,string,1,TRUE,,,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hyphens.""",,,sio:000116,"A unique name for the container. Only letters or hyphens are allowed. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
 Containers,,description,text,,,,,,,,,,,sio:000136,,pages
 Developer pages,Containers,,,,,,,,,,,,,,"Pages built with the html, css, and javascript.",pages
 Developer pages,,Code,section,,,,,,,,,,,,,pages
@@ -57,6 +57,7 @@ Navigation cards,,description,string,,,,,,,,,,,sio:000136,An optional descriptio
 Navigation cards,,url,hyperlink,,TRUE,,,,,,,,,sio:000811,A link to an internal or external page,pages
 Navigation cards,,url label,string,,,,,,,,,,,sio:000179,A label to display instead of the URL,pages
 Navigation cards,,url is external,bool,,,,,,,,,,FALSE,ncit:C44280,"If true, the link will be rendered as an external link",pages
+Navigation cards,,navigation card width,ontology,,,,Cms component widths,,,,,,full,,"Change the width of the component. By default, the card will fill the space (width: 100%).",pages
 Buttons,Components,,,,,,,,,,,,,,Buttons,pages
 Buttons,,button link,string,,,,,,,,,,"mailto:support@molgenis.org",,link added to the button,pages
 Buttons,,button label,string,,,,,,,,,,"Email us",,Text as displayed on the button,pages
@@ -179,6 +180,8 @@ Charts,,enable click events,bool,,,,,,,,,,FALSE,,"If enabled, chart elements can
 Sections,,columns,int,,,,,,,,,,,,The number of columns to create within a section (1-4),pages
 Blocks,,enable full screen width,bool,,,,,,,,,,FALSE,,"If true, content will be expanded to fit the entire width of the screen",pages
 Sections,,apply shaded background,bool,,,,,,,,,,FALSE,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
+Blocks,,enable top padding,bool,,,,,,,,,,TRUE,,"If false, the extra white space above the content will be removed",pages
+Blocks,,enable bottom padding,bool,,,,,,,,,,TRUE,,"If false, the extra white space below the content will be removed",pages
 Blocks,,in container,select,,,,Configurable pages,,,,,,,,"The container that displays this block (i.e., page)",pages
 Blocks,,components,refback,,,,Components,in block,,,,,,,The components that are displayed in the block,pages
 Blocks,,component order,refback,,,,Component orders,block,,,,,,sio:SIO_001316,Components that are displayed in the block and the order in which they are displayed,pages

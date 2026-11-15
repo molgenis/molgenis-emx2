@@ -6,5 +6,7 @@ profileTags: TypeTest
 
 demoData: _demodata/applications/typetest
 
+settings: _settings/typetest
+
 # special options
 setViewPermission: anonymous

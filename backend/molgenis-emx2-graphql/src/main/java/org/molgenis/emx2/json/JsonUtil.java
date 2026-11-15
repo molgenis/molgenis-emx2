@@ -23,7 +23,7 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class JsonUtil {
+public final class JsonUtil {
 
   private JsonUtil() {
     // hide constructor
@@ -154,5 +154,5 @@ public class JsonUtil {
   }
 
   @JsonIgnoreType
-  private static class MixinForJsonIgnore {}
+  private static final class MixinForJsonIgnore {}
 }

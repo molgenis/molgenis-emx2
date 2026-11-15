@@ -111,52 +111,53 @@ class MgGenerateAutoIdTest {
       throws ExecutionException, InterruptedException {
     CountDownLatch lockLatch = new CountDownLatch(1);
     CountDownLatch checkedLatch = new CountDownLatch(1);
-    ExecutorService executor = Executors.newFixedThreadPool(2);
+    try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
 
-    Future<?> takeLockFuture =
-        executor.submit(
-            () -> {
-              try (Connection conn = jooq.configuration().connectionProvider().acquire()) {
-                DSLContext ctx = DSL.using(conn, SQLDialect.POSTGRES);
-                ctx.transaction(
-                    configuration -> {
-                      // Generating this auto id retains a lock on transaction level
-                      generateAutoId(ctx, column);
-                      // Give the signal to the lock check transaction to start
-                      checkedLatch.countDown();
-                      // Retain the lock until the lock check in the other transaction is finished
-                      lockLatch.await();
-                    });
-              } catch (Exception e) {
-                fail("Failed to execute function", e);
-              }
-            });
+      Future<?> takeLockFuture =
+          executor.submit(
+              () -> {
+                try (Connection conn = jooq.configuration().connectionProvider().acquire()) {
+                  DSLContext ctx = DSL.using(conn, SQLDialect.POSTGRES);
+                  ctx.transaction(
+                      configuration -> {
+                        // Generating this auto id retains a lock on transaction level
+                        generateAutoId(ctx, column);
+                        // Give the signal to the lock check transaction to start
+                        checkedLatch.countDown();
+                        // Retain the lock until the lock check in the other transaction is finished
+                        lockLatch.await();
+                      });
+                } catch (Exception e) {
+                  fail("Failed to execute function", e);
+                }
+              });
 
-    Future<?> checkLock =
-        executor.submit(
-            () -> {
-              try (Connection conn = jooq.configuration().connectionProvider().acquire()) {
-                DSLContext ctx = DSL.using(conn, SQLDialect.POSTGRES);
-                ctx.transaction(
-                    configuration -> {
-                      checkedLatch.await();
-                      Boolean lockAcquired =
-                          ctx.select(
-                                  DSL.field(
-                                      "pg_try_advisory_xact_lock(hashtext('MgGenerateAutoIdTest.Person.id'))",
-                                      Boolean.class))
-                              .fetchOneInto(Boolean.class);
-                      assertFalse(lockAcquired, "Advisory lock should be held by the function");
-                      lockLatch.countDown();
-                    });
+      Future<?> checkLock =
+          executor.submit(
+              () -> {
+                try (Connection conn = jooq.configuration().connectionProvider().acquire()) {
+                  DSLContext ctx = DSL.using(conn, SQLDialect.POSTGRES);
+                  ctx.transaction(
+                      configuration -> {
+                        checkedLatch.await();
+                        Boolean lockAcquired =
+                            ctx.select(
+                                    DSL.field(
+                                        "pg_try_advisory_xact_lock(hashtext('MgGenerateAutoIdTest.Person.id'))",
+                                        Boolean.class))
+                                .fetchOneInto(Boolean.class);
+                        assertFalse(lockAcquired, "Advisory lock should be held by the function");
+                        lockLatch.countDown();
+                      });
 
-              } catch (Exception e) {
-                fail("Failed to check lock", e);
-              }
-            });
+                } catch (Exception e) {
+                  fail("Failed to check lock", e);
+                }
+              });
 
-    takeLockFuture.get();
-    checkLock.get();
+      takeLockFuture.get();
+      checkLock.get();
+    }
   }
 
   private List<String> givenFirstNResultsForSeed(int n) {

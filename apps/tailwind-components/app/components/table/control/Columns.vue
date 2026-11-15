@@ -105,7 +105,9 @@ const props = defineProps<{
   tableId?: string;
 }>();
 
-const emits = defineEmits(["update:columns"]);
+const emits = defineEmits<{
+  (event: "update:columns", columns: IColumn[]): void;
+}>();
 
 const showModal = ref(false);
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
@@ -114,7 +116,7 @@ const selectedSortMethod = ref<string>("Default");
 
 watch(() => props.columns, initializeColumns, { immediate: true });
 
-function initializeColumns(newColumns: IColumn[]) {
+function initializeColumns() {
   columnsInColumnsSelectModal.value = props.columns.map(columnToColumnConfig);
 }
 

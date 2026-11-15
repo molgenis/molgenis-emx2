@@ -186,13 +186,13 @@ public class PrimaryKeyTest {
     boolean filterComplex = false;
     boolean filterLast = false;
     for (Filter filter : filters.getSubfilters()) {
-      if (filter.getColumn().equals("complex pair")
+      if ("complex pair".equals(filter.getColumn())
           && filter.getOperator() == EQUALS
           && Arrays.stream(filter.getValues()).toList().contains("me, myself & I")
           && filter.getValues().length == 1) {
         filterComplex = true;
       }
-      if (filter.getColumn().equals("last")
+      if ("last".equals(filter.getColumn())
           && filter.getOperator() == EQUALS
           && Arrays.stream(filter.getValues()).toList().contains("value")
           && filter.getValues().length == 1) {

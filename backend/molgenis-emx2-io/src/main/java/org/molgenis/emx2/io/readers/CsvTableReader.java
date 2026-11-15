@@ -7,7 +7,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
-public class CsvTableReader {
+public final class CsvTableReader {
 
   private CsvTableReader() {
     // to prevent new CsvRowReader()
@@ -34,12 +34,12 @@ public class CsvTableReader {
       String secondLine = bufferedReader.readLine();
 
       // if file is empty we return empty iterator
-      if (firstLine == null || firstLine.trim().equals("") || secondLine == null) {
+      if (firstLine == null || "".equals(firstLine.trim()) || secondLine == null) {
         return Collections.emptyList();
       }
       char separator = ',';
       // if file is empty we return empty iterator
-      if (firstLine.trim().equals("")) {
+      if ("".equals(firstLine.trim())) {
         return Collections.emptyList();
       }
       // guess the separator
@@ -75,6 +75,7 @@ public class CsvTableReader {
       this.it = iterator;
     }
 
+    @Override
     public boolean hasNext() {
       try {
         return it.hasNext();
@@ -91,8 +92,9 @@ public class CsvTableReader {
       }
     }
 
+    @Override
     public Row next() {
-      HashMap<String, Object> next = (HashMap<String, Object>) it.next();
+      Map<String, Object> next = (HashMap<String, Object>) it.next();
       boolean isEmpty =
           next.values().stream()
               .allMatch(v -> v == null || (v instanceof String string && string.trim().isEmpty()));

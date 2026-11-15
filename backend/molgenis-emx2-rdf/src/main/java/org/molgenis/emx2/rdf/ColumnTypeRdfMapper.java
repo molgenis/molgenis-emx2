@@ -126,9 +126,9 @@ public abstract class ColumnTypeRdfMapper {
       final Row row,
       final Column column,
       final RdfColumnType rdfColumnType) {
-    return (rdfColumnType.isEmpty(row, column)
+    return rdfColumnType.isEmpty(row, column)
         ? Set.of()
-        : rdfColumnType.retrieveValues(rdfMapData, row, column));
+        : rdfColumnType.retrieveValues(rdfMapData, row, column);
   }
 
   public enum RdfColumnType {
@@ -161,7 +161,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> Values.literal(i, getCoreDatatype()));
+            row.getStringArray(column.getName()), (i) -> literal(i, getCoreDatatype()));
       }
     },
     LONG(CoreDatatype.XSD.LONG) {
@@ -234,25 +234,29 @@ public abstract class ColumnTypeRdfMapper {
 
         // Separate refLink (if present) from the rest.
         String[] refLinkMappingItem =
-            (column.getRefLink() == null
+            column.getRefLink() == null
                 ? null
                 : new String[] {
                   colNameToRefTableColName.remove(column.getRefLink()),
                   row.getString(column.getRefLink())
-                });
+                };
 
         // Process items
-        final ArrayList<SortedMap<String, String>> itemsToMap = new ArrayList<>();
+        final List<SortedMap<String, String>> itemsToMap = new ArrayList<>();
         for (final String colName : colNameToRefTableColName.keySet()) {
           final String[] values =
               column.isArray()
                   ? row.getStringArray(colName)
                   : new String[] {row.getString(colName)};
 
-          if (values == null) continue;
+          if (values == null) {
+            continue;
+          }
 
           for (int i = 0; i < values.length; i++) {
-            if (itemsToMap.size() == i) itemsToMap.add(new TreeMap<>());
+            if (itemsToMap.size() == i) {
+              itemsToMap.add(new TreeMap<>());
+            }
             SortedMap<String, String> keyValuePairs = itemsToMap.get(i);
             keyValuePairs.put(colNameToRefTableColName.get(colName), values[i]);
           }
@@ -287,9 +291,9 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         String[] names =
-            (column.isArray()
+            column.isArray()
                 ? row.getStringArray(column.getName())
-                : new String[] {row.getString(column.getName())});
+                : new String[] {row.getString(column.getName())};
 
         Map<String, IRI> mappedNames =
             rdfMapData
@@ -299,12 +303,12 @@ public abstract class ColumnTypeRdfMapper {
         return mappedNames.keySet().stream()
             .map(
                 i ->
-                    (mappedNames.get(i) != null
+                    mappedNames.get(i) != null
                         ? mappedNames.get(i)
                         : rowIRI(
                             rdfMapData.getBaseURL(),
                             column.getRefTable().getRootTable(),
-                            new PrimaryKey(Map.of("name", i)))))
+                            new PrimaryKey(Map.of("name", i))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },
@@ -354,8 +358,7 @@ public abstract class ColumnTypeRdfMapper {
           .collect(Collectors.toUnmodifiableSet());
     }
 
-    abstract Set<Value> retrieveValues(
-        final RdfMapData rdfMapData, final Row row, final Column column);
+    abstract Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column);
 
     boolean isEmpty(final Row row, final Column column) {
       return row.getString(column.getName()) == null;

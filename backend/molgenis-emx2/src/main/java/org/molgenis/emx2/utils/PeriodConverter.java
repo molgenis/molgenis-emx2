@@ -6,17 +6,19 @@ import org.jooq.types.YearToSecond;
 
 public class PeriodConverter implements Converter<YearToSecond, Period> {
 
-  public PeriodConverter() {}
-
   @Override
   public Period from(YearToSecond yearToSecond) {
-    if (yearToSecond == null) return null;
+    if (yearToSecond == null) {
+      return null;
+    }
     return Period.of(yearToSecond.getYears(), yearToSecond.getMonths(), yearToSecond.getDays());
   }
 
   @Override
   public YearToSecond to(Period period) {
-    if (period == null) return null;
+    if (period == null) {
+      return null;
+    }
     return YearToSecond.valueOf(period);
   }
 

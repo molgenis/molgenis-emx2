@@ -44,7 +44,6 @@ public class TestGetSetAllTypesOnRows {
 
     m.drop("TypeTest");
 
-    TableMetadata test = m.getTableMetadata("TypeTest");
     assertEquals(0, m.getTableNames().size());
   }
 
@@ -56,23 +55,17 @@ public class TestGetSetAllTypesOnRows {
     r.setString("test", "1");
     assertEquals(1, (int) r.getInteger("test"));
     assertNull(r.getInteger("testnull"));
-    try {
-      r.setString("test", "a");
-      assertEquals(1, (int) r.getInteger("test"));
-      fail("shouldn't be able to get 'a' to int ");
-    } catch (Exception e) {
-    }
+    r.setString("test", "a");
+    assertThrows(
+        Exception.class, () -> r.getInteger("test"), "shouldn't be able to get 'a' to int");
 
     // decimal
     r.setString("test", "1.0");
     assertEquals(1.0, (double) r.getDecimal("test"));
     assertNull(r.getDecimal("testnull"));
-    try {
-      r.setString("test", "a");
-      r.getDecimal("test");
-      fail("shouldn't be able to get 'a' to decimal ");
-    } catch (Exception e) {
-    }
+    r.setString("test", "a");
+    assertThrows(
+        Exception.class, () -> r.getDecimal("test"), "shouldn't be able to get 'a' to decimal");
 
     // bool
     r.setBool("test", true);
@@ -84,24 +77,17 @@ public class TestGetSetAllTypesOnRows {
     r.setString("test", "true");
     assertTrue(r.getBoolean("test"));
 
-    try {
-      r.setString("test", "a");
-      r.getBoolean("test");
-      fail("shouldn't be able to get 'a' to boolean ");
-    } catch (Exception e) {
-    }
+    r.setString("test", "a");
+    assertThrows(
+        Exception.class, () -> r.getBoolean("test"), "shouldn't be able to get 'a' to boolean");
 
     // uuid
     java.util.UUID uuid = java.util.UUID.randomUUID();
     r.setString("test", uuid.toString());
     assertEquals(uuid, r.getUuid("test"));
     assertNull(r.getUuid("testnull"));
-    try {
-      r.setString("test", "a");
-      r.getUuid("test");
-      fail("shouldn't be able to get 'a' to uuid ");
-    } catch (Exception e) {
-    }
+    r.setString("test", "a");
+    assertThrows(Exception.class, () -> r.getUuid("test"), "shouldn't be able to get 'a' to uuid");
 
     // date
     String dateString = "2012-10-03";
@@ -109,12 +95,8 @@ public class TestGetSetAllTypesOnRows {
     LocalDate date = LocalDate.parse(dateString);
     assertEquals(date, r.getDate("test"));
     assertNull(r.getDate("testnull"));
-    try {
-      r.setString("test", "a");
-      r.getDate("test");
-      fail("shouldn't be able to get 'a' to date ");
-    } catch (Exception e) {
-    }
+    r.setString("test", "a");
+    assertThrows(Exception.class, () -> r.getDate("test"), "shouldn't be able to get 'a' to date");
 
     // datetime
     String dateTimeString = "2012-10-03T18:00";
@@ -122,12 +104,9 @@ public class TestGetSetAllTypesOnRows {
     LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
     assertEquals(dateTime, r.getDateTime("test"));
     assertNull(r.getDate("testnull"));
-    try {
-      r.setString("test", "a");
-      r.getDateTime("test");
-      fail("shouldn't be able to get 'a' to datetime ");
-    } catch (Exception e) {
-    }
+    r.setString("test", "a");
+    assertThrows(
+        Exception.class, () -> r.getDateTime("test"), "shouldn't be able to get 'a' to datetime");
 
     // string if not a string
     r.setInt("test", 1);
@@ -148,11 +127,7 @@ public class TestGetSetAllTypesOnRows {
 
     // cast int from some object
     r.setString("test", "blaat");
-    try {
-      assertEquals(new Integer[] {9}, r.getIntegerArray("test"));
-      fail("cannot convert, should fail");
-    } catch (Exception e) {
-    }
+    assertThrows(Exception.class, () -> r.getIntegerArray("test"), "cannot convert, should fail");
 
     r.set("test", new Boolean[] {true, false});
     assertArrayEquals(new Boolean[] {true, false}, r.getBooleanArray("test"));

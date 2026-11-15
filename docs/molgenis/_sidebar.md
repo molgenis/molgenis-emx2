@@ -42,3 +42,4 @@
     - [Building frontend apps](dev_apps.md)
     - [App profiles](dev_profiles.md)
     - [Migrations](dev_migrations.md)
+    - [Local Matomo](dev_matomo.md)
