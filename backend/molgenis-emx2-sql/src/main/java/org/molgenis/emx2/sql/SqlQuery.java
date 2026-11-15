@@ -1266,9 +1266,9 @@ public class SqlQuery extends QueryBean {
       case TEXT_SEARCH:
         return whereColumnTextSearch(columnName, columnType.isArray(), (String[]) values);
       case NOT_BETWEEN:
-        return not(whereColumnBetween(columnName, values));
+        return not(whereColumnBetween(columnName, columnType.isArray(), values));
       case BETWEEN:
-        return whereColumnBetween(columnName, values);
+        return whereColumnBetween(columnName, columnType.isArray(), values);
       case MATCH_ANY_INCLUDING_PARENTS:
         return whereColumnMatchAnyIncludingParents(column, columnName, values);
       case SEARCH_INCLUDING_PARENTS:
@@ -1440,17 +1440,14 @@ public class SqlQuery extends QueryBean {
 
   private static @NotNull Condition whereColumnLike(
       Name columnName, boolean isArray, Object[] values) {
-    if (isArray) {
-      return or(
-          Arrays.stream(values)
-              .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(columnName)))
-              .toList());
-    } else {
-      return or(
-          Arrays.stream(values)
-              .map(value -> field(columnName).likeIgnoreCase("%" + value + "%"))
-              .toList());
+    Field<Object> field = isArray ? field(name("like_element", "v")) : field(columnName);
+    Condition terms =
+        or(Arrays.stream(values).map(value -> field.likeIgnoreCase("%" + value + "%")).toList());
+    if (!isArray) {
+      return terms;
     }
+    return condition(
+        "exists (select 1 from unnest({0}) as like_element(v) where {1})", columnName, terms);
   }
 
   private static @NotNull Condition whereContainsAnyOrEquals(
@@ -1599,24 +1596,30 @@ public class SqlQuery extends QueryBean {
     return refBackSelect;
   }
 
-  private static Condition whereColumnBetween(Name columnName, Object[] values) {
+  private static Condition whereColumnBetween(Name columnName, boolean isArray, Object[] values) {
+    Field<Object> field = isArray ? field(name("between_element", "v")) : field(columnName);
     List<Condition> conditions = new ArrayList<>();
     for (int i = 0; i < values.length; i++) {
       if (i + 1 > values.length)
         throw new SqlQueryException(
             SqlQuery.QUERY_FAILED + SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
       if (values[i] != null && values[i + 1] != null) {
-        conditions.add(field(columnName).between(values[i], values[i + 1]));
+        conditions.add(field.between(values[i], values[i + 1]));
       } else if (values[i] != null && values[i + 1] == null) {
-        conditions.add(field(columnName).greaterOrEqual(values[i]));
+        conditions.add(field.greaterOrEqual(values[i]));
       } else if (values[i] == null && values[i + 1] != null) {
-        conditions.add(field(columnName).lessOrEqual(values[i + 1]));
+        conditions.add(field.lessOrEqual(values[i + 1]));
       } else {
         // nothing to do
       }
       i++; // NOSONAR
     }
-    return or(conditions);
+    Condition ranges = or(conditions);
+    if (!isArray || conditions.isEmpty()) {
+      return ranges;
+    }
+    return condition(
+        "exists (select 1 from unnest({0}) as between_element(v) where {1})", columnName, ranges);
   }
 
   private Condition whereConditionSearch(
