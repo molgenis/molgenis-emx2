@@ -51,9 +51,9 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const yAxisTickLabels = await page
       .locator("#column-chart-demo-1 g.axes g.y-axis g.tick text")
       .all();
-    expect(yAxisTicks.length).toEqual(5);
-    expect(yAxisTickLines.length).toEqual(5);
-    expect(yAxisTickLabels.length).toEqual(5);
+    expect(yAxisTicks.length).toEqual(6);
+    expect(yAxisTickLines.length).toEqual(6);
+    expect(yAxisTickLabels.length).toEqual(6);
 
     const xAxisTicks = await page
       .locator("#column-chart-demo-1 g.axes g.x-axis g.tick")
