@@ -57,6 +57,7 @@ import { vizDelay, vizDurations } from "../../../utils/cms/constants.ts";
 const props = withDefaults(defineProps<IStatisticalCharts>(), {
   chartWidth: 300,
   chartHeight: 300,
+  yAxisMinValue: 0,
   topMargin: 35,
   rightMargin: 10,
   bottomMargin: 70,
@@ -221,10 +222,21 @@ const colorPalette = computed(() => {
         return [item, colors[index] || "#ccc"];
       })
     );
+  } else if (props.chartData?.find((row) => row.fillColor)) {
+    const newColorData = (props.chartData as IChartData[]).map(
+      (row: IChartData) => {
+        return {
+          xValue: row.xValue,
+          fillColor: row.fillColor || props.fillColor,
+        };
+      }
+    );
+
+    domains = newColorData.map((row) => row.xValue);
+    colors = newColorData.map((row) => row.fillColor);
   } else {
     colors = Array(domains.length).fill(props.fillColor);
   }
-
   return d3.scaleOrdinal().domain(domains).range(colors).unknown("#ccc");
 });
 
