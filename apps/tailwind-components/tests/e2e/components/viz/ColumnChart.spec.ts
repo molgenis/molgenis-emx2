@@ -52,8 +52,8 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
       .locator("#column-chart-demo-1 g.axes g.y-axis g.tick text")
       .all();
     expect(yAxisTicks.length).toEqual(6);
-    expect(yAxisTickLines.length).toEqual(6);
-    expect(yAxisTickLabels.length).toEqual(6);
+    expect(yAxisTickLines.length).toEqual(9);
+    expect(yAxisTickLabels.length).toEqual(9);
 
     const xAxisTicks = await page
       .locator("#column-chart-demo-1 g.axes g.x-axis g.tick")
@@ -88,5 +88,20 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     expect(await selection.innerText()).toBe(
       'Clicked element: { "id": "value-jan", "xValue": "Jan", "yValue": "18" }'
     );
+  });
+
+  test("grouped column charts return the correct nested groups", async ({
+    page,
+  }) => {
+    const groups = await page.locator("#column-chart-demo-3 g.rect-group");
+    const colGroups = await page.locator(
+      "#column-chart-demo-3 g.rect-subgroup"
+    );
+    const textGroups = await page.locator(
+      "#column-chart-demo-3 g.text-subgroup"
+    );
+    expect(groups.length).toEqual(4);
+    expect(colGroups.length).toEqual(4);
+    expect(textGroups.length).toEqual(4);
   });
 });
