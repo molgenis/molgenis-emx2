@@ -19,7 +19,7 @@ import org.molgenis.emx2.rdf.RdfValidator;
  *
  * @see org.molgenis.emx2.rdf.generators.Emx2RdfGenerator#describeColumn(Column)
  */
-public class Emx2TableInheritanceTest extends TableInheritanceTest {
+class Emx2TableInheritanceTest extends TableInheritanceTest {
   @Test
   void testPresenceEmx2Columns_root() throws IOException {
     InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Root");
