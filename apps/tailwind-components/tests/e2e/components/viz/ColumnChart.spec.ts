@@ -51,7 +51,7 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const yAxisTickLabels = await page
       .locator("#column-chart-demo-1 g.axes g.y-axis g.tick text")
       .all();
-    expect(yAxisTicks.length).toEqual(6);
+    expect(yAxisTicks.length).toEqual(9);
     expect(yAxisTickLines.length).toEqual(9);
     expect(yAxisTickLabels.length).toEqual(9);
 
@@ -93,15 +93,26 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
   test("grouped column charts return the correct nested groups", async ({
     page,
   }) => {
-    const groups = await page.locator("#column-chart-demo-3 g.rect-group");
-    const colGroups = await page.locator(
-      "#column-chart-demo-3 g.rect-subgroup"
-    );
-    const textGroups = await page.locator(
-      "#column-chart-demo-3 g.text-subgroup"
-    );
-    expect(groups.length).toEqual(4);
-    expect(colGroups.length).toEqual(4);
-    expect(textGroups.length).toEqual(4);
+    const allGroups = await page
+      .locator("#column-chart-demo-3 g.rect-group")
+      .all();
+    const rectGroups = await page
+      .locator("#column-chart-demo-3 g.rect-subgroup")
+      .all();
+    const textGroups = await page
+      .locator("#column-chart-demo-3 g.text-subgroup")
+      .all();
+    const rectElems = await page
+      .locator("#column-chart-demo-3 g.rect-subgroup rect.column")
+      .all();
+    const textElems = await page
+      .locator("#column-chart-demo-3 g.text-subgroup text")
+      .all();
+
+    expect(allGroups.length).toEqual(5);
+    expect(rectGroups.length).toEqual(5);
+    expect(textGroups.length).toEqual(5);
+    expect(rectElems.length).toEqual(15);
+    expect(textElems.length).toEqual(15);
   });
 });
