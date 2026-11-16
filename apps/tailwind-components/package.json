@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "11.0.3",
-    "@vueuse/components": "12.8.2",
-    "@vueuse/core": "12.8.2",
+    "@vueuse/components": "15.0.0",
+    "@vueuse/core": "15.0.0",
     "@vueuse/integrations": "10.7.0",
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
