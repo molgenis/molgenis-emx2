@@ -80,8 +80,6 @@ const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
 const chartColumns = ref(); // receives d3.select rect
 
-const currentTheme = ref<string>("light");
-
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
 });
@@ -262,11 +260,9 @@ function renderChartAxes() {
 }
 
 function onMouseOver(event: Event, row: IChartData) {
-  currentTheme.value = document
-    .querySelector("html")
-    ?.getAttribute("data-theme") as string;
   const rect = event.target as HTMLElement;
   let text: SVGTextElement;
+
   if (isGroupedColumnChart.value) {
     text = chartArea.value.select(
       `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
@@ -339,9 +335,6 @@ function renderColumns() {
 function renderChart() {
   svg.value = d3.select(`#${props.id}`);
   chartArea.value = svg.value.select("g.chart-area");
-  currentTheme.value = document
-    .querySelector("html")
-    ?.getAttribute("data-theme") as string;
 
   width.value =
     (parentElem.value?.offsetWidth || props.chartWidth) -
@@ -433,18 +426,6 @@ watch(
         preserve-aspect-ratio="xMinYMin"
         :viewBox="`0 0 ${width + internalLeftMargin} ${props.chartHeight}`"
       >
-        <defs>
-          <filter x="0" y="0" width="1" height="1" id="textBackground">
-            <feFlood
-              :flood-color="currentTheme === 'dark' ? '#1e1e1e' : '#fff'"
-              result="bg"
-            />
-            <feMerge>
-              <feMergeNode in="bg" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
         <g
           class="chart-area"
           :transform="`translate(${internalLeftMargin * 1.3}, ${topMargin})`"
@@ -479,10 +460,7 @@ watch(
                   :data-x="nestedRow.xValue"
                   :data-y="nestedRow.yValue"
                   :data-group="nestedRow.primaryGroupValue"
-                  class="fill-chart-text"
-                  :class="{
-                    'text-body-base': currentTheme === 'light',
-                  }"
+                  class="fill-chart-text text-body-base"
                   text-anchor="middle"
                   :opacity="0"
                   filter="url(#textBackground)"
