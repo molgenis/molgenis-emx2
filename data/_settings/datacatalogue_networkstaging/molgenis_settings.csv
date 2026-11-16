@@ -1,2 +1,3 @@
 table,key,value
 ,isChangelogEnabled,true
+,menu,"[{""label"":""DataEntry"",""href"":""tables/#/Catalogues"",""key"":""1x4fig"",""submenu"":[],""role"":""Editor""},{""label"":""Tables"",""href"":""tables"",""role"":""Viewer"",""key"":""i5fklh"",""submenu"":[]},{""label"":""Schema"",""href"":""schema"",""role"":""Manager"",""key"":""2ihs1"",""submenu"":[]},{""label"":""Up/Download"",""href"":""updownload"",""role"":""Editor"",""key"":""85rzfm"",""submenu"":[]},{""label"":""Graphql"",""href"":""graphql-playground"",""role"":""Viewer"",""key"":""p4sd3x"",""submenu"":[]},{""label"":""Settings"",""href"":""settings"",""role"":""Manager"",""key"":""a0hadk"",""submenu"":[]},{""label"":""Help"",""href"":""docs"",""role"":""Viewer"",""key"":""jebyg8"",""submenu"":[]}]"
