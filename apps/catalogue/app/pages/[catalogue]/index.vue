@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-  useRoute,
-  useRuntimeConfig,
-  useHead,
-  useFetch,
-  createError,
-} from "#app";
+import { useRoute, useRuntimeConfig, useHead, useFetch } from "#app";
 import { computed } from "vue";
 import type { ISetting } from "../../../../metadata-utils/src/types";
 import LayoutsLandingPage from "../../components/layouts/LandingPage.vue";
@@ -201,16 +195,7 @@ const settings = computed(() => {
   return data.value.data._settings;
 });
 
-const network = computed(() => {
-  const catalogues = data.value.data?.Catalogues;
-  if (scoped && (!catalogues || catalogues.length === 0)) {
-    throw createError({
-      status: 404,
-      statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
-    });
-  }
-  return catalogues?.[0];
-});
+const network = computed(() => data.value.data?.Catalogues?.[0]);
 
 const title = computed(() => {
   if (scoped) {

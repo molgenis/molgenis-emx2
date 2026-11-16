@@ -56,6 +56,11 @@ useHead({
                   Details (debug): {{ JSON.stringify(error, null, 2) }}
                 </p>
               </div>
+              <div v-if="error.statusCode === 404" class="py-5 text-xl">
+                <NuxtLink to="/" class="underline hover:bg-link-hover"
+                  >Find all catalogues here</NuxtLink
+                >
+              </div>
               <div class="py-5">
                 <Button @click="router.go(-1)" label="Go back" size="medium" />
               </div>
