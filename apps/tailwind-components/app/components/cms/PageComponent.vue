@@ -60,9 +60,6 @@ const componentDisplayName = computed<string>(() => {
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
-const cachedListItems = ref<string[]>(
-  props.component?.orderedItems || props.component?.unorderedItems || []
-);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });
@@ -215,15 +212,6 @@ const debouncedUpdateText = useDebounceFn((text: string, field: string) => {
 function updateText(text: string, field: string = "text") {
   debouncedUpdateText(text, field);
 }
-
-function updateListItems(item: { key: string; text: string }, field: string) {
-  cachedListItems.value[item.key] = item.text;
-  updateText(cachedListItems.value, field);
-}
-
-function inlineSave() {
-  debouncedUpdateText.flush();
-}
 </script>
 
 <template>
@@ -307,8 +295,7 @@ function inlineSave() {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
-    @updateOrderedItems="updateListItems($event, 'orderedItems')"
-    @inlineSave="inlineSave"
+    @updateOrderedItems="updateText($event, 'orderedItems')"
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
@@ -317,8 +304,7 @@ function inlineSave() {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
-    @updateUnorderedItems="updateListItems($event, 'unorderedItems')"
-    @inlineSave="inlineSave"
+    @updateUnorderedItems="updateText($event, 'unorderedItems')"
   />
   <EditableColumnChart
     v-else-if="

@@ -2,7 +2,7 @@
 import ListItem from "./ListItem.vue";
 import type { IUnorderedLists } from "../../../../types/cms.ts";
 const props = defineProps<IUnorderedLists & { isEditable?: boolean }>();
-const emit = defineEmits(["updateUnorderedItems", "inlineSave"]);
+const emit = defineEmits(["updateUnorderedItems"]);
 </script>
 
 <template>
@@ -19,7 +19,6 @@ const emit = defineEmits(["updateUnorderedItems", "inlineSave"]);
             key,
           })
       "
-      @blur="props.isEditable && emit('inlineSave')"
     />
   </ul>
 </template>
