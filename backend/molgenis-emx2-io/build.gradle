@@ -3,6 +3,8 @@ dependencies {
     implementation libs.excel.streaming.reader
     implementation libs.commons.lang3
     implementation libs.commons.io
+    implementation libs.parquet
+    implementation libs.hadoop.client.api
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-sql')
