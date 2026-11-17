@@ -1,0 +1,16 @@
+name,label,codesystem,ontologyTermURI,definition
+CT,,,,
+Fluoroscopy,,,,
+Fundus image,,,,
+Mammography,,,,
+MRI,MRI,RadLex,http://www.radlex.org/RID/RID10312,Magnetic Resonance Imaging
+Nuclear medicine,,,,
+Other,,,,
+PET,,,,
+RTDOSE,,,,
+RTIMAGE,,,,
+RTPLAN,,,,
+RTSTRUCT,,,,
+Ultrasound,,,,
+X-ray angiography,,,,
+X-rays,,,,
