@@ -9,7 +9,7 @@ public class CatalogueTest extends TestLoaders {
 
   @Test
   void test06DataCatalogueLoader() throws Exception {
-    assertEquals(30, dataCatalogue.getTableNames().size());
+    assertEquals(31, dataCatalogue.getTableNames().size());
 
     // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
     adheresToShacl(dataCatalogue, "ejp-rd-vp");
@@ -18,12 +18,12 @@ public class CatalogueTest extends TestLoaders {
 
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
-    assertEquals(19, cohortStaging.getTableNames().size());
+    assertEquals(20, cohortStaging.getTableNames().size());
   }
 
   @Test
   public void test08DataCatalogueRWEStagingLoader() {
-    assertEquals(17, rweStaging.getTableNames().size());
+    assertEquals(18, rweStaging.getTableNames().size());
   }
 
   @Test
