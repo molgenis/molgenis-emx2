@@ -9,4 +9,5 @@ dependencies {
     implementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
+    testImplementation libs.parquet.avro
 }
