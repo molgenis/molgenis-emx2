@@ -254,7 +254,7 @@ public class MolgenisWebservice {
       if (menuForRole.isEmpty()) {
         logger.warn("No menu available for current user");
         boolean userHasAnyRole =
-            schema.getMembers().stream().anyMatch(m -> m.getUser().equals(currentUser));
+            schema.getMembers().stream().anyMatch(m -> m.getUsername().equals(currentUser));
         if (userHasAnyRole) {
           ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
         } else {

@@ -49,7 +49,7 @@ class PetStoreRolesTest {
     assertTrue(
         database.getSchema(SCHEMA).getMembers().stream()
             .anyMatch(
-                m -> DRAGON_KEEPER_USER.equals(m.getUser()) && DRAGON_KEEPER.equals(m.getRole())),
+                m -> DRAGON_KEEPER_USER.equals(m.getUsername()) && DRAGON_KEEPER.equals(m.getRole())),
         "dragonkeeper should be member of DragonKeeper");
   }
 

@@ -511,16 +511,16 @@ public class SqlRoleManager {
         db -> {
           SqlDatabase txDb = (SqlDatabase) db;
           List<Member> currentMembers = getMembers(txDb.getJooq(), schemaName);
-          String username = MG_USER_PREFIX + member.getUser().value();
+          String username = MG_USER_PREFIX + member.getUsername().value();
           String roleName = fullRoleName(schemaName, member.getRole());
-          Username memberUsername = member.getUser();
+          Username memberUsername = member.getUsername();
 
           if (!db.hasUser(memberUsername)) {
             db.addUser(memberUsername);
           }
           boolean newRoleIsSystemRole = Privileges.isSystemRole(member.getRole());
           for (Member old : currentMembers) {
-            if (old.getUser().equals(memberUsername)
+            if (old.getUsername().equals(memberUsername)
                 && Privileges.isSystemRole(old.getRole()) == newRoleIsSystemRole) {
               revoke(txDb.getJooq(), name(fullRoleName(schemaName, old.getRole())), name(username));
             }
@@ -534,18 +534,18 @@ public class SqlRoleManager {
   }
 
   public void removeMembers(String schemaName, List<Member> members) {
-    List<Username> usernames = members.stream().map(Member::getUser).toList();
+    List<Username> usernames = members.stream().map(Member::getUsername).toList();
     String rolePrefix = rolePrefix(schemaName);
     database.tx(
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           try {
             for (Member m : getMembers(jooq, schemaName)) {
-              if (usernames.contains(m.getUser())) {
+              if (usernames.contains(m.getUsername())) {
                 revoke(
                     jooq,
                     name(rolePrefix + m.getRole()),
-                    name(MG_USER_PREFIX + m.getUser().value()));
+                    name(MG_USER_PREFIX + m.getUsername().value()));
               }
             }
           } catch (DataAccessException dae) {

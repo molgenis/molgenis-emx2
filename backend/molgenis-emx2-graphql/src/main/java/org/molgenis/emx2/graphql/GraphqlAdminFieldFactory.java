@@ -133,7 +133,7 @@ public final class GraphqlAdminFieldFactory {
     Map<String, List<String>> usersPerRole =
         db.loadUserRoles().stream()
             .collect(
-                groupingBy(Member::getRole, mapping(member -> member.getUser().value(), toList())));
+                groupingBy(Member::getRole, mapping(member -> member.getUsername().value(), toList())));
     List<Map<String, Object>> result = new ArrayList<>();
     for (String schemaName : db.getSchemaNames()) {
       for (Role role : db.getSchema(schemaName).getRoleInfos()) {
@@ -210,7 +210,7 @@ public final class GraphqlAdminFieldFactory {
 
   private static List<Map<String, String>> getRoles(User user, List<Member> members) {
     return members.stream()
-        .filter(member -> member.getUser().equals(user.getUsername()))
+        .filter(member -> member.getUsername().equals(user.getUsername()))
         .map(GraphqlAdminFieldFactory::getUserRoleMap)
         .toList();
   }

@@ -279,7 +279,7 @@ class TestGraphqlAdminFields {
             Member anotherSchemaMember =
                 testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
             assertEquals("Owner", anotherSchemaMember.getRole());
-            assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
+            assertEquals(TEST_PERSOON, anotherSchemaMember.getUsername());
 
             // clean up
             testDatabase.removeUser(TEST_PERSOON);

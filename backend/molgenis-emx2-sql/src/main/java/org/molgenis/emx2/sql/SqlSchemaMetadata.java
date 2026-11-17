@@ -271,7 +271,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
 
     for (Member m : roleManager.getMembers(getName())) {
-      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) {
+      if (roleManager.isSystemRole(m.getRole()) && m.getUsername().equals(user)) {
         return m.getRole();
       }
     }
