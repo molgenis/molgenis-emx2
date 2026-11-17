@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IOrganisationRoles } from "../../interfaces/catalogue";
+import { organisationName } from "../utils/organisationName";
 
 defineProps<{
   organisation: IOrganisationRoles;
@@ -13,8 +14,8 @@ defineProps<{
   >
     <div class="flex items-start flex-col h-full">
       <span class="block">
-        <span class="font-bold" v-if="organisation.organisationName">
-          {{ organisation.organisationName }}
+        <span class="font-bold" v-if="organisationName(organisation)">
+          {{ organisationName(organisation) }}
           <template v-if="organisation?.organisation?.acronym">
             ({{ organisation.organisation.acronym }})
           </template>

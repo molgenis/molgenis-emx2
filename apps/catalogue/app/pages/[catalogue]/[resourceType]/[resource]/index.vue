@@ -165,8 +165,10 @@ const resourceQuery = `
         }
         organisation {
           organisationName
-          organisationWebsite
-          email
+          organisationNotInROR
+          organisation {
+            name
+          }
         }
         role ${moduleToString(ontologyFragment)}
       }
@@ -177,7 +179,9 @@ const resourceQuery = `
         department
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
+        organisationNotInROR
         organisation {
+          name
           acronym
           country {
             name
