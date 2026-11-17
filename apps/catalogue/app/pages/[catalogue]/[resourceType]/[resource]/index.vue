@@ -164,29 +164,21 @@ const resourceQuery = `
           name
         }
         organisation {
-          name
-          website
+          organisationName
           organisationWebsite
           email
-          organisation {
-            name
-            label
-          }
-      }
+        }
         role ${moduleToString(ontologyFragment)}
       }
-      organisationsInvolved(orderby: {name: ASC})  {
+      organisationsInvolved(orderby: {organisationName: ASC})  {
         id
-        name
-        website
+        organisationName
+        organisationWebsite
         department
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
-        otherOrganisation
         organisation {
-          name
           acronym
-          website
           country {
             name
             order

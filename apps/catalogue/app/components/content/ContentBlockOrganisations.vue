@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IOrganisations } from "../../../interfaces/catalogue";
+import type { IOrganisationRoles } from "../../../interfaces/catalogue";
 import ContactCardList from "../ContactCardList.vue";
 import OrganisationCard from "../OrganisationCard.vue";
 import DefinitionListTerm from "../../../../tailwind-components/app/components/DefinitionListTerm.vue";
@@ -8,7 +8,7 @@ import ContentBlock from "../../../../tailwind-components/app/components/content
 defineProps<{
   title: string;
   description?: string;
-  organisations: IOrganisations[];
+  organisations: IOrganisationRoles[];
 }>();
 </script>
 
