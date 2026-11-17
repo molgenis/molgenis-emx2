@@ -1,54 +1,50 @@
 # Using the MOLGENIS CMS
 
 > NOTE
-> The MOLGENIS CMS is currently in development. In this guide, we've provided an overview of the CMS, but things may change or may not work as described. If you notice any issues, please let us know.
+> The MOLGENIS CMS is currently in development. In this guide, we've provided a brief overview of the CMS, but things may change or may not work as described. If you notice any issues, please let us know.
 
-The MOLGENIS CMS&mdash;or _content management system_&mdash;allows users to create custom interfaces within a molgenis instance. Behind the scenes, the CMS is a central schema, which is called `cms` and comes pre-loaded with a few example pages. In the CMS, there are two types of pages that can be created, which can only be created if a user has manager-level permissions.
+The MOLGENIS CMS&mdash;or _content management system_&mdash;allows users to create custom interfaces within a molgenis instance. Behind the scenes, the CMS is a central schema, which is called `cms` and comes pre-loaded with a few example pages that you can use as a starting point for creating your own pages.
 
-1. __Landing page__: a simple, drag-and-drop interface where users can create content from a set of standard components (e.g., paragraphs, lists, images, visualisations, etc.)
+In the CMS, there are two types of pages that can be created, which can only be created if a user has manager-level permissions.
+
+1. __Landing page__: a simple, drag-and-drop interface where users can create content from a set of standard MOLGENIS components (e.g., paragraphs, lists, images, visualisations, etc.)
 2. __Developer page__ (advanced): create a page from the scratch using HTML, CSS, and JavaScript.
 
-All CMS pages, by default, are connected to the local MOLGENIS theme (e.g., "light", "dark", etc.), so you do not need to worry about styling pages.
+All CMS pages, by default, are connected to the local MOLGENIS theme ("light" and "dark"), so you do not need to worry about styling pages.
 
 ## How to use the MOLGENIS CMS
 
 MOLGENIS CMS pages are always visible in the __page gallery__. To edit a page-
 
-1. Go to your molgenis instance and sign in (must have manager rights)
+1. Go to your molgenis instance and sign in (must have manager or a higher permission level)
 2. Go to the page gallery at `https://<host>/apps/ui/cms/pages`
 3. Find the page you wish to edit and click the corresponding pencil icon.
     - If are editing a landing page, you will be redirected to the __page builder__, which is the drag-and-drop interface
     - For developer pages, the __page editor__ will open and an IDE-like interface will be displayed
-4. Start building your page and save changes
+4. Start building your page
 
 In the page builder, all changes are saved automatically, whereas you must routinely save changes when using the page editor.
 
 ## The Page Builder
 
-In the page builder interface, custom pages are created using a system of _blocks_ and _components_. Components&mdash;paragraphs, headings, images, visualisations, etc.&mdash;are placed inside blocks (or sections), which are placed within a page. By grouping content this way, this allows flexibility in how content is organised on a page.
+In the page builder, pages are created using a system of _blocks_ and _components_. Components&mdash;paragraphs, headings, images, visualisations, etc.&mdash;are placed inside blocks (or sections), which are placed within a page. By grouping content this way, this allows flexibility in how content is organised on a page. By default, new pages are created with a few basic elements: one page header and the first section. You may use these as a starting point or delete them from your page.
 
 ### How to create a page
 
-By default, new pages are created with a few basic elements: one page header and the first section. You may use these as a starting point or delete them from your page.
-
-__To create a new page:__
-
 1. Add a Header (Layouts >> Header): Set the page header, subtitle, and background image
-2. Add a block (Layouts >> Section):
+2. Add a block (Layouts >> Section)
 3. Add a heading (Components >> Heading) into the new section
 4. Add a paragraph, image, or other component
 5. Repeat for additional sections
 
-__Tips:__
+#### Tips
 
-- It is recommended that pages have one header block
+- It is recommended that pages have no more than one header block
 - Sections can be divided into columns allowing content to be placed side-by-side
-- When adding headings to sections, do not use the `level` option to style the heading. This option is used to define the page hierarchy. The most important heading should have level 2 and all following headings should start at level 3.
 - To add visual distinction between sections, use the "apply shaded background" option
+- When adding headings to sections, do not use the `level` option to style the heading. This is used to define the page hierarchy. The level of the primary section heading should be 2 and all following headings should start at level 3.
 
 ### Adding visualisations
-
-It is now possible to create column charts in the page builder. To do so-
 
 1. __Create a column chart component__: 
     - Drag the visualisation component into a section
@@ -60,17 +56,16 @@ It is now possible to create column charts in the page builder. To do so-
     - If you want to group data, enter values in `primary group value`
     - You will also need to copy the chart id (found in the form) and paste it in the `displayed in chart` column. Repeat for all data points you wish to display in the chart.
     - It is also recommended to define the `sort order`. By default, the visualisation components do not sort components. This only happens when the data is queried. If no order is defined, data will be rendered according to how it was imported into the table.
-    - Import the file in to the CMS schema
-    - Refresh your page to view the data
+    - Import the file in to the CMS schema and refresh your page to view the chart
 3. __Configure the chart__: once data is in available, you can now adjust the axes, add color palettes, etc. 
 
-__Tips:__
+#### Tips
 
 - All charts should have a title. A description is also useful for adding additional context for the user
 - It is recommend to give a title for continuous axes
 - Do not display dozens of values in a chart. Instead, use a table or group smaller values into an "other" category
-- Do not create a color palette for styles each data point. This adds no value to the visualisation and is confusing for the reader. The only time color palettes should be used is when charts are grouped.
-- If hover events are enabled, some labels may extend outside of the chart margins. To address this, increase the top margin.
+- Do not create a color palette for styles each data point. This does not add value or meaning to the visualisation, and it is confusing for the reader. Color palettes should be used is when charts are grouped.
+- If hover events are enabled, some labels may extend outside of the chart margins. This can be fixed by increasing the top margin.
 
 ## Troubleshooting
 
@@ -78,7 +73,7 @@ __Tips:__
 
 For now, images can be imported in to the Images table (cms >> Images). Go to the table and click the "add images" button, and then select an image to import.
 
-__Tips:__
+#### Tips
 
 - We recommend compressing your image before importing into the CMS. This ensures that pages have fast load times.
 - Give the image a `display name`. This makes it easier to select an image in the forms
@@ -87,9 +82,9 @@ __Tips:__
 
 It may be the case that you want to create a section that has multiple column layouts. For example, you may have a section with a heading and some text, but you want to display two images side-by-side. Changing the number of columns allows you to do this, but it will also arrange the heading and paragraphs. To get around this, follow these instructions.
 
-1. Create a section: place all content you wish to display normally (top to bottom of the page)
-2. Create a section with columns: set the number of columns you want to have and add content to the columns
-3. Click the edit section with columns button: display the "enable top padding" and/or "enable bottom padding" fields. This gives the appearance that the sections are one.
+1. __Create a section__: place all content you wish to display normally (top to bottom of the page)
+2. __Create a section with columns__: set the number of columns you want to have and add content to the columns
+3. __Remove section padding__: Click the edit section with columns button and scroll to "enable top padding" and/or "enable bottom padding" fields. This gives the appearance that the content is part of the same section.
 
 ### How do I create a page with my own theme?
 
