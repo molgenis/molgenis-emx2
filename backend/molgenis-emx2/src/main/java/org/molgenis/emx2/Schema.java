@@ -42,7 +42,7 @@ public interface Schema {
 
   void discard(SchemaMetadata schema);
 
-  void addMember(Username user, String role);
+  void addMember(Username username, String role);
 
   List<Member> getMembers();
 
@@ -50,13 +50,13 @@ public interface Schema {
 
   void removeMembers(List<Member> members);
 
-  void removeMember(Username user);
+  void removeMember(Username username);
 
   List<String> getRoles();
 
-  String getRoleForUser(Username user);
+  String getRoleForUser(Username username);
 
-  List<String> getInheritedRolesForUser(Username user);
+  List<String> getInheritedRolesForUser(Username username);
 
   String getRoleForActiveUser();
 

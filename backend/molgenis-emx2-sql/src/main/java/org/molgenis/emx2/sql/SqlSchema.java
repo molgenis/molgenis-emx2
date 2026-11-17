@@ -49,8 +49,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void addMember(Username user, String role) {
-    roleManager().addMember(getName(), new Member(user, role));
+  public void addMember(Username username, String role) {
+    roleManager().addMember(getName(), new Member(username, role));
   }
 
   @Override
@@ -69,8 +69,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void removeMember(Username user) {
-    removeMembers(new Member(user, null));
+  public void removeMember(Username username) {
+    removeMembers(new Member(username, null));
   }
 
   @Override
@@ -84,18 +84,18 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public String getRoleForUser(Username user) {
-    return getMetadata().getRoleForUser(user);
+  public String getRoleForUser(Username username) {
+    return getMetadata().getRoleForUser(username);
   }
 
   @Override
-  public List<String> getInheritedRolesForUser(Username user) {
+  public List<String> getInheritedRolesForUser(Username username) {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
-    if (user == null || ADMIN_USER.equals(user)) {
+    if (username == null || ADMIN_USER.equals(username)) {
       return getRoles();
     } else {
-      return getMetadata().getInheritedRolesForUser(user);
+      return getMetadata().getInheritedRolesForUser(username);
     }
   }
 

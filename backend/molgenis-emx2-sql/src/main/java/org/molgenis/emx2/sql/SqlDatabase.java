@@ -541,37 +541,37 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void removeUser(Username user) {
+  public void removeUser(Username username) {
     long start = System.currentTimeMillis();
-    if (ADMIN_USER.equals(user)) {
+    if (ADMIN_USER.equals(username)) {
       throw new MolgenisException("You can't remove admin");
     }
-    if (ANONYMOUS.equals(user)) {
+    if (ANONYMOUS.equals(username)) {
       throw new MolgenisException("You can't remove anonymous");
     }
-    if (USER.equals(user)) {
+    if (USER.equals(username)) {
       throw new MolgenisException("You can't remove user");
     }
 
-    if (!hasUser(user)) {
+    if (!hasUser(username)) {
       throw new MolgenisException(
-          "Remove user failed: User with name '" + user + "' doesn't exist");
+          "Remove user failed: User with name '" + username + "' doesn't exist");
     }
     tx(
         db ->
             ((SqlDatabase) db)
                 .getJooq()
-                .execute("DROP ROLE {0}", name(MG_USER_PREFIX + user.value())));
-    log(start, "removed user " + user);
+                .execute("DROP ROLE {0}", name(MG_USER_PREFIX + username.value())));
+    log(start, "removed user " + username);
 
     tx(
         db ->
             ((SqlDatabase) db)
                 .getJooq()
                 .deleteFrom(USERS_METADATA)
-                .where(USER_NAME.eq(user.value()))
+                .where(USER_NAME.eq(username.value()))
                 .execute());
-    log(start, "removed metadata from user " + user);
+    log(start, "removed metadata from user " + username);
   }
 
   @Override
@@ -876,11 +876,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public User getUser(Username userName) {
-    if (hasUser(userName)) {
-      User user = loadUserMetadata(this, userName);
+  public User getUser(Username username) {
+    if (hasUser(username)) {
+      User user = loadUserMetadata(this, username);
       // might not yet have any metadata saved
-      return user != null ? user : new User(this, userName);
+      return user != null ? user : new User(this, username);
     }
     return null;
   }

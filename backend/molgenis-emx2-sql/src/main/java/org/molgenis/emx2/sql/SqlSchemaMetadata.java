@@ -264,14 +264,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return List.copyOf(getPermissionsByTableForActiveUser().values());
   }
 
-  public String getRoleForUser(Username user) {
+  public String getRoleForUser(Username username) {
     SqlRoleManager roleManager = getDatabase().getRoleManager();
-    if (user == null) {
-      user = ANONYMOUS;
+    if (username == null) {
+      username = ANONYMOUS;
     }
 
     for (Member m : roleManager.getMembers(getName())) {
-      if (roleManager.isSystemRole(m.getRole()) && m.getUsername().equals(user)) {
+      if (roleManager.isSystemRole(m.getRole()) && m.getUsername().equals(username)) {
         return m.getRole();
       }
     }

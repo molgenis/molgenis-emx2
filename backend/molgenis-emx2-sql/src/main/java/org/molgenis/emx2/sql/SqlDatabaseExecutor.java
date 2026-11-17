@@ -16,15 +16,15 @@ final class SqlDatabaseExecutor {
     // hide
   }
 
-  static void executeCreateUser(SqlDatabase db, Username user) {
-    if (user == null) {
+  static void executeCreateUser(SqlDatabase db, Username username) {
+    if (username == null) {
       throw new MolgenisException("Can not create user with empty user name");
     }
     try {
       DSLContext jooq = db.getJooq();
-      String userName = MG_USER_PREFIX + user.value();
+      String userName = MG_USER_PREFIX + username.value();
       executeCreateRole(jooq, userName);
-      if (!ADMIN_USER.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
+      if (!ADMIN_USER.equals(username) && !USER.equals(username) && !ANONYMOUS.equals(username)) {
         // non-system users get role 'user' as way to identify all users
         jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER.value()), name(userName));
         // all users can see what anonymous can see
@@ -32,20 +32,20 @@ final class SqlDatabaseExecutor {
       }
       // session_user has all roles, needed for 'set role'
       jooq.execute(
-          "GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user.value()));
+          "GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + username.value()));
       // save metadata
-      MetadataUtils.saveUserMetadata(jooq, new User(db, user));
+      MetadataUtils.saveUserMetadata(jooq, new User(db, username));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add user failed", dae);
     }
   }
 
-  static void executeGrantCreateSchema(DSLContext jooq, Username user) {
+  static void executeGrantCreateSchema(DSLContext jooq, Username username) {
     try {
       String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
       jooq.execute(
           "GRANT CREATE ON DATABASE {0} TO {1}",
-          name(databaseName), name(MG_USER_PREFIX + user.value()));
+          name(databaseName), name(MG_USER_PREFIX + username.value()));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException(dae);
     }
