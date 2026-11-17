@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, watch  } from "vue";
 import Paragraph from "./Paragraph.vue";
 import ComponentActions from "../ComponentActions.vue";
 import {
@@ -17,6 +17,24 @@ const props = withDefaults(
 );
 const emit = defineEmits(["edit", "delete", "move", "updateText"]);
 const showMenu = ref<boolean>(false);
+const displayTextOnly = ref<boolean>(false);
+const localText = ref<string>(props.text ?? "");
+const draftText = ref<string>(props.text ?? "");
+
+watch(
+  () => props.text,
+  (newServerText) => {
+    if (!displayTextOnly.value && newServerText !== undefined) {
+      localText.value = newServerText;
+    }
+  }
+);
+
+function updateText($event: Event) {
+  const newText = ($event.target as HTMLElement)?.innerText ?? '';
+  draftText.value = newText;
+  emit('updateText', newText);
+}
 </script>
 
 <template>
@@ -41,9 +59,14 @@ const showMenu = ref<boolean>(false);
       />
     </template>
     <Paragraph
+      ref="editorRef"
       v-bind="props"
-      :contenteditable="props.isEditable"
-      @input="props.isEditable && emit('updateText', $el.innerHTML)"
+      :text="localText"
+      :contenteditable="props.isEditable&&'plaintext-only'"
+      @input="props.isEditable && updateText($event)"
+      @focus="displayTextOnly = true"
+      @blur="displayTextOnly = false;localText = draftText"
+      :asText="displayTextOnly"
     />
   </VMenu>
   <Paragraph v-else v-bind="props" />

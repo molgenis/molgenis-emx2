@@ -60,6 +60,7 @@ const componentDisplayName = computed<string>(() => {
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
+const currentlySaving = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });
@@ -198,133 +199,139 @@ function asSingularName(value: string | undefined): string | undefined {
   return value;
 }
 
-const debouncedUpdateText = useDebounceFn((text: string) => {
-  updateCMSfield(
+const debouncedUpdateText = useDebounceFn(async (text: string) => {
+  await updateCMSfield(
     componentMetadata.value?.schemaId || "",
     schemaTableName.value as "Paragraphs" | "Headings",
     props.component.id,
     text
   );
+  emit("updatePage");
+  currentlySaving.value = false;
 }, 1000);
 
 function updateText(text: string) {
+  currentlySaving.value = true;
   debouncedUpdateText(text);
 }
 </script>
 
 <template>
-  <EditableHeader
-    v-if="mg_tableclass.endsWith('.Headers')"
-    v-bind="component"
-    :image="headerComponentImage"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <EditableSection
-    v-else-if="mg_tableclass.endsWith('.Sections')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  >
-    <slot></slot>
-  </EditableSection>
-  <EditableHeading
-    v-else-if="mg_tableclass.endsWith('.Headings')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-    @updateText="updateText"
-  />
-  <EditableParagraph
-    v-else-if="mg_tableclass.endsWith('.Paragraphs')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-    @updateText="updateText"
-  />
-  <EditableImage
-    v-else-if="mg_tableclass.endsWith('.Images')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <EditableFileDownload
-    v-else-if="mg_tableclass.endsWith('.FileLists')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    :schema="componentMetadata?.schemaId || ''"
-    @edit="showEditModal = true"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-    @updatePage="$emit('updatePage')"
-  />
-  <EditableFileDownloadItem
-    v-else-if="mg_tableclass.endsWith('.Files')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <EditableNavigationCard
-    v-else-if="mg_tableclass.endsWith('.Navigation cards')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <EditableOrderedList
-    v-else-if="mg_tableclass.endsWith('.Ordered lists')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <EditableUnorderedList
-    v-else-if="mg_tableclass.endsWith('.Unordered lists')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <EditableColumnChart
-    v-else-if="
-      mg_tableclass.endsWith('.Statistical charts') &&
-      component.chartType?.name === 'Column chart'
-    "
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <EditableButton
-    v-else-if="mg_tableclass.endsWith('.Buttons')"
-    v-bind="component"
-    :isEditable="editingIsEnabled"
-    @edit="onShowEdit"
-    @delete="onDelete"
-    @move="handleMoveEvent"
-  />
-  <Paragraph
-    v-else
-    id="component-does-not-exist-message"
-    name="Error"
-    :text="`Component ${mg_tableclass} is not yet supported`"
-  />
+  <div class="contents" :class="{'saving': currentlySaving}">
+    <EditableHeader
+      v-if="mg_tableclass.endsWith('.Headers')"
+      v-bind="component"
+      :image="headerComponentImage"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <EditableSection
+      v-else-if="mg_tableclass.endsWith('.Sections')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    >
+      <slot></slot>
+    </EditableSection>
+    <EditableHeading
+      v-else-if="mg_tableclass.endsWith('.Headings')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+      @updateText="updateText"
+    />
+    <EditableParagraph
+      v-else-if="mg_tableclass.endsWith('.Paragraphs')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+      @updateText="updateText"
+    />
+    <EditableImage
+      v-else-if="mg_tableclass.endsWith('.Images')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <EditableFileDownload
+      v-else-if="mg_tableclass.endsWith('.FileLists')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      :schema="componentMetadata?.schemaId || ''"
+      @edit="showEditModal = true"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+      @updatePage="$emit('updatePage')"
+    />
+    <EditableFileDownloadItem
+      v-else-if="mg_tableclass.endsWith('.Files')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="showEditModal = true"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <EditableNavigationCard
+      v-else-if="mg_tableclass.endsWith('.Navigation cards')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <EditableOrderedList
+      v-else-if="mg_tableclass.endsWith('.Ordered lists')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <EditableUnorderedList
+      v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <EditableColumnChart
+      v-else-if="
+        mg_tableclass.endsWith('.Statistical charts') &&
+        component.chartType?.name === 'Column chart'
+      "
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <EditableButton
+      v-else-if="mg_tableclass.endsWith('.Buttons')"
+      v-bind="component"
+      :isEditable="editingIsEnabled"
+      @edit="onShowEdit"
+      @delete="onDelete"
+      @move="handleMoveEvent"
+    />
+    <Paragraph
+      v-else
+      id="component-does-not-exist-message"
+      name="Error"
+      :text="`Component ${mg_tableclass} is not yet supported`"
+    />
+  </div>
+
   <EditModal
     v-if="componentMetadata && showEditModal"
     :key="`edit-modal-${componentMetadata.id}`"
@@ -390,3 +397,30 @@ function updateText(text: string) {
     </template>
   </Modal>
 </template>
+
+<style scoped>
+ .saving :deep(*:has(> [contenteditable])){
+  position: relative;
+ }
+ .saving :deep([contenteditable]){
+  outline-color: var(--color-orange-500);
+}
+.saving :deep([contenteditable]:focus::before) {
+  bottom:100%;
+  top:auto
+}
+
+.saving :deep([contenteditable]::before) {
+  content: "saving...";
+  position:absolute;
+  font-size: 12px;
+  bottom:auto;
+  top:0;
+  left:0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: var(--color-orange-500);
+  color: black;
+  pointer-events: none;
+}
+</style>
