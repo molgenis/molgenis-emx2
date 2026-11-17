@@ -3,23 +3,23 @@ package org.molgenis.emx2;
 import java.util.Objects;
 
 public class Member {
-  private String user;
+  private Username user;
   private String role;
 
   public Member() {
     // used for automatic (de)serialization, in e.g. json
   }
 
-  public Member(String user, String role) {
+  public Member(Username user, String role) {
     this.user = user;
     this.role = role;
   }
 
-  public String getUser() {
+  public Username getUser() {
     return user;
   }
 
-  public void setUser(String user) {
+  public void setUser(Username user) {
     this.user = user;
   }
 

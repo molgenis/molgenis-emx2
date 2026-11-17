@@ -27,11 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlDatabase extends HasSettings<Database> implements Database {
-  public static final String ADMIN_USER = "admin";
   public static final String ADMIN_PW_DEFAULT = "admin";
 
-  public static final String ANONYMOUS = "anonymous";
-  public static final String USER = "user";
+  public static final Username ADMIN_USER = new Username("admin");
+  public static final Username ANONYMOUS = new Username("anonymous");
+  public static final Username USER = new Username("user");
+
   public static final String WITH = "with {} = {} ";
   public static final int MAX_EXECUTION_TIME_IN_SECONDS = 10;
   public static final int MAX_EXECUTION_TIME_IN_SECONDS_PROLONGED = 60;
@@ -241,7 +242,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
     if (secret == null || secret.getBytes().length < 32) {
       secret = JWTgenerator.generateSharedSecret();
-      String activeUser = getActiveUser();
+      Username activeUser = getActiveUser();
       try {
         becomeAdmin();
         setSetting(MOLGENIS_JWT_SHARED_SECRET, secret);
@@ -475,36 +476,35 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public User addUser(String userName) {
-    String userNameTrimmed = userName.trim();
-    if (!hasUser(userNameTrimmed)) {
+  public User addUser(Username username) {
+    if (!hasUser(username)) {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
       tx(
           db -> {
-            String currentUser = db.getActiveUser();
+            Username currentUser = db.getActiveUser();
             try {
               db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userNameTrimmed);
+              executeCreateUser((SqlDatabase) db, username);
             } finally {
               db.setActiveUser(currentUser);
             }
           });
-      log(start, "created user " + userNameTrimmed);
+      log(start, "created user " + username.value());
     }
-    return getUser(userNameTrimmed);
+    return getUser(username);
   }
 
   @Override
-  public boolean checkUserPassword(String user, String password) {
+  public boolean checkUserPassword(Username user, String password) {
     return MetadataUtils.checkUserPassword(getJooq(), user, password);
   }
 
   @Override
-  public void setUserPassword(String userName, String password) {
+  public void setUserPassword(Username userName, String password) {
     // can only as admin or as own user + admin user can only set admin password
-    String activeUser = getActiveUser();
+    Username activeUser = getActiveUser();
     if ((activeUser != null && !isAdmin() && !userName.equals(activeUser))
         || (ADMIN_USER.equals(userName) && !ADMIN_USER.equals(activeUser))) {
       throw new MolgenisException(
@@ -527,8 +527,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public boolean hasUser(String username) {
-    return jooq.fetchExists(DSL.selectOne().from(USERS_METADATA).where(USER_NAME.eq(username)));
+  public boolean hasUser(Username username) {
+    return jooq.fetchExists(
+        DSL.selectOne().from(USERS_METADATA).where(USER_NAME.eq(username.value())));
   }
 
   @Override
@@ -540,15 +541,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void removeUser(String user) {
+  public void removeUser(Username user) {
     long start = System.currentTimeMillis();
-    if ("admin".equals(user)) {
+    if (ADMIN_USER.equals(user)) {
       throw new MolgenisException("You can't remove admin");
     }
-    if ("anonymous".equals(user)) {
+    if (ANONYMOUS.equals(user)) {
       throw new MolgenisException("You can't remove anonymous");
     }
-    if ("user".equals(user)) {
+    if (USER.equals(user)) {
       throw new MolgenisException("You can't remove user");
     }
 
@@ -556,7 +557,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
     }
-    tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .execute("DROP ROLE {0}", name(MG_USER_PREFIX + user.value())));
     log(start, "removed user " + user);
 
     tx(
@@ -564,18 +569,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             ((SqlDatabase) db)
                 .getJooq()
                 .deleteFrom(USERS_METADATA)
-                .where(USER_NAME.eq(user))
+                .where(USER_NAME.eq(user.value()))
                 .execute());
     log(start, "removed metadata from user " + user);
   }
 
   @Override
-  public void setEnabledUser(String user, boolean enabled) {
+  public void setEnabledUser(Username user, boolean enabled) {
     long start = System.currentTimeMillis();
-    if ("admin".equals(user)) {
+    if (ADMIN_USER.equals(user)) {
       throw new MolgenisException("You cant enable or disable admin");
     }
-    if ("anonymous".equals(user)) {
+    if (ANONYMOUS.equals(user)) {
       throw new MolgenisException("You cant enable or disable anonymous");
     }
     if (!hasUser(user)) {
@@ -591,18 +596,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 .getJooq()
                 .update(USERS_METADATA)
                 .set(USER_ENABLED, enabled)
-                .where(USER_NAME.eq(user))
+                .where(USER_NAME.eq(user.value()))
                 .execute());
     log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
   @Override
-  public void setAdminUser(String user, boolean admin) {
+  public void setAdminUser(Username user, boolean admin) {
     long start = System.currentTimeMillis();
-    if ("admin".equals(user) && !admin) {
+    if (ADMIN_USER.equals(user) && !admin) {
       throw new MolgenisException("Cannot revoke admin rights of admin user");
     }
-    if ("anonymous".equals(user)) {
+    if (ANONYMOUS.equals(user)) {
       throw new MolgenisException("Anonymous user cannot have admin rights");
     }
     if (!ADMIN_USER.equals(this.getActiveUser())) {
@@ -621,7 +626,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                 .getJooq()
                 .update(USERS_METADATA)
                 .set(USER_ADMIN, admin)
-                .where(USER_NAME.eq(user))
+                .where(USER_NAME.eq(user.value()))
                 .execute());
     log(start, (admin ? "Granting" : "Revoking") + " admin rights to user " + user);
     listener.onSchemaChange();
@@ -634,17 +639,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void grantCreateSchema(String user) {
+  public void grantCreateSchema(Username user) {
     long start = System.currentTimeMillis();
     tx(db -> executeGrantCreateSchema(((SqlDatabase) db).getJooq(), user));
     log(start, "granted create schema to user " + user);
   }
 
   @Override
-  public void setActiveUser(String username) {
-    if (username == null || username.isEmpty()) {
+  public void setActiveUser(Username username) {
+    if (username == null) {
       throw new MolgenisException("setActiveUser failed: username cannot be null");
     }
+
     User user = getUser(username);
     if (inTx) {
       try {
@@ -653,7 +659,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           jooq.execute("RESET ROLE;");
         } else {
           // any other user should be set
-          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
+          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username.value()));
         }
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Set active user failed", dae);
@@ -669,7 +675,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public String getActiveUser() {
+  public Username getActiveUser() {
     return connectionProvider.getActiveUser();
   }
 
@@ -797,7 +803,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // e.g. TestSettings will fail if we don't do this
       // because it does permission changes in same tx before calling the method
       // that uses getJooqAsAdmin.
-      String user = connectionProvider.getActiveUser();
+      Username user = connectionProvider.getActiveUser();
       try {
         connectionProvider.setActiveUser(ADMIN_USER);
         transaction.run(getJooq());
@@ -827,7 +833,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public String getAdminUserName() {
+  public Username getAdminUserName() {
     return ADMIN_USER;
   }
 
@@ -870,7 +876,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public User getUser(String userName) {
+  public User getUser(Username userName) {
     if (hasUser(userName)) {
       User user = loadUserMetadata(this, userName);
       // might not yet have any metadata saved
@@ -931,19 +937,19 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       String memberName =
           userRecord.getValue("member", String.class).substring(userFilter.length());
       String roleName = userRecord.getValue("role", String.class).substring(roleFilter.length());
-      members.add(new Member(memberName, roleName));
+      members.add(new Member(new Username(memberName), roleName));
     }
     return members;
   }
 
   @Override
-  public void revokeRoles(String userName, List<Map<String, String>> members) {
+  public void revokeRoles(Username username, List<Map<String, String>> members) {
     try {
       members.forEach(
           member -> {
             String prefixedRole = MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
             jooq.execute(
-                "REVOKE {0} FROM {1}", name(prefixedRole), name(MG_USER_PREFIX + userName));
+                "REVOKE {0} FROM {1}", name(prefixedRole), name(MG_USER_PREFIX + username.value()));
           });
       listener.onSchemaChange();
     } catch (DataAccessException dae) {
@@ -956,19 +962,20 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void updateRoles(String userName, List<Map<String, String>> members) {
+  public void updateRoles(Username username, List<Map<String, String>> members) {
     try {
       members.forEach(
           member -> {
             String schemaId = member.get("schemaId");
             String role = member.get(ROLE);
             String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
-            String prefixedName = MG_USER_PREFIX + userName;
+            String prefixedName = MG_USER_PREFIX + username.value();
 
             List<Member> existingUserRoles =
                 this.getSchema(schemaId).getMembers().stream()
-                    .filter(mem -> mem.getUser().equals(userName))
+                    .filter(mem -> mem.getUser().equals(username))
                     .toList();
+
             if (existingUserRoles.iterator().hasNext()) {
               existingUserRoles.forEach(
                   existingRole -> {

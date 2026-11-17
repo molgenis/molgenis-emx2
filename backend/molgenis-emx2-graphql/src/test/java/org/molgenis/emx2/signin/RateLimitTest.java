@@ -10,12 +10,13 @@ import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.signin.RateLimit.AttemptResults;
 
 class RateLimitTest {
 
-  private static final String USER = "user";
-  private static final String OTHER_USER = "other";
+  private static final Username USER = new Username("user");
+  private static final Username OTHER_USER = new Username("other");
 
   private Instant now;
   private PrometheusRegistry registry;
@@ -126,7 +127,7 @@ class RateLimitTest {
   @Test
   void givenManyUsers_thenOnlyOneSeriesPerResult() {
     for (int i = 0; i < 100; i++) {
-      rateLimit.onFailure("user" + i);
+      rateLimit.onFailure(new Username("user" + i));
     }
 
     assertEquals(3, signinAttempts().getDataPoints().size());

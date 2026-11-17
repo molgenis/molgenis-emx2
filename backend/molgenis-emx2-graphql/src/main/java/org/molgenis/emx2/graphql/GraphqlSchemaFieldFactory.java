@@ -556,7 +556,7 @@ public class GraphqlSchemaFieldFactory {
       // add members
       List<Map<String, String>> members = new ArrayList<>();
       for (Member m : schema.getMembers()) {
-        members.add(Map.of("email", m.getUser(), "role", m.getRole()));
+        members.add(Map.of("email", m.getUser().value(), "role", m.getRole()));
       }
       result.put(MEMBERS, members);
 
@@ -724,7 +724,7 @@ public class GraphqlSchemaFieldFactory {
     List<String> members = dataFetchingEnvironment.getArgument(MEMBERS);
     if (members != null) {
       for (String name : members) {
-        schema.removeMember(name);
+        schema.removeMember(new Username(name));
         message.append("Dropped member '" + name + "'\n");
       }
     }
@@ -925,7 +925,7 @@ public class GraphqlSchemaFieldFactory {
     List<Map<String, String>> members = dataFetchingEnvironment.getArgument(MEMBERS);
     if (members != null) {
       for (Map<String, String> m : members) {
-        schema.addMember(m.get(EMAIL), m.get(ROLE));
+        schema.addMember(new Username(m.get(EMAIL)), m.get(ROLE));
       }
     }
   }

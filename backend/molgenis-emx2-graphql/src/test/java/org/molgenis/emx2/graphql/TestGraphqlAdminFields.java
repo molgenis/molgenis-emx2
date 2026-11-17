@@ -28,7 +28,7 @@ class TestGraphqlAdminFields {
   private static Database database;
   private static GraphqlSessionHandlerInterface sessionManager;
   private static final String SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName();
-  private static final String TEST_PERSOON = "testPersoon";
+  private static final Username TEST_PERSOON = new Username("testPersoon");
   private static final String ANOTHER_SCHEMA_NAME =
       TestGraphqlAdminFields.class.getSimpleName() + "2";
 
@@ -42,10 +42,10 @@ class TestGraphqlAdminFields {
 
     sessionManager =
         new GraphqlSessionHandlerInterface() {
-          private String user;
+          private Username user;
 
           @Override
-          public void createSession(String username) {
+          public void createSession(Username username) {
             this.user = username;
           }
 
@@ -55,7 +55,7 @@ class TestGraphqlAdminFields {
           }
 
           @Override
-          public String getCurrentUser() {
+          public Username getCurrentUser() {
             return user;
           }
         };
@@ -128,7 +128,7 @@ class TestGraphqlAdminFields {
             assertFalse(permission.path("insert").asBoolean());
             assertFalse(permission.path("isRowLevel").asBoolean());
             String user = customRole.at("/users/0").asText();
-            assertEquals(TEST_PERSOON, user);
+            assertEquals(TEST_PERSOON.value(), user);
 
           } catch (IOException e) {
             throw new RuntimeException(e);
@@ -200,7 +200,7 @@ class TestGraphqlAdminFields {
 
     executeDb("mutation{signout{message}}");
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
-    database.setActiveUser("testAdmin");
+    database.setActiveUser(new Username("testAdmin"));
 
     // Do an admin only query
     String lastUpdateResult =
@@ -270,7 +270,7 @@ class TestGraphqlAdminFields {
 
             // assert results
             User user = testDatabase.getUser(TEST_PERSOON);
-            assertEquals("testPersoon", user.getUsername());
+            assertEquals(new Username("testPersoon"), user.getUsername());
             assertFalse(user.getEnabled());
 
             List<Member> members = testDatabase.getSchema(SCHEMA_NAME).getMembers();
@@ -293,7 +293,7 @@ class TestGraphqlAdminFields {
   private static Map<String, Object> createUpdateUserVar() {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
-    updateUser.put("email", TEST_PERSOON);
+    updateUser.put("email", TEST_PERSOON.value());
     updateUser.put("password", "12345678");
     updateUser.put("enabled", "false");
 

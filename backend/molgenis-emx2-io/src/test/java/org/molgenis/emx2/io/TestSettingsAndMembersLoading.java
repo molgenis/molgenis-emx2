@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -26,7 +27,7 @@ public class TestSettingsAndMembersLoading {
     assertEquals("value2", schema.getMetadata().getSetting("key2"));
 
     assertEquals(1, schema.getMembers().size());
-    assertEquals("anonymous", schema.getMembers().get(0).getUser());
+    assertEquals(ANONYMOUS, schema.getMembers().get(0).getUser());
     assertEquals("Viewer", schema.getMembers().get(0).getRole());
 
     database.dropSchema(schema.getName());

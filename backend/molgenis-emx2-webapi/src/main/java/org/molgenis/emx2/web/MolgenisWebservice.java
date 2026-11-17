@@ -22,6 +22,7 @@ import java.util.*;
 import org.eclipse.jetty.http.HttpCookie;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
@@ -234,7 +235,7 @@ public class MolgenisWebservice {
       if (schema == null) {
         throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
       }
-      String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+      Username currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
       String role = schema.getRoleForActiveUser();
 
       SchemaMenu schemaMenu = SchemaMenu.fromSchema(schema);
@@ -244,7 +245,7 @@ public class MolgenisWebservice {
       }
 
       SchemaMenu menuForRole;
-      if (ANONYMOUS.equals(currentUser)) {
+      if (SqlDatabase.ANONYMOUS.equals(currentUser)) {
         menuForRole = schemaMenu.menuForAnonymousAndRole(role);
       } else {
         menuForRole = schemaMenu.menuForRole(role);
