@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public abstract class QueryBean implements Query {
-  private SelectColumn select;
-  private Filter filter;
+  private final SelectColumn select;
+  private final Filter filter;
   private String[] searchTerms = new String[0];
 
   protected QueryBean(String field) {
