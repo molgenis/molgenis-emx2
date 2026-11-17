@@ -21,11 +21,75 @@ MOLGENIS CMS pages are always visible in the __page gallery__. To edit a page-
     - For developer pages, the __page editor__ will open and an IDE-like interface will be displayed
 4. Start building your page and save changes
 
-In the page builder, all changes are saved automatically. However, you must routinely save changes when using the page editor.
+In the page builder, all changes are saved automatically, whereas you must routinely save changes when using the page editor.
+
+## The Page Builder
+
+In the page builder interface, custom pages are created using a system of _blocks_ and _components_. Components&mdash;paragraphs, headings, images, visualisations, etc.&mdash;are placed inside blocks (or sections), which are placed within a page. By grouping content this way, this allows flexibility in how content is organised on a page.
+
+### How to create a page
+
+By default, new pages are created with a few basic elements: one page header and the first section. You may use these as a starting point or delete them from your page.
+
+__To create a new page:__
+
+1. Add a Header (Layouts >> Header): Set the page header, subtitle, and background image
+2. Add a block (Layouts >> Section):
+3. Add a heading (Components >> Heading) into the new section
+4. Add a paragraph, image, or other component
+5. Repeat for additional sections
+
+__Tips:__
+
+- It is recommended that pages have one header block
+- Sections can be divided into columns allowing content to be placed side-by-side
+- When adding headings to sections, do not use the `level` option to style the heading. This option is used to define the page hierarchy. The most important heading should have level 2 and all following headings should start at level 3.
+- To add visual distinction between sections, use the "apply shaded background" option
+
+### Adding visualisations
+
+It is now possible to create column charts in the page builder. To do so-
+
+1. __Create a column chart component__: 
+    - Drag the visualisation component into a section
+    - Configure the component by defining the chart type, name, etc.
+2. __Add data__:
+    - By default, no data is added to the chart. This must be done manually. It is recommended to go to the Statistical chart data and download the table to use as a template. (You can also go to the Statistical Chart Data table and add new rows manually, but this may be tedious if you have many data points.)
+    - In the file, remove all unrelated rows
+    - For column charts, you will need to provide values for these columns: `id`, `x value`, `y value`
+    - If you want to group data, enter values in `primary group value`
+    - You will also need to copy the chart id (found in the form) and paste it in the `displayed in chart` column. Repeat for all data points you wish to display in the chart.
+    - It is also recommended to define the `sort order`. By default, the visualisation components do not sort components. This only happens when the data is queried. If no order is defined, data will be rendered according to how it was imported into the table.
+    - Import the file in to the CMS schema
+    - Refresh your page to view the data
+3. __Configure the chart__: once data is in available, you can now adjust the axes, add color palettes, etc. 
+
+__Tips:__
+
+- All charts should have a title. A description is also useful for adding additional context for the user
+- It is recommend to give a title for continuous axes
+- Do not display dozens of values in a chart. Instead, use a table or group smaller values into an "other" category
+- Do not create a color palette for styles each data point. This adds no value to the visualisation and is confusing for the reader. The only time color palettes should be used is when charts are grouped.
+- If hover events are enabled, some labels may extend outside of the chart margins. To address this, increase the top margin.
 
 ## Troubleshooting
 
-### How do I add data to a chart?
+### How can I select my own photo to display in the page header?
+
+For now, images can be imported in to the Images table (cms >> Images). Go to the table and click the "add images" button, and then select an image to import.
+
+__Tips:__
+
+- We recommend compressing your image before importing into the CMS. This ensures that pages have fast load times.
+- Give the image a `display name`. This makes it easier to select an image in the forms
+
+### How do I get a section to display content in columns and rows?
+
+It may be the case that you want to create a section that has multiple column layouts. For example, you may have a section with a heading and some text, but you want to display two images side-by-side. Changing the number of columns allows you to do this, but it will also arrange the heading and paragraphs. To get around this, follow these instructions.
+
+1. Create a section: place all content you wish to display normally (top to bottom of the page)
+2. Create a section with columns: set the number of columns you want to have and add content to the columns
+3. Click the edit section with columns button: display the "enable top padding" and/or "enable bottom padding" fields. This gives the appearance that the sections are one.
 
 ### How do I create a page with my own theme?
 
