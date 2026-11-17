@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -37,47 +36,55 @@ class TableStoreForParquetTest {
   private @TempDir Path tmp;
 
   @Nested
+  class Constructor {
+
+    @Test
+    void givenMissingDirectory_whenCreatingStore_thenThrow() {
+      Path missing = tmp.resolve("missing");
+
+      assertThrows(MolgenisException.class, () -> new TableStoreForParquet(missing));
+    }
+
+    @Test
+    void givenFileInsteadOfDirectory_whenCreatingStore_thenThrow() throws IOException {
+      Path file = Files.createFile(tmp.resolve("not-a-directory"));
+
+      assertThrows(MolgenisException.class, () -> new TableStoreForParquet(file));
+    }
+  }
+
+  @Nested
   class ReadTable {
 
     @Test
     void givenParquetFile_whenReadingTable_thenReturnRowsInOrder() throws IOException {
-      TableStoreForParquet store = storeWithProductFile();
+      writeProductFile("Product", product("Bread", 1), product("Butter", 3));
 
       CompareTools.assertEquals(
           List.of(Row.row("name", "Bread", "price", 1), Row.row("name", "Butter", "price", 3)),
-          readAll(store, "Product"));
+          readAll(store(), "Product"));
     }
 
     @Test
     void givenParquetFile_whenReadingTable_thenRowsContainAllColumns() throws IOException {
-      TableStoreForParquet store = storeWithProductFile();
+      writeProductFile("Product", product("Bread", 1));
 
-      Row row = store.readTable("Product").iterator().next();
+      Row row = store().readTable("Product").iterator().next();
 
       assertEquals(Set.of("name", "price"), row.getColumnNames());
     }
 
     @Test
     void givenNullValueInFile_whenReadingTable_thenValueIsNull() throws IOException {
-      Path file = tmp.resolve("product.parquet");
-      writeProductFile(file, product("Bread", null));
-      TableStoreForParquet store = new TableStoreForParquet(Map.of("Product", file));
+      writeProductFile("Product", product("Bread", null));
 
       CompareTools.assertEquals(
-          List.of(Row.row("name", "Bread", "price", null)), readAll(store, "Product"));
+          List.of(Row.row("name", "Bread", "price", null)), readAll(store(), "Product"));
     }
 
     @Test
-    void givenUnmappedTable_whenReadingTable_thenThrow() {
-      TableStoreForParquet store = new TableStoreForParquet(Map.of());
-
-      assertThrows(MolgenisException.class, () -> readAll(store, "Unknown"));
-    }
-
-    @Test
-    void givenMappedTableWithoutFile_whenReadingTable_thenThrow() {
-      Path missing = tmp.resolve("missing.parquet");
-      TableStoreForParquet store = new TableStoreForParquet(Map.of("Product", missing));
+    void givenTableWithoutFile_whenReadingTable_thenThrow() {
+      TableStoreForParquet store = store();
 
       assertThrows(MolgenisException.class, () -> readAll(store, "Product"));
     }
@@ -87,9 +94,8 @@ class TableStoreForParquetTest {
   class WriteTable {
 
     @Test
-    void givenMappedTable_whenWritingTable_thenReadBackRows() {
-      TableStoreForParquet store = emptyProductStore();
-
+    void givenRows_whenWritingTable_thenReadBackRows() {
+      TableStoreForParquet store = store();
       List<Row> rows =
           List.of(Row.row("name", "Bread", "price", 1), Row.row("name", "Butter", "price", 3));
 
@@ -99,27 +105,15 @@ class TableStoreForParquetTest {
     }
 
     @Test
-    void givenMappedTable_whenWritingTable_thenFileIsCreatedAtMappedPath() {
-      Path file = tmp.resolve("product.parquet");
-      TableStoreForParquet store = new TableStoreForParquet(Map.of("Product", file));
+    void givenTableName_whenWritingTable_thenFileIsNamedAfterTable() {
+      store().writeTable("Order line", List.of("name"), List.of(Row.row("name", "Bread")));
 
-      store.writeTable("Product", List.of("name"), List.of(Row.row("name", "Bread")));
-
-      assertTrue(Files.exists(file));
-    }
-
-    @Test
-    void givenUnmappedTable_whenWritingTable_thenThrow() {
-      TableStoreForParquet store = new TableStoreForParquet(Map.of());
-      List<String> columns = List.of("name");
-      List<Row> rows = List.of(Row.row("name", "Bread"));
-
-      assertThrows(MolgenisException.class, () -> store.writeTable("Unknown", columns, rows));
+      assertTrue(Files.exists(tmp.resolve("Order line.parquet")));
     }
 
     @Test
     void givenRowsMissingColumn_whenWritingTable_thenFillWithNull() {
-      TableStoreForParquet store = emptyProductStore();
+      TableStoreForParquet store = store();
 
       store.writeTable("Product", List.of("name", "price"), List.of(Row.row("name", "Bread")));
 
@@ -129,7 +123,7 @@ class TableStoreForParquetTest {
 
     @Test
     void givenRowsWithExtraColumns_whenWritingTable_thenDropExtraColumns() {
-      TableStoreForParquet store = emptyProductStore();
+      TableStoreForParquet store = store();
 
       store.writeTable("Product", List.of("name"), List.of(Row.row("name", "Bread", "price", 1)));
 
@@ -138,7 +132,7 @@ class TableStoreForParquetTest {
 
     @Test
     void givenNoRows_whenWritingTable_thenTableExistsAndIsEmpty() {
-      TableStoreForParquet store = emptyProductStore();
+      TableStoreForParquet store = store();
 
       store.writeTable("Product", List.of("name", "price"), List.of());
 
@@ -148,8 +142,8 @@ class TableStoreForParquetTest {
 
     @Test
     void givenExistingFile_whenWritingTable_thenReplaceRows() throws IOException {
-      TableStoreForParquet store = storeWithProductFile();
-
+      writeProductFile("Product", product("Bread", 1), product("Butter", 3));
+      TableStoreForParquet store = store();
       List<Row> rows = List.of(Row.row("name", "Milk"));
 
       store.writeTable("Product", List.of("name"), rows);
@@ -159,20 +153,10 @@ class TableStoreForParquetTest {
 
     @Test
     void givenColumnNameWithSpace_whenWritingTable_thenReadBackRows() {
-      TableStoreForParquet store = emptyProductStore();
+      TableStoreForParquet store = store();
       List<Row> rows = List.of(Row.row("product name", "Bread"));
 
       store.writeTable("Product", List.of("product name"), rows);
-
-      CompareTools.assertEquals(rows, readAll(store, "Product"));
-    }
-
-    @Test
-    void givenColumnNamesThatEncodeToSameName_whenWritingTable_thenReadBackRows() {
-      TableStoreForParquet store = emptyProductStore();
-      List<Row> rows = List.of(Row.row("product name", "Bread", "product_name", "Butter"));
-
-      store.writeTable("Product", List.of("product name", "product_name"), rows);
 
       CompareTools.assertEquals(rows, readAll(store, "Product"));
     }
@@ -183,7 +167,7 @@ class TableStoreForParquetTest {
 
     @Test
     void givenRowProducer_whenWritingTableStreaming_thenReadBackRows() {
-      TableStoreForParquet store = emptyProductStore();
+      TableStoreForParquet store = store();
 
       store.writeTableStreaming(
           "Product",
@@ -202,12 +186,12 @@ class TableStoreForParquetTest {
   class ProcessTable {
 
     @Test
-    void givenTable_whenProcessingTable_thenProcessorReceivesAllRowsAndStore() throws IOException {
-      TableStoreForParquet store = storeWithProductFile();
+    void givenTable_whenProcessingTable_thenProcessorReceivesAllRows() throws IOException {
+      writeProductFile("Product", product("Bread", 1), product("Butter", 3));
       List<Row> processed = new ArrayList<>();
       RowProcessor processor = (iterator, source) -> iterator.forEachRemaining(processed::add);
 
-      store.processTable("Product", processor);
+      store().processTable("Product", processor);
 
       CompareTools.assertEquals(
           List.of(Row.row("name", "Bread", "price", 1), Row.row("name", "Butter", "price", 3)),
@@ -215,11 +199,11 @@ class TableStoreForParquetTest {
     }
 
     @Test
-    void givenUnmappedTable_whenProcessingTable_thenThrow() {
-      TableStoreForParquet store = new TableStoreForParquet(Map.of());
+    void givenTableWithoutFile_whenProcessingTable_thenThrow() {
+      TableStoreForParquet store = store();
       RowProcessor processor = (iterator, source) -> iterator.forEachRemaining(row -> {});
 
-      assertThrows(MolgenisException.class, () -> store.processTable("Unknown", processor));
+      assertThrows(MolgenisException.class, () -> store.processTable("Product", processor));
     }
   }
 
@@ -227,17 +211,15 @@ class TableStoreForParquetTest {
   class ContainsTable {
 
     @Test
-    void givenMappedTableWithFile_thenContainsTable() throws IOException {
-      TableStoreForParquet store = storeWithProductFile();
+    void givenTableWithFile_thenContainsTable() throws IOException {
+      writeProductFile("Product", product("Bread", 1));
 
-      assertTrue(store.containsTable("Product"));
+      assertTrue(store().containsTable("Product"));
     }
 
     @Test
-    void givenUnmappedTable_thenDoesNotContainTable() {
-      TableStoreForParquet store = new TableStoreForParquet(Map.of());
-
-      assertFalse(store.containsTable("Unknown"));
+    void givenTableWithoutFile_thenDoesNotContainTable() {
+      assertFalse(store().containsTable("Product"));
     }
   }
 
@@ -245,63 +227,41 @@ class TableStoreForParquetTest {
   class GetTableNames {
 
     @Test
-    void givenMultipleTables_whenGettingTableNames_thenReturnNamesWithoutExtension()
+    void givenParquetFiles_whenGettingTableNames_thenReturnNamesWithoutExtension()
         throws IOException {
-      Path product = tmp.resolve("product.parquet");
-      Path order = tmp.resolve("order.parquet");
-      writeProductFile(product, product("Bread", 1));
-      writeProductFile(order, product("Butter", 3));
-      TableStoreForParquet store =
-          new TableStoreForParquet(Map.of("Product", product, "Order", order));
+      writeProductFile("Product", product("Bread", 1));
+      writeProductFile("Order line", product("Butter", 3));
 
-      assertEquals(Set.of("Product", "Order"), Set.copyOf(store.getTableNames()));
+      assertEquals(Set.of("Product", "Order line"), Set.copyOf(store().getTableNames()));
     }
 
     @Test
-    void givenMappedTableWithoutFile_whenGettingTableNames_thenLeaveItOut() throws IOException {
-      Path product = tmp.resolve("product.parquet");
-      writeProductFile(product, product("Bread", 1));
-      TableStoreForParquet store =
-          new TableStoreForParquet(
-              Map.of("Product", product, "Order", tmp.resolve("order.parquet")));
-
-      assertEquals(Set.of("Product"), Set.copyOf(store.getTableNames()));
-    }
-
-    @Test
-    void givenNoTables_whenGettingTableNames_thenReturnEmpty() {
-      TableStoreForParquet store = new TableStoreForParquet(Map.of());
-
-      assertTrue(store.getTableNames().isEmpty());
+    void givenEmptyDirectory_whenGettingTableNames_thenReturnEmpty() {
+      assertTrue(store().getTableNames().isEmpty());
     }
   }
 
-  private TableStoreForParquet storeWithProductFile() throws IOException {
-    Path file = tmp.resolve("product.parquet");
-    writeProductFile(file, product("Bread", 1), product("Butter", 3));
-    return new TableStoreForParquet(Map.of("Product", file));
-  }
-
-  private TableStoreForParquet emptyProductStore() {
-    return new TableStoreForParquet(Map.of("Product", tmp.resolve("product.parquet")));
+  private TableStoreForParquet store() {
+    return new TableStoreForParquet(tmp);
   }
 
   private static GenericRecord product(String name, Integer price) {
-    GenericRecord record = new GenericData.Record(PRODUCT_SCHEMA);
-    record.put("name", name);
-    record.put("price", price);
-    return record;
+    GenericRecord genericRecord = new GenericData.Record(PRODUCT_SCHEMA);
+    genericRecord.put("name", name);
+    genericRecord.put("price", price);
+    return genericRecord;
   }
 
-  private static void writeProductFile(Path file, GenericRecord... records) throws IOException {
+  private void writeProductFile(String tableName, GenericRecord... records) throws IOException {
+    Path file = tmp.resolve(tableName + ".parquet");
     try (ParquetWriter<GenericRecord> writer =
         AvroParquetWriter.<GenericRecord>builder(new LocalOutputFile(file))
             .withConf(new PlainParquetConfiguration())
             .withSchema(PRODUCT_SCHEMA)
             .withDataModel(GenericData.get())
             .build()) {
-      for (GenericRecord record : records) {
-        writer.write(record);
+      for (GenericRecord genericRecord : records) {
+        writer.write(genericRecord);
       }
     }
   }
