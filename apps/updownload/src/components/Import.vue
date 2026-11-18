@@ -98,7 +98,8 @@
                   {{ table.label }}:
                   <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
                   <a :href="`/${schema}/api/excel/` + table.id">excel</a> /
-                  <a :href="`/${schema}/api/json/` + table.id">json</a>
+                  <a :href="`/${schema}/api/json/` + table.id">json</a> /
+                  <a :href="`/${schema}/api/parquet/` + table.id">parquet</a> /
                 </li>
               </ul>
             </div>
