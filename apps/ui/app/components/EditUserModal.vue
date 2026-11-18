@@ -25,7 +25,7 @@
         />
       </div>
 
-      <div class="p-5">
+      <div v-if="canToggleEnabled" class="p-5">
         <b>Disable user</b>
         <InputRadioGroup
           id="disabledUserRadio"
@@ -148,7 +148,12 @@ const schema = ref<string>(
   props.schemas.length ? props.schemas[0]?.id ?? "" : ""
 );
 
+const USERS_WITH_FIXED_ENABLED_STATE = ["admin", "anonymous"];
+
 const userName = computed(() => props.user.email);
+const canToggleEnabled = computed(
+  () => !USERS_WITH_FIXED_ENABLED_STATE.includes(userName.value)
+);
 const isEnabled = ref<boolean>(props.user.enabled);
 const revokedRoles = ref<Record<string, Role>>({});
 const password = ref<string>("");
@@ -203,7 +208,7 @@ async function saveUser() {
     revokedRoles: Object.values(revokedRoles.value),
   };
 
-  if (userName.value === "admin") {
+  if (!canToggleEnabled.value) {
     delete editedUser.enabled;
   }
 
