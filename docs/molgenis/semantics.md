@@ -44,6 +44,7 @@ By default, the following prefixed names are available:
 | foaf          | http://xmlns.com/foaf/0.1/                     |
 | healthdcatap  | http://healthdataportal.eu/ns/health#          |
 | hl7           | http://purl.bioontology.org/ontology/HL7/      |
+| hri           | https://w3id.org/health-ri/metadata-vocabulary# |
 | ldp           | http://www.w3.org/ns/ldp#                      |
 | lnc           | http://purl.bioontology.org/ontology/LNC/      |
 | mesh          | http://purl.bioontology.org/ontology/MESH/     |
