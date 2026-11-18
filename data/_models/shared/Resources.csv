@@ -159,7 +159,7 @@ Collections,,date last refresh,date,,,,,,,,,Date of last update/refresh,"DataCat
 Collections,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,"DataCatalogueFlat,EMA,RWEStaging",,,
 Collections,,preservation duration,int,,,,,,,,,"If 'no' to the above, for how long (in years) are records preserved in the data bank?","DataCatalogueFlat,EMA,RWEStaging",,,
 Collections,,quality information,heading,,,,,,,,,Quality and validation of the resource,"DataCatalogueFlat,EMA,RWEStaging,INTEGRATE,BiobanksStaging",,,
-Collections,,quality,refback,,,,Quality information,,resource,,,Quality and certification information for this resource,"DataCatalogueFlat,BiobanksStaging",,,
+Resources,,quality,refback,,,,Quality information,,resource,,,Quality and certification information for this resource,"DataCatalogueFlat,BiobanksStaging",,,
 Collections,,standard operating procedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?,"DataCatalogueFlat,RWEStaging,BiobanksStaging",,,
 Collections,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g. from the EMA, ISO or other certifications)?","DataCatalogueFlat,EMA,RWEStaging,INTEGRATE",,,
 Collections,,qualifications description,text,,,,,,,,,"Has the data source successfully undergone a qualification process (e.g. from the EMA)? If yes, describe the qualification(s) granted","DataCatalogueFlat,EMA,RWEStaging",,,
