@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { useHead, useCookie } from "#app";
 import BaseIcon from "./BaseIcon.vue";
+import { TOGGLEABLE_THEMES, useActiveUiTheme } from "../composables/useUiTheme";
+
+const uiTheme = useActiveUiTheme();
 const activeTheme = useCookie("theme", {
   default: () => {
-    if (import.meta.client) {
+    if (TOGGLEABLE_THEMES.includes(uiTheme.value)) {
+      return uiTheme.value;
+    } else if (import.meta.client) {
       return window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
