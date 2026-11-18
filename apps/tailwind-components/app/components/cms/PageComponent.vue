@@ -60,6 +60,10 @@ const componentDisplayName = computed<string>(() => {
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
+const sourceItems =
+  props.component?.orderedItems || props.component?.unorderedItems || [];
+const cachedListItems = ref<string[]>([...sourceItems]);
+
 const currentlySaving = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
@@ -133,7 +137,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     emit("dragging", {
       dragging: action === "grab",
       componentType: props.componentType,
-      componentName: props.mg_tableclass.split(".")[1],
+      componentName: schemaTableName.value,
       action: "move",
       moveOrderId: props.orderId,
       parentId: props.parent,
@@ -199,139 +203,152 @@ function asSingularName(value: string | undefined): string | undefined {
   return value;
 }
 
-const debouncedUpdateText = useDebounceFn(async (text: string) => {
-  await updateCMSfield(
-    componentMetadata.value?.schemaId || "",
-    schemaTableName.value as "Paragraphs" | "Headings",
-    props.component.id,
-    text
-  );
+const debouncedUpdateText = useDebounceFn(
+  async (text: string | string[], field: string) => {
+    // regular expression used to capitalize first letter of each word and remove the spaces
+    await updateCMSfield(
+      componentMetadata.value?.schemaId || "",
+      schemaTableName.value?.replace(/\s+(.)/g, (_, char) =>
+        char.toUpperCase()
+      ),
+      props.component.id,
+      text,
+      field
+    );
   emit("updatePage");
   currentlySaving.value = false;
-}, 1000);
+  },
+  1000
+);
 
-function updateText(text: string) {
+function updateText(text: string | string[], field: string = "text") {
   currentlySaving.value = true;
-  debouncedUpdateText(text);
+  debouncedUpdateText(text, field);
+}
+
+function updateListItems(item: { key: number; text: string }, field: string) {
+  cachedListItems.value[item.key] = item.text;
+  updateText(cachedListItems.value, field);
+}
+
+function inlineSave() {
+  debouncedUpdateText.flush();
 }
 </script>
 
 <template>
-  <div class="contents" :class="{ saving: currentlySaving }">
-    <EditableHeader
-      v-if="mg_tableclass.endsWith('.Headers')"
-      v-bind="component"
-      :image="headerComponentImage"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <EditableSection
-      v-else-if="mg_tableclass.endsWith('.Sections')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    >
-      <slot></slot>
-    </EditableSection>
-    <EditableHeading
-      v-else-if="mg_tableclass.endsWith('.Headings')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-      @updateText="updateText"
-    />
-    <EditableParagraph
-      v-else-if="mg_tableclass.endsWith('.Paragraphs')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-      @updateText="updateText"
-    />
-    <EditableImage
-      v-else-if="mg_tableclass.endsWith('.Images')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <EditableFileDownload
-      v-else-if="mg_tableclass.endsWith('.FileLists')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      :schema="componentMetadata?.schemaId || ''"
-      @edit="showEditModal = true"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-      @updatePage="$emit('updatePage')"
-    />
-    <EditableFileDownloadItem
-      v-else-if="mg_tableclass.endsWith('.Files')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="showEditModal = true"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <EditableNavigationCard
-      v-else-if="mg_tableclass.endsWith('.Navigation cards')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <EditableOrderedList
-      v-else-if="mg_tableclass.endsWith('.Ordered lists')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <EditableUnorderedList
-      v-else-if="mg_tableclass.endsWith('.Unordered lists')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <EditableColumnChart
-      v-else-if="
-        mg_tableclass.endsWith('.Statistical charts') &&
-        component.chartType?.name === 'Column chart'
-      "
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <EditableButton
-      v-else-if="mg_tableclass.endsWith('.Buttons')"
-      v-bind="component"
-      :isEditable="editingIsEnabled"
-      @edit="onShowEdit"
-      @delete="onDelete"
-      @move="handleMoveEvent"
-    />
-    <Paragraph
-      v-else
-      id="component-does-not-exist-message"
-      name="Error"
-      :text="`Component ${mg_tableclass} is not yet supported`"
-    />
-  </div>
-
+  <EditableHeader
+    v-if="mg_tableclass.endsWith('.Headers')"
+    v-bind="component"
+    :image="headerComponentImage"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableSection
+    v-else-if="mg_tableclass.endsWith('.Sections')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  >
+    <slot></slot>
+  </EditableSection>
+  <EditableHeading
+    v-else-if="mg_tableclass.endsWith('.Headings')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+    @updateText="updateText"
+  />
+  <EditableParagraph
+    v-else-if="mg_tableclass.endsWith('.Paragraphs')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+    @updateText="updateText"
+  />
+  <EditableImage
+    v-else-if="mg_tableclass.endsWith('.Images')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableFileDownload
+    v-else-if="mg_tableclass.endsWith('.FileLists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    :schema="componentMetadata?.schemaId || ''"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+    @updatePage="$emit('updatePage')"
+  />
+  <EditableFileDownloadItem
+    v-else-if="mg_tableclass.endsWith('.Files')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableNavigationCard
+    v-else-if="mg_tableclass.endsWith('.Navigation cards')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableOrderedList
+    v-else-if="mg_tableclass.endsWith('.Ordered lists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableUnorderedList
+    v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableColumnChart
+    v-else-if="
+      mg_tableclass.endsWith('.Statistical charts') &&
+      component.chartType?.name === 'Column chart'
+    "
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableButton
+    v-else-if="mg_tableclass.endsWith('.Buttons')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <Paragraph
+    v-else
+    id="component-does-not-exist-message"
+    name="Error"
+    :text="`Component ${mg_tableclass} is not yet supported`"
+  />
   <EditModal
     v-if="componentMetadata && showEditModal"
     :key="`edit-modal-${componentMetadata.id}`"

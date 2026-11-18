@@ -984,7 +984,7 @@ importers:
         version: 4.4.3(vue@3.5.22(typescript@5.9.2))
       vue3-colorpicker:
         specifier: 2.2.3
-        version: 2.2.3(@aesoper/normal-utils@0.1.5)(@popperjs/core@2.11.8)(@vueuse/core@12.8.2(typescript@5.9.2))(gradient-parser@1.2.0)(lodash-es@4.18.1)(tinycolor2@1.6.0)(vue-types@4.2.1(vue@3.5.22(typescript@5.9.2)))(vue@3.5.22(typescript@5.9.2))
+        version: 2.2.3(@aesoper/normal-utils@0.1.5)(@popperjs/core@2.11.8)(@vueuse/core@15.0.0(vue@3.5.22(typescript@5.9.2)))(gradient-parser@1.2.0)(lodash-es@4.18.1)(tinycolor2@1.6.0)(vue-types@4.2.1(vue@3.5.22(typescript@5.9.2)))(vue@3.5.22(typescript@5.9.2))
       vuedraggable:
         specifier: 4.1.0
         version: 4.1.0(vue@3.5.22(typescript@5.9.2))
@@ -1033,11 +1033,11 @@ importers:
         specifier: 11.0.3
         version: 11.0.3(vue@3.5.22(typescript@5.9.2))
       '@vueuse/components':
-        specifier: 12.8.2
-        version: 12.8.2(typescript@5.9.2)
+        specifier: 15.0.0
+        version: 15.0.0(vue@3.5.22(typescript@5.9.2))
       '@vueuse/core':
-        specifier: 12.8.2
-        version: 12.8.2(typescript@5.9.2)
+        specifier: 15.0.0
+        version: 15.0.0(vue@3.5.22(typescript@5.9.2))
       '@vueuse/integrations':
         specifier: 10.7.0
         version: 10.7.0(axios@1.20.0)(focus-trap@8.2.2)(fuse.js@7.5.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.9.2))
@@ -1329,6 +1329,7 @@ packages:
 
   '@aesoper/normal-utils@0.1.5':
     resolution: {integrity: sha512-LFF/6y6h5mfwhnJaWqqxuC8zzDaHCG62kMRkd8xhDtq62TQj9dM17A9DhE87W7DhiARJsHLgcina/9P4eNCN1w==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -3674,11 +3675,23 @@ packages:
   '@vueuse/components@12.8.2':
     resolution: {integrity: sha512-Nj27u1KsDWzoTthlChzVndJ9g0sW5APCXO3EJkSxlG11nN/ANTUlPPeoJOFvtbdDRnvsMJalboJyE0rRyg7yNg==}
 
+  '@vueuse/components@15.0.0':
+    resolution: {integrity: sha512-gX6FE9oVef+HUKhfUx9OTxJ+XGFjDEMi5p+Y7Pr2gYgxumSnfsfA/J0BgoI0GTK6x/x0Iu8AYbl1KM2w4g/T2g==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      vue: ^3.5.0
+
   '@vueuse/core@10.7.0':
     resolution: {integrity: sha512-4EUDESCHtwu44ZWK3Gc/hZUVhVo/ysvdtwocB5vcauSV4B7NiGY5972WnsojB3vRNdxvAt7kzJWE2h9h7C9d5w==}
 
   '@vueuse/core@12.8.2':
     resolution: {integrity: sha512-HbvCmZdzAu3VGi/pWYm5Ut+Kd9mn1ZHnn4L5G8kOQTPs/IwIAmJoBrmYk2ckLArgMXZj0AW3n5CAejLUO+PhdQ==}
+
+  '@vueuse/core@15.0.0':
+    resolution: {integrity: sha512-Zv67h5mrk7YHDJsRObx+DXaCBz6RKBUpxqLesJ+3xZNPG6yuQs7ja7kg3veFrrouYLWAqydQ7CwGEbLVxB43Ng==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      vue: ^3.5.0
 
   '@vueuse/integrations@10.7.0':
     resolution: {integrity: sha512-rxiMYgS+91n93qXpHZF9NbHhppWY6IJyVTDxt4acyChL0zZVx7P8FAAfpF1qVK8e4wfjerhpEiMJ0IZ1GWUZ2A==}
@@ -3727,11 +3740,21 @@ packages:
   '@vueuse/metadata@12.8.2':
     resolution: {integrity: sha512-rAyLGEuoBJ/Il5AmFHiziCPdQzRt88VxR+Y/A/QhJ1EWtWqPBBAxTAFaSkviwEuOEZNtW8pvkPgoCZQ+HxqW1A==}
 
+  '@vueuse/metadata@15.0.0':
+    resolution: {integrity: sha512-sfWE5LADAKJ0KnjtGliMdSN8Ij/L7uP6rXIZlgPloAI4zvvefbw6H5Lt7KJA6RqQOYgVqWF5Guj50HHMIzygBg==}
+    engines: {node: '>=22'}
+
   '@vueuse/shared@10.7.0':
     resolution: {integrity: sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==}
 
   '@vueuse/shared@12.8.2':
     resolution: {integrity: sha512-dznP38YzxZoNloI0qpEfpkms8knDtaoQ6Y/sfS0L7Yki4zh40LFHEhur0odJC6xTHG5dxWVPiUWBXn+wCG2s5w==}
+
+  '@vueuse/shared@15.0.0':
+    resolution: {integrity: sha512-vbNXhGrbV53xPOMSyOzMHQRvhMgZf7oNDw2RChUetVxwTIEkInQ1joZ9JbT0G3z2n2AJNjvmCWeM9ySYrnvogA==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      vue: ^3.5.0
 
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
@@ -12274,6 +12297,12 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@vueuse/components@15.0.0(vue@3.5.22(typescript@5.9.2))':
+    dependencies:
+      '@vueuse/core': 15.0.0(vue@3.5.22(typescript@5.9.2))
+      '@vueuse/shared': 15.0.0(vue@3.5.22(typescript@5.9.2))
+      vue: 3.5.22(typescript@5.9.2)
+
   '@vueuse/core@10.7.0(vue@3.5.22(typescript@5.9.2))':
     dependencies:
       '@types/web-bluetooth': 0.0.20
@@ -12292,6 +12321,13 @@ snapshots:
       vue: 3.5.22(typescript@5.9.2)
     transitivePeerDependencies:
       - typescript
+
+  '@vueuse/core@15.0.0(vue@3.5.22(typescript@5.9.2))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.21
+      '@vueuse/metadata': 15.0.0
+      '@vueuse/shared': 15.0.0(vue@3.5.22(typescript@5.9.2))
+      vue: 3.5.22(typescript@5.9.2)
 
   '@vueuse/integrations@10.7.0(axios@1.20.0)(focus-trap@8.2.2)(fuse.js@7.5.0)(sortablejs@1.14.0)(universal-cookie@4.0.4)(vue@3.5.22(typescript@5.9.2))':
     dependencies:
@@ -12312,6 +12348,8 @@ snapshots:
 
   '@vueuse/metadata@12.8.2': {}
 
+  '@vueuse/metadata@15.0.0': {}
+
   '@vueuse/shared@10.7.0(vue@3.5.22(typescript@5.9.2))':
     dependencies:
       vue-demi: 0.14.10(vue@3.5.22(typescript@5.9.2))
@@ -12324,6 +12362,10 @@ snapshots:
       vue: 3.5.22(typescript@5.9.2)
     transitivePeerDependencies:
       - typescript
+
+  '@vueuse/shared@15.0.0(vue@3.5.22(typescript@5.9.2))':
+    dependencies:
+      vue: 3.5.22(typescript@5.9.2)
 
   abbrev@2.0.0: {}
 
@@ -18554,11 +18596,11 @@ snapshots:
       is-plain-object: 5.0.0
       vue: 3.5.22(typescript@5.9.2)
 
-  vue3-colorpicker@2.2.3(@aesoper/normal-utils@0.1.5)(@popperjs/core@2.11.8)(@vueuse/core@12.8.2(typescript@5.9.2))(gradient-parser@1.2.0)(lodash-es@4.18.1)(tinycolor2@1.6.0)(vue-types@4.2.1(vue@3.5.22(typescript@5.9.2)))(vue@3.5.22(typescript@5.9.2)):
+  vue3-colorpicker@2.2.3(@aesoper/normal-utils@0.1.5)(@popperjs/core@2.11.8)(@vueuse/core@15.0.0(vue@3.5.22(typescript@5.9.2)))(gradient-parser@1.2.0)(lodash-es@4.18.1)(tinycolor2@1.6.0)(vue-types@4.2.1(vue@3.5.22(typescript@5.9.2)))(vue@3.5.22(typescript@5.9.2)):
     dependencies:
       '@aesoper/normal-utils': 0.1.5
       '@popperjs/core': 2.11.8
-      '@vueuse/core': 12.8.2(typescript@5.9.2)
+      '@vueuse/core': 15.0.0(vue@3.5.22(typescript@5.9.2))
       gradient-parser: 1.2.0
       lodash-es: 4.18.1
       tinycolor2: 1.6.0
