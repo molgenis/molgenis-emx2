@@ -45,6 +45,7 @@ subprojects {
     // Skip PMD for empty source sets to improve performance 
     tasks.withType(Pmd).configureEach {
         if (source.empty) { classpath = files() }
+        reports.sarif.required = true // used by CI to generate a single html report
     }
 
     tasks.register('format') {
