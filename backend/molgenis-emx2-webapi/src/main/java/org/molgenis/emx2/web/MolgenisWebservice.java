@@ -135,6 +135,7 @@ public class MolgenisWebservice {
     CsvApi.create(app);
     ZipApi.create(app);
     ExcelApi.create(app);
+    ParquetApi.create(app);
     JsonApi.create(app);
     FileApi.create(app);
     JsonYamlApi.create(app);
