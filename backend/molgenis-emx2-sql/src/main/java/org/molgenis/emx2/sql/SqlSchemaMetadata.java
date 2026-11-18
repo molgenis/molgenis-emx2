@@ -214,9 +214,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static void toggleChangeLogIfNeeded(
       SqlDatabase db, SqlSchemaMetadata schema, String settingsValue) {
     boolean currentValue =
-        TRUE.equals(
-            TypeUtils.toBool(schema.getSettings().containsKey(Constants.IS_CHANGELOG_ENABLED)));
-    boolean newValue = Boolean.parseBoolean(settingsValue);
+        TRUE.equals(TypeUtils.toBool(schema.getSettings().get(Constants.IS_CHANGELOG_ENABLED)));
+    boolean newValue = TRUE.equals(TypeUtils.toBool(settingsValue));
     if (currentValue != newValue) {
       if (newValue) {
         ChangeLogExecutor.enableChangeLog(db, schema);

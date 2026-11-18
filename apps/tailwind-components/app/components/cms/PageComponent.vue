@@ -303,7 +303,9 @@ function updateText(text: string) {
   <EditableColumnChart
     v-else-if="
       mg_tableclass.endsWith('.Statistical charts') &&
-      component.chartType?.name === 'Column chart'
+      ['Column chart', 'Grouped column chart'].includes(
+        component.chartType?.name
+      )
     "
     v-bind="component"
     :isEditable="editingIsEnabled"
