@@ -213,10 +213,6 @@ commands:
     - store_artifacts:
         path: ~/gradle-logs
         when: always
-    - store_artifacts:
-        path: backend/build/reports/pmd/pmd.html
-        destination: ~/pmd/pmd.html
-        when: always
 
 # jobs for pull request and master
 jobs:
@@ -512,7 +508,9 @@ jobs:
           ./gradlew --continue spotlessCheck
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
-        command: ./gradlew pmdReport
+        # If PMD fails, task does not fail!
+        command: |
+          ./gradlew --continue pmdMain pmdTest pmdTestFixtures || touch ~/pmd-failed
     - run:
         name: run tests and merge coverage
         # Split from sonar so each carries its own timing.
@@ -536,6 +534,13 @@ jobs:
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
+    - run:
+        name: <backend> fail on pmd violations
+        command: |
+          if [ -f ~/pmd-failed ]; then
+            echo "PMD failed, see the '<backend> check for programming flaws' step or the PMD issues in sonar."
+            exit 1
+          fi
 
     # Every backend module, test, pmd and spotless runs here. The only writer of these caches.
     - save_gradle_deps
