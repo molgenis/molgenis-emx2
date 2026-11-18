@@ -11,6 +11,17 @@ Use of in-line code comments should be used sparingly. For example, when citing 
 To ensure code reviewing stays clear and not too much work, we keep PRs small and split large code changes (whenever possible) over multiple PRs.
 One could for example use [stacked pull requests](https://docs.github.com/en/pull-requests/get-started/about-stacked-prs) to achieve this as well. 
 
+### We label review comments as blocking or non-blocking
+
+To make clear what must be resolved before a PR can be merged, we start each review comment with `blocking` or `non-blocking` label:
+
+```
+blocking: this query runs without checking the user's permissions.
+non-blocking: this method could be split up to make it easier to read.
+```
+
+This is inspired by [Conventional Comments](https://conventionalcomments.org/). Following the other rules is up to the reviewer, for example `suggestion (non-blocking): ...`.
+
 ## For frontend development
 
 To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.
