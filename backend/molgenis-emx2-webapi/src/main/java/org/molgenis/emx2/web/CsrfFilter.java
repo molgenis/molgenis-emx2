@@ -12,10 +12,11 @@ import java.util.Set;
 /**
  * Rejects state-changing requests that a browser sent on behalf of another site (CSRF). A browser
  * attaches the session cookie to cross-site form posts, so for these methods we require that the
- * Origin (or, when absent, the Referer) points to this server. Requests without either header
- * (scripts, curl) are allowed. Token headers do not exempt a request: when a session exists it
- * takes precedence over the token, so a token header alone says nothing about how the request is
- * authenticated.
+ * Origin points to this server. Browsers send Origin on every cross-site POST, so Referer is not
+ * checked; it is often a foreign page for legitimate requests, e.g. SSR fetches forwarding the
+ * visitor's Referer. Requests without Origin (scripts, curl) are allowed. Token headers do not
+ * exempt a request: when a session exists it takes precedence over the token, so a token header
+ * alone says nothing about how the request is authenticated.
  */
 final class CsrfFilter {
 
@@ -31,14 +32,11 @@ final class CsrfFilter {
     if (!STATE_CHANGING_METHODS.contains(ctx.method())) {
       return;
     }
-    String source = ctx.header(Header.ORIGIN);
-    if (source == null) {
-      source = ctx.header(Header.REFERER);
-    }
-    if (source == null) {
+    String origin = ctx.header(Header.ORIGIN);
+    if (origin == null) {
       return;
     }
-    String sourceHost = hostOf(source);
+    String sourceHost = hostOf(origin);
     if (sourceHost == null || !isOwnHost(sourceHost, ctx)) {
       throw new ForbiddenResponse("Cross-site request rejected: origin does not match this server");
     }
