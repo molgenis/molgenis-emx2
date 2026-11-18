@@ -269,7 +269,7 @@ function onMouseOver(row: IChartData) {
   });
 
   rect.attr("fill", props.hoverFillColor);
-  text.style("opacity", 1);
+  text.attr("opacity", 1);
 }
 
 function onMouseOut(row: IChartData) {
@@ -281,7 +281,7 @@ function onMouseOut(row: IChartData) {
   });
 
   rect.attr("fill", () => colorPalette.value(row.xValue));
-  text.style("opacity", 0);
+  text.attr("opacity", 0);
 }
 
 function renderColumns() {
