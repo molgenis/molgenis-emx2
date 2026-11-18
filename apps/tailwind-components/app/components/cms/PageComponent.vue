@@ -201,22 +201,27 @@ function asSingularName(value: string | undefined): string | undefined {
   return value;
 }
 
-const debouncedUpdateText = useDebounceFn((text: string, field: string) => {
-  // regular expression used to capitalize first letter of each word and remove the spaces
-  updateCMSfield(
-    componentMetadata.value?.schemaId || "",
-    schemaTableName.value?.replace(/\s+(.)/g, (_, char) => char.toUpperCase()),
-    props.component.id,
-    text,
-    field
-  );
-}, 1000);
+const debouncedUpdateText = useDebounceFn(
+  (text: string | string[], field: string) => {
+    // regular expression used to capitalize first letter of each word and remove the spaces
+    updateCMSfield(
+      componentMetadata.value?.schemaId || "",
+      schemaTableName.value?.replace(/\s+(.)/g, (_, char) =>
+        char.toUpperCase()
+      ),
+      props.component.id,
+      text,
+      field
+    );
+  },
+  1000
+);
 
-function updateText(text: string, field: string = "text") {
+function updateText(text: string | string[], field: string = "text") {
   debouncedUpdateText(text, field);
 }
 
-function updateListItems(item: { key: string; text: string }, field: string) {
+function updateListItems(item: { key: number; text: string }, field: string) {
   cachedListItems.value[item.key] = item.text;
   updateText(cachedListItems.value, field);
 }

@@ -918,7 +918,7 @@ export async function updateCMSfield(
   schema: string,
   typeName: string,
   id: string,
-  text: string,
+  text: string | string[],
   fieldName: string = "text"
 ) {
   const updateQuery = `mutation update($value:[${typeName}Input]) {
