@@ -108,21 +108,23 @@ const userNames = computed<string[]>(() => {
   return adminSettings.users.map((user: User) => user.email);
 });
 
-const usersShown = computed<User[]>(() => {
+const matchingUsers = computed<User[]>(() => {
   const search = tableSettings.value.search?.toLowerCase() || "";
   const filteredUsers = filterUsers(search, adminSettings.users);
-  const sortedUsers = sortUsers(
+  return sortUsers(
     filteredUsers,
     tableSettings.value.orderby?.column || "email",
     tableSettings.value.orderby?.direction || "ASC"
   );
-  const paginatedUsers = paginateUsers(
-    sortedUsers,
+});
+
+const usersShown = computed<User[]>(() =>
+  paginateUsers(
+    matchingUsers.value,
     tableSettings.value.page,
     tableSettings.value.pageSize
-  );
-  return paginatedUsers;
-});
+  )
+);
 
 function openEditUserModal(user: User) {
   selectedUser.value = user;
@@ -216,7 +218,7 @@ function sortUsers(
   column: string,
   direction: "ASC" | "DESC"
 ): User[] {
-  return users.sort((a, b) => {
+  return [...users].sort((a, b) => {
     const aValue = JSON.stringify(a[column as keyof User]);
     const bValue = JSON.stringify(b[column as keyof User]);
     if (aValue === undefined || bValue === undefined) {
@@ -247,13 +249,13 @@ function rowToUser(row: TableRow): User {
     <ContentBlock
       class="w-full mt-3"
       title="User management"
-      :description="`${adminSettings.userCount} users found`"
+      :description="`${matchingUsers.length} users found`"
     >
       <TableInteractive
         :features="tableFeatures"
         :permissions="tablePermissions"
         :rows="usersShown"
-        :rowCount="adminSettings.userCount"
+        :rowCount="matchingUsers.length"
         :selectedRows="selectedRows"
         :settings="tableSettings"
         :tableMetadata="tableMetadata"
