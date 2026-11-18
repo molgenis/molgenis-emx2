@@ -55,7 +55,6 @@ final class CsrfFilter {
   }
 
   private static String hostOf(String url) {
-    // only the host is needed, and URI rejects characters browsers do send in a path or query
     String schemeAndAuthority = url.trim().replaceFirst("(://[^/?#]*).*", "$1");
     try {
       String host = URI.create(schemeAndAuthority).toURL().getHost();
