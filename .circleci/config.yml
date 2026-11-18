@@ -214,8 +214,8 @@ commands:
         path: ~/gradle-logs
         when: always
     - store_artifacts:
-        path: ~/pmd-reports
-        destination: pmd
+        path: backend/build/reports/pmd/pmd.html
+        destination: ~/pmd/pmd.html
         when: always
 
 # jobs for pull request and master
@@ -512,21 +512,7 @@ jobs:
           ./gradlew --continue spotlessCheck
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
-        command: |
-          ./gradlew --continue pmdMain pmdTest pmdTestFixtures
-    - run:
-        name: <backend> collect pmd reports with violations
-        # Only the html reports whose xml counterpart contains a violation, named <module>-<sourceSet>.html.
-        when: always
-        command: |
-          shopt -s nullglob
-          mkdir -p ~/pmd-reports
-          for xml in backend/*/build/reports/pmd/*.xml; do
-            if grep -q '<violation' "$xml"; then
-              module=$(echo "$xml" | cut -d/ -f2)
-              cp "${xml%.xml}.html" ~/pmd-reports/"$module-$(basename "${xml%.xml}").html"
-            fi
-          done
+        command: ./gradlew pmdReport
     - run:
         name: run tests and merge coverage
         # Split from sonar so each carries its own timing.
