@@ -508,9 +508,8 @@ jobs:
           ./gradlew --continue spotlessCheck
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
-        # If PMD fails, task does not fail!
         command: |
-          ./gradlew --continue pmdMain pmdTest pmdTestFixtures || touch ~/pmd-failed
+          ./gradlew --continue pmdMain pmdTest pmdTestFixtures
     - run:
         name: run tests and merge coverage
         # Split from sonar so each carries its own timing.
@@ -523,8 +522,10 @@ jobs:
           2>&1 | tee ~/gradle-logs/test-backend.log
     - run:
         name: push results to sonar
+        # Always runs, so the PMD issues are pushed even when PMD (or the tests) failed.
         # sonar rejects an empty pullrequest.key, and master has no PR, so the
         # pull-request flags are only passed when there is one.
+        when: always
         command: |
           SONAR_PR_ARGS=""
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
@@ -534,13 +535,6 @@ jobs:
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
-    - run:
-        name: <backend> fail on pmd violations
-        command: |
-          if [ -f ~/pmd-failed ]; then
-            echo "PMD failed, see the '<backend> check for programming flaws' step or the PMD issues in sonar."
-            exit 1
-          fi
 
     # Every backend module, test, pmd and spotless runs here. The only writer of these caches.
     - save_gradle_deps
