@@ -269,7 +269,7 @@ function onMouseOver(row: IChartData) {
   });
 
   rect.attr("fill", props.hoverFillColor);
-  text.attr("fill-opacity", "1");
+  text.attr("opacity", 1);
 }
 
 function onMouseOut(row: IChartData) {
@@ -281,7 +281,7 @@ function onMouseOut(row: IChartData) {
   });
 
   rect.attr("fill", () => colorPalette.value(row.xValue));
-  text.attr("fill-opacity", "0");
+  text.attr("opacity", 0);
 }
 
 function renderColumns() {
@@ -456,8 +456,7 @@ watch(
                   :data-group="nestedRow.primaryGroupValue"
                   class="fill-chart-text text-body-base"
                   text-anchor="middle"
-                  :fill-opacity="0"
-                  filter="url(#textBackground)"
+                  :opacity="0"
                   :x="xScale(nestedRow.xValue)"
                   :y="yScale(parseInt(nestedRow.yValue))"
                   :dx="xScale.bandwidth() / 2"
@@ -491,7 +490,7 @@ watch(
                 text-anchor="middle"
                 :data-x="row.xValue"
                 :data-y="row.yValue"
-                :fill-opacity="0"
+                :opacity="0"
                 :x="xScale(row.xValue)"
                 :y="yScale(parseInt(row.yValue))"
                 :dx="xScale.bandwidth() / 2"
