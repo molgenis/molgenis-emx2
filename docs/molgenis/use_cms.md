@@ -1,8 +1,5 @@
 # Using the MOLGENIS CMS
 
-> NOTE
-> The MOLGENIS CMS is currently in development. In this guide, we've provided a brief overview of the CMS, but things may change or may not work as described. If you notice any issues, please let us know.
-
 The MOLGENIS CMS&mdash;or _content management system_&mdash;allows users to create custom interfaces within a molgenis instance. Behind the scenes, the CMS is a central schema, which is called `cms` and comes pre-loaded with a few example pages that you can use as a starting point for creating your own pages.
 
 In the CMS, there are two types of pages that can be created, which can only be created if a user has manager-level permissions.
@@ -27,9 +24,7 @@ In the page builder, all changes are saved automatically, whereas you must routi
 
 ## The Page Builder
 
-In the page builder, pages are created using a system of _blocks_ and _components_. Components&mdash;paragraphs, headings, images, visualisations, etc.&mdash;are placed inside blocks (or sections), which are placed within a page. By grouping content this way, this allows flexibility in how content is organised on a page.
-
-### How to create a page
+In the page builder, pages are created using a system of _blocks_ and _components_. _Blocks_, such as a page section or page header, are used to group _components_ with in a page. This system allows you to organise content and manage groups of content much easier.
 
 1. Add a Header: Set the page header, subtitle, and background image
 2. Add a section
@@ -81,9 +76,9 @@ Images are stored in the CMS/Images table. New files can be directly imported in
 
 - We recommend compressing your image before importing into the CMS. This ensures that pages have fast load times.
 
-### How do I get a section to display content in columns and rows?
+### How do I get a section to display content with and without columns?
 
-Changing the number of columns allows you to arrange content in columns, but it isn't possible (yet) to add multiple components into one of the columns. For example, you have a section with a heading and a paragraph, and you would like to display two images side-by-side. To create this layout-
+There are some situations you would like to display content as columns, such as two or more images side-by-side, and have other content outside of the column layout. The section component has an option to set the number of columns, which will split a section into columns.
 
 1. __Create a section__: place all content you wish to display normally (top to bottom of the page)
 2. __Create a section with columns__: set the number of columns you want to have and add content
