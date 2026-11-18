@@ -2,14 +2,24 @@
   <Modal v-model:visible="visible" :title="`Delete user(s)`">
     <div class="overflow-y-auto">
       <div class="p-5">
-        <div class="mb-4">
+        <div v-if="props.users.length" class="mb-4">
           <p>Are you sure you want to delete the user(s)</p>
-          <div v-for="user in props.users">
-            <strong :key="user.email">
+          <div v-for="user in props.users" :key="user.email">
+            <strong>
               {{ user.email }}
             </strong>
           </div>
           This action cannot be undone.
+        </div>
+        <div v-if="props.systemUsers.length" id="system-users-notice">
+          <p>
+            The following system users cannot be deleted and will be skipped:
+          </p>
+          <div v-for="user in props.systemUsers" :key="user.email">
+            <strong>
+              {{ user.email }}
+            </strong>
+          </div>
         </div>
       </div>
     </div>
@@ -19,6 +29,7 @@
           <Button
             icon="trash"
             size="small"
+            :disabled="!props.users.length"
             @click="
               emit('deleteUser', props.users);
               visible = false;
@@ -42,6 +53,7 @@ import type { User } from "../interfaces/interfaces.ts";
 
 const props = defineProps<{
   users: User[];
+  systemUsers: User[];
 }>();
 
 const visible = defineModel("visible", {

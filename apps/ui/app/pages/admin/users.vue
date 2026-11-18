@@ -32,6 +32,7 @@ definePageMeta({
 });
 
 const USER_SCHEMA_ID = "users";
+const SYSTEM_USERS = ["anonymous", "admin", "user"];
 const DEFAULT_TABLE_SETTINGS: ITableSettings = {
   page: 1,
   pageSize: 50,
@@ -98,6 +99,7 @@ const selectedUser = ref<User | null>(null);
 
 const selectedRows = ref<Map<string, User>>(new Map());
 const usersForDeletion = ref<User[]>([]);
+const skippedSystemUsers = ref<User[]>([]);
 
 const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
 const adminSettings = await useAdminSettings();
@@ -128,23 +130,22 @@ function openEditUserModal(user: User) {
 }
 
 function showDeleteUserConfirmation(user?: User) {
-  usersForDeletion.value = user
-    ? [user]
-    : Array.from(selectedRows.value.values());
+  const candidates = user ? [user] : Array.from(selectedRows.value.values());
+  if (!candidates.length) {
+    return;
+  }
+  usersForDeletion.value = candidates.filter(
+    (candidate) => !SYSTEM_USERS.includes(candidate.email)
+  );
+  skippedSystemUsers.value = candidates.filter((candidate) =>
+    SYSTEM_USERS.includes(candidate.email)
+  );
   showDeleteUserModal.value = true;
 }
 
 function openManageTokensModal(user: User) {
   selectedUser.value = user;
   showTokenModal.value = true;
-}
-
-function canDelete(user: User) {
-  return (
-    user.email !== "anonymous" &&
-    user.email !== "admin" &&
-    user.email !== "user"
-  );
 }
 
 function handleUpdateSettings(newSettings: ITableSettings) {
@@ -272,7 +273,7 @@ function rowToUser(row: TableRow): User {
             @click="openEditUserModal(rowToUser(row))"
           />
           <Button
-            v-if="canDelete(rowToUser(row))"
+            v-if="!SYSTEM_USERS.includes(row.email)"
             :id="`delete-user-${row.email}`"
             iconOnly
             type="inline"
@@ -327,9 +328,10 @@ function rowToUser(row: TableRow): User {
       />
 
       <DeleteUserConfirmation
-        v-if="usersForDeletion.length && showDeleteUserModal"
+        v-if="showDeleteUserModal"
         v-model:visible="showDeleteUserModal"
         :users="usersForDeletion"
+        :systemUsers="skippedSystemUsers"
         @deleteUser="adminSettings.removeUsers(usersForDeletion)"
       />
 
