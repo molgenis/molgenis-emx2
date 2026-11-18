@@ -79,7 +79,8 @@ const parentElem = computed<HTMLElement>(() => {
 
 const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
-const chartColumns = ref(); // receives d3.select rect
+const chartColumns = ref(); // receives d3.select
+const chartLabels = ref(); // receives d3.select
 
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
@@ -287,6 +288,7 @@ function onMouseOut(row: IChartData) {
 function renderColumns() {
   const chartColumnArea = chartArea.value.select("g.columns");
   chartColumns.value = chartColumnArea.selectAll("rect").data(props.chartData);
+  chartLabels.value = chartColumnArea.selectAll("text").data(props.chartData);
 
   let rectElem = chartColumns.value;
   if (props.enableAnimations) {
@@ -349,8 +351,16 @@ function onLegendMouseOver(event: string) {
     .delay(vizDelay)
     .duration(delay);
 
+  const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+
   columns.attr("opacity", (row: IChartData) => {
     return row.xValue !== event ? 0.2 : 1;
+  });
+
+  text.attr("opacity", (row: IChartData) => {
+    return row.xValue === event && row.yValue && parseInt(row.yValue) !== 0
+      ? 1
+      : 0;
   });
 }
 
@@ -364,7 +374,10 @@ function onLegendMouseOut() {
     .delay(vizDelay)
     .duration(delay);
 
+  const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+
   columns.attr("opacity", 1);
+  text.attr("opacity", 0);
 }
 
 onMounted(() => {
