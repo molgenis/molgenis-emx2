@@ -115,6 +115,23 @@ NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
 
 In production the catalogue runs as its own container (`molgenis/ssr-catalogue`, see `docker-compose.yml`) next to the backend. See [apps/catalogue/README.md](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/README.md) for more details.
 
+#### How requests reach the backend
+
+A request can reach the backend through several paths. The request headers do not always come from the caller itself:
+
+| Caller | Path | Request headers come from |
+|---|---|---|
+| Browser (SPA apps, catalogue client-side) | browser → reverse proxy → backend | the browser |
+| Catalogue SSR, `useFetch` with a relative URL | Nuxt server → Nitro route in `apps/tailwind-components/server/routes` → backend | **the visitor's page request**, copied by Nuxt |
+| Catalogue SSR, `$fetch` | Nuxt server → same Nitro route → backend | the Nuxt server |
+| Vite dev server | browser → Vite proxy → backend | the browser |
+| pyclient, scripts, curl | client → backend | the client |
+
+This has two consequences:
+
+- The Nitro server routes are production code. Every SSR data fetch goes through them, also when the reverse proxy sends the browser's own `/graphql` calls straight to the backend. The SSR call never passes the reverse proxy.
+- A backend check that reads request headers also sees the visitor's headers on SSR calls, such as the session cookie and the `Referer`. For example, an SSR POST carries a `Referer` from a search engine when the visitor came from a search result.
+
 ## Deploying your application
 
 When you have finished building your app, commit your changes and open a new PR. See our [contributing guidelines](https://github.com/molgenis/molgenis-emx2/blog/master/CONTRIBUTING.md) for more information on contributing to the EMX2 code base. When your PR is accepted and merged with the main EMX2 branch, a [new release](https://github.com/molgenis/molgenis-emx2/releases) will be created. Then, update your server with the latest version of EMX2.
