@@ -213,10 +213,6 @@ commands:
     - store_artifacts:
         path: ~/gradle-logs
         when: always
-    - store_artifacts:
-        path: backend/build/reports/pmd/pmd.html
-        destination: ~/pmd/pmd.html
-        when: always
 
 # jobs for pull request and master
 jobs:
@@ -512,7 +508,10 @@ jobs:
           ./gradlew --continue spotlessCheck
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
-        command: ./gradlew pmdReport
+        command: |
+          # pipefail keeps the step failing on gradle's exit code rather than tee's.
+          set -o pipefail
+          ./gradlew --continue pmdMain pmdTest pmdTestFixtures 2>&1 | tee ~/gradle-logs/pmd.log
     - run:
         name: run tests and merge coverage
         # Split from sonar so each carries its own timing.
