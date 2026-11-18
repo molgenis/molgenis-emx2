@@ -40,13 +40,6 @@ subprojects {
         ruleSets = []
     }
 
-    sonar {
-        properties {
-            property 'sonar.java.pmd.reportPaths', tasks.withType(Pmd).matching { !it.source.empty }
-                    .collect { it.reports.xml.outputLocation.get().asFile }.join(',')
-        }
-    }
-
     compileJava.dependsOn 'spotlessApply'
 
     // Skip PMD for empty source sets to improve performance 
