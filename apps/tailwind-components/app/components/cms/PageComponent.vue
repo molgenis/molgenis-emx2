@@ -257,6 +257,8 @@ function inlineSave() {
       @edit="onShowEdit"
       @delete="onDelete"
       @move="handleMoveEvent"
+      @updateTitle="updateText($event, 'title')"
+      @updateSubtitle="updateText($event, 'subtitle')"
     />
     <EditableSection
       v-else-if="mg_tableclass.endsWith('.Sections')"
@@ -443,6 +445,7 @@ function inlineSave() {
   content: "saving...";
   position: absolute;
   font-size: 12px;
+  font-family: var(--dp-font-family);
   bottom: 100%;
   top: auto;
   left: 0;
@@ -451,7 +454,6 @@ function inlineSave() {
   color: black;
   pointer-events: none;
   background-color: var(--color-orange-500);
-
   opacity: 0;
   transition: opacity 1s ease-in;
 }
