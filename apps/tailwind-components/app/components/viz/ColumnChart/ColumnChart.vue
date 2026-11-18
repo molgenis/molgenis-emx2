@@ -38,6 +38,7 @@ import {
   generateAxisTickData,
   newNumericAxisGenerator,
   newCategoricalAxisGenerator,
+  selectMouseOverElements,
 } from "../../../utils/viz";
 
 import type {
@@ -259,33 +260,28 @@ function renderChartAxes() {
   }
 }
 
-function onMouseOver(event: Event, row: IChartData) {
-  const rect = event.target as HTMLElement;
-  let text: SVGTextElement;
+function onMouseOver(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
 
-  if (isGroupedColumnChart.value) {
-    text = chartArea.value.select(
-      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
-    )._groups[0][0];
-  } else {
-    text = rect.nextSibling as SVGTextElement;
-  }
-  rect.style.fill = props.hoverFillColor;
-  text.style.opacity = "1";
+  rect.attr("fill", props.hoverFillColor);
+  text.style("opacity", 1);
 }
 
-function onMouseOut(event: Event, row: IChartData) {
-  const rect = event.target as HTMLElement;
-  let text: SVGTextElement;
-  if (isGroupedColumnChart.value) {
-    text = chartArea.value.select(
-      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
-    )._groups[0][0];
-  } else {
-    text = rect.nextSibling as SVGTextElement;
-  }
-  rect.style.fill = colorPalette.value(row.xValue) as string;
-  text.style.opacity = "0";
+function onMouseOut(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
+
+  rect.attr("fill", () => colorPalette.value(row.xValue));
+  text.style("opacity", 0);
 }
 
 function renderColumns() {
@@ -317,10 +313,8 @@ function renderColumns() {
   if (props.enableHoverEvents) {
     chartColumns.value
       .style("cursor", "pointer")
-      .on("mouseover", onMouseOver)
-      .on("mouseout", (event: Event, row: IChartData) =>
-        onMouseOut(event, row)
-      );
+      .on("mouseover", (_: Event, row: IChartData) => onMouseOver(row))
+      .on("mouseout", (_: Event, row: IChartData) => onMouseOut(row));
   }
 
   if (props.enableClickEvents) {
@@ -483,6 +477,8 @@ watch(
             >
               <rect
                 class="column"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :x="xScale(row.xValue)"
                 :width="xScale.bandwidth()"
                 :fill="(colorPalette(row.xValue) as string)"
@@ -493,6 +489,8 @@ watch(
               <text
                 class="fill-chart-text text-body-base"
                 text-anchor="middle"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :opacity="0"
                 :x="xScale(row.xValue)"
                 :y="yScale(parseInt(row.yValue))"
