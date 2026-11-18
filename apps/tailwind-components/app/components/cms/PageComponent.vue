@@ -217,7 +217,7 @@ function updateText(text: string) {
 </script>
 
 <template>
-  <div class="contents" :class="{'saving': currentlySaving}">
+  <div class="contents" :class="{ saving: currentlySaving }">
     <EditableHeader
       v-if="mg_tableclass.endsWith('.Headers')"
       v-bind="component"
@@ -399,24 +399,24 @@ function updateText(text: string) {
 </template>
 
 <style scoped>
- .saving :deep(*:has(> [contenteditable])){
+.saving :deep(*:has(> [contenteditable])) {
   position: relative;
- }
- .saving :deep([contenteditable]){
+}
+.saving :deep([contenteditable]) {
   outline-color: var(--color-orange-500);
 }
 .saving :deep([contenteditable]:focus::before) {
-  bottom:100%;
-  top:auto
+  bottom: 100%;
+  top: auto;
 }
 
 .saving :deep([contenteditable]::before) {
   content: "saving...";
-  position:absolute;
+  position: absolute;
   font-size: 12px;
-  bottom:auto;
-  top:0;
-  left:0;
+  bottom: auto;
+  top: 0;
+  left: 0;
   padding: 2px 6px;
   border-radius: 4px;
   background-color: var(--color-orange-500);

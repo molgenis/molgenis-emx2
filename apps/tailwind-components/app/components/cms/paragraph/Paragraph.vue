@@ -3,8 +3,8 @@ import { computed } from "vue";
 import { sanitizeHtmlText } from "../../../utils/cms/sanitizeHtmlText.ts";
 import type { IParagraphs } from "../../../../types/cms";
 
-const props = withDefaults(defineProps<IParagraphs&{ asText?: boolean }>(), {
-  asText: false
+const props = withDefaults(defineProps<IParagraphs & { asText?: boolean }>(), {
+  asText: false,
 });
 
 const text = computed<string | undefined>(() => {

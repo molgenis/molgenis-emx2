@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch  } from "vue";
+import { ref, watch } from "vue";
 import Paragraph from "./Paragraph.vue";
 import ComponentActions from "../ComponentActions.vue";
 import {
@@ -31,9 +31,9 @@ watch(
 );
 
 function updateText($event: Event) {
-  const newText = ($event.target as HTMLElement)?.innerText ?? '';
+  const newText = ($event.target as HTMLElement)?.innerText ?? "";
   draftText.value = newText;
-  emit('updateText', newText);
+  emit("updateText", newText);
 }
 </script>
 
@@ -62,10 +62,13 @@ function updateText($event: Event) {
       ref="editorRef"
       v-bind="props"
       :text="localText"
-      :contenteditable="props.isEditable&&'plaintext-only'"
+      :contenteditable="props.isEditable && 'plaintext-only'"
       @input="props.isEditable && updateText($event)"
       @focus="displayTextOnly = true"
-      @blur="displayTextOnly = false;localText = draftText"
+      @blur="
+        displayTextOnly = false;
+        localText = draftText;
+      "
       :asText="displayTextOnly"
     />
   </VMenu>
