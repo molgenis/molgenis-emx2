@@ -60,9 +60,10 @@ const componentDisplayName = computed<string>(() => {
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
-const cachedListItems = ref<string[]>(
-  props.component?.orderedItems || props.component?.unorderedItems || []
-);
+const sourceItems =
+  props.component?.orderedItems || props.component?.unorderedItems || [];
+const cachedListItems = ref<string[]>([...sourceItems]);
+
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });

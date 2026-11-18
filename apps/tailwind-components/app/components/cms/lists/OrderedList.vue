@@ -10,7 +10,6 @@ const emit = defineEmits(["updateOrderedItems", "inlineSave"]);
     <ListItem
       v-for="(item, key) in orderedItems"
       :text="item"
-      :key="key"
       :contenteditable="props.isEditable"
       @input="
         props.isEditable &&
