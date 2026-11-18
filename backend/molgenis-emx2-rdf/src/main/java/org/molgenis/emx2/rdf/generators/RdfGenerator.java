@@ -57,15 +57,24 @@ public abstract class RdfGenerator {
     query.streamRows(consumer);
   }
 
+  protected Set<Table> ancestors(Table table) {
+    Set<Table> result = new HashSet<>();
+    Table parent = table.getInheritedTable();
+    while (parent != null) {
+      result.add(parent);
+      parent = parent.getInheritedTable();
+    }
+    return result;
+  }
+
   /**
-   * Retrieve selected {@link Table} from {@link Schema} including any recursively inherited tables
-   * up to the root table (as long as these tables are still part of the same scheme as the {@code
-   * tableFilter}).
+   * Retrieve selected {@link Table} from {@link Schema} including any children (as long as these
+   * tables are still part of the same scheme as the {@code tableFilter}).
    */
-  protected Set<Table> tablesToDescribe(Schema schema, Table tableFilter) {
+  protected Set<Table> withChildren(Table table) {
     Set<Table> tablesToDescribe = new HashSet<>();
-    for (Table currentTable : schema.getTablesSorted()) {
-      processInheritedTable(tableFilter, tablesToDescribe, currentTable);
+    for (Table currentTable : table.getSchema().getTablesSorted()) {
+      processInheritedTable(table, tablesToDescribe, currentTable);
     }
     return tablesToDescribe;
   }

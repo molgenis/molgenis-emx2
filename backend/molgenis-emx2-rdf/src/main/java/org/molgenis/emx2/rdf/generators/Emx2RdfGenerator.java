@@ -51,24 +51,26 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   @Override
   public void generate(Table table) {
-    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    Set<Table> tables = withChildren(table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     describeTable(table);
     tables.forEach(this::describeColumns);
+    ancestors(table).forEach(this::describeColumns);
     tables.forEach(t -> processRows(rdfMapData, t));
   }
 
   @Override
   public void generate(Table table, PrimaryKey primaryKey) {
-    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    Set<Table> tables = withChildren(table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     tables.forEach(this::describeColumns);
+    ancestors(table).forEach(this::describeColumns);
     tables.forEach(t -> processRows(rdfMapData, t, primaryKey));
   }
 
@@ -145,7 +147,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       return;
     }
 
-    for (final Column column : table.getMetadata().getColumns()) {
+    for (final Column column : table.getMetadata().getNonInheritedColumns()) {
       // Exclude the system columns that refer to specific users
       if (column.isSystemAddUpdateByUserColumn()) {
         continue;

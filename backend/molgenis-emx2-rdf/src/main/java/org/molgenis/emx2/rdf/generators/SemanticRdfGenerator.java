@@ -39,7 +39,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
   @Override
   public void generate(Table table, @Nullable PrimaryKey primaryKey) {
-    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    Set<Table> tables = withChildren(table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
     generatePrefixes(table.getSchema());
