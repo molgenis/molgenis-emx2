@@ -79,7 +79,7 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const rectTextElem = await page.locator(
       "#column-chart-demo-1 g.columns g:first-child text"
     );
-    expect(await rectTextElem.getAttribute("style")).toBe("opacity: 1;");
+    expect(await rectTextElem.getAttribute("opacity")).toBe("1");
   });
 
   test("clicking on a columns emits data point", async ({ page }) => {
