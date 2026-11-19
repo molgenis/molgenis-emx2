@@ -98,7 +98,7 @@ public class SqlRoleManager {
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     database.tx( // we need to lift to admin to create a role
         db -> {
-          Username currentUser = db.getActiveUser();
+          Username currentUser = db.getActiveUsername();
           try {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
@@ -124,7 +124,7 @@ public class SqlRoleManager {
     String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
     database.tx( // we need to lift to admin to drop a role
         db -> {
-          Username currentUser = db.getActiveUser();
+          Username currentUser = db.getActiveUsername();
           try {
             db.becomeAdmin();
             DSLContext jooq = ((SqlDatabase) db).getJooq();
@@ -344,7 +344,7 @@ public class SqlRoleManager {
     String regularFullRole = fullRoleName(schemaName, roleName);
     database.tx(
         db -> {
-          Username currentUser = db.getActiveUser();
+          Username currentUser = db.getActiveUsername();
           try {
             db.becomeAdmin();
             grant(((SqlDatabase) db).getJooq(), name(rlsFullRole), name(regularFullRole));

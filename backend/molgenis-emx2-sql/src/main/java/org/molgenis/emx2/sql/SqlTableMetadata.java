@@ -402,7 +402,7 @@ class SqlTableMetadata extends TableMetadata {
     } else {
       throw new MolgenisException(
           "Permission denied for user "
-              + getDatabase().getActiveUser()
+              + getDatabase().getActiveUsername()
               + " to change setting on table "
               + getTableName()
               + ". You need at least EDITOR permission for table settings.");
@@ -444,7 +444,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private static void log(SqlTableMetadata tableMetadata, long start, String message) {
-    Username user = tableMetadata.getDatabase().getActiveUser();
+    Username user = tableMetadata.getDatabase().getActiveUsername();
     if (user == null) {
       user = new Username("molgenis");
     }
@@ -459,7 +459,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private void log(long start, String message) {
-    Username user = getDatabase().getActiveUser();
+    Username user = getDatabase().getActiveUsername();
     if (user == null) {
       user = new Username("molgenis");
     }

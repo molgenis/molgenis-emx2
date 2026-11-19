@@ -77,7 +77,7 @@ class BeaconAuthorityTests extends TestLoaders {
     QueryEntryType queryEntryType = new QueryEntryType(new BeaconRequestBody(request));
     queryEntryType.query(patientRegistry);
 
-    assertEquals(VIEWER_TEST_USER, database.getActiveUser());
+    assertEquals(VIEWER_TEST_USER, database.getActiveUsername());
   }
 
   @Test

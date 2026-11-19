@@ -220,7 +220,7 @@ public class QueryEntryType {
     String endpoint = "beacon_" + entryType.getName();
     database.tx(
         tx -> {
-          Username activeUser = tx.getActiveUser();
+          Username activeUser = tx.getActiveUsername();
           try {
             tx.becomeAdmin();
             Table templatesTable = tx.getSchema(SYSTEM_SCHEMA).getTable("Templates");

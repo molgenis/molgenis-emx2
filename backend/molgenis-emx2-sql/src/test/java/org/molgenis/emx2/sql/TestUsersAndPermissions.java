@@ -63,7 +63,7 @@ public class TestUsersAndPermissions {
       }
       database.addUser(user1);
       database.setActiveUser(user1);
-      assertEquals(user1, database.getActiveUser());
+      assertEquals(user1, database.getActiveUsername());
 
       // remove active user
       database.becomeAdmin();

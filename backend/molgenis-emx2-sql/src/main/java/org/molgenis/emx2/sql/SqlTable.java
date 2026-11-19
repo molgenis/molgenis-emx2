@@ -126,7 +126,7 @@ public class SqlTable implements Table {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
       database.getJooqWithExtendedTimeout().deleteFrom(t.getJooqTable()).execute();
     }
-    logger.info(database.getActiveUser() + " truncated table " + tableName);
+    logger.info(database.getActiveUsername() + " truncated table " + tableName);
   }
 
   private static String getMgTableClass(TableMetadata table) {
@@ -246,7 +246,7 @@ public class SqlTable implements Table {
         });
 
     log(
-        db.getActiveUser().value(),
+        db.getActiveUsername().value(),
         table.getJooqTable().getName(),
         start,
         count,
@@ -571,7 +571,7 @@ public class SqlTable implements Table {
   }
 
   private static Username getActiveUser(SqlTable table) {
-    Username user = table.getSchema().getDatabase().getActiveUser();
+    Username user = table.getSchema().getDatabase().getActiveUsername();
     if (user == null) {
       user = ADMIN_USER;
     }
@@ -731,7 +731,7 @@ public class SqlTable implements Table {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
-    log(db.getActiveUser().value(), getName(), start, nrDeleted, "deleted");
+    log(db.getActiveUsername().value(), getName(), start, nrDeleted, "deleted");
     return nrDeleted.get();
   }
 

@@ -96,7 +96,7 @@ public final class TaskApi {
     ScriptTask scriptTask = taskService.getScript(name);
     String id =
         taskService.submit(
-            scriptTask.parameters(parameters).submitUser(database.getActiveUser().value()));
+            scriptTask.parameters(parameters).submitUser(database.getActiveUsername().value()));
     ctx.json(new TaskReference(id));
   }
 
@@ -115,7 +115,7 @@ public final class TaskApi {
     ScriptTask scriptTask = taskService.getScript(name);
     String id =
         taskService.submit(
-            scriptTask.parameters(parameters).submitUser(database.getActiveUser().value()));
+            scriptTask.parameters(parameters).submitUser(database.getActiveUsername().value()));
     // wait until done or timeout
     Task task = taskService.getTask(id);
     int maxTimeout = 120;

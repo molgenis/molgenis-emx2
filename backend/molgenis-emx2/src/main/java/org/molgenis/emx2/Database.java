@@ -63,7 +63,7 @@ public interface Database extends HasSettingsInterface<Database>, SchemaMetadata
 
   void setActiveUser(Username username);
 
-  Username getActiveUser();
+  Username getActiveUsername();
 
   void clearActiveUser();
 

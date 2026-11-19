@@ -25,7 +25,7 @@ public class TriggerRepositoryImpl implements TriggerRepository {
 
   public TriggerRepositoryImpl(Database database) {
     this.database = database;
-    Username currentUser = database.getActiveUser();
+    Username currentUser = database.getActiveUsername();
     this.database.tx(
         db -> {
           try {
@@ -87,7 +87,7 @@ public class TriggerRepositoryImpl implements TriggerRepository {
     List<Trigger> triggers = new ArrayList<>();
     this.database.tx(
         db -> {
-          Username currentUser = database.getActiveUser();
+          Username currentUser = database.getActiveUsername();
 
           if (!schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString())) {
             throw new MolgenisException(

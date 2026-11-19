@@ -76,7 +76,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public void reload() {
     if (logger.isInfoEnabled()) {
-      logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUser());
+      logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUsername());
     }
     long start = System.currentTimeMillis();
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
@@ -184,7 +184,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     } else {
       throw new MolgenisException(
           "Permission denied for user "
-              + getDatabase().getActiveUser()
+              + getDatabase().getActiveUsername()
               + " to change setting on schema "
               + getName()
               + ". You need at least MANAGER permission for schema settings");
@@ -240,7 +240,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUsername());
     }
     return rolesCache;
   }

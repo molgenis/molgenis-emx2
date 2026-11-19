@@ -56,7 +56,7 @@ public class SqlSchema implements Schema {
   @Override
   public List<Member> getMembers() {
     // only admin or other members can see
-    if (db.getActiveUser() == null || db.isAdmin() || getRoleForActiveUser() != null) {
+    if (db.getActiveUsername() == null || db.isAdmin() || getRoleForActiveUser() != null) {
       return roleManager().getMembers(getName());
     } else {
       return new ArrayList<>();
@@ -101,7 +101,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public String getRoleForActiveUser() {
-    return getRoleForUser(db.getActiveUser());
+    return getRoleForUser(db.getActiveUsername());
   }
 
   @Override

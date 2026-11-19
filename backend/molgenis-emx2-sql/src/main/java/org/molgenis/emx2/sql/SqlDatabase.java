@@ -242,7 +242,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
     if (secret == null || secret.getBytes().length < 32) {
       secret = JWTgenerator.generateSharedSecret();
-      Username activeUser = getActiveUser();
+      Username activeUser = getActiveUsername();
       try {
         becomeAdmin();
         setSetting(MOLGENIS_JWT_SHARED_SECRET, secret);
@@ -323,8 +323,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
           // make current user a manager
-          if (db.getActiveUser() != null && !ADMIN_USER.equals(db.getActiveUser())) {
-            schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
+          if (db.getActiveUsername() != null && !ADMIN_USER.equals(db.getActiveUsername())) {
+            schema.addMember(db.getActiveUsername(), Privileges.MANAGER.toString());
           }
           // refresh
           db.clearCache();
@@ -483,7 +483,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // this is not thread safe therefore must be in a transaction
       tx(
           db -> {
-            Username currentUser = db.getActiveUser();
+            Username currentUser = db.getActiveUsername();
             try {
               db.becomeAdmin();
               executeCreateUser((SqlDatabase) db, username);
@@ -504,7 +504,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void setUserPassword(Username userName, String password) {
     // can only as admin or as own user + admin user can only set admin password
-    Username activeUser = getActiveUser();
+    Username activeUser = getActiveUsername();
     if ((activeUser != null && !isAdmin() && !userName.equals(activeUser))
         || (ADMIN_USER.equals(userName) && !ADMIN_USER.equals(activeUser))) {
       throw new MolgenisException(
@@ -534,7 +534,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public List<User> getUsers(int limit, int offset) {
-    if (getActiveUser() != null && !isAdmin()) {
+    if (getActiveUsername() != null && !isAdmin()) {
       throw new MolgenisException("getUsers denied");
     }
     return loadUsers(this, limit, offset);
@@ -610,7 +610,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (ANONYMOUS.equals(user)) {
       throw new MolgenisException("Anonymous user cannot have admin rights");
     }
-    if (!ADMIN_USER.equals(this.getActiveUser())) {
+    if (!ADMIN_USER.equals(this.getActiveUsername())) {
       throw new MolgenisException("Only root admin user may grant admin permission");
     }
     if (!hasUser(user)) {
@@ -675,7 +675,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public Username getActiveUser() {
+  public Username getActiveUsername() {
     return connectionProvider.getActiveUser();
   }
 
@@ -713,7 +713,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
-        if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
+        if (!Objects.equals(db.getActiveUsername(), getActiveUsername())) {
           this.getListener().onUserChange();
         }
         if (db.getListener().isDirty()) {
@@ -795,7 +795,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   void getJooqAsAdmin(JooqTransaction transaction) {
-    if (ADMIN_USER.equals(getActiveUser())) {
+    if (ADMIN_USER.equals(getActiveUsername())) {
       transaction.run(getJooq());
     } else if (inTx()) {
       // need to do this because updates before this call in current tx
@@ -826,7 +826,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public int countUsers() {
-    if (getActiveUser() != null && !isAdmin()) {
+    if (getActiveUsername() != null && !isAdmin()) {
       throw new MolgenisException("countUsers denied");
     }
     return MetadataUtils.countUsers(getJooq());
@@ -839,16 +839,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isAdmin() {
-    if (ADMIN_USER.equals(getActiveUser())) {
+    if (ADMIN_USER.equals(getActiveUsername())) {
       return true;
     }
-    User user = getUser(getActiveUser());
+    User user = getUser(getActiveUsername());
     return user != null && user.isAdmin();
   }
 
   @Override
   public boolean isAnonymous() {
-    return ANONYMOUS.equals(getActiveUser());
+    return ANONYMOUS.equals(getActiveUsername());
   }
 
   @Override
@@ -869,7 +869,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public void saveUser(User user) {
-    if (!isAdmin() && !user.getUsername().equals(getActiveUser())) {
+    if (!isAdmin() && !user.getUsername().equals(getActiveUsername())) {
       throw new MolgenisException("Cannot save changes for user " + user + ": permission denied");
     }
     saveUserMetadata(getJooq(), user);

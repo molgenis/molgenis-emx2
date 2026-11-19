@@ -76,7 +76,7 @@ public final class JWTgenerator {
   }
 
   public static String createTemporaryToken(Database db) {
-    return createTemporaryToken(db, db.getActiveUser());
+    return createTemporaryToken(db, db.getActiveUsername());
   }
 
   private static String createNamedTokenForUser(
@@ -84,7 +84,7 @@ public final class JWTgenerator {
     requireNonNull(user);
     requireNonNull(tokenId);
     requireNonNull(expirationTime);
-    if (!ADMIN_USER.equals(db.getActiveUser()) && !db.getActiveUser().equals(user)) {
+    if (!ADMIN_USER.equals(db.getActiveUsername()) && !db.getActiveUsername().equals(user)) {
       throw new MolgenisException("Cannot create token for other users unless admin");
     }
     try {

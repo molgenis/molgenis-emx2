@@ -64,7 +64,7 @@ public class GraphqlSessionFieldFactory {
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS,
                   "User '%s' has signed out",
-                  database.getActiveUser());
+                  database.getActiveUsername());
             })
         .build();
   }
@@ -91,7 +91,7 @@ public class GraphqlSessionFieldFactory {
               database.tx(
                   db -> {
                     // uplift permissions
-                    Username activeUser = db.getActiveUser();
+                    Username activeUser = db.getActiveUsername();
                     try {
                       db.becomeAdmin();
                       db.addUser(userName);
@@ -156,8 +156,8 @@ public class GraphqlSessionFieldFactory {
               Map<String, Object> result = new LinkedHashMap<>();
               result.put(
                   EMAIL,
-                  database.getActiveUser() != null
-                      ? database.getActiveUser().value()
+                  database.getActiveUsername() != null
+                      ? database.getActiveUsername().value()
                       : "anonymous");
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
@@ -165,11 +165,11 @@ public class GraphqlSessionFieldFactory {
                 result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
               }
               result.put(SCHEMAS, database.getSchemaNames());
-              User user = database.getUser(database.getActiveUser());
+              User user = database.getUser(database.getActiveUsername());
               result.put(
                   SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
               result.put(
-                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
+                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUsername()));
               return result;
             })
         .build();
@@ -202,7 +202,7 @@ public class GraphqlSessionFieldFactory {
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
               Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
-              if (!database.isAdmin() && !userName.equals(database.getActiveUser())) {
+              if (!database.isAdmin() && !userName.equals(database.getActiveUsername())) {
                 throw new MolgenisException(
                     "Create token failed: Only admins can create tokens for other users");
               }
@@ -232,7 +232,7 @@ public class GraphqlSessionFieldFactory {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
               Username username;
               if (email == null) {
-                username = database.getActiveUser();
+                username = database.getActiveUsername();
               } else {
                 username = new Username(email);
               }
