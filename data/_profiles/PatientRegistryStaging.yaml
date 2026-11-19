@@ -1,6 +1,6 @@
 ---
 name: Patient registry staging
-description: Staging area for the Patient Registry schema
+description: "Staging area for the Patient Registry schema. Requires the schemas 'erdera' (template PATIENT_REGISTRY) and 'Staging area ids' (template PATIENT_REGISTRY_ID_BANK)."
 
 profileTags: Patient registry staging
 
