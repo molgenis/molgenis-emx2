@@ -32,10 +32,10 @@ const inEditMode = computed<boolean>(() => {
 });
 
 const url = computed<string>(() => {
-  if (props.isEditable && !inEditMode.value) {
-    return setCmsEditorUrl(props.schema, props.pageType, page.value);
-  } else {
+  if (props.isEditable && inEditMode.value) {
     return setCmsViewUrl(props.schema, page.value);
+  } else {
+    return setCmsEditorUrl(props.schema, props.pageType, page.value);
   }
 });
 

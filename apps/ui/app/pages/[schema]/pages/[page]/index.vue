@@ -26,14 +26,14 @@ const schema = computed<string>(() => {
 
 const page = computed<string>(() => route.params.page as string);
 
-useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
+useHead({ title: `${page.value} - Pages - ${schema.value} - Molgenis` });
 
 const pageData = await getPage(schema.value, page.value);
 const pageContent = pageData.page;
 
 const crumbs: Crumb[] = [
-  { label: schema.value, url: `/${schema}` },
-  { label: "Pages", url: `/${schema}/pages` },
+  { label: schema.value, url: `/${schema.value}` },
+  { label: "Pages", url: `/${schema.value}/pages` },
   { label: page.value, url: "" },
 ];
 </script>
