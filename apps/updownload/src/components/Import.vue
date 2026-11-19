@@ -91,7 +91,8 @@
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
                   <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
-                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a> /
+                  <a :href="`/${schema}/api/parquet/` + table.id">parquet</a> /
                 </li>
               </ul>
             </div>

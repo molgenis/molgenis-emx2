@@ -1,16 +1,12 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFilterArray;
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
-import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
-import static org.molgenis.emx2.web.DownloadApiUtils.requestedColumns;
+import static org.molgenis.emx2.web.DownloadApiUtils.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
@@ -26,11 +22,9 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
 import org.molgenis.emx2.io.emx2.DownloadColumns;
 import org.molgenis.emx2.io.emx2.Emx2;
@@ -247,7 +241,7 @@ public final class CsvApi {
     List<String> columnNames = getDownloadColumns(ctx, table);
     List<Column> columns = table.getMetadata().getColumns();
     Database database = table.getSchema().getDatabase();
-    Query query = getDownloadQuery(ctx, table);
+    Query query = requestedTableQuery(ctx, table);
 
     // The cursor's transaction holds an ACCESS SHARE lock that blocks ALTER TABLE, so it is
     // closed before the client, whose speed we do not control, is written to.
@@ -286,21 +280,6 @@ public final class CsvApi {
   public static List<String> getDownloadColumns(Context ctx, Table table) {
     return DownloadColumns.resolve(
         table.getMetadata(), requestedColumns(ctx), includeSystemColumns(ctx));
-  }
-
-  static Query getDownloadQuery(Context ctx, Table table) throws JsonProcessingException {
-    Query query = table.query();
-    // extract filter argument if exists
-    if (ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT) != null) {
-      // gonna use the graphql filter parser so we can easily reuse graphql table level filter
-      // expressions
-      query.where(
-          convertMapToFilterArray(
-              table.getMetadata(),
-              new ObjectMapper()
-                  .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
-    }
-    return query;
   }
 
   private static void tableUpdate(Context ctx) {
