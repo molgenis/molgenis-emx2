@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRoute } from "vue-router";
 
 import {
   setCmsEditorUrl,
@@ -12,39 +11,40 @@ const props = withDefaults(
   defineProps<{
     isEditable: boolean;
     pageType: string;
+    route: Record<string, any>;
+    schema: string;
   }>(),
   {
     isEditable: false,
   }
 );
 
-const route = useRoute();
-const schema = computed<string>(() => {
-  const currentSchema = Array.isArray(route.params.schema)
-    ? route.params.schema[0]
-    : route.params.schema ?? "";
-  return currentSchema as string;
+const page = computed<string>(() => {
+  return props.route.params.page as string;
 });
 
-const page = computed<string>(() => route.path);
+const path = computed<string>(() => {
+  return props.route.path;
+});
 
 const inEditMode = computed<boolean>(() => {
-  const hasEditorPath =
-    page.value.endsWith("/configure") || page.value.endsWith("/editor");
-  return props.isEditable && hasEditorPath;
+  return path.value.endsWith("configure") || path.value.endsWith("editor");
 });
 
 const url = computed<string>(() => {
-  const targetPage = route.params.page as string;
-  if (inEditMode.value) {
-    return setCmsViewUrl(schema.value, targetPage);
+  if (props.isEditable && !inEditMode.value) {
+    return setCmsEditorUrl(props.schema, props.pageType, page.value);
   } else {
-    return setCmsEditorUrl(schema.value, props.pageType, targetPage);
+    return setCmsViewUrl(props.schema, page.value);
   }
 });
 
 const urlLabel = computed<string>(() => {
   return inEditMode.value ? "Preview page" : "Edit page";
+});
+
+const urlIcon = computed<string>(() => {
+  return inEditMode.value ? "Visible" : "Edit";
 });
 </script>
 
@@ -56,7 +56,7 @@ const urlLabel = computed<string>(() => {
         v-tooltip.top="urlLabel"
         class="flex justify-center items-center rounded-full bg-button-primary text-button-primary p-2.5 cursor-pointer"
       >
-        <BaseIcon :name="inEditMode ? 'Visible' : 'Edit'" />
+        <BaseIcon :name="urlIcon" />
         <span class="sr-only">{{ urlLabel }}</span>
       </NuxtLink>
     </div>

@@ -17,6 +17,7 @@ const props = withDefaults(
     isEditable: boolean;
     metadata: ITableMetaData[];
     schema: string;
+    route: Record<string, any>;
   }>(),
   {
     isEditable: false,
@@ -202,7 +203,12 @@ const sidebarCollapsed = ref(false);
         @updatePage="$emit('updatePage')"
       />
     </div>
-    <PageToolbar :isEditable="isEditable" pageType="cms.Configurable pages" />
+    <PageToolbar
+      :isEditable="isEditable"
+      pageType="cms.Configurable pages"
+      :route="route"
+      :schema="schema"
+    />
   </div>
 </template>
 
