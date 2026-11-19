@@ -8,6 +8,7 @@ import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.web.Constants.ACCEPT_PARQUET;
 
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.Row;
@@ -44,127 +46,226 @@ class ParquetApiTest extends ApiTestBase {
     login("admin", "admin");
   }
 
-  @Test
-  void shouldDownloadTableAsParquet() throws IOException {
-    Response response = get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
+  @Nested
+  class GetTableTest {
 
-    assertEquals(200, response.getStatusCode());
-    assertEquals(ACCEPT_PARQUET, response.getContentType());
-    assertEquals(
-        "attachment; filename=" + SCHEMA_NAME + "_" + TABLE_NAME + ".parquet",
-        response.getHeader("Content-Disposition"));
+    @Test
+    void shouldDownloadTableAsParquet() throws IOException {
+      Response response = get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
 
-    CompareTools.assertEquals(
-        List.of(
-            row("name", "cat", "legs", 4, MG_DRAFT, null),
-            row("name", "bird", "legs", 2, MG_DRAFT, null)),
-        readParquet(response));
+      assertEquals(200, response.getStatusCode());
+      assertEquals(ACCEPT_PARQUET, response.getContentType());
+      assertEquals(
+          "attachment; filename=" + SCHEMA_NAME + "_" + TABLE_NAME + ".parquet",
+          response.getHeader("Content-Disposition"));
+
+      CompareTools.assertEquals(
+          List.of(
+              row("name", "cat", "legs", 4, MG_DRAFT, null),
+              row("name", "bird", "legs", 2, MG_DRAFT, null)),
+          readParquet(response));
+    }
+
+    @Test
+    void shouldOnlyIncludeRequestedColumns() throws IOException {
+      Response response = get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME + "?columns=name");
+
+      assertEquals(200, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(row("name", "cat"), row("name", "bird")), readParquet(response));
+    }
+
+    @Test
+    void shouldResolveComputedValues() throws IOException {
+      // the computed column is added after inserting, so no computed value is stored and the
+      // download has to resolve it
+      schema
+          .getTable(TABLE_NAME)
+          .getMetadata()
+          .add(column("description").setComputed("name + ' has ' + legs + ' legs'"));
+
+      Response response = get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
+
+      assertEquals(200, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(
+              row("name", "cat", "legs", 4, "description", "cat has 4 legs", MG_DRAFT, null),
+              row("name", "bird", "legs", 2, "description", "bird has 2 legs", MG_DRAFT, null)),
+          readParquet(response));
+    }
+
+    @Test
+    void shouldFilterOnEquals() throws IOException {
+      Response response = getWithFilter("{\"name\":{\"equals\":\"cat\"}}");
+
+      assertEquals(200, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(row("name", "cat", "legs", 4, MG_DRAFT, null)), readParquet(response));
+    }
+
+    @Test
+    void shouldFilterOnRange() throws IOException {
+      Response response = getWithFilter("{\"legs\":{\"between\":[1,3]}}");
+
+      assertEquals(200, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(row("name", "bird", "legs", 2, MG_DRAFT, null)), readParquet(response));
+    }
+
+    @Test
+    void shouldCombineFiltersOnMultipleColumns() throws IOException {
+      Response response =
+          getWithFilter("{\"name\":{\"equals\":\"cat\"},\"legs\":{\"between\":[1,3]}}");
+
+      assertEquals(200, response.getStatusCode());
+      CompareTools.assertEquals(List.of(), readParquet(response));
+    }
+
+    @Test
+    void shouldRejectMalformedFilter() {
+      Response response = getWithFilter("{\"name\":");
+
+      assertEquals(400, response.getStatusCode());
+      assertTrue(response.getBody().asString().contains("Unexpected end-of-input"));
+    }
+
+    @Test
+    void shouldRejectFilterOnUnknownColumn() {
+      Response response = getWithFilter("{\"unknown\":{\"equals\":\"cat\"}}");
+
+      assertEquals(400, response.getStatusCode());
+      assertTrue(
+          response.getBody().asString().contains("Column unknown unknown in table " + TABLE_NAME));
+    }
+
+    @Test
+    void shouldRejectUnknownTable() {
+      Response response = get("/" + SCHEMA_NAME + "/api/parquet/unknown");
+
+      assertEquals(400, response.getStatusCode());
+      assertTrue(response.getBody().asString().contains("Table unknown unknown"));
+    }
+
+    @Test
+    void shouldRejectUserWithoutAccess() {
+      Response response = given().when().get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
+
+      assertEquals(400, response.getStatusCode());
+      assertTrue(response.getBody().asString().contains("Schema " + SCHEMA_NAME + " unknown"));
+    }
+
+    private static Response get(String path) {
+      return given().sessionId(sessionId).when().get(path);
+    }
+
+    private static Response getWithFilter(String filter) {
+      return given()
+          .sessionId(sessionId)
+          .queryParam("filter", filter)
+          .when()
+          .get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
+    }
+
+    private List<Row> readParquet(Response response) throws IOException {
+      Files.write(downloadDir.resolve(TABLE_NAME + ".parquet"), response.asByteArray());
+      List<Row> rows = new ArrayList<>();
+      new TableStoreForParquet(downloadDir).readTable(TABLE_NAME).forEach(rows::add);
+      return rows;
+    }
   }
 
-  @Test
-  void shouldOnlyIncludeRequestedColumns() throws IOException {
-    Response response = get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME + "?columns=name");
+  @Nested
+  class UpdateTable {
 
-    assertEquals(200, response.getStatusCode());
-    CompareTools.assertEquals(
-        List.of(row("name", "cat"), row("name", "bird")), readParquet(response));
-  }
+    @Test
+    void shouldInsertUploadedRows() throws IOException {
+      Response response = upload(row("name", "spider", "legs", 8));
 
-  @Test
-  void shouldResolveComputedValues() throws IOException {
-    // the computed column is added after inserting, so no computed value is stored and the
-    // download has to resolve it
-    schema
-        .getTable(TABLE_NAME)
-        .getMetadata()
-        .add(column("description").setComputed("name + ' has ' + legs + ' legs'"));
+      assertEquals(200, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(
+              row("name", "cat", "legs", 4),
+              row("name", "bird", "legs", 2),
+              row("name", "spider", "legs", 8)),
+          storedRows());
+    }
 
-    Response response = get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
+    @Test
+    void shouldRespondWithModifiedRowCount() throws IOException {
+      Response response = upload(row("name", "spider", "legs", 8), row("name", "bird", "legs", 3));
 
-    assertEquals(200, response.getStatusCode());
-    CompareTools.assertEquals(
-        List.of(
-            row("name", "cat", "legs", 4, "description", "cat has 4 legs", MG_DRAFT, null),
-            row("name", "bird", "legs", 2, "description", "bird has 2 legs", MG_DRAFT, null)),
-        readParquet(response));
-  }
+      assertEquals(200, response.getStatusCode());
+      assertTrue(response.getContentType().startsWith("text/plain"));
+      assertEquals("2", response.getBody().asString());
+    }
 
-  @Test
-  void shouldFilterOnEquals() throws IOException {
-    Response response = getWithFilter("{\"name\":{\"equals\":\"cat\"}}");
+    @Test
+    void shouldUpdateExistingRowsOnPrimaryKey() throws IOException {
+      Response response = upload(row("name", "bird", "legs", 3));
 
-    assertEquals(200, response.getStatusCode());
-    CompareTools.assertEquals(
-        List.of(row("name", "cat", "legs", 4, MG_DRAFT, null)), readParquet(response));
-  }
+      assertEquals(200, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(row("name", "cat", "legs", 4), row("name", "bird", "legs", 3)), storedRows());
+    }
 
-  @Test
-  void shouldFilterOnRange() throws IOException {
-    Response response = getWithFilter("{\"legs\":{\"between\":[1,3]}}");
+    @Test
+    void shouldRejectUploadWithInvalidValue() throws IOException {
+      Response response = upload(row("name", "snake", "legs", "none"));
 
-    assertEquals(200, response.getStatusCode());
-    CompareTools.assertEquals(
-        List.of(row("name", "bird", "legs", 2, MG_DRAFT, null)), readParquet(response));
-  }
+      assertEquals(400, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(row("name", "cat", "legs", 4), row("name", "bird", "legs", 2)), storedRows());
+    }
 
-  @Test
-  void shouldCombineFiltersOnMultipleColumns() throws IOException {
-    Response response =
-        getWithFilter("{\"name\":{\"equals\":\"cat\"},\"legs\":{\"between\":[1,3]}}");
+    @Test
+    void shouldRejectEmptyUpload() {
+      Response response = post("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME, new byte[0]);
 
-    assertEquals(200, response.getStatusCode());
-    CompareTools.assertEquals(List.of(), readParquet(response));
-  }
+      assertEquals(400, response.getStatusCode());
+      CompareTools.assertEquals(
+          List.of(row("name", "cat", "legs", 4), row("name", "bird", "legs", 2)), storedRows());
+    }
 
-  @Test
-  void shouldRejectMalformedFilter() {
-    Response response = getWithFilter("{\"name\":");
+    @Test
+    void shouldRejectUploadToUnknownTable() throws IOException {
+      Response response =
+          post("/" + SCHEMA_NAME + "/api/parquet/unknown", parquetBytes(row("name", "spider")));
 
-    assertEquals(400, response.getStatusCode());
-    assertTrue(response.getBody().asString().contains("Unexpected end-of-input"));
-  }
+      assertEquals(400, response.getStatusCode());
+      assertTrue(response.getBody().asString().contains("Table unknown unknown"));
+    }
 
-  @Test
-  void shouldRejectFilterOnUnknownColumn() {
-    Response response = getWithFilter("{\"unknown\":{\"equals\":\"cat\"}}");
+    @Test
+    void shouldRejectUploadFromUserWithoutAccess() throws IOException {
+      Response response =
+          given()
+              .body(parquetBytes(row("name", "spider", "legs", 8)))
+              .when()
+              .post("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
 
-    assertEquals(400, response.getStatusCode());
-    assertTrue(
-        response.getBody().asString().contains("Column unknown unknown in table " + TABLE_NAME));
-  }
+      assertEquals(400, response.getStatusCode());
+      assertTrue(response.getBody().asString().contains("Schema " + SCHEMA_NAME + " unknown"));
+      CompareTools.assertEquals(
+          List.of(row("name", "cat", "legs", 4), row("name", "bird", "legs", 2)), storedRows());
+    }
 
-  @Test
-  void shouldRejectUnknownTable() {
-    Response response = get("/" + SCHEMA_NAME + "/api/parquet/unknown");
+    private List<Row> storedRows() {
+      return schema.getTable(TABLE_NAME).select(s("name"), s("legs")).retrieveRows();
+    }
 
-    assertEquals(400, response.getStatusCode());
-    assertTrue(response.getBody().asString().contains("Table unknown unknown"));
-  }
+    private static Response post(String path, byte[] body) {
+      return given().sessionId(sessionId).body(body).when().post(path);
+    }
 
-  @Test
-  void shouldRejectUserWithoutAccess() {
-    Response response = given().when().get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
+    private Response upload(Row... rows) throws IOException {
+      return post("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME, parquetBytes(rows));
+    }
 
-    assertEquals(400, response.getStatusCode());
-    assertTrue(response.getBody().asString().contains("Schema " + SCHEMA_NAME + " unknown"));
-  }
-
-  private static Response get(String path) {
-    return given().sessionId(sessionId).when().get(path);
-  }
-
-  private static Response getWithFilter(String filter) {
-    return given()
-        .sessionId(sessionId)
-        .queryParam("filter", filter)
-        .when()
-        .get("/" + SCHEMA_NAME + "/api/parquet/" + TABLE_NAME);
-  }
-
-  private List<Row> readParquet(Response response) throws IOException {
-    Files.write(downloadDir.resolve(TABLE_NAME + ".parquet"), response.asByteArray());
-    List<Row> rows = new ArrayList<>();
-    new TableStoreForParquet(downloadDir).readTable(TABLE_NAME).forEach(rows::add);
-    return rows;
+    private byte[] parquetBytes(Row... rows) throws IOException {
+      Path uploadDir = Files.createDirectory(downloadDir.resolve("upload"));
+      new TableStoreForParquet(uploadDir)
+          .writeTable(TABLE_NAME, List.copyOf(rows[0].getColumnNames()), List.of(rows));
+      return Files.readAllBytes(uploadDir.resolve(TABLE_NAME + ".parquet"));
+    }
   }
 }

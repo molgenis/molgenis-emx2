@@ -4,13 +4,13 @@ import static org.molgenis.emx2.web.Constants.ACCEPT_PARQUET;
 import static org.molgenis.emx2.web.DownloadApiUtils.*;
 
 import io.javalin.Javalin;
+import io.javalin.http.ContentType;
 import io.javalin.http.Context;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.ImportTableTask;
 import org.molgenis.emx2.io.TempFile;
 import org.molgenis.emx2.io.emx2.DownloadColumns;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -27,6 +27,7 @@ public final class ParquetApi {
 
   public static void create(Javalin app) {
     app.get("/{schema}/api/parquet/{table}", ParquetApi::tableRetrieve);
+    app.post("/{schema}/api/parquet/{table}", ParquetApi::tableUpdate);
   }
 
   private static void tableRetrieve(Context ctx) throws IOException {
@@ -60,5 +61,20 @@ public final class ParquetApi {
 
   private static String filename(Table table) {
     return table.getSchema().getMetadata().getName() + "_" + table.getName() + PARQUET_EXTENSION;
+  }
+
+  private static void tableUpdate(Context ctx) throws IOException {
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+
+    try (TempFile tmp = new TempFile(table.getName() + PARQUET_EXTENSION)) {
+      Files.copy(ctx.bodyInputStream(), tmp.get());
+      TableStore store = new TableStoreForParquet(tmp.get().getParent());
+      ImportTableTask task = new ImportTableTask(store, table, false, UpdateMode.DEFAULT_MODE);
+      task.run();
+
+      ctx.status(200);
+      ctx.contentType(ContentType.TEXT_PLAIN);
+      ctx.result(String.valueOf(task.getTotal()));
+    }
   }
 }
