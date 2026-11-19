@@ -1,8 +1,11 @@
+import { vizDelay, vizDurations } from "../utils/cms/constants";
+
 import type {
   NumericAxisTickData,
   NewNumericAxisGeneratorProps,
   NewCategoricalAxisGeneratorProps,
   LegendPosition,
+  SelectChartMouseOverProps,
 } from "../../types/viz";
 
 import type { IChartData } from "../../types/cms";
@@ -171,4 +174,43 @@ export function asDataObject(
     });
   }
   return Object.fromEntries(result);
+}
+
+/**
+ * @name selectMouseOverElements
+ * @description selects and returns svg element required for hover events
+ *
+ * @param row chart data
+ * @param isGroupedChart an indication if the chart is grouped
+ * @param svgChartArea d3.select of the "g.chart-area" group
+ *
+ * @returns
+ */
+export function selectMouseOverElements({
+  svgChartArea,
+  row = {} as IChartData,
+  isGroupedChart = false,
+  enableAnimations = true,
+}: SelectChartMouseOverProps) {
+  let attrSelector = `[data-x="${row.xValue}"]`;
+
+  if (isGroupedChart) {
+    attrSelector += `[data-group="${row.primaryGroupValue}"]`;
+  }
+
+  let rect = svgChartArea.select(`rect${attrSelector}`);
+  let text = svgChartArea.select(`text${attrSelector}`);
+
+  if (enableAnimations) {
+    rect = rect
+      .transition()
+      .delay(vizDelay)
+      .duration(vizDurations.withAnimations);
+    text = text
+      .transition()
+      .delay(vizDelay)
+      .duration(vizDurations.withAnimations);
+  }
+
+  return { rect, text };
 }

@@ -15,7 +15,13 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["edit", "delete", "move"]);
+const emit = defineEmits([
+  "edit",
+  "delete",
+  "move",
+  "updateUnorderedItems",
+  "inlineSave",
+]);
 const showMenu = ref<boolean>(false);
 </script>
 
@@ -38,7 +44,15 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <UnorderedList :id="id" :unorderedItems="unorderedItems" />
+    <UnorderedList
+      :id="id"
+      :unorderedItems="unorderedItems"
+      :isEditable="isEditable"
+      @updateUnorderedItems="
+        $emit('updateUnorderedItems', { key: $event.key, text: $event.text })
+      "
+      @inlineSave="$emit('inlineSave')"
+    />
   </VMenu>
   <UnorderedList v-else :id="id" :unorderedItems="unorderedItems" />
 </template>

@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
 
+import { vizDurations, vizDelay } from "../../../../app/utils/cms/constants";
+
+const chartAnimationDelay: number =
+  (vizDelay + vizDurations.withAnimations) * 1.1;
+
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
@@ -79,7 +84,8 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const rectTextElem = await page.locator(
       "#column-chart-demo-1 g.columns g:first-child text"
     );
-    expect(await rectTextElem.getAttribute("style")).toBe("opacity: 1;");
+    await page.waitForTimeout(chartAnimationDelay);
+    expect(await rectTextElem.getAttribute("opacity")).toBe("1");
   });
 
   test("clicking on a columns emits data point", async ({ page }) => {
