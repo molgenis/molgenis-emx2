@@ -64,7 +64,7 @@ const page = mount(ConfigurablePage, {
 
 describe("Configurable page", () => {
   test("Blocks are rendered in the correct order", () => {
-    const firstElem = page.find("#configurable-page-main > div > header");
+    const firstElem = page.find("#configurable-page-main > div > div > header");
     expect(firstElem.element.tagName).toEqual("HEADER");
     expect(firstElem.element.id).toEqual("home-banner");
 
