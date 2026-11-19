@@ -351,17 +351,18 @@ function onLegendMouseOver(event: string) {
     .delay(vizDelay)
     .duration(delay);
 
-  const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
-
   columns.attr("opacity", (row: IChartData) => {
     return row.xValue !== event ? 0.2 : 1;
   });
 
-  text.attr("opacity", (row: IChartData) => {
-    return row.xValue === event && row.yValue && parseInt(row.yValue) !== 0
-      ? 1
-      : 0;
-  });
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", (row: IChartData) => {
+      return row.xValue === event && row.yValue && parseInt(row.yValue) !== 0
+        ? 1
+        : 0;
+    });
+  }
 }
 
 function onLegendMouseOut() {
@@ -373,11 +374,12 @@ function onLegendMouseOut() {
     .transition()
     .delay(vizDelay)
     .duration(delay);
-
-  const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
-
   columns.attr("opacity", 1);
-  text.attr("opacity", 0);
+
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", 0);
+  }
 }
 
 onMounted(() => {
