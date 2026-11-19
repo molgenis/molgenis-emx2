@@ -7,6 +7,7 @@ export interface Charts {
 }
 
 export type LegendPosition = "top" | "bottom";
+export type LegendMarkerType = "circle" | "square";
 
 export interface ChartTitle {
   id: string;
