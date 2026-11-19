@@ -1,3 +1,5 @@
+import type { IChartData } from "./cms";
+
 export interface Charts {
   id: string;
   title: string;
@@ -101,4 +103,11 @@ export interface ProgressMeter extends Charts, ChartOptions, ChartMargins {
   color?: string;
   colorPalette?: ColorPalette;
   showValuesAsPercentages?: boolean;
+}
+
+export interface SelectChartMouseOverProps {
+  svgChartArea: any; // receives d3.select
+  row: IChartData;
+  isGroupedChart?: boolean;
+  enableAnimations?: boolean;
 }
