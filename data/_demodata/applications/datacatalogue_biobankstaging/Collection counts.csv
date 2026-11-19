@@ -1,0 +1,3 @@
+id,collection,sex,age group,disease,sample type,anatomy,number of samples,number of donors,last update,mg_draft
+TSC-count-1,testSampleCollection,Male,Young adult (18-24 years),A00 Cholera,Blood,,250,125,2026-11-01,false
+TSC-count-2,testSampleCollection,Male,Young adult (18-24 years),A00 Cholera,FFPE Tissue,,125,125,2026-11-01,false
