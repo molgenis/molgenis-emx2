@@ -6,7 +6,7 @@
   >
     <div class="overflow-y-auto">
       <div class="p-5">
-        <b>New password</b>
+        <label class="text-title-contrast font-bold">New password</label>
         <InputString
           id="New password"
           v-model="password"
@@ -15,7 +15,7 @@
           type="password"
           class="mb-2"
         />
-        <b>Repeat new password</b>
+        <label class="text-title-contrast font-bold">Repeat new password</label>
         <InputString
           id="New password second time"
           v-model="password2"
@@ -26,7 +26,7 @@
       </div>
 
       <div v-if="canToggleEnabled" class="p-5">
-        <b>Disable user</b>
+        <label class="text-title-contrast font-bold">Disable user</label>
         <InputRadioGroup
           id="disabledUserRadio"
           :options="[
@@ -38,14 +38,14 @@
       </div>
 
       <div class="p-5">
-        <b>Roles</b>
+        <label class="text-title-contrast font-bold">Roles</label>
 
         <Table>
           <template #head>
             <TableHeadRow>
               <TableHead class="w-0"></TableHead>
-              <TableHead>Schema</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead class="text-table-column-header">Schema</TableHead>
+              <TableHead class="text-table-column-header">Role</TableHead>
             </TableHeadRow>
           </template>
           <template #body>
@@ -87,7 +87,7 @@
     </div>
 
     <template #footer>
-      <div class="m-1">
+      <div class="m-1 text-title-contrast">
         <div v-if="password !== password2">Passwords do not match</div>
         <div v-if="password.length < 8 && password.length > 0">
           Password must be at least 8 characters
