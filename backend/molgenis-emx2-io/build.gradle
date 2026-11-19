@@ -5,7 +5,6 @@ dependencies {
     implementation libs.commons.io
     implementation libs.parquet.hadoop
     implementation libs.hadoop.client.api
-    implementation libs.hadoop.client.runtime
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-sql')
