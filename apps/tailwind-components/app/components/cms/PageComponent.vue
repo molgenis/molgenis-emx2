@@ -435,12 +435,10 @@ function inlineSave() {
 </template>
 
 <style scoped>
-/* Always keep position relative so the hidden tag stays anchored */
 :deep(*:has(> [contenteditable])) {
   position: relative;
 }
 
-/* Base state: exists in DOM, invisible, ready to fade out */
 :deep([contenteditable]::before) {
   content: "saving...";
   position: absolute;
@@ -458,17 +456,15 @@ function inlineSave() {
   transition: opacity 1s ease-in;
 }
 
-/* Active saving state: snap to visible immediately */
 .saving :deep([contenteditable]) {
   outline-color: var(--color-orange-500);
 }
 
 .saving :deep([contenteditable]::before) {
   opacity: 1;
-  transition: none; /* Appears instantly when .saving is added */
+  transition: none;
 }
 
-/* Changed state: snap to visible with custom text/colors */
 .changed :deep([contenteditable]::before) {
   content: "changed";
   background-color: var(--text-color-button-outline-hover);
