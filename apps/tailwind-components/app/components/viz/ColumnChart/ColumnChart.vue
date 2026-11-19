@@ -68,6 +68,7 @@ const props = withDefaults(defineProps<IStatisticalCharts>(), {
   enableHoverEvents: true,
   enableClickEvents: false,
   enableAnimations: true,
+  showValuesOnLegendHoverEvent: false,
 });
 
 const emits = defineEmits(["column-clicked"]);
