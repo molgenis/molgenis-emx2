@@ -69,7 +69,7 @@ describe("Configurable page", () => {
     expect(firstElem.element.id).toEqual("home-banner");
 
     const secondElem = page.find(
-      "#configurable-page-main > div#welcome-section"
+      "#configurable-page-main > div > div#welcome-section"
     );
     expect(secondElem.exists()).toBeTruthy();
   });
