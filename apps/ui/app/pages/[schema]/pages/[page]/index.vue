@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 
@@ -39,17 +38,15 @@ const crumbs: Crumb[] = [
   <Container>
     <bread-crumbs align="left" :crumbs="crumbs" class="my-5" />
   </Container>
-  <div class="relative">
-    <DeveloperPage
-      v-if="pageContent.mg_tableclass === 'cms.Developer pages'"
-      :content="(pageData.page as IDeveloperPages)"
-    />
-    <ConfigurablePage
-      v-else
-      :content="(pageData.page as IConfigurablePages)"
-      :metadata="(pageData.metadata as ITableMetaData[])"
-      :isEditable="false"
-      :schema="schema || ''"
-    />
-  </div>
+  <DeveloperPage
+    v-if="pageContent.mg_tableclass === 'cms.Developer pages'"
+    :content="(pageData.page as IDeveloperPages)"
+  />
+  <ConfigurablePage
+    v-else
+    :content="(pageData.page as IConfigurablePages)"
+    :metadata="(pageData.metadata as ITableMetaData[])"
+    :isEditable="false"
+    :schema="schema || ''"
+  />
 </template>
