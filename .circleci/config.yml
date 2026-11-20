@@ -556,7 +556,14 @@ jobs:
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
-          ./gradlew --continue pmdMain pmdTest pmdTestFixtures
+          PMD_STATUS=0
+          ./gradlew --continue pmdMain pmdTest pmdTestFixtures || PMD_STATUS=$?
+          sarif html --no-autotrim --trim "file://$PWD/" -o backend/build/reports/pmd/index.html backend/*/build/reports/pmd/*.sarif.json
+          exit $PMD_STATUS
+    - store_artifacts:
+        path: backend/build/reports/pmd/index.html
+        destination: ~/pmd/index.html
+        when: always
     - run:
         name: run tests
         command: |
