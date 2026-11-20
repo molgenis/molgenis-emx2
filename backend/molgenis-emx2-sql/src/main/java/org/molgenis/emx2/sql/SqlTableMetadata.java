@@ -402,7 +402,7 @@ class SqlTableMetadata extends TableMetadata {
     } else {
       throw new MolgenisException(
           "Permission denied for user "
-              + getDatabase().getActiveUser()
+              + getDatabase().getActiveUsername()
               + " to change setting on table "
               + getTableName()
               + ". You need at least EDITOR permission for table settings.");
@@ -444,9 +444,9 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private static void log(SqlTableMetadata tableMetadata, long start, String message) {
-    String user = tableMetadata.getDatabase().getActiveUser();
+    Username user = tableMetadata.getDatabase().getActiveUsername();
     if (user == null) {
-      user = "molgenis";
+      user = new Username("molgenis");
     }
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -459,10 +459,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private void log(long start, String message) {
-    String user = getDatabase().getActiveUser();
-    if (user == null) {
-      user = "molgenis";
-    }
+    Username user = getDatabase().getActiveUsername();
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms", user, message, getJooqTable(), System.currentTimeMillis() - start);

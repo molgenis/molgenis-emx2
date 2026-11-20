@@ -64,7 +64,7 @@ public class GraphqlSessionFieldFactory {
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS,
                   "User '%s' has signed out",
-                  database.getActiveUser());
+                  database.getActiveUsername());
             })
         .build();
   }
@@ -77,7 +77,7 @@ public class GraphqlSessionFieldFactory {
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String userName = dataFetchingEnvironment.getArgument(EMAIL);
+              Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (passWord == null) {
                 return new GraphqlApiMutationResult(FAILED, "Password cannot be not null");
@@ -91,7 +91,7 @@ public class GraphqlSessionFieldFactory {
               database.tx(
                   db -> {
                     // uplift permissions
-                    String activeUser = db.getActiveUser();
+                    Username activeUser = db.getActiveUsername();
                     try {
                       db.becomeAdmin();
                       db.addUser(userName);
@@ -154,19 +154,18 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
-              result.put(
-                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
+              result.put(EMAIL, database.getActiveUsername().value());
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
                 result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
               }
               result.put(SCHEMAS, database.getSchemaNames());
-              User user = database.getUser(database.getActiveUser());
+              User user = database.getUser(database.getActiveUsername());
               result.put(
                   SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
               result.put(
-                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
+                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUsername()));
               return result;
             })
         .build();
@@ -198,8 +197,8 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
-              String userName = dataFetchingEnvironment.getArgument(EMAIL);
-              if (!database.isAdmin() && !userName.equals(database.getActiveUser())) {
+              Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
+              if (!database.isAdmin() && !userName.equals(database.getActiveUsername())) {
                 throw new MolgenisException(
                     "Create token failed: Only admins can create tokens for other users");
               }
@@ -226,9 +225,12 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(EMAIL);
-              if (username == null) {
-                username = database.getActiveUser();
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              Username username;
+              if (email == null) {
+                username = database.getActiveUsername();
+              } else {
+                username = new Username(email);
               }
               if (password != null) {
                 database.setUserPassword(username, password);

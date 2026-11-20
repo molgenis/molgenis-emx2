@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Username;
 
 class CsrfProtectionTest extends ApiTestBase {
 
-  private static final String USER = "csrf-protection-user";
+  private static final Username USERNAME = new Username("csrf-protection-user");
   private static final String PASSWORD = "testtest";
   // shape of a cross-site <form enctype="text/plain"> that smuggles a JSON body
   private static final String TEXT_PLAIN_FORM_BODY =
@@ -17,7 +18,7 @@ class CsrfProtectionTest extends ApiTestBase {
 
   @BeforeAll
   static void setupUser() {
-    database.setUserPassword(USER, PASSWORD);
+    database.setUserPassword(USERNAME, PASSWORD);
   }
 
   @Test
@@ -38,7 +39,7 @@ class CsrfProtectionTest extends ApiTestBase {
         .post("api/graphql")
         .then()
         .statusCode(403);
-    assertTrue(database.checkUserPassword(USER, PASSWORD));
+    assertTrue(database.checkUserPassword(USERNAME, PASSWORD));
   }
 
   @Test
@@ -52,7 +53,7 @@ class CsrfProtectionTest extends ApiTestBase {
         .post("api/graphql")
         .then()
         .statusCode(403);
-    assertTrue(database.checkUserPassword(USER, PASSWORD));
+    assertTrue(database.checkUserPassword(USERNAME, PASSWORD));
   }
 
   @Test
@@ -73,7 +74,7 @@ class CsrfProtectionTest extends ApiTestBase {
             """
             {"query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"}
             """
-                .formatted(USER, PASSWORD))
+                .formatted(USERNAME, PASSWORD))
         .post("api/graphql");
   }
 }

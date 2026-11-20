@@ -25,6 +25,8 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS_USER;
+
 public class GraphqlExecutor {
   private static final Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);
   private static final Pattern FRAGMENT_PATTERN =
@@ -167,7 +169,7 @@ public class GraphqlExecutor {
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
     @Override
-    public void createSession(String username) {
+    public void createSession(Username username) {
       // no-op
     }
 
@@ -177,8 +179,8 @@ public class GraphqlExecutor {
     }
 
     @Override
-    public String getCurrentUser() {
-      return "";
+    public Username getCurrentUser() {
+      return ANONYMOUS_USER;
     }
   }
 }
