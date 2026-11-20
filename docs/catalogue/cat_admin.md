@@ -204,6 +204,41 @@ Currently supported versions:
 
 None, not used if the store is disabled
 
+### Paper extracting  (Alpha)
+
+Paper extracting lets users (given sufficient permission) upload a research paper as a PDF in the catalogue and download an Excel workbook with the cohort metadata extracted from it.
+
+The feature consists of three parts:
+
+- The catalogue app, which stores each uploaded paper as a row in a `Jobs` table and shows the status and result of the job.
+- The [emx2-hpc-bridge](https://github.com/molgenis/emx2-hpc-bridge), which runs on a high performance computing (HPC) cluster. It polls the `Jobs` table, starts the extraction and uploads the result. Only the cluster connects to the EMX2 server, the server never needs to reach the cluster.
+- The [paper-extracting](https://github.com/molgenis/paper-extracting) pipeline, which the bridge starts as a Slurm job to extract the metadata from the paper.
+
+#### keys
+
+`CATALOGUE_ENABLE_PAPER_EXTRACTING`
+
+`CATALOGUE_PAPER_EXTRACTING_SCHEMA`
+
+#### description
+
+Set both keys in the settings of the catalogue schema.
+
+- `CATALOGUE_ENABLE_PAPER_EXTRACTING`: Boolean which enables paper extracting when set to `true`.
+- `CATALOGUE_PAPER_EXTRACTING_SCHEMA`: String containing the name of the schema that holds the `Jobs` table. This is the same schema as the `EMX2_SCHEMA` setting of the bridge.
+
+#### default
+
+None, paper extracting is disabled. Paper extracting is only enabled when both keys are set. If it is disabled, the "Import data from papers" menu item is hidden and the `/paper-extracting` page redirects to the landing page.
+
+#### setup
+
+Follow the [setup description of the emx2-hpc-bridge](https://github.com/molgenis/emx2-hpc-bridge#setup) to set up the bridge and the schema that holds the jobs. Then set the keys above to enable the feature in the catalogue.
+
+Only users with a role starting with `Submit_` ( and admin users) can submit papers and see there own jobs.
+
+The bridge runs one extraction at a time, further jobs wait until the cluster is free.
+
 ## Theme Configuration
 
 You can configure the application theme either **at deploy time** or **at runtime**.

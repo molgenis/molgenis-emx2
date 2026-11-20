@@ -31,7 +31,11 @@ const bannerHtml = computed(() => {
     :logoTitle="headerData.logoTitle"
   />
 
-  <HeaderGlobal v-else :logoSrc="headerData.logoSrc" />
+  <HeaderGlobal
+    v-else
+    :logoSrc="headerData.logoSrc"
+    :isPaperExtractingEnabled="headerData.paperExtracting.enabled"
+  />
 
   <Container>
     <slot name="header"></slot>
