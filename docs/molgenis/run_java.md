@@ -103,6 +103,6 @@ brew services restart postgresql
 
 # FAQ
 
-If you previously had an installation of Molgenis and want to start fresh, check out the [delete all schemas tool document section](/apps/docs/#/molgenis/run_updates?id=delete-all-schemas-tool)
+If you previously had an installation of Molgenis and want to start fresh, check out the [delete all schemas tool document section](run_updates.md#delete-all-schemas-tool)
 
 Alternatively, if you want to execute the ```SQL``` on the database yourself, [here is a link](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-sql/src/main/resources/org/molgenis/emx2/sql/utility-sql) to the files.

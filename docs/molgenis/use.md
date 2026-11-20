@@ -16,10 +16,10 @@ Basic concepts:
 * For large scale data management, batch upload of schema and/or contents (tables and complete database) please use
   the [up/download](use_updownload.md) tool. Currently, we support up/download using Excel, csv, zip+csv, json, yaml,
   rdf and ttl.
-* Access to databases is controlled by registering [members](use_roles.md). Members are users who have a role within
+* Access to databases is controlled by registering [members](use_permissions.md). Members are users who have a role within
   the database; the role defines a user's permissions to view, edit, or even manage schema+settings.
 * Each schema can be customised with theme colours, logo, custom pages and more using
-  database [settings](user_database_settings.md).
+  database [settings](use_database_settings.md).
 
 
 

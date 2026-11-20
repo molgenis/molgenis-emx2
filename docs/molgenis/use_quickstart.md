@@ -91,5 +91,5 @@ Press 'import'.
 
 ![](../img/start-import.png)
 
-This completes the 'getting started guide'. Go to view [EMX2 reference](use_schema.md#use_schema) to learn full details
+This completes the 'getting started guide'. Go to view [EMX2 reference](use_schema.md) to learn full details
 of data modeling.

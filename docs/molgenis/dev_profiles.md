@@ -1,7 +1,7 @@
 # Application profiles
 
 Profiles are a quick way to define new databases by selecting existing tables and columns from a shared data model.
-They are defined as simple YAML files found in the [profiles](../../data/_profiles) folder.
+They are defined as simple YAML files found in the [profiles](https://github.com/molgenis/molgenis-emx2/tree/master/data/_profiles) folder.
 
 Profiles currently make use of a number of available resources that are packaged with EMX2.
 These resources include data models, ontologies, demodata and settings.
@@ -12,18 +12,18 @@ For more details on how to use these options, see the Options section below.
 
 ## Resources
 
-Profiles are automatically applied to the shared data models present in [models](../../data/_models).
+Profiles are automatically applied to the shared data models present in [models](https://github.com/molgenis/molgenis-emx2/tree/master/data/_models).
 Profile tags from your profile are matched against the tags present in these models.
-Whenever selected columns refer to ontologies, these are automatically drawn from the [ontologies](../../data/_ontologies) folder.
+Whenever selected columns refer to ontologies, these are automatically drawn from the [ontologies](https://github.com/molgenis/molgenis-emx2/tree/master/data/_ontologies) folder.
 
-It is optional to specify a set of demonstration or specific application data for your profile from the [demodata](../../data/_demodata) folder.
+It is optional to specify a set of demonstration or specific application data for your profile from the [demodata](https://github.com/molgenis/molgenis-emx2/tree/master/data/_demodata) folder.
 These data are loaded when the option to load demo data is selected when creating a new database from a template in EMX2.
 The file names within this folder must match your table names in order to be imported.
 The current preferred format is CSV because this enables version control of any updates.
 These data may or may not fit the model resulting from your profile, and are simply loaded by 'best effort'.
 
 For advanced users, settings files may be added to your profile to specify menu structure, user rights, and more.
-These are loaded from [settings](../../data/_settings).
+These are loaded from [settings](https://github.com/molgenis/molgenis-emx2/tree/master/data/_settings).
 
 ## Options
 
