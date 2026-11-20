@@ -35,7 +35,7 @@ Optionally, you can change defaults using either java properties or using env va
 * `MOLGENIS_POSTGRES_PASS`
 * `MOLGENIS_HTTP_PORT`
 * `MOLGENIS_ADMIN_PW`
-* `MOLGENIS_SERVICE_URL` // must be a valid URL with scheme and host, used to reference back to the service in generated links, e.g. in emails
+* `MOLGENIS_SERVICE_URL` // must be a valid URL with scheme and host, used to reference back to the service in generated links, e.g. in emails, and to recognise requests from the pages of the server itself. Recommended when the server runs behind a reverse proxy, see [Troubleshooting](dev_troubleshooting.md#uploads-and-other-changes-fail-with-cross-site-request-rejected-origin-does-not-match-this-server)
 
 For example:
 
