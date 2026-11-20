@@ -157,20 +157,9 @@ End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
 
 ### Which e2e suites run in CI
 
-| Suite | Runs against | Use it for |
-|---|---|---|
-| `apps/catalogue/tests` | the real catalogue SSR server (`.output/server`) and the backend jar | the SSR path, including request headers that SSR forwards to the backend |
-| `e2e/` | the backend jar, which serves the SPA apps | SPA apps and backend APIs from a browser |
-| `apps/ui` e2e | the `ui` app, served by the backend jar | the `ui` app |
-| `apps/directory` e2e | the `directory` app, served by the backend jar | the `directory` app |
-| `apps/tailwind-components` e2e | the component showcase, served by the backend jar | component behaviour |
+CI runs the Playwright suites in the `test-e2e` job of [`.circleci/config.yml`](https://github.com/molgenis/molgenis-emx2/blob/master/.circleci/config.yml). To see what a suite runs against, check `webServer` and `baseURL` in its `playwright.config.ts`. Only the catalogue suite ([`apps/catalogue/playwright.config.ts`](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/playwright.config.ts)) starts the real SSR server, so use it for changes on the SSR path.
 
-To test how visitors really arrive, use the Playwright options. For example, a visitor who comes from a search result:
-
-```ts
-const response = await page.goto("/all", { referer: "https://www.google.com/" });
-expect(response?.status()).toBe(200);
-```
+For a test that simulates how visitors really arrive, see [page-renders-for-visitor-from-other-site.spec.ts](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/tests/page-renders-for-visitor-from-other-site.spec.ts).
 
 ## For java development
 
