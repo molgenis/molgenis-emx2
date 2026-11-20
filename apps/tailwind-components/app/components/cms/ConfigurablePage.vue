@@ -204,7 +204,6 @@ const sidebarCollapsed = ref(false);
       />
     </div>
     <PageToolbar
-      :isEditable="isEditable"
       pageType="cms.Configurable pages"
       :route="route"
       :schema="schema"
