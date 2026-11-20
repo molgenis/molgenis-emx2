@@ -204,7 +204,8 @@ class TestMgColumns {
     providedMgTable.update(row("id", 1, "value", "somevalue4"));
 
     Row fallback = onlyRow(providedMgTable);
-    assertEquals(schema.getDatabase().getActiveUsername().value(), fallback.getString(MG_UPDATEDBY));
+    assertEquals(
+        schema.getDatabase().getActiveUsername().value(), fallback.getString(MG_UPDATEDBY));
     assertTrue(fallback.getDateTime(MG_UPDATEDON).isAfter(IN_2004));
     assertInsertedMetadata(fallback, "importer4b", IN_2006);
   }

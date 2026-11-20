@@ -8,13 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
+import io.restassured.response.Response;
 import java.net.URI;
 import java.net.URL;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 class MolgenisWebserviceTest extends ApiTestBase {
@@ -94,6 +92,22 @@ class MolgenisWebserviceTest extends ApiTestBase {
   }
 
   @Test
+  void openApiRoutesSendTheirBody() {
+    Schema schema = setupSchema(getClass().getSimpleName() + "openapi");
+    schema.create(TableMetadata.table("Pet", Column.column("name").setPkey()));
+    Response yaml =
+        given().sessionId(sessionId).when().get("/" + schema.getName() + "/api/openapi.yaml");
+    Response ui = given().sessionId(sessionId).when().get("/" + schema.getName() + "/api/openapi");
+
+    assertEquals(200, yaml.statusCode());
+    assertTrue(yaml.contentType().contains("yaml"), yaml.contentType());
+    assertTrue(yaml.asString().contains("/api/json/Pet"), yaml.asString());
+    assertEquals(200, ui.statusCode());
+    assertTrue(ui.contentType().startsWith("text/html"), ui.contentType());
+    assertTrue(ui.asString().contains("openapi.yaml"), ui.asString());
+  }
+
+  @Test
   void testSettingServiceUrl() {
     MolgenisWebservice webservice = new MolgenisWebservice();
     assertTrue(webservice.hostUrl.toString().startsWith("http:"));
@@ -150,16 +164,16 @@ class MolgenisWebserviceTest extends ApiTestBase {
 
   private String menuForRole(String role) {
     return """
-          [
-            {
-              "label": "Tables",
-              "href": "from-menu",
-              "role": "%s",
-              "key": "y0768",
-              "submenu": []
-            }
-          ]
-          """
+    [
+      {
+        "label": "Tables",
+        "href": "from-menu",
+        "role": "%s",
+        "key": "y0768",
+        "submenu": []
+      }
+    ]
+    """
         .formatted(role);
   }
 }
