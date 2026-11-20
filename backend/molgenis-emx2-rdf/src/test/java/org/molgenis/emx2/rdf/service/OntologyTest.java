@@ -137,7 +137,7 @@ class OntologyTest extends RdfServiceTestRunner {
             getApi(SCHEMA_NAME)
                 + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx");
 
-    Set<Value> parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
+    Set<Value> parents = handler.getResources().get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
         2, parents.size(), "This disease should only be a subclass of Diseases and C00-C75");
   }
@@ -161,12 +161,12 @@ class OntologyTest extends RdfServiceTestRunner {
 
     Set<Value> actualSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(SCHEMA_NAME) + "Patients/name=bob"))
             .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
     Set<Value> actualNonSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(SCHEMA_NAME) + "Patients/name=bob"))
             .get(Values.iri(getApi(SCHEMA_NAME) + "Patients/column/diseases"));
 
@@ -193,12 +193,12 @@ class OntologyTest extends RdfServiceTestRunner {
 
     Set<Value> actualSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(CROSS_SCHEMA_NAME) + "Patients/name=pim"))
             .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
     Set<Value> actualNonSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(CROSS_SCHEMA_NAME) + "Patients/name=pim"))
             .get(Values.iri(getApi(CROSS_SCHEMA_NAME) + "Patients/column/diseases"));
 
@@ -212,10 +212,10 @@ class OntologyTest extends RdfServiceTestRunner {
     void testThatOntologyTermsUseRDFSchema() throws IOException {
       InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource subject : handler.resources.keySet()) {
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
         if (subject.stringValue().endsWith("/Diseases/U07.1")) {
-          Map<IRI, Set<Value>> data = handler.resources.get(subject);
+          Map<IRI, Set<Value>> data = handler.getResources().get(subject);
           assertTrue(data.containsKey(RDFS.LABEL), "The class should have a label");
           assertTrue(
               data.containsKey(RDFS.SUBCLASSOF),
@@ -240,10 +240,10 @@ class OntologyTest extends RdfServiceTestRunner {
     void testThatOntologyTermsAreClasses() throws IOException {
       InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource subject : handler.resources.keySet()) {
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
         if (subject.stringValue().endsWith("/Diseases/U07.1")) {
-          Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
+          Set<Value> types = handler.getResources().get(subject).get(RDF.TYPE);
           assertTrue(types.contains(OWL.CLASS), "Ontology tables define classes");
         }
       }

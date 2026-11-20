@@ -199,17 +199,17 @@ class PetStoreTest extends RdfServiceTestRunner {
     IRI draftRowSubject = Values.iri(getApi(petStoreTest) + "Pet/name=yakul");
 
     assertAll(
-        () -> assertNotNull(handler.resources.get(nonDraftRowSubject)),
-        () -> assertNull(handler.resources.get(draftRowSubject)));
+        () -> assertNotNull(handler.getResources().get(nonDraftRowSubject)),
+        () -> assertNull(handler.getResources().get(draftRowSubject)));
   }
 
   @Test
   void testThatRDFOnlyIncludesRequestedSchema() throws IOException {
     InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
-    assertFalse(handler.resources.keySet().isEmpty());
+    assertFalse(handler.getResources().keySet().isEmpty());
 
-    for (Resource resource : handler.resources.keySet()) {
+    for (Resource resource : handler.getResources().keySet()) {
       assertFalse(
           resource.toString().contains(SCHEMA_NAME_SECOND),
           "No resources from the second pet store schema should be included.");
@@ -231,8 +231,8 @@ class PetStoreTest extends RdfServiceTestRunner {
     void testThatColumnsAreAProperty() throws IOException {
       InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
-      assertFalse(handler.resources.entrySet().isEmpty());
-      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      assertFalse(handler.getResources().entrySet().isEmpty());
+      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.getResources().entrySet()) {
         Resource subject = resource.getKey();
         Set<Value> types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
         if (subject.stringValue().contains("/column/")) {
@@ -250,8 +250,8 @@ class PetStoreTest extends RdfServiceTestRunner {
     void testThatTablesAreClasses() throws IOException {
       InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
-      assertFalse(handler.resources.entrySet().isEmpty());
-      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      assertFalse(handler.getResources().entrySet().isEmpty());
+      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.getResources().entrySet()) {
         Set<Value> subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
         if (subClasses != null && subClasses.contains(BasicIRI.SIO_DATABASE_TABLE)) {
           Set<Value> types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
@@ -266,8 +266,8 @@ class PetStoreTest extends RdfServiceTestRunner {
     void testThatClassesDoNotHaveRangeOrDomain() throws IOException {
       InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
-      assertFalse(handler.resources.entrySet().isEmpty());
-      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      assertFalse(handler.getResources().entrySet().isEmpty());
+      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.getResources().entrySet()) {
         String subject = resource.getKey().stringValue();
         Set<IRI> predicates = resource.getValue().keySet();
         Set<Value> types = resource.getValue().get(RDF.TYPE);
@@ -286,8 +286,8 @@ class PetStoreTest extends RdfServiceTestRunner {
     void testThatColumnsHaveARangeAndDomain() throws IOException {
       InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
-      assertFalse(handler.resources.entrySet().isEmpty());
-      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      assertFalse(handler.getResources().entrySet().isEmpty());
+      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.getResources().entrySet()) {
         Resource subject = resource.getKey();
         Set<IRI> predicates = resource.getValue().keySet();
         if (subject.stringValue().contains("/column/")) {
@@ -309,8 +309,8 @@ class PetStoreTest extends RdfServiceTestRunner {
               RDFS.CONTAINER,
               BasicIRI.SIO_DATABASE);
 
-      assertFalse(handler.resources.entrySet().isEmpty());
-      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
+      assertFalse(handler.getResources().entrySet().isEmpty());
+      for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.getResources().entrySet()) {
         String subject = resource.getKey().stringValue();
         Set<Value> types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
         assertFalse(types.isEmpty(), subject + " should have a rdf:type.");
@@ -335,7 +335,7 @@ class PetStoreTest extends RdfServiceTestRunner {
 
       Set<Value> endpointIris =
           handler
-              .resources
+              .getResources()
               .get(Values.iri(getApi(petStoreTest) + "Pet/" + POOKY_ROWID))
               .get(Values.iri(DCAT.ENDPOINT_URL.stringValue()));
       assertAll(
@@ -350,12 +350,12 @@ class PetStoreTest extends RdfServiceTestRunner {
     void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
       InMemoryRDFHandler handler = parseRowRdf(petStoreTest, "Pet", POOKY_ROWID);
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource iri : handler.resources.keySet()) {
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource iri : handler.getResources().keySet()) {
         // Select the triples for pooky
         if (iri.stringValue().endsWith(POOKY_ROWID)) {
 
-          Map<IRI, Set<Value>> pooky = handler.resources.get(iri);
+          Map<IRI, Set<Value>> pooky = handler.getResources().get(iri);
           assertTrue(
               pooky.containsKey(BasicIRI.LD_DATASET_PREDICATE),
               "An instance of a Pet should refer back to the Collection using qb:dataSet");
@@ -371,11 +371,11 @@ class PetStoreTest extends RdfServiceTestRunner {
       IRI measureProperty = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
       InMemoryRDFHandler handler = parseColumnRdf(petStoreTest, "Pet", "name");
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource subject : handler.resources.keySet()) {
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
         if (subject.stringValue().endsWith("/column/name")) {
           Set<Value> subclasses =
-              handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
+              handler.getResources().get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
           assertFalse(
               subclasses.contains(databaseColumn), "We don't model as a SIO database column.");
           assertFalse(subclasses.contains(measureProperty), "Measure property should not be used");
@@ -389,10 +389,10 @@ class PetStoreTest extends RdfServiceTestRunner {
       IRI databaseRow = Values.iri("http://semanticscience.org/resource/SIO_001187");
       InMemoryRDFHandler handler = parseRowRdf(petStoreTest, "Pet", POOKY_ROWID);
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource subject : handler.resources.keySet()) {
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
         if (subject.stringValue().endsWith(POOKY_ROWID)) {
-          Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
+          Set<Value> types = handler.getResources().get(subject).get(RDF.TYPE);
           assertFalse(types.contains(databaseRow), "We don't model as a SIO database row.");
         }
       }
@@ -408,8 +408,8 @@ class PetStoreTest extends RdfServiceTestRunner {
     void testThatOntologyTermsDonNotDefineColumnsAsPredicates() throws IOException {
       InMemoryRDFHandler handler = parseTableRdf(petStoreTest, "Tag");
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource subject : handler.resources.keySet()) {
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
         assertFalse(
             subject.stringValue().contains("/Tag/column/"),
             "Ontology tables should use standard predicates from RDF Schema.");
@@ -428,10 +428,10 @@ class PetStoreTest extends RdfServiceTestRunner {
       boolean isObjectProperty = false;
       boolean linkHasLabel = false;
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource subject : handler.resources.keySet()) {
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
         if (subject.stringValue().contains("/column/website")) {
-          Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
+          Set<Value> types = handler.getResources().get(subject).get(RDF.TYPE);
 
           for (Value type : types) {
             if (type.equals(OWL.OBJECTPROPERTY)) {
@@ -440,7 +440,7 @@ class PetStoreTest extends RdfServiceTestRunner {
           }
         }
         if ("https://www.molgenis.org/".equals(subject.stringValue())) {
-          Set<Value> labels = handler.resources.get(subject).get(RDFS.LABEL);
+          Set<Value> labels = handler.getResources().get(subject).get(RDFS.LABEL);
           for (Value label : labels) {
             if ("https://www.molgenis.org/".equals(label.stringValue())) {
               linkHasLabel = true;
@@ -457,9 +457,9 @@ class PetStoreTest extends RdfServiceTestRunner {
       InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
       int instancesWithOutALabel = 0;
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource resource : handler.resources.keySet()) {
-        Set<Value> labels = handler.resources.get(resource).get(RDFS.LABEL);
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource resource : handler.getResources().keySet()) {
+        Set<Value> labels = handler.getResources().get(resource).get(RDFS.LABEL);
         if (labels.isEmpty()) {
           System.err.println(
               "Each resource should have a label. " + resource.stringValue() + " has none.");
@@ -480,7 +480,7 @@ class PetStoreTest extends RdfServiceTestRunner {
       IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
       IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
       IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-      Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
+      Set<Value> subclasses = handler.getResources().get(childIRI).get(RDFS.SUBCLASSOF);
       assertEquals(
           2,
           subclasses.size(),
@@ -505,7 +505,7 @@ class PetStoreTest extends RdfServiceTestRunner {
       InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
       IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
       IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-      Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
+      Set<Value> subclasses = handler.getResources().get(rootIRI).get(RDFS.SUBCLASSOF);
       assertEquals(
           2,
           subclasses.size(),

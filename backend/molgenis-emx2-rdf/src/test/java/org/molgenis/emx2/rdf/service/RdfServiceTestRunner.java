@@ -101,7 +101,7 @@ abstract class RdfServiceTestRunner {
     }
 
     InMemoryRDFHandler handler = parseRootRdf(List.of(schema1, schema2));
-    assertEquals(expectedNamespaces, handler.namespaces);
+    assertEquals(expectedNamespaces, handler.getNamespaces());
   }
 
   static InMemoryRDFHandler parseRootRdf(List<Schema> schemas) throws IOException {
