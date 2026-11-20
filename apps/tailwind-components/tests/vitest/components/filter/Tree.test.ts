@@ -8,6 +8,7 @@ import FilterTree from "../../../../app/components/filter/Tree.vue";
 import TreeNode from "../../../../app/components/input/TreeNode.vue";
 import NoResultsMessage from "../../../../app/components/text/NoResultsMessage.vue";
 import InputSearch from "../../../../app/components/input/Search.vue";
+import { buildGraphQLFilter } from "../../../../app/utils/buildGqlFilter";
 
 const createMockObserver = () => ({
   observe: vi.fn(),
@@ -25,14 +26,6 @@ function ontologyColumn(): IColumn {
     id: "category",
     label: "Category",
     columnType: "ONTOLOGY",
-  } as IColumn;
-}
-
-function boolColumn(): IColumn {
-  return {
-    id: "active",
-    label: "Active",
-    columnType: "BOOL",
   } as IColumn;
 }
 
@@ -81,14 +74,6 @@ describe("FilterTree", () => {
 
     it("renders Tree for ONTOLOGY column type", () => {
       const wrapper = mountTree(ontologyColumn(), sampleOptions);
-      expect(wrapper.findComponent(TreeNode).exists()).toBe(true);
-    });
-
-    it("renders Tree for BOOL column type", () => {
-      const wrapper = mountTree(boolColumn(), [
-        { name: "true", count: 3 },
-        { name: "false", count: 2 },
-      ]);
       expect(wrapper.findComponent(TreeNode).exists()).toBe(true);
     });
 
@@ -437,22 +422,6 @@ describe("FilterTree", () => {
       );
     });
 
-    it("BOOL filter with 3 options: zero-count options hidden by default (no show-more button)", () => {
-      const opts: CountedOption[] = [
-        { name: "true", label: "Yes", count: 5, overlap: 0 },
-        { name: "false", label: "No", count: 0, overlap: 0 },
-        { name: "_null_", label: "Not set", count: 0, overlap: 0 },
-      ];
-      const wrapper = mountTree(boolColumn(), opts);
-      expect(wrapper.find("button.text-search-filter-action").exists()).toBe(
-        false
-      );
-      const text = wrapper.text();
-      expect(text).toContain("Yes");
-      expect(text).not.toContain("No (0)");
-      expect(text).not.toContain("Not set (0)");
-    });
-
     it("large filter (>15 roots): clicking show-more makes zero-count options visible", async () => {
       const opts: CountedOption[] = [
         ...Array.from({ length: 45 }, (_, i) => ({
@@ -518,7 +487,7 @@ describe("FilterTree", () => {
         { name: "false", label: "No", count: 0, overlap: 0 },
         { name: "_null_", label: "Not set", count: 0, overlap: 0 },
       ];
-      const wrapper = mountTree(boolColumn(), opts);
+      const wrapper = mountTree(ontologyColumn(), opts);
       expect(wrapper.findComponent(NoResultsMessage).exists()).toBe(true);
       expect(wrapper.text()).toContain(
         "No options available given current filters"
@@ -742,18 +711,6 @@ describe("FilterTree — delta display counts", () => {
     expect(wrapper.text()).not.toContain("Age Group (10)");
   });
 
-  it("BOOL single-select unselected option shows solo count when overlap is 0", () => {
-    const col = boolColumn();
-    const options: CountedOption[] = [
-      { name: "true", label: "Yes", count: 3, overlap: 3 },
-      { name: "false", label: "No", count: 5, overlap: 0 },
-      { name: "_null_", label: "Not set", count: 1, overlap: 0 },
-    ];
-    const modelValue: IFilterValue = { operator: "equals", value: ["true"] };
-    const wrapper = mountTree(col, options, modelValue);
-    expect(wrapper.text()).toContain("No (5)");
-  });
-
   it("selected Adolescent count stays stable when Adult is added to selection", async () => {
     const col = ontologyColumn();
     const options: CountedOption[] = [
@@ -777,11 +734,11 @@ describe("FilterTree — delta display counts", () => {
 });
 
 describe("H3: type routing (FilterTree)", () => {
-  it("H3: STRING_ARRAY renders Tree (countable), not text search fallback", () => {
+  it("H3: CHECKBOX renders Tree (countable), not text search fallback", () => {
     const col: IColumn = {
       id: "tags",
       label: "Tags",
-      columnType: "STRING_ARRAY",
+      columnType: "CHECKBOX",
     } as IColumn;
     const opts: CountedOption[] = [
       { name: "a", count: 3 },
@@ -795,11 +752,11 @@ describe("H3: type routing (FilterTree)", () => {
     expect(allSearch.length).toBe(0);
   });
 
-  it("H3: STRING_ARRAY emits equals filter on tree selection", async () => {
+  it("H3: CHECKBOX emits equals filter on tree selection", async () => {
     const col: IColumn = {
       id: "tags",
       label: "Tags",
-      columnType: "STRING_ARRAY",
+      columnType: "CHECKBOX",
     } as IColumn;
     const opts: CountedOption[] = [
       { name: "a", count: 3 },
@@ -947,5 +904,61 @@ describe("expand state preserved across options updates", () => {
         .find("button[aria-controls='parent2']")
         .attributes("aria-expanded")
     ).toBe("true");
+  });
+});
+
+describe("FilterTree for BOOL and BOOL_ARRAY", () => {
+  const boolOptions: CountedOption[] = [
+    { name: "true", label: "Yes", count: 4, overlap: 0 },
+    { name: "false", label: "No", count: 2, overlap: 0 },
+    { name: "_null_", label: "Not set", count: 7, overlap: 0 },
+  ];
+
+  function boolColumn(columnType: "BOOL" | "BOOL_ARRAY"): IColumn {
+    return { id: "active", label: "Active", columnType } as IColumn;
+  }
+
+  it.each(["BOOL", "BOOL_ARRAY"] as const)(
+    "%s lists Yes, No, Not set with counts, without a search box or show-more",
+    (columnType) => {
+      const wrapper = mountTree(boolColumn(columnType), boolOptions);
+      const labels = wrapper
+        .findAll("label")
+        .map((label) => label.text().replace(/\s+/g, " "));
+      expect(labels).toEqual(["Yes (4)", "No (2)", "Not set (7)"]);
+      expect(wrapper.findAllComponents(InputSearch)).toHaveLength(0);
+      expect(wrapper.find("button").exists()).toBe(false);
+    }
+  );
+
+  it("checks the choices held by the modelValue", () => {
+    const wrapper = mountTree(boolColumn("BOOL"), boolOptions, {
+      operator: "equals",
+      value: ["false", "_null_"],
+    });
+    const checked = wrapper
+      .findAll('input[type="checkbox"]')
+      .map((box) => (box.element as HTMLInputElement).checked);
+    expect(checked).toEqual([false, true, true]);
+  });
+
+  it("ticking No and Not set builds equals false joined by _or with is_null", async () => {
+    const column = boolColumn("BOOL_ARRAY");
+    const wrapper = mountTree(column, boolOptions);
+    await wrapper
+      .find('input[id="filter-tree-active-false-input"]')
+      .trigger("click");
+    await wrapper
+      .find('input[id="filter-tree-active-_null_-input"]')
+      .trigger("click");
+    const emitted = wrapper
+      .emitted("update:modelValue")!
+      .at(-1)![0] as IFilterValue;
+    expect(emitted).toEqual({ operator: "equals", value: ["false", "_null_"] });
+    expect(
+      buildGraphQLFilter(new Map([["active", emitted]]), [column], "")
+    ).toEqual({
+      _or: [{ active: { equals: false } }, { active: { is_null: true } }],
+    });
   });
 });

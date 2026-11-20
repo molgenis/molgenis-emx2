@@ -20,9 +20,9 @@ export const COUNTABLE_TYPES = new Set([
   "ONTOLOGY",
   "ONTOLOGY_ARRAY",
   "BOOL",
+  "BOOL_ARRAY",
   "RADIO",
   "CHECKBOX",
-  "STRING_ARRAY",
   "REF",
   "REF_ARRAY",
   "REFBACK",
@@ -68,6 +68,31 @@ const DEFAULT_FILTER_TYPES = new Set([
   "ENUM",
   "ENUM_ARRAY",
 ]);
+
+export const trimmedTerms = (terms: string[]): string[] =>
+  terms.map((term) => term.trim()).filter((term) => term !== "");
+
+export const nonEmptyRanges = (
+  ranges: [columnValue, columnValue][]
+): [columnValue, columnValue][] =>
+  ranges.filter(([min, max]) =>
+    [min, max].some((bound) => bound != null && bound !== "")
+  );
+
+export const TEXT_FILTER_TYPES = new Set([
+  "STRING",
+  "STRING_ARRAY",
+  "TEXT",
+  "EMAIL",
+  "HYPERLINK",
+  "AUTO_ID",
+  "TEXT_ARRAY",
+  "EMAIL_ARRAY",
+  "HYPERLINK_ARRAY",
+]);
+
+export const isBoolColumnType = (columnType: string): boolean =>
+  columnType === "BOOL" || columnType === "BOOL_ARRAY";
 
 export const isEnumColumnType = (columnType: string): boolean =>
   columnType === "ENUM" || columnType === "ENUM_ARRAY";

@@ -202,20 +202,16 @@ test.describe("filter sidebar", () => {
     });
     await expect(breadcrumbHeading).toBeVisible();
 
-    // Prove nested filter is functional: locate text input within the new section
-    // and type a value to verify URL changes
+    // Prove nested filter is functional: type into the new section's text filter
+    // and verify URL changes
     const sidebarSection = page.locator("h3", {
       hasText: /internal identifiers\s*→\s*identifier/i,
     });
     await expect(sidebarSection).toBeVisible();
 
-    // Find the filter container for this section and locate the search input
-    // Start from the h3 and go to the next sibling or parent container
-    const searchInputs = page.locator('input[type="search"]');
-    const inputCountBefore = await searchInputs.count();
-
-    // Type into the last search input (most likely the newly created filter)
-    const lastInput = searchInputs.last();
+    const lastInput = page
+      .getByPlaceholder(/^Search internal identifiers/i)
+      .first();
     await lastInput.fill("test");
     // Wait for debounce to flush and URL to update (auto-retrying assertion)
     // The filter value appears as internalIdentifiers.identifier.*=test in the URL
@@ -308,10 +304,9 @@ test.describe("filter sidebar", () => {
     });
     await expect(breadcrumbHeading).toBeVisible();
 
-    // Prove nested filter is functional: type a value into the search input
+    // Prove nested filter is functional: type a value into the text filter
     // and verify URL changes
-    const searchInputs = page.locator('input[type="search"]');
-    const lastInput = searchInputs.last();
+    const lastInput = page.getByPlaceholder(/^Search ref type/i).first();
     await lastInput.fill("testvalue");
 
     // Wait for debounce to flush and URL to update (auto-retrying assertion)

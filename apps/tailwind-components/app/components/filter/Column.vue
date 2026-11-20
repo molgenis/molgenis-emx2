@@ -11,6 +11,7 @@ import {
   isCountableType,
   isEnumColumnType,
   isRangeType,
+  nonEmptyRanges,
   treeSelectionToFilterValue,
 } from "../../utils/filterUtils";
 import FilterTree from "./Tree.vue";
@@ -40,19 +41,16 @@ const rangeInputType = computed(
   () => props.column.columnType.replace(/_ARRAY$/, "") as CellValueType
 );
 
-const rangeValue = computed<[columnValue, columnValue]>(() => {
-  if (!props.modelValue || props.modelValue.operator !== "between")
-    return [null, null];
-  return props.modelValue.value;
-});
+const rangeValue = computed<[columnValue, columnValue][]>(() =>
+  props.modelValue?.operator === "between" ? props.modelValue.value : []
+);
 
-function onRangeChange(val: [columnValue, columnValue]) {
-  const [min, max] = val;
-  if (min === null && max === null) {
-    emit("update:modelValue", undefined);
-  } else {
-    emit("update:modelValue", { operator: "between", value: [min, max] });
-  }
+function onRangeChange(ranges: [columnValue, columnValue][]) {
+  const filled = nonEmptyRanges(ranges);
+  emit(
+    "update:modelValue",
+    filled.length > 0 ? { operator: "between", value: filled } : undefined
+  );
 }
 
 function onTreeChange(val: IFilterValue | string[] | undefined) {

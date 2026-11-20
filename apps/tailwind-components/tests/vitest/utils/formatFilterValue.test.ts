@@ -28,7 +28,7 @@ describe("formatFilterValue", () => {
   describe("between operator", () => {
     it("formats both min and max", () => {
       const result = formatFilterValue(
-        { operator: "between", value: [5, 20] },
+        { operator: "between", value: [[5, 20]] },
         {}
       );
       expect(result).toEqual({ displayValue: "5 - 20", values: [] });
@@ -36,7 +36,7 @@ describe("formatFilterValue", () => {
 
     it("formats min only", () => {
       const result = formatFilterValue(
-        { operator: "between", value: [5, null] },
+        { operator: "between", value: [[5, null]] },
         {}
       );
       expect(result).toEqual({ displayValue: "≥ 5", values: [] });
@@ -44,7 +44,7 @@ describe("formatFilterValue", () => {
 
     it("formats max only", () => {
       const result = formatFilterValue(
-        { operator: "between", value: [null, 20] },
+        { operator: "between", value: [[null, 20]] },
         {}
       );
       expect(result).toEqual({ displayValue: "≤ 20", values: [] });
@@ -52,10 +52,44 @@ describe("formatFilterValue", () => {
 
     it("returns empty when both are null", () => {
       const result = formatFilterValue(
-        { operator: "between", value: [null, null] },
+        { operator: "between", value: [[null, null]] },
         {}
       );
       expect(result).toEqual({ displayValue: "", values: [] });
+    });
+  });
+
+  describe("several ranges", () => {
+    it("shows a count and lists each range as a - b in the hover", () => {
+      const result = formatFilterValue(
+        {
+          operator: "between",
+          value: [
+            [5, 20],
+            [30, null],
+            [null, 2],
+          ],
+        },
+        {}
+      );
+      expect(result).toEqual({
+        displayValue: "3",
+        values: ["5 - 20", "≥ 30", "≤ 2"],
+      });
+    });
+
+    it("ignores a range with both sides empty", () => {
+      const result = formatFilterValue(
+        {
+          operator: "between",
+          value: [
+            [null, null],
+            [5, 20],
+          ],
+        },
+        {}
+      );
+      expect(result).toEqual({ displayValue: "5 - 20", values: [] });
     });
   });
 
@@ -138,31 +172,15 @@ describe("formatFilterValue", () => {
   });
 
   describe("like operator", () => {
-    it("formats plain string value", () => {
+    it("formats one value as it is", () => {
       const result = formatFilterValue(
-        { operator: "like", value: "search term" },
+        { operator: "like", value: ["search term"] },
         {}
       );
       expect(result).toEqual({ displayValue: "search term", values: [] });
     });
 
-    it("formats single object value", () => {
-      const result = formatFilterValue(
-        { operator: "like", value: { name: "Hospital A" } as any },
-        {}
-      );
-      expect(result).toEqual({ displayValue: "Hospital A", values: [] });
-    });
-
-    it("returns count and values for array of objects", () => {
-      const result = formatFilterValue(
-        { operator: "like", value: [{ name: "A" }, { name: "B" }] },
-        {}
-      );
-      expect(result).toEqual({ displayValue: "2", values: ["A", "B"] });
-    });
-
-    it("returns count and values for array of primitives", () => {
+    it("returns count and values for several values", () => {
       const result = formatFilterValue(
         { operator: "like", value: ["foo", "bar"] },
         {}

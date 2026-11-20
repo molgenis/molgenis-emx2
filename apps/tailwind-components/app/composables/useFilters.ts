@@ -27,7 +27,7 @@ import {
   isEnumColumnType,
   isExcludedColumn,
 } from "../utils/filterUtils";
-import { BOOL_LABELS } from "../utils/filterUtils";
+import { BOOL_LABELS, isBoolColumnType } from "../utils/filterUtils";
 import {
   serializeFiltersToUrl,
   parseFiltersFromUrl,
@@ -814,7 +814,7 @@ export function buildLabelMap(
   column: IColumn,
   counted: CountedOption[] | undefined | null
 ): Record<string, string> {
-  if (column.columnType === "BOOL") {
+  if (isBoolColumnType(column.columnType)) {
     return { ...BOOL_LABELS };
   }
 
