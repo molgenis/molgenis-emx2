@@ -49,7 +49,7 @@ class RefBackTest extends RdfServiceTestRunner {
 
     Set<Value> refBacks =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(refBackTest) + "TableRefBack/id=a"))
             .get(Values.iri(getApi(refBackTest) + "TableRefBack/column/backlink"));
     assertEquals(Set.of(Values.iri(getApi(refBackTest) + "TableRef/id=1")), refBacks);

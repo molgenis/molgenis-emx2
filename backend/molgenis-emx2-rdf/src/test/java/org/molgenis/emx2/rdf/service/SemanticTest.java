@@ -79,14 +79,14 @@ class SemanticTest extends RdfServiceTestRunner {
     // Test default behaviour.
     assertFalse(schema.hasSetting(SETTING_SEMANTIC_PREFIXES));
     InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
-    assertEquals(defaultNamespaces, handlerBefore.namespaces);
+    assertEquals(defaultNamespaces, handlerBefore.getNamespaces());
 
     // Change setting
     schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
 
     // Test behaviour after changing setting.
     InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
-    assertEquals(customNamespaces, handlerAfter.namespaces);
+    assertEquals(customNamespaces, handlerAfter.getNamespaces());
   }
 
   @Test
@@ -120,7 +120,7 @@ class SemanticTest extends RdfServiceTestRunner {
 
     schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
     InMemoryRDFHandler handler = parseSchemaRdf(schema);
-    assertEquals(expectedNamespaces, handler.namespaces);
+    assertEquals(expectedNamespaces, handler.getNamespaces());
   }
 
   @Test
@@ -222,7 +222,10 @@ class SemanticTest extends RdfServiceTestRunner {
     InMemoryRDFHandler handler =
         parseRowRdf(RdfApiGeneratorFactory.SEMANTIC, semanticTest, "SemanticTable", "id=1");
     Set<IRI> actualPredicates =
-        handler.resources.get(Values.iri(getApi(semanticTest) + "SemanticTable/id=1")).keySet();
+        handler
+            .getResources()
+            .get(Values.iri(getApi(semanticTest) + "SemanticTable/id=1"))
+            .keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));
   }
 
