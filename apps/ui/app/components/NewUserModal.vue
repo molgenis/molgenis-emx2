@@ -2,13 +2,13 @@
   <Modal v-model:visible="visible" title="Create User">
     <div class="overflow-y-auto">
       <div class="p-5">
-        <label>Username</label>
+        <label class="text-title-contrast font-bold">Username</label>
         <InputString
           id="New username"
           v-model="username"
           :hasError="isDuplicateName"
         />
-        <label>Password</label>
+        <label class="text-title-contrast font-bold">Password</label>
         <InputString
           id="New user password"
           v-model="password"
@@ -16,7 +16,7 @@
           :hasError="password.length < 8"
           type="password"
         />
-        <label>Repeat password</label>
+        <label class="text-title-contrast font-bold">Repeat password</label>
         <InputString
           id="New user password second time"
           v-model="password2"
@@ -27,7 +27,7 @@
       </div>
     </div>
     <template #footer>
-      <div class="m-1">
+      <div class="m-1 text-title-contrast">
         <div v-if="isDuplicateName">Username already exists</div>
         <div v-if="password !== password2">Passwords do not match</div>
         <div v-if="password.length < 8 && password.length > 0">
@@ -50,11 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import { computed, ref } from "vue";
-import { isValidPassword } from "~/util/adminUtils";
-import InputString from "../../../tailwind-components/app/components/input/String.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import Modal from "../../../tailwind-components/app/components/Modal.vue";
+import { isValidPassword } from "../util/adminUtils";
 
 const visible = defineModel("visible", {
   required: true,

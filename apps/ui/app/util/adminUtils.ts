@@ -1,5 +1,11 @@
 import { $fetch } from "ofetch";
-import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
+import type {
+  BackendUser,
+  Role,
+  SchemaInfo,
+  UpdateUser,
+  User,
+} from "../interfaces/interfaces";
 
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
@@ -16,35 +22,19 @@ export async function deleteUser(user: User) {
   });
 }
 
-export async function updateUser(user: User) {
-  const updateUser = createUpdateUser(user);
+export async function updateUser(user: UpdateUser) {
   return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
       query: `mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}`,
-      variables: { updateUser },
+      variables: { updateUser: user },
     },
   }).catch((error) => {
     handleError("Error updating user: ", error.value);
   });
 }
 
-function createUpdateUser(user: User) {
-  let updateUser: UpdateUser = {
-    email: user.email,
-    enabled: user.enabled,
-    revokedRoles: user.revokedRoles || [],
-  };
-  if (user.password) {
-    updateUser.password = user.password;
-  }
-  if (user.roles) {
-    updateUser.roles = user.roles;
-  }
-  return updateUser;
-}
-
-export function createUser(newUserName: string, newPassword: string) {
+export async function createUser(newUserName: string, newPassword: string) {
   if (!newUserName || !newPassword) return;
 
   return $fetch(API_GRAPHQL, {
@@ -53,7 +43,7 @@ export function createUser(newUserName: string, newPassword: string) {
       query: `mutation{changePassword(email: "${newUserName}", password: "${newPassword}"){status,message}}`,
     },
   }).catch((error) => {
-    handleError("Error creating/updating user: ", error.value);
+    handleError("Error creating/updating user: ", error);
   });
 }
 
@@ -80,7 +70,7 @@ export async function getRoles(schemas: SchemaInfo[]): Promise<string[]> {
     });
 }
 
-export function getSchemas() {
+export async function getSchemas() {
   return $fetch<{ data: { _schemas: SchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
@@ -96,13 +86,14 @@ export function getSchemas() {
     });
 }
 
-export async function getUsers(
-  userOffset: number,
-  userLimit: number
-): Promise<{ newUsers: User[]; newUserCount: number }> {
+export async function getUsers(): Promise<{
+  newUsers: User[];
+  newUserCount: number;
+  newRolesByUser: Record<string, Role[]>;
+}> {
   const query = `
   { _admin 
-    { users (limit: ${userLimit}, offset: ${userOffset})
+    { users
       { email,
         settings {key, value}, 
         enabled, 
@@ -119,23 +110,38 @@ export async function getUsers(
     },
   })
     .then((response) => {
-      const users = buildUsers(response?.data._admin.users || []);
-      const userCount = response?.data._admin.userCount ?? 0;
-      return { newUsers: users, newUserCount: userCount };
+      const loadedUsers = response?.data._admin.users || [];
+      const newUsers = mapBackendUserToUser(loadedUsers);
+      const newUserCount = response?.data._admin.userCount ?? 0;
+      const newRolesByUser = loadedUsers.reduce((acc, user) => {
+        acc[user.email] = user.roles || [];
+        return acc;
+      }, {} as Record<string, Role[]>);
+
+      return { newUsers, newUserCount, newRolesByUser };
     })
     .catch((error) => {
       handleError("Error loading users: ", error.value);
-      return { newUsers: [], newUserCount: 0 };
+      return { newUsers: [], newUserCount: 0, newRolesByUser: {} };
     });
 }
 
-function buildUsers(dataUsers: User[]): User[] {
+function mapBackendUserToUser(dataUsers: BackendUser[]): User[] {
   return dataUsers.map((user) => {
-    return { ...user, tokens: getTokens(user) };
+    return {
+      email: user.email,
+      enabled: user.enabled,
+      roles: (user.roles ?? []).map(
+        (role) => `${role.schemaId} (${role.role})`
+      ),
+      tokens: getTokens(user),
+      _rowId: { email: user.email },
+      _rowIdString: user.email,
+    };
   });
 }
 
-function getTokens(user: User) {
+function getTokens(user: BackendUser) {
   if (user.settings.length) {
     const tokens = user.settings.find((setting) => {
       return setting.key === "access-tokens";
@@ -159,16 +165,8 @@ export function isValidPassword(password1: string, password2: string) {
 interface AdminResponse {
   data: {
     _admin: {
-      users: User[];
+      users: BackendUser[];
       userCount: number;
     };
   };
-}
-
-interface UpdateUser {
-  email: string;
-  enabled: boolean;
-  password?: string;
-  roles?: Role[];
-  revokedRoles: Role[];
 }

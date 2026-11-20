@@ -6,7 +6,7 @@
   >
     <div class="overflow-y-auto">
       <div class="p-5">
-        <b>New password</b>
+        <label class="text-title-contrast font-bold">New password</label>
         <InputString
           id="New password"
           v-model="password"
@@ -15,7 +15,7 @@
           type="password"
           class="mb-2"
         />
-        <b>Repeat new password</b>
+        <label class="text-title-contrast font-bold">Repeat new password</label>
         <InputString
           id="New password second time"
           v-model="password2"
@@ -25,8 +25,8 @@
         />
       </div>
 
-      <div class="p-5">
-        <b>Disable user</b>
+      <div v-if="canToggleEnabled" class="p-5">
+        <label class="text-title-contrast font-bold">Disable user</label>
         <InputRadioGroup
           id="disabledUserRadio"
           :options="[
@@ -38,24 +38,24 @@
       </div>
 
       <div class="p-5">
-        <b>Roles</b>
+        <label class="text-title-contrast font-bold">Roles</label>
 
         <Table>
           <template #head>
             <TableHeadRow>
               <TableHead class="w-0"></TableHead>
-              <TableHead>Schema</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead class="text-table-column-header">Schema</TableHead>
+              <TableHead class="text-table-column-header">Role</TableHead>
             </TableHeadRow>
           </template>
           <template #body>
-            <TableRow v-if="!Object.keys(userRoles).length">
+            <TableRow v-if="!Object.keys(userRolesBySchema).length">
               <TableCell></TableCell>
               <TableCell> no roles found </TableCell>
               <TableCell></TableCell>
             </TableRow>
 
-            <TableRow v-else v-for="role in userRoles">
+            <TableRow v-else v-for="role in userRolesBySchema">
               <TableCell>
                 <Button
                   iconOnly
@@ -87,7 +87,7 @@
     </div>
 
     <template #footer>
-      <div class="m-1">
+      <div class="m-1 text-title-contrast">
         <div v-if="password !== password2">Passwords do not match</div>
         <div v-if="password.length < 8 && password.length > 0">
           Password must be at least 8 characters
@@ -122,8 +122,16 @@ import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
 import InputRadioGroup from "../../../tailwind-components/app/components/input/RadioGroup.vue";
 import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 import InputString from "../../../tailwind-components/app/components/input/String.vue";
-import type { Role, SchemaInfo, User } from "../interfaces/interfaces.ts";
+import type {
+  Role,
+  SchemaInfo,
+  UpdateUser,
+  User,
+} from "../interfaces/interfaces.ts";
 import { isValidPassword, updateUser } from "../util/adminUtils";
+import useAdminSettings from "../composables/useAdminSettings.ts";
+
+const adminSettings = await useAdminSettings();
 
 const props = defineProps<{
   user: User;
@@ -140,23 +148,18 @@ const schema = ref<string>(
   props.schemas.length ? props.schemas[0]?.id ?? "" : ""
 );
 
+const USERS_WITH_FIXED_ENABLED_STATE = ["admin", "anonymous"];
+
 const userName = computed(() => props.user.email);
+const canToggleEnabled = computed(
+  () => !USERS_WITH_FIXED_ENABLED_STATE.includes(userName.value)
+);
 const isEnabled = ref<boolean>(props.user.enabled);
 const revokedRoles = ref<Record<string, Role>>({});
 const password = ref<string>("");
 const password2 = ref<string>("");
 
-const userRoles = ref<Record<string, Role>>(getRoles(props.user.roles || []));
-const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
-
-watch(
-  () => props.user,
-  (newUser) => {
-    userRoles.value = getRoles(newUser.roles || []);
-    userTokens.value = newUser.tokens || ([] as string[]);
-    isEnabled.value = newUser.enabled;
-  }
-);
+const userRolesBySchema = ref<Record<string, Role>>(getRoles(props.user.email));
 
 const SchemaIds = computed(() => {
   return props.schemas.map((schema) => schema.id);
@@ -171,7 +174,7 @@ function closeEditUserModal() {
 function addRole() {
   if (schema.value && role.value) {
     delete revokedRoles.value[schema.value];
-    userRoles.value[schema.value] = {
+    userRolesBySchema.value[schema.value] = {
       schemaId: schema.value,
       role: role.value,
     };
@@ -180,10 +183,11 @@ function addRole() {
 
 function removeRole(role: Role) {
   revokedRoles.value[role.schemaId] = role;
-  delete userRoles.value[role.schemaId];
+  delete userRolesBySchema.value[role.schemaId];
 }
 
-function getRoles(roles: Role[]): Record<string, Role> {
+function getRoles(email: string): Record<string, Role> {
+  const roles = adminSettings.getRolesForUser(email);
   return roles.reduce((accum, role) => {
     accum[role.schemaId] = role;
     return accum;
@@ -197,14 +201,16 @@ function isValidUser(): boolean {
 }
 
 async function saveUser() {
-  const editedUser: User = {
+  const editedUser: UpdateUser = {
     email: userName.value,
-    settings: [],
     enabled: isEnabled.value,
-    tokens: userTokens.value,
-    roles: Object.values(userRoles.value),
+    roles: Object.values(userRolesBySchema.value),
     revokedRoles: Object.values(revokedRoles.value),
   };
+
+  if (!canToggleEnabled.value) {
+    delete editedUser.enabled;
+  }
 
   if (password.value) {
     editedUser.password = password.value;
