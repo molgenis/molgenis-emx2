@@ -137,5 +137,5 @@ Behind a reverse proxy, this error usually means that the proxy does not pass th
 
 To fix it, do one of these:
 
-- Pass the public host name in the reverse proxy. For nginx, add `proxy_set_header Host $host;` to each location that sends requests to the backend, or add it once in the `server` block. A location that sets a `proxy_set_header` of its own does not inherit the ones from the `server` block. See `apps/catalogue/sample-nginx.conf` for an example.
+- Pass the public host name in the reverse proxy. For nginx, add `proxy_set_header Host $host;` to each location that sends requests to the backend. Setting it once in the `server` block is not enough: a location that sets any `proxy_set_header` of its own does not inherit the ones from the `server` block. See `apps/catalogue/sample-nginx.conf` for an example.
 - Set `MOLGENIS_SERVICE_URL` to the public URL of the server, for example `https://catalogue.example.org`. See [Run using java and postgresql](run_java.md).
