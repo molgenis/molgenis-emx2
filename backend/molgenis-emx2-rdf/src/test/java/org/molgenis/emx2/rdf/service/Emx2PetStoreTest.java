@@ -21,8 +21,8 @@ import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 /** Tests specific for {@link org.molgenis.emx2.rdf.generators.Emx2RdfGenerator} */
-class Emx2RdfsPetStoreTest extends PetStoreTest {
-  private static final String SCHEMA_NAME_PREFIX = Emx2RdfsPetStoreTest.class.getSimpleName() + "_";
+class Emx2PetStoreTest extends PetStoreTest {
+  private static final String SCHEMA_NAME_PREFIX = Emx2PetStoreTest.class.getSimpleName() + "_";
 
   /**
    * Encoded id for the Pet pooky. The id string is composed by base64 encoding the id columns and
