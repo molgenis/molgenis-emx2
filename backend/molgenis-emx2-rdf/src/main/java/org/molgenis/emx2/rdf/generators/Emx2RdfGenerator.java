@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.generators;
 
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.IriGenerator.columnIRI;
@@ -148,8 +149,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
 
     for (final Column column : table.getMetadata().getNonInheritedColumns()) {
-      // Exclude the system columns that refer to specific users
-      if (column.isSystemAddUpdateByUserColumn()) {
+      if (isExcludedColumn(column)) {
         continue;
       }
       if (columnName == null || columnName.equals(column.getName())) {
@@ -260,8 +260,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   private void processDataRowColumn(
       final RdfMapData rdfMapData, final Row row, final Column column, final IRI subject) {
-    // Exclude the system columns that refer to specific users
-    if (column.isSystemAddUpdateByUserColumn()) {
+    if (isExcludedColumn(column)) {
       return;
     }
     IRI columnIRI = columnIRI(getBaseURL(), column);
@@ -294,6 +293,10 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
         }
       }
     }
+  }
+
+  private static boolean isExcludedColumn(final Column column) {
+    return column.isSystemAddUpdateByUserColumn() || MG_TABLECLASS.equals(column.getName());
   }
 
   private String getLabelForRow(final Row row, final TableMetadata metadata) {
