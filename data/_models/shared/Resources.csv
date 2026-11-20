@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue,visible
-Resources,,,,,,,,,,,ldp:DirectContainer,"Use Catalogues, Networks or Collections to add metadata, do not use Resources directly.","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,BiobanksStaging",,,
+Resources,,,,,,,,,,,ldp:DirectContainer,"Use subtables, such as Catalogues, Networks or Collections to add metadata, do not use Resources directly.","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,BiobanksStaging",,,
 Networks,Resources,,,,,,,,,,,A network or consortium of data resources,"DataCatalogueFlat,EMA,NetworksStaging",,,
 Catalogues,Networks,,,,,,,,,,dcat:Catalog,A catalogue of data resources,"DataCatalogueFlat,EMA,NetworksStaging",,,
 Collections,Resources,,,,,,,,,,dcat:Dataset,"A collection of data and/or samples such as a cohort, registry or biobank","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,BiobanksStaging",,,
