@@ -126,3 +126,16 @@ export MOLGENIS_OIDC_CLIENT_SECRET=
 export MOLGENIS_OIDC_DISCOVERY_URI=
 ./gradlew run
 ```
+
+## Deployment FAQs
+
+### Uploads and other changes fail with "Cross-site request rejected: origin does not match this server"
+
+The backend rejects a POST, PUT, PATCH or DELETE request from a browser when the `Origin` of the request does not match the host name of the server. The server finds its own host name in the `X-Forwarded-Host` header, the `Host` header or `MOLGENIS_SERVICE_URL`. GET requests are not checked, so pages and downloads can still work while uploads and other changes fail.
+
+Behind a reverse proxy, this error usually means that the proxy does not pass the public host name. For example, nginx sends the address of the backend (such as `localhost:8080`) as the `Host` header, unless you configure it otherwise.
+
+To fix it, do one of these:
+
+- Pass the public host name in the reverse proxy. For nginx, add `proxy_set_header Host $host;` to each location that sends requests to the backend. Setting it once in the `server` block is not enough: a location that sets any `proxy_set_header` of its own does not inherit the ones from the `server` block. See `apps/catalogue/sample-nginx.conf` for an example.
+- Set `MOLGENIS_SERVICE_URL` to the public URL of the server, for example `https://catalogue.example.org`. See [Run using java and postgresql](run_java.md).
