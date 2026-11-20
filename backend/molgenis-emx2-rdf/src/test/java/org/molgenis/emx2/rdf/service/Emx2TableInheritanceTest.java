@@ -12,7 +12,6 @@ import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 import org.molgenis.emx2.rdf.RdfValidator;
 
