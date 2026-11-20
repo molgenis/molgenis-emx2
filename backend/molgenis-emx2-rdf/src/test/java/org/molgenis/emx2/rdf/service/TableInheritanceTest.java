@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Triple;
@@ -416,37 +415,41 @@ class TableInheritanceTest extends RdfServiceTestRunner {
     }
 
     void validateEmx2ColumnRdfPresence(
-      InMemoryRDFHandler handler,
-      boolean child,
-      boolean grandChildTypeA,
-      boolean grandChildTypeB,
-      boolean externalChild,
-      boolean externalGrandChild) {
+        InMemoryRDFHandler handler,
+        boolean child,
+        boolean grandChildTypeA,
+        boolean grandChildTypeB,
+        boolean externalChild,
+        boolean externalGrandChild) {
       new RdfValidator()
-        // Root should always be present (used for primary key)
-        .add(getIri(SCHEMA_NAME, "Root/column/rootColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, true)
-        .add(getIri(SCHEMA_NAME, "Child/column/childColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, child)
-        .add(
-          getIri(SCHEMA_NAME, "GrandchildTypeA/column/grandchildColumn"),
-          RDF.TYPE,
-          OWL.DATATYPEPROPERTY,
-          grandChildTypeA)
-        .add(
-          getIri(SCHEMA_NAME, "GrandchildTypeB/column/grandchildColumn"),
-          RDF.TYPE,
-          OWL.DATATYPEPROPERTY,
-          grandChildTypeB)
-        .add(
-          getIri(EXTERNAL_SCHEMA_NAME, "ExternalChild/column/externalChildColumn"),
-          RDF.TYPE,
-          OWL.DATATYPEPROPERTY,
-          externalChild)
-        .add(
-          getIri(EXTERNAL_SCHEMA_NAME, "ExternalGrandchild/column/externalGrandchildColumn"),
-          RDF.TYPE,
-          OWL.DATATYPEPROPERTY,
-          externalGrandChild)
-        .validate(handler);
+          // Root should always be present (used for primary key)
+          .add(getIri(SCHEMA_NAME, "Root/column/rootColumn"), RDF.TYPE, OWL.DATATYPEPROPERTY, true)
+          .add(
+              getIri(SCHEMA_NAME, "Child/column/childColumn"),
+              RDF.TYPE,
+              OWL.DATATYPEPROPERTY,
+              child)
+          .add(
+              getIri(SCHEMA_NAME, "GrandchildTypeA/column/grandchildColumn"),
+              RDF.TYPE,
+              OWL.DATATYPEPROPERTY,
+              grandChildTypeA)
+          .add(
+              getIri(SCHEMA_NAME, "GrandchildTypeB/column/grandchildColumn"),
+              RDF.TYPE,
+              OWL.DATATYPEPROPERTY,
+              grandChildTypeB)
+          .add(
+              getIri(EXTERNAL_SCHEMA_NAME, "ExternalChild/column/externalChildColumn"),
+              RDF.TYPE,
+              OWL.DATATYPEPROPERTY,
+              externalChild)
+          .add(
+              getIri(EXTERNAL_SCHEMA_NAME, "ExternalGrandchild/column/externalGrandchildColumn"),
+              RDF.TYPE,
+              OWL.DATATYPEPROPERTY,
+              externalGrandChild)
+          .validate(handler);
     }
 
     @Test
@@ -492,8 +495,8 @@ class TableInheritanceTest extends RdfServiceTestRunner {
 
       emx2Predicates.removeAll(emx2Subjects);
       assertTrue(
-        emx2Predicates.isEmpty(),
-        "Some predicates are missing a subject describing them: " + emx2Predicates);
+          emx2Predicates.isEmpty(),
+          "Some predicates are missing a subject describing them: " + emx2Predicates);
     }
 
     @Test
@@ -502,7 +505,7 @@ class TableInheritanceTest extends RdfServiceTestRunner {
       assertNotNull(tableInherTest.getTable("Root").getMetadata().getLocalColumn(MG_TABLECLASS));
       assertNotNull(tableInherTest.getTable("Child").getMetadata().getLocalColumn(MG_TABLECLASS));
       assertNotNull(
-        tableInherExtTest.getTable("ExternalChild").getMetadata().getLocalColumn(MG_TABLECLASS));
+          tableInherExtTest.getTable("ExternalChild").getMetadata().getLocalColumn(MG_TABLECLASS));
     }
 
     @Test
@@ -553,17 +556,17 @@ class TableInheritanceTest extends RdfServiceTestRunner {
 
     private Set<String> getEmx2Predicates(InMemoryRDFHandler handler) {
       return handler.resources.values().stream()
-        .flatMap(predicatesMap -> predicatesMap.keySet().stream())
-        .map(IRI::stringValue)
-        .filter(predicate -> predicate.contains(EMX2_IRI_PATH))
-        .collect(Collectors.toSet());
+          .flatMap(predicatesMap -> predicatesMap.keySet().stream())
+          .map(IRI::stringValue)
+          .filter(predicate -> predicate.contains(EMX2_IRI_PATH))
+          .collect(Collectors.toSet());
     }
 
     private Set<String> getEmx2ColumnSubjects(InMemoryRDFHandler handler) {
       return handler.resources.keySet().stream()
-        .map(Resource::stringValue)
-        .filter(subject -> subject.contains(EMX2_IRI_PATH))
-        .collect(Collectors.toSet());
+          .map(Resource::stringValue)
+          .filter(subject -> subject.contains(EMX2_IRI_PATH))
+          .collect(Collectors.toSet());
     }
   }
 }

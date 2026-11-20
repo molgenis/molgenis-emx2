@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.*;
-
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
@@ -219,7 +218,8 @@ class PetStoreTest extends RdfServiceTestRunner {
 
   @Nested
   class Emx2PetStoreTest {
-    private static final String SCHEMA_NAME_PREFIX = org.molgenis.emx2.rdf.service.PetStoreTest.Emx2PetStoreTest.class.getSimpleName() + "_";
+    private static final String SCHEMA_NAME_PREFIX =
+        org.molgenis.emx2.rdf.service.PetStoreTest.Emx2PetStoreTest.class.getSimpleName() + "_";
 
     /**
      * Encoded id for the Pet pooky. The id string is composed by base64 encoding the id columns and
@@ -239,10 +239,10 @@ class PetStoreTest extends RdfServiceTestRunner {
         if (subject.stringValue().contains("/column/")) {
 
           assertTrue(
-            types.contains(OWL.OBJECTPROPERTY)
-              || types.contains(OWL.DATATYPEPROPERTY)
-              || types.contains(OWL.ANNOTATEDPROPERTY),
-            "Columns must be defined as rdf:type one of owl:objectProperty, owl:dataProperty or owl:annotationProperty");
+              types.contains(OWL.OBJECTPROPERTY)
+                  || types.contains(OWL.DATATYPEPROPERTY)
+                  || types.contains(OWL.ANNOTATEDPROPERTY),
+              "Columns must be defined as rdf:type one of owl:objectProperty, owl:dataProperty or owl:annotationProperty");
         }
       }
     }
@@ -274,11 +274,11 @@ class PetStoreTest extends RdfServiceTestRunner {
         Set<Value> types = resource.getValue().get(RDF.TYPE);
         if (types != null && types.contains(OWL.CLASS)) {
           assertFalse(
-            predicates.contains(RDFS.DOMAIN),
-            subject + " can't have a rdfs:Domain, since it is a class.");
+              predicates.contains(RDFS.DOMAIN),
+              subject + " can't have a rdfs:Domain, since it is a class.");
           assertFalse(
-            predicates.contains(RDFS.RANGE),
-            subject + "can't have a rdfs:Range, since it is a class.");
+              predicates.contains(RDFS.RANGE),
+              subject + "can't have a rdfs:Range, since it is a class.");
         }
       }
     }
@@ -302,13 +302,13 @@ class PetStoreTest extends RdfServiceTestRunner {
     void testThatRDFforColumnOnlyContainsMetadata() throws IOException {
       InMemoryRDFHandler handler = parseColumnRdf(petStoreTest, "Pet", "name");
       List<Value> allowedTypes =
-        List.of(
-          OWL.CLASS,
-          OWL.ANNOTATEDPROPERTY,
-          OWL.DATATYPEPROPERTY,
-          OWL.OBJECTPROPERTY,
-          RDFS.CONTAINER,
-          BasicIRI.SIO_DATABASE);
+          List.of(
+              OWL.CLASS,
+              OWL.ANNOTATEDPROPERTY,
+              OWL.DATATYPEPROPERTY,
+              OWL.OBJECTPROPERTY,
+              RDFS.CONTAINER,
+              BasicIRI.SIO_DATABASE);
 
       assertFalse(handler.resources.entrySet().isEmpty());
       for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
@@ -322,11 +322,11 @@ class PetStoreTest extends RdfServiceTestRunner {
           }
         }
         assertTrue(
-          isAllowedType,
-          subject
-            + "Should be one of the allowed types ["
-            + allowedTypes.stream().map(Objects::toString)
-            + "]");
+            isAllowedType,
+            subject
+                + "Should be one of the allowed types ["
+                + allowedTypes.stream().map(Objects::toString)
+                + "]");
       }
     }
 
@@ -335,15 +335,16 @@ class PetStoreTest extends RdfServiceTestRunner {
       InMemoryRDFHandler handler = parseRowRdf(petStoreTest, "Pet", POOKY_ROWID);
 
       Set<Value> endpointIris =
-        handler
-          .resources
-          .get(Values.iri(getApi(petStoreTest) + "Pet/" + POOKY_ROWID))
-          .get(Values.iri(DCAT.ENDPOINT_URL.stringValue()));
+          handler
+              .resources
+              .get(Values.iri(getApi(petStoreTest) + "Pet/" + POOKY_ROWID))
+              .get(Values.iri(DCAT.ENDPOINT_URL.stringValue()));
       assertAll(
-        () -> assertEquals(1, endpointIris.size()),
-        () ->
-          assertEquals(
-            Values.iri(getApi(petStoreTest, false)), endpointIris.stream().findFirst().get()));
+          () -> assertEquals(1, endpointIris.size()),
+          () ->
+              assertEquals(
+                  Values.iri(getApi(petStoreTest, false)),
+                  endpointIris.stream().findFirst().get()));
     }
 
     @Test
@@ -357,9 +358,10 @@ class PetStoreTest extends RdfServiceTestRunner {
 
           Map<IRI, Set<Value>> pooky = handler.resources.get(iri);
           assertTrue(
-            pooky.containsKey(BasicIRI.LD_DATASET_PREDICATE),
-            "An instance of a Pet should refer back to the Collection using qb:dataSet");
-          assertFalse(pooky.containsKey(BasicIRI.LD_DATASET_CLASS), "qb:DataSet is not a predicate");
+              pooky.containsKey(BasicIRI.LD_DATASET_PREDICATE),
+              "An instance of a Pet should refer back to the Collection using qb:dataSet");
+          assertFalse(
+              pooky.containsKey(BasicIRI.LD_DATASET_CLASS), "qb:DataSet is not a predicate");
         }
       }
     }
@@ -374,9 +376,9 @@ class PetStoreTest extends RdfServiceTestRunner {
       for (Resource subject : handler.resources.keySet()) {
         if (subject.stringValue().endsWith("/column/name")) {
           Set<Value> subclasses =
-            handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
+              handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
           assertFalse(
-            subclasses.contains(databaseColumn), "We don't model as a SIO database column.");
+              subclasses.contains(databaseColumn), "We don't model as a SIO database column.");
           assertFalse(subclasses.contains(measureProperty), "Measure property should not be used");
           assertTrue(subclasses.isEmpty(), "Predicates are not classes but properties.");
         }
@@ -410,8 +412,8 @@ class PetStoreTest extends RdfServiceTestRunner {
       assertFalse(handler.resources.keySet().isEmpty());
       for (Resource subject : handler.resources.keySet()) {
         assertFalse(
-          subject.stringValue().contains("/Tag/column/"),
-          "Ontology tables should use standard predicates from RDF Schema.");
+            subject.stringValue().contains("/Tag/column/"),
+            "Ontology tables should use standard predicates from RDF Schema.");
       }
     }
 
@@ -421,7 +423,7 @@ class PetStoreTest extends RdfServiceTestRunner {
 
       Schema schema = database.dropCreateSchema(schemaName);
       Table table =
-        schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
+          schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
       table.insert(row("website", "https://www.molgenis.org/"));
       InMemoryRDFHandler handler = parseTableRdf(schema, table.getName());
       boolean isObjectProperty = false;
@@ -461,7 +463,7 @@ class PetStoreTest extends RdfServiceTestRunner {
         Set<Value> labels = handler.resources.get(resource).get(RDFS.LABEL);
         if (labels.isEmpty()) {
           System.err.println(
-            "Each resource should have a label. " + resource.stringValue() + " has none.");
+              "Each resource should have a label. " + resource.stringValue() + " has none.");
           instancesWithOutALabel += 1;
         }
       }
@@ -481,18 +483,18 @@ class PetStoreTest extends RdfServiceTestRunner {
       IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
       Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
       assertEquals(
-        2,
-        subclasses.size(),
-        "Tables that inherit from another table are expected to be only a subclass of that table and DataSet.\n"
-          + "Actual result: "
-          + subclasses);
+          2,
+          subclasses.size(),
+          "Tables that inherit from another table are expected to be only a subclass of that table and DataSet.\n"
+              + "Actual result: "
+              + subclasses);
       assertTrue(subclasses.contains(rootIRI), "Table is expected to be a subclass of it's parent");
       assertFalse(
-        subclasses.contains(OWL.THING),
-        "Subclasses are not expected to be a direct subclass of owl:Thing");
+          subclasses.contains(OWL.THING),
+          "Subclasses are not expected to be a direct subclass of owl:Thing");
       assertTrue(
-        subclasses.contains(cubeDataSetIRI),
-        "Subclasses are expected to be a subclass of cube@DataSet");
+          subclasses.contains(cubeDataSetIRI),
+          "Subclasses are expected to be a subclass of cube@DataSet");
     }
 
     @Test
@@ -506,18 +508,18 @@ class PetStoreTest extends RdfServiceTestRunner {
       IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
       Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
       assertEquals(
-        2,
-        subclasses.size(),
-        "Tables that do not inherit from another table are expected to be only a subclass owl:Thing and cube#DataSet.\n"
-          + "Actual result: "
-          + subclasses);
+          2,
+          subclasses.size(),
+          "Tables that do not inherit from another table are expected to be only a subclass owl:Thing and cube#DataSet.\n"
+              + "Actual result: "
+              + subclasses);
       assertFalse(subclasses.contains(rootIRI), "Table can't be its own parent.");
       assertTrue(
-        subclasses.contains(OWL.THING),
-        "Subclasses are not expected to be a direct subclass of owl:Thing");
+          subclasses.contains(OWL.THING),
+          "Subclasses are not expected to be a direct subclass of owl:Thing");
       assertTrue(
-        subclasses.contains(cubeDataSetIRI),
-        "Subclasses are expected to be a subclass of cube@DataSet");
+          subclasses.contains(cubeDataSetIRI),
+          "Subclasses are expected to be a subclass of cube@DataSet");
     }
   }
 }
