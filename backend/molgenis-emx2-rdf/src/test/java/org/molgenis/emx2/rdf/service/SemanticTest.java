@@ -235,7 +235,11 @@ class SemanticTest extends RdfServiceTestRunner {
 
   @Test
   void emx2Generator_anyRowWhenUndefinedPrefixIsDefined() {
-    // Columns are described, therefore fails.
+    // Due to the fact that the EMX2 generator always tries to describe every column of a table
+    // (while the semantic generator only tries to write triples where data is present), an
+    // incorrect semantic field causes the EMX2 generator to ALWAYS fail with invalid semantics
+    // while the semantic generator only fails when data is present. Therefore, this throws an
+    // exception for the EMX2 generator while it does not for the semantic generator.
     assertThrows(
         MolgenisException.class,
         () -> parseRowRdf(RdfApiGeneratorFactory.EMX2, semanticTest, "SemanticTable", "id=1"));

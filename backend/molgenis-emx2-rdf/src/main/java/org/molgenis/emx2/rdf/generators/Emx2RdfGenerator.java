@@ -51,7 +51,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   @Override
   public void generate(Table table) {
-    Set<Table> tables = withChildren(table);
+    Set<Table> tables = descendantsAndSelf(table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
     generatePrefixes(table.getSchema());
@@ -64,7 +64,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   @Override
   public void generate(Table table, PrimaryKey primaryKey) {
-    Set<Table> tables = withChildren(table);
+    Set<Table> tables = descendantsAndSelf(table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
     generatePrefixes(table.getSchema());

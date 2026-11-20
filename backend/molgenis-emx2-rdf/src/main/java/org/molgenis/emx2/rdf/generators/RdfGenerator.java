@@ -67,11 +67,7 @@ public abstract class RdfGenerator {
     return result;
   }
 
-  /**
-   * Retrieve selected {@link Table} from {@link Schema} including any children (as long as these
-   * tables are still part of the same scheme as the {@code tableFilter}).
-   */
-  protected Set<Table> withChildren(Table table) {
+  protected Set<Table> descendantsAndSelf(Table table) {
     Set<Table> tablesToDescribe = new HashSet<>();
     for (Table currentTable : table.getSchema().getTablesSorted()) {
       processInheritedTable(table, tablesToDescribe, currentTable);
