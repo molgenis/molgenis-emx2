@@ -460,9 +460,6 @@ class SqlTableMetadata extends TableMetadata {
 
   private void log(long start, String message) {
     Username user = getDatabase().getActiveUsername();
-    if (user == null) {
-      user = new Username("molgenis");
-    }
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms", user, message, getJooqTable(), System.currentTimeMillis() - start);

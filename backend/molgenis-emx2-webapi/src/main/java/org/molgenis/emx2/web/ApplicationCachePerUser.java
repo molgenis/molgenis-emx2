@@ -55,7 +55,7 @@ public final class ApplicationCachePerUser {
   private record UserKey(Username userName) {
     public UserKey {
       if (userName == null) {
-        throw new IllegalArgumentException("userName cannot be null or empty");
+        throw new IllegalArgumentException("userName cannot be null");
       }
     }
   }

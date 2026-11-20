@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.Constants.ANONYMOUS_USER;
 import static org.molgenis.emx2.web.Constants.EMX_2_METRICS_SESSION_TOTAL;
 import static org.pac4j.core.util.Pac4jConstants.USERNAME;
 
@@ -90,11 +90,11 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   public Username getCurrentUser() {
     HttpSession session = request.getSession(false);
     if (session == null) {
-      return ANONYMOUS;
+      return ANONYMOUS_USER;
     }
     String attribute = (String) session.getAttribute(USERNAME);
     if (attribute == null) {
-      return ANONYMOUS;
+      return ANONYMOUS_USER;
     }
     return new Username(attribute);
   }

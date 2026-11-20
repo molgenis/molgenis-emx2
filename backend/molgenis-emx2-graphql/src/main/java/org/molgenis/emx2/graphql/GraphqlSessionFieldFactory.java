@@ -154,11 +154,7 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
-              result.put(
-                  EMAIL,
-                  database.getActiveUsername() != null
-                      ? database.getActiveUsername().value()
-                      : "anonymous");
+              result.put(EMAIL, database.getActiveUsername().value());
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());

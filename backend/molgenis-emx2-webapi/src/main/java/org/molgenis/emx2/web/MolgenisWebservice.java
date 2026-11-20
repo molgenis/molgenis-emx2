@@ -22,7 +22,6 @@ import java.util.*;
 import org.eclipse.jetty.http.HttpCookie;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
@@ -246,7 +245,7 @@ public class MolgenisWebservice {
       }
 
       SchemaMenu menuForRole;
-      if (SqlDatabase.ANONYMOUS.equals(currentUser)) {
+      if (ANONYMOUS_USER.equals(currentUser)) {
         menuForRole = schemaMenu.menuForAnonymousAndRole(role);
       } else {
         menuForRole = schemaMenu.menuForRole(role);

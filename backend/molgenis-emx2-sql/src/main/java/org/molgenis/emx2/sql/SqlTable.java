@@ -595,11 +595,7 @@ public class SqlTable implements Table {
   }
 
   private static Username getActiveUser(SqlTable table) {
-    Username user = table.getSchema().getDatabase().getActiveUsername();
-    if (user == null) {
-      user = ADMIN_USER;
-    }
-    return user;
+    return table.getSchema().getDatabase().getActiveUsername();
   }
 
   private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {

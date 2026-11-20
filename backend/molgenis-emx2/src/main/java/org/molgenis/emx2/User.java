@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
+import static org.molgenis.emx2.Constants.ADMIN_USER;
 
 import java.util.*;
 
@@ -90,6 +91,6 @@ public class User extends HasSettings<User> {
   }
 
   public boolean isAdmin() {
-    return new Username("admin").equals(username) || isAdmin;
+    return ADMIN_USER.equals(username) || isAdmin;
   }
 }

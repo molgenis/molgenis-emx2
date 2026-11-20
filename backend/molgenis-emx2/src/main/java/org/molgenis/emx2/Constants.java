@@ -107,6 +107,9 @@ public final class Constants {
   public static final String MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE =
       "MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE";
 
+  public static final Username ADMIN_USER = new Username("admin");
+  public static final Username ANONYMOUS_USER = new Username("anonymous");
+
   static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 
   static final Operator[] ORDINAL_OPERATORS = {

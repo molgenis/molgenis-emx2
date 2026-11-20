@@ -11,13 +11,11 @@ public record Username(String value) {
       throw new MolgenisException("Username cannot be null");
     }
 
-    String newValue = value.trim();
-
-    if (newValue.isBlank()) {
+    if (value.isBlank()) {
       throw new MolgenisException("Username cannot be blank");
     }
 
-    return newValue;
+    return value.trim();
   }
 
   @Override
