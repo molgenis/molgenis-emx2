@@ -1,0 +1,7 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Quality information,,,,,,,,,,,,Quality management and certification information for a resource,"DataCatalogueFlat,BiobanksStaging"
+Quality information,,resource,ref,1,TRUE,,Resources,,,,,Resource this quality information applies to,"DataCatalogueFlat,BiobanksStaging"
+Quality information,,name,string,1,TRUE,,,,,,,Name or identifier of this quality entry,"DataCatalogueFlat,BiobanksStaging"
+Quality information,,standard,string,,,,,,,,,Quality management standard or certification scheme (e.g. ISO 20387),"DataCatalogueFlat,BiobanksStaging"
+Quality information,,certification number,string,,,,,,,,,Certification or accreditation number,"DataCatalogueFlat,BiobanksStaging"
+Quality information,,has certification,bool,,,,,,,,,Whether a certification has been obtained,"DataCatalogueFlat,BiobanksStaging"

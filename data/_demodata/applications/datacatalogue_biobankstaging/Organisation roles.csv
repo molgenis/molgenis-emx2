@@ -1,0 +1,3 @@
+id,resource,organisation,organisation not in ROR,department,email,role,is lead organisation,mg_draft
+UMCG,testSampleCollection,University Medical Center Groningen,,,,Data holder,true,false
+UMCG,testService,University Medical Center Groningen,,,,,,false

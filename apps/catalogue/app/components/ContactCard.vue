@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IContacts } from "../../interfaces/catalogue";
+import { organisationName } from "../utils/organisationName";
 
 defineProps<{
   contact: IContacts;
@@ -33,8 +34,8 @@ defineProps<{
         <span v-if="contact?.prefix"> {{ contact?.prefix }}&nbsp;</span>
         <span v-if="contact?.lastName"> {{ contact?.lastName }} </span>
       </span>
-      <span v-if="contact.organisation?.organisation">{{
-        contact.organisation?.organisation.name
+      <span v-if="organisationName(contact.organisation)">{{
+        organisationName(contact.organisation)
       }}</span>
       <a
         class="text-link block hover:underline"
