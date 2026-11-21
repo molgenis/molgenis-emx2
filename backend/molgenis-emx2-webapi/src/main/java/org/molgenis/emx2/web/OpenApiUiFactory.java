@@ -50,13 +50,14 @@ public final class OpenApiUiFactory {
         version, version, version, schemaName);
   }
 
-  static String getOpenApiUserInterface(Context context) {
+  static void getOpenApiUserInterface(Context context) {
     context.status(200);
     Schema schema = getSchema(context);
     if (schema == null) {
       throw new MolgenisException("Schema " + context.pathParam(SCHEMA) + " unknown");
     }
 
-    return createSwaggerUI(schema.getMetadata().getName());
+    context.contentType("text/html");
+    context.result(createSwaggerUI(schema.getMetadata().getName()));
   }
 }
