@@ -22,6 +22,7 @@ public enum DefaultNamespace {
   FOAF("foaf", "http://xmlns.com/foaf/0.1/"),
   HEALTHDCAT_AP("healthdcatap", "http://healthdataportal.eu/ns/health#"),
   HL7("hl7", "http://purl.bioontology.org/ontology/HL7/"),
+  HRI("hri", "https://w3id.org/health-ri/metadata-vocabulary#"),
   LDP("ldp", "http://www.w3.org/ns/ldp#"),
   LNC("lnc", "http://purl.bioontology.org/ontology/LNC/"),
   MESH("mesh", "http://purl.bioontology.org/ontology/MESH/"),

@@ -1,0 +1,21 @@
+order,name,tags,parent,codesystem,code,ontologyTermURI,definition
+,Computed radiography,,,DICOM,,https://dicom.innolitics.com/ciods/computed-radiography-image/general-series/00080060,
+,CT,,,DICOM,,https://dicom.innolitics.com/ciods/ct-image/general-series/00080060,Computed tomography
+,Digital radiography,,,DICOM,,https://dicom.innolitics.com/ciods/digital-x-ray-image/general-series/00080060,
+,Fluoroscopy,,,DICOM,,https://dicom.innolitics.com/ciods/x-ray-radiofluoroscopic-image/general-series/00080060,
+,Fundus image,,,,,,
+,MRI,,,DICOM,,https://dicom.innolitics.com/ciods/mr-image/general-series/00080060,Magnetic resonance imaging
+,Mammography,,,DICOM,,https://dicom.innolitics.com/ciods/digital-mammography-x-ray-image/general-series/00080060,
+,Nuclear medicine,,,DICOM,,https://dicom.innolitics.com/ciods/nuclear-medicine-image/general-series/00080060,
+,PET,,,DICOM,,https://dicom.innolitics.com/ciods/positron-emission-tomography-image/general-series/00080060,Positron emission tomography
+,RTDOSE,,,,,,
+,RTIMAGE,,,,,,
+,RTPLAN,,,,,,
+,RTSTRUCT,,,,,,
+,Segmentation,,,DICOM,,https://dicom.innolitics.com/ciods/segmentation/general-series/00080060,
+,Ultrasound,,,DICOM,,https://dicom.innolitics.com/ciods/ultrasound-image/general-series/00080060,
+,Segmentation,,,,,,
+,Slide Microscopy,,,DICOM,,https://dicom.innolitics.com/ciods/vl-microscopic-image/general-series/00080060,
+,X-ray angiography,,,,,,
+,X-rays,,,,,,
+,Other,,,DICOM,,https://dicom.innolitics.com/ciods/cr-image/general-series/00080060,

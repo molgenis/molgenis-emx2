@@ -1,0 +1,101 @@
+name,ontologyTermURI,codesystem
+Abdomen,http://purl.bioontology.org/ontology/SNOMEDCT/818983003,SNOMED CT
+Abdomen and Pelvis,http://purl.bioontology.org/ontology/SNOMEDCT/416949008,SNOMED CT
+Adrenal gland,http://purl.bioontology.org/ontology/SNOMEDCT/23451007,SNOMED CT
+Ankle joint,http://purl.bioontology.org/ontology/SNOMEDCT/70258002,SNOMED CT
+Aorta,http://purl.bioontology.org/ontology/SNOMEDCT/15825003,SNOMED CT
+Axilla,http://purl.bioontology.org/ontology/SNOMEDCT/91470000,SNOMED CT
+Back,http://purl.bioontology.org/ontology/SNOMEDCT/77568009,SNOMED CT
+Bile duct,http://purl.bioontology.org/ontology/SNOMEDCT/28273000,SNOMED CT
+Bladder,http://purl.bioontology.org/ontology/SNOMEDCT/89837001,SNOMED CT
+Body of uterus,http://purl.bioontology.org/ontology/SNOMEDCT/23952005,SNOMED CT
+Brain,http://purl.bioontology.org/ontology/SNOMEDCT/12738006,SNOMED CT
+Breast,http://purl.bioontology.org/ontology/SNOMEDCT/76752008,SNOMED CT
+Bronchus,http://purl.bioontology.org/ontology/SNOMEDCT/955009,SNOMED CT
+Buttock,http://purl.bioontology.org/ontology/SNOMEDCT/46862004,SNOMED CT
+Calcaneus,http://purl.bioontology.org/ontology/SNOMEDCT/80144004,SNOMED CT
+Calf of leg,http://purl.bioontology.org/ontology/SNOMEDCT/53840002,SNOMED CT
+Carotid Artery,http://purl.bioontology.org/ontology/SNOMEDCT/69105007,SNOMED CT
+Cerebellum,http://purl.bioontology.org/ontology/SNOMEDCT/113305005,SNOMED CT
+Cervical spine,http://purl.bioontology.org/ontology/SNOMEDCT/122494005,SNOMED CT
+Cervico-thoracic spine,http://purl.bioontology.org/ontology/SNOMEDCT/297171002,SNOMED CT
+Cervix,http://purl.bioontology.org/ontology/SNOMEDCT/71252005,SNOMED CT
+Cheek,http://purl.bioontology.org/ontology/SNOMEDCT/60819002,SNOMED CT
+Chest,http://purl.bioontology.org/ontology/SNOMEDCT/416775004,SNOMED CT
+Chest and Abdomen,http://purl.bioontology.org/ontology/SNOMEDCT/416550000,SNOMED CT
+Circle of Willis,http://purl.bioontology.org/ontology/SNOMEDCT/362047009,SNOMED CT
+Clavicle,http://purl.bioontology.org/ontology/SNOMEDCT/51299004,SNOMED CT
+Coccyx,http://purl.bioontology.org/ontology/SNOMEDCT/64688005,SNOMED CT
+Colon,http://purl.bioontology.org/ontology/SNOMEDCT/71854001,SNOMED CT
+Cornea,http://purl.bioontology.org/ontology/SNOMEDCT/28726007,SNOMED CT
+Coronary artery,http://purl.bioontology.org/ontology/SNOMEDCT/41801008,SNOMED CT
+Duodenum,http://purl.bioontology.org/ontology/SNOMEDCT/38848004,SNOMED CT
+Ear,http://purl.bioontology.org/ontology/SNOMEDCT/1910005,SNOMED CT
+Elbow joint,http://purl.bioontology.org/ontology/SNOMEDCT/16953009,SNOMED CT
+Endocrine system,http://purl.bioontology.org/ontology/SNOMEDCT/113331007,SNOMED CT
+Entire body,http://purl.bioontology.org/ontology/SNOMEDCT/38266002,SNOMED CT
+Esophagus,http://purl.bioontology.org/ontology/SNOMEDCT/32849002,SNOMED CT
+Extremity,http://purl.bioontology.org/ontology/SNOMEDCT/66019005,SNOMED CT
+Eye,http://purl.bioontology.org/ontology/SNOMEDCT/81745001,SNOMED CT
+Eyelid,http://purl.bioontology.org/ontology/SNOMEDCT/80243003,SNOMED CT
+Face,http://purl.bioontology.org/ontology/SNOMEDCT/89545001,SNOMED CT
+Femur,http://purl.bioontology.org/ontology/SNOMEDCT/71341001,SNOMED CT
+Finger,http://purl.bioontology.org/ontology/SNOMEDCT/7569003,SNOMED CT
+Foot,http://purl.bioontology.org/ontology/SNOMEDCT/56459004,SNOMED CT
+Free upper limb,http://purl.bioontology.org/ontology/SNOMEDCT/896766000,SNOMED CT
+Gallbladder,http://purl.bioontology.org/ontology/SNOMEDCT/28231008,SNOMED CT
+Gastrointestinal tract,http://purl.bioontology.org/ontology/SNOMEDCT/122865005,SNOMED CT
+Hand,http://purl.bioontology.org/ontology/SNOMEDCT/85562004,SNOMED CT
+Head,http://purl.bioontology.org/ontology/SNOMEDCT/69536005,SNOMED CT
+Head and Neck,http://purl.bioontology.org/ontology/SNOMEDCT/774007,SNOMED CT
+Heart,http://purl.bioontology.org/ontology/SNOMEDCT/80891009,SNOMED CT
+Hip joint,http://purl.bioontology.org/ontology/SNOMEDCT/24136001,SNOMED CT
+Humerus,http://purl.bioontology.org/ontology/SNOMEDCT/85050009,SNOMED CT
+Ileum,http://purl.bioontology.org/ontology/SNOMEDCT/34516001,SNOMED CT
+Ilium,http://purl.bioontology.org/ontology/SNOMEDCT/22356005,SNOMED CT
+Internal Auditory Canal,http://purl.bioontology.org/ontology/SNOMEDCT/361078006,SNOMED CT
+Jaw region,http://purl.bioontology.org/ontology/SNOMEDCT/661005,SNOMED CT
+Jejunum,http://purl.bioontology.org/ontology/SNOMEDCT/21306003,SNOMED CT
+Kidney,http://purl.bioontology.org/ontology/SNOMEDCT/64033007,SNOMED CT
+Knee,http://purl.bioontology.org/ontology/SNOMEDCT/72696002,SNOMED CT
+Larynx,http://purl.bioontology.org/ontology/SNOMEDCT/4596009,SNOMED CT
+Liver,http://purl.bioontology.org/ontology/SNOMEDCT/10200004,SNOMED CT
+Lower leg,http://purl.bioontology.org/ontology/SNOMEDCT/30021000,SNOMED CT
+Lumbar spine,http://purl.bioontology.org/ontology/SNOMEDCT/122496007,SNOMED CT
+Lumbo-sacral spine,http://purl.bioontology.org/ontology/SNOMEDCT/297173004,SNOMED CT
+Lung,http://purl.bioontology.org/ontology/SNOMEDCT/39607008,SNOMED CT
+Lymph,http://purl.bioontology.org/ontology/SNOMEDCT/38000004,SNOMED CT
+Maxilla,http://purl.bioontology.org/ontology/SNOMEDCT/70925003,SNOMED CT
+Mediastinum,http://purl.bioontology.org/ontology/SNOMEDCT/72410000,SNOMED CT
+Mouth,http://purl.bioontology.org/ontology/SNOMEDCT/21082005,SNOMED CT
+Neck,http://purl.bioontology.org/ontology/SNOMEDCT/416152001,SNOMED CT
+Neck and Chest,http://purl.bioontology.org/ontology/SNOMEDCT/417437006,SNOMED CT
+Nose,http://purl.bioontology.org/ontology/SNOMEDCT/45206002,SNOMED CT
+Orbital structure,http://purl.bioontology.org/ontology/SNOMEDCT/363654007,SNOMED CT
+Ovary,http://purl.bioontology.org/ontology/SNOMEDCT/15497006,SNOMED CT
+Pancreas,http://purl.bioontology.org/ontology/SNOMEDCT/15776009,SNOMED CT
+Parotid gland,http://purl.bioontology.org/ontology/SNOMEDCT/45289007,SNOMED CT
+Patella,http://purl.bioontology.org/ontology/SNOMEDCT/64234005,SNOMED CT
+Pelvis,http://purl.bioontology.org/ontology/SNOMEDCT/12921003,SNOMED CT
+Penis,http://purl.bioontology.org/ontology/SNOMEDCT/18911002,SNOMED CT
+Phantom,,SNOMED CT
+Pharynx,http://purl.bioontology.org/ontology/SNOMEDCT/54066008,SNOMED CT
+Prostate,http://purl.bioontology.org/ontology/SNOMEDCT/181422007,SNOMED CT
+Radius,http://purl.bioontology.org/ontology/SNOMEDCT/62413002,SNOMED CT
+Radius and ulna,http://purl.bioontology.org/ontology/SNOMEDCT/110535000,SNOMED CT
+Rectum,http://purl.bioontology.org/ontology/SNOMEDCT/34402009,SNOMED CT
+Retroperitoneal space,http://purl.bioontology.org/ontology/SNOMEDCT/243984005,SNOMED CT
+Rib,http://purl.bioontology.org/ontology/SNOMEDCT/113197003,SNOMED CT
+Sacrum,http://purl.bioontology.org/ontology/SNOMEDCT/54735007,SNOMED CT
+Scalp,http://purl.bioontology.org/ontology/SNOMEDCT/41695006,SNOMED CT
+Scapula,http://purl.bioontology.org/ontology/SNOMEDCT/79601000,SNOMED CT
+Sclera,http://purl.bioontology.org/ontology/SNOMEDCT/18619003,SNOMED CT
+Scrotum,http://purl.bioontology.org/ontology/SNOMEDCT/20233005,SNOMED CT
+Shoulder,http://purl.bioontology.org/ontology/SNOMEDCT/16982005,SNOMED CT
+Skin,http://purl.bioontology.org/ontology/SNOMEDCT/39937001,SNOMED CT
+Skull,http://purl.bioontology.org/ontology/SNOMEDCT/89546000,SNOMED CT
+Soft tissue,http://purl.bioontology.org/ontology/SNOMEDCT/87784001,SNOMED CT
+Spinal cord,http://purl.bioontology.org/ontology/SNOMEDCT/2748008,SNOMED CT
+Spine,http://purl.bioontology.org/ontology/SNOMEDCT/421060004,SNOMED CT
+Spleen,http://purl.bioontology.org/ontology/SNOMEDCT/78961009,SNOMED CT
+Sternum,http://purl.bioontology.org/ontology/SNOMEDCT/56873002,SNOMED CT
