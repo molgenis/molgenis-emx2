@@ -174,6 +174,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         legendMarkerType {
                             name
                         }
+                        showValuesOnLegendHoverEvent
                         fillColor
                         strokeColor
                         hoverFillColor
