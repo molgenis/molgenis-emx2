@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Provenance,,,,,,,,,,,dcat:ProvenanceStatement,Provenance attached to a resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Provenance,,,,,,,,,,,dcat:ProvenanceStatement,The provenance of a resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Provenance,,resource,ref,,TRUE,,Resources,,,,,The resource this provenance is for,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
-Provenance,,id,auto_id,1,TRUE,,,,,,,Document name,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Provenance,,id,auto_id,1,TRUE,,,,,,,Internal identifier of this provenance record,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Provenance,,lineage,text,,TRUE,,,,,,,"Statement of the lineage of this resource, e.g. where were the data or samples derived from, and/or any changes that were made to the data after e.g. harvesting",,
-Provenance,,source pid,hyperlink,,,,,,,,,"Persistent identifier of source catalogue, if this resource was harvested from another source",,
+Provenance,,source pid,hyperlink,,,,,,,,dcat:provenance,"Persistent identifier (e.g. doi) of source catalogue, if this resource was harvested from another source",,
