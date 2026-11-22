@@ -2,5 +2,5 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Provenance,,,,,,,,,,,dcat:ProvenanceStatement,Provenance attached to a resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Provenance,,resource,ref,,TRUE,,Resources,,,,,The resource this provenance is for,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Provenance,,id,auto_id,1,TRUE,,,,,,,Document name,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
-Provenance,,description,text,,,,,,,,dcat:provenance,"Statement about lineage of this resource, e.g. any changes that were made after harvesting","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
-Provenance,,source pid,hyperlink,,,,,,,,,"Persistent identifier of source catalogue, if this resoyrce was harvested from another source",,
+Provenance,,lineage,text,,TRUE,,,,,,,"Statement of the lineage of this resource, e.g. where were the data or samples derived from, and/or any changes that were made to the data after e.g. harvesting",,
+Provenance,,source pid,hyperlink,,,,,,,,,"Persistent identifier of source catalogue, if this resource was harvested from another source",,
