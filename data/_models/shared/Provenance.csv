@@ -1,6 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Provenance,,,,,,,,,,,dcat:ProvenanceStatement,The provenance of a resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
-Provenance,,resource,ref,,TRUE,,Resources,,,,,The resource this provenance is for,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
-Provenance,,id,auto_id,1,TRUE,,,,,,,Internal identifier of this provenance record,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
-Provenance,,lineage,text,,TRUE,,,,,,,"Statement of the lineage of this resource, e.g. where were the data or samples derived from, and/or any changes that were made to the data after e.g. harvesting",,
-Provenance,,source pid,hyperlink,,,,,,,,dcat:provenance,"Persistent identifier (e.g. doi) of source catalogue, if this resource was harvested from another source",,
+Provenance,,,,,,,,,,,dcat:ProvenanceStatement,The provenance of a resource,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Provenance,,resource,ref,,TRUE,,Resources,,,,,The resource this provenance is for,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Provenance,,id,auto_id,1,TRUE,,,,,,,Internal identifier of this provenance record,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Provenance,,lineage,text,,,,,,,,dcat:Provenance,"A statement of any changes made to the data and/or any changes in ownership and custody of a resource since its creation that are significant for its authenticity, integrity, and interpretation","DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Provenance,,source pid,hyperlink,,,,,,,,,"Persistent identifier (e.g. doi) of source catalogue, if this resource was harvested from another source","DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
+Provenance,,changes made,text,,,,,,,,,"Statement of any changes made to the resource after harvesting, if applicable","DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
