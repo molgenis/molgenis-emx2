@@ -272,3 +272,5 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 9.0.0   | Change Datasets to Tables. To update run migrations run_9.0.py, see [README](https://github.com/molgenis/molgenis-emx2/raw/master/data/scripts/catalogue/README).                                                                                                                                                        |
 
 | 9.1.0   | Add 'Variable value values' table. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor                                                                                                                                                         |
+
+| 9.3.0   | Edits to data model for hricore v2.1.0 compatbility. Add Provenance table and changes to semantics. To update reload updated molgenis.csv to catalogue and staging schemas or update in schema editor                                                                                                                                                         |
