@@ -32,7 +32,8 @@ Experiments RNA,,sequencing centre,select,,,,TRUE,CatalogueOntologies,Organisati
 NGS sequencing,,library source,ontology,,,,,CatalogueOntologies,Library source,,,,,,obo:GENEPIO_0001965,E.g. genomic source,"Patient registry, Patient registry staging, FAIR Genomes",
 Experiments RNA,,library selection,ontology,,,,,CatalogueOntologies,Library selection,,,,,,obo:GENEPIO_0001940,E.g. RANDOM method,"Patient registry, FAIR Genomes",
 Experiments RNA,,library selection,ontology,,,,TRUE,CatalogueOntologies,Library selection,,,,,,obo:GENEPIO_0001940,E.g. RANDOM method,"Patient registry staging",
-Experiments RNA,,library layout,ontology,,,,,CatalogueOntologies,Library layout,,,,,,obo:FBcv_0003208,Either PAIRED or SINGLE,"Patient registry, Patient registry staging, FAIR Genomes",
+Experiments RNA,,library layout,ontology,,,,,CatalogueOntologies,Library layout,,,,,,obo:FBcv_0003208,Either PAIRED or SINGLE,"Patient registry, FAIR Genomes",
+Experiments RNA,,library layout,ontology,,,,TRUE,CatalogueOntologies,Library layout,,,,,,obo:FBcv_0003208,Either PAIRED or SINGLE,Patient registry staging,
 Experiments srDNA,,library layout,ontology,,,,,CatalogueOntologies,Library layout,,,,,,obo:FBcv_0003208,Either PAIRED or SINGLE,"Patient registry, Patient registry staging, FAIR Genomes",
 Experiments srDNA,,library strategy,ontology,,,,,CatalogueOntologies,Sequencing methods,,,,,,obo:FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.,"Patient registry, Patient registry staging, FAIR Genomes",
 Experiments lrGS,,library strategy,ontology,,,,,CatalogueOntologies,Sequencing methods,,,,,,obo:FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.,"Patient registry, Patient registry staging, FAIR Genomes",
@@ -211,7 +212,7 @@ Metabolomic analyses,,parameters,string,,,,,,,,,,,,obo:NCIT_C44175,Any factor th
 Metabolomic analyses,,dataformats stored,ontology_array,,,,,CatalogueOntologies,File formats,,,,,,obo:NCIT_C142494,"Which data file formats (i.e. defined ways or layouts of representing and structuring data in a computer file, blob, string, message, or elsewhere) are stored and potentially available.",FAIR Genomes metabolomics add-on,
 Metabolomic analyses,,standards used,string,,,,,,,,,,,,sio:SIO_000618,"Any socially-agreed upon specifications used such as Common Workflow Language, mzML, ISA-TAB, FAIR Genomes, etc.",FAIR Genomes metabolomics add-on,
 Metabolomic analyses,,statistical methods applied,string,,,,,,,,,,,,obo:NCIT_C19044,"A method of analyzing or representing statistical data or a procedure for calculating a statistic, such as principal component analysis, affinity propagation clustering, T-test, etc.",FAIR Genomes metabolomics add-on,
-Processes,,included in resources,multiselect,,,,,,Resources,,,,,,obo:HSO_0000370,"A reference to one or more resources that organises processes in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",Patient registry,false
+Processes,,included in resources,multiselect,,,,,,Resources,,,,,,obo:HSO_0000370,"A reference to one or more resources that organises processes in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",Patient registry,
 Processes,,Additional Process Information,heading,,,,,,,,,,,,,,"Patient registry, Patient registry staging, FAIR Genomes",
 Processes,,data source,select,,,,,,Resources,,,,,,obo:NCIT_C16493,"The source or origin of the record. For example, an organisation, database, system, etc.",Patient registry,false
 Processes,,date created at source,date,,,,,,,,,,,,"dcterms:created,obo:NCIT_C16493",The date the record was created at the source,"Patient registry, FAIR Genomes",false

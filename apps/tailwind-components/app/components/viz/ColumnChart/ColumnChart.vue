@@ -3,34 +3,42 @@ import { ref, computed, useTemplateRef, onMounted, watch } from "vue";
 import { useEventListener } from "@vueuse/core";
 
 import {
+  group,
   select,
   selectAll,
   scaleBand,
+  scaleOrdinal,
   axisBottom,
   max,
   min,
   scaleLinear,
   axisLeft,
+  schemeBlues,
 } from "d3";
 
 const d3 = {
+  group,
   select,
   selectAll,
   scaleBand,
+  scaleOrdinal,
   axisBottom,
   max,
   min,
   scaleLinear,
   axisLeft,
+  schemeBlues,
 };
 
 import ChartTitle from "../ChartTitle.vue";
+import ChartLegend from "../ChartLegend/ChartLegend.vue";
 
 import {
   breakXAxisLabels,
   generateAxisTickData,
   newNumericAxisGenerator,
   newCategoricalAxisGenerator,
+  selectMouseOverElements,
 } from "../../../utils/viz";
 
 import type {
@@ -42,12 +50,16 @@ import type {
 import type {
   NumericAxisTickData,
   CategoricalAxisTickData,
+  LegendMarkerType,
 } from "../../../../types/viz";
+
+import { vizDelay, vizDurations } from "../../../utils/cms/constants.ts";
 
 const props = withDefaults(defineProps<IStatisticalCharts>(), {
   chartWidth: 300,
   chartHeight: 300,
-  topMargin: 10,
+  yAxisMinValue: 0,
+  topMargin: 35,
   rightMargin: 10,
   bottomMargin: 70,
   leftMargin: 45,
@@ -56,6 +68,7 @@ const props = withDefaults(defineProps<IStatisticalCharts>(), {
   enableHoverEvents: true,
   enableClickEvents: false,
   enableAnimations: true,
+  showValuesOnLegendHoverEvent: false,
 });
 
 const emits = defineEmits(["column-clicked"]);
@@ -67,10 +80,25 @@ const parentElem = computed<HTMLElement>(() => {
 
 const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
+const chartColumns = ref(); // receives d3.select
+const chartLabels = ref(); // receives d3.select
+
+const isGroupedColumnChart = computed<boolean>(() => {
+  return props.chartType?.name === "Grouped column chart";
+});
+
+const groupedChartLegendPosition = computed<string>(() => {
+  return props.legendPosition?.name as string;
+});
 
 const width = ref<number>(0);
 const height = computed<number>(() => {
   return props.chartHeight - props.topMargin - internalBottomMargin.value;
+});
+
+const legendIcon = computed<LegendMarkerType>(() => {
+  const type = props.legendMarkerType?.name || "circle";
+  return type as LegendMarkerType;
 });
 
 const internalLeftMargin = computed<number>(() => {
@@ -83,28 +111,32 @@ const internalBottomMargin = computed<number>(() => {
     : 25;
 });
 
-const yAxisData = computed<NumericAxisTickData>(() => {
-  const ticks: NumericAxisTickData = {
-    ...generateAxisTickData(props.chartData as IChartData[], "yValue"),
-  };
-
-  if (props.yAxisMaxValue) {
-    ticks.limit = props.yAxisMaxValue;
+const internalChartData = computed<Record<string, IChartData[]> | undefined>(
+  () => {
+    if (props.chartType?.name === "Grouped column chart" && props.chartData) {
+      const data = d3.group(
+        props.chartData,
+        (row: IChartData) => row.primaryGroupValue
+      );
+      return data as unknown as Record<string, IChartData[]>;
+    }
   }
-
-  if (props.yAxisTicks) {
-    ticks.ticks = props.yAxisTicks;
-  }
-
-  if (props.yAxisMinValue) {
-    ticks.min = props.yAxisMinValue;
-  }
-
-  return ticks;
-});
+);
 
 const hasNegativeValues = computed<boolean>(() => {
-  return yAxisData.value?.min < 0 || false;
+  const yValues = props.chartData?.map((row: IChartData) =>
+    parseInt(row.yValue)
+  ) as number[];
+  return Math.min(...yValues) < 0;
+});
+
+const yAxisData = computed<NumericAxisTickData>(() => {
+  return generateAxisTickData(
+    props.chartData as IChartData[],
+    "yValue",
+    props.yAxisMinValue,
+    props.yAxisMaxValue
+  );
 });
 
 const xAxisData = computed<CategoricalAxisTickData>(() => {
@@ -126,42 +158,101 @@ const xAxisData = computed<CategoricalAxisTickData>(() => {
   return data;
 });
 
+const xSubAxisData = computed<string[] | undefined>(() => {
+  if (isGroupedColumnChart.value) {
+    const uniquePrimaryGroupValues = new Set(
+      props.chartData?.map((row: IChartData) => {
+        return row.primaryGroupValue as string;
+      })
+    );
+    return [...uniquePrimaryGroupValues].sort();
+  }
+});
+
 const xScale = computed(() => {
+  const rangeEnd = isGroupedColumnChart.value
+    ? (xSubScale.value?.bandwidth() as number)
+    : width.value;
   return newCategoricalAxisGenerator({
     domains: xAxisData.value.domains,
-    rangeEnd: width.value,
+    rangeEnd: rangeEnd,
   });
 });
 
+const xSubScale = computed(() => {
+  if (isGroupedColumnChart.value && xSubAxisData.value) {
+    return newCategoricalAxisGenerator({
+      domains: xSubAxisData.value,
+      rangeEnd: width.value,
+      paddingInner: 0.15,
+      paddingOuter: 0.15,
+    });
+  }
+});
+
 const yScale = computed(() => {
-  const domainMin = yAxisData.value.min < 0 ? yAxisData.value.min : 0;
   return newNumericAxisGenerator({
     domainLimit: yAxisData.value.limit,
-    domainMin: domainMin,
+    domainMin: yAxisData.value.min,
     rangeStart: height.value,
   });
 });
 
-const colorPalette = computed<Record<string, string>>(() => {
-  const valueColorMapping = xAxisData.value.domains.map((value: string) => {
-    let color;
-    if (xAxisData.value.palette?.[value]) {
-      color = xAxisData.value.palette[value];
-    } else if (props.colorPalette) {
-      color = props.colorPalette[value as unknown as number];
-    } else {
-      color = props.fillColor;
-    }
-    return [value, color];
-  });
-  return Object.fromEntries(valueColorMapping);
+const colorPalette = computed(() => {
+  let domains: string[] = [...new Set(xAxisData.value.domains)].sort();
+  let colors: string[];
+
+  if (isGroupedColumnChart.value && props.colorPalette) {
+    const paletteSorted = props.colorPalette.sort(
+      (current: IChartPalette, next: IChartPalette) => {
+        return current.value.localeCompare(next.value);
+      }
+    );
+    domains = paletteSorted.map((row: IChartPalette) => row.value);
+    colors = paletteSorted.map((row: IChartPalette) => row.color);
+
+    legendData.value = Object.fromEntries(
+      paletteSorted.map((item) => [item.value, item.color])
+    );
+  } else if (isGroupedColumnChart.value && !props.colorPalette) {
+    const length = domains.length === 2 ? 3 : domains.length;
+    colors = d3.schemeBlues[length as number] as string[];
+
+    legendData.value = Object.fromEntries(
+      domains.map((item, index) => {
+        return [item, colors[index] || "#ccc"];
+      })
+    );
+  } else if (props.chartData?.find((row) => row.fillColor)) {
+    const newColorData = (props.chartData as IChartData[]).map(
+      (row: IChartData) => {
+        return {
+          xValue: row.xValue,
+          fillColor: row.fillColor || props.fillColor,
+        };
+      }
+    );
+
+    domains = newColorData.map((row) => row.xValue);
+    colors = newColorData.map((row) => row.fillColor);
+  } else {
+    colors = Array(domains.length).fill(props.fillColor);
+  }
+  return d3.scaleOrdinal().domain(domains).range(colors).unknown("#ccc");
 });
+
+const legendData = ref<Record<string, any>>({});
 
 function renderChartAxes() {
   if (chartArea.value) {
-    const xAxis = d3.axisBottom(xScale.value);
+    let xAxis = d3.axisBottom(xScale.value);
+    if (isGroupedColumnChart.value && xSubScale.value) {
+      xAxis = d3.axisBottom(xSubScale.value);
+    }
+
     const yAxis = d3.axisLeft(yScale.value).tickValues(yAxisData.value.ticks);
     const chartAxisGroup = chartArea.value.select("g.axes");
+
     chartAxisGroup.select(".x-axis").call(xAxis);
     chartAxisGroup.select(".y-axis").call(yAxis);
   }
@@ -171,34 +262,43 @@ function renderChartAxes() {
   }
 }
 
-function onMouseOver(event: Event) {
-  const rect = event.target as HTMLElement;
-  const text = rect.nextSibling as HTMLElement;
-  rect.style.fill = props.hoverFillColor;
-  text.style.opacity = "1";
+function onMouseOver(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
+
+  rect.attr("fill", props.hoverFillColor);
+  text.attr("opacity", 1);
 }
 
-function onMouseOut(event: Event, row: IChartData) {
-  const rect = event.target as HTMLElement;
-  const text = rect.nextSibling as HTMLElement;
-  rect.style.fill = colorPalette.value[
-    row.xValue as keyof IChartPalette
-  ] as string;
-  text.style.opacity = "0";
+function onMouseOut(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
+
+  rect.attr("fill", () => colorPalette.value(row.xValue));
+  text.attr("opacity", 0);
 }
 
 function renderColumns() {
   const chartColumnArea = chartArea.value.select("g.columns");
-  const columns = chartColumnArea.selectAll("rect").data(props.chartData);
+  chartColumns.value = chartColumnArea.selectAll("rect").data(props.chartData);
+  chartLabels.value = chartColumnArea.selectAll("text").data(props.chartData);
 
-  let rectElem = columns;
+  let rectElem = chartColumns.value;
   if (props.enableAnimations) {
-    rectElem = columns
+    rectElem = chartColumns.value
       .attr("y", yScale.value(0))
       .attr("height", 0)
       .transition()
-      .delay(100)
-      .duration(500);
+      .delay(vizDelay)
+      .duration(vizDurations.withAnimations);
   }
 
   rectElem
@@ -214,16 +314,14 @@ function renderColumns() {
     });
 
   if (props.enableHoverEvents) {
-    columns
+    chartColumns.value
       .style("cursor", "pointer")
-      .on("mouseover", onMouseOver)
-      .on("mouseout", (event: Event, row: IChartData) =>
-        onMouseOut(event, row)
-      );
+      .on("mouseover", (_: Event, row: IChartData) => onMouseOver(row))
+      .on("mouseout", (_: Event, row: IChartData) => onMouseOut(row));
   }
 
   if (props.enableClickEvents) {
-    columns
+    chartColumns.value
       .style("cursor", "pointer")
       .on("click", (_: Event, row: IChartData) => {
         emits("column-clicked", row);
@@ -244,6 +342,47 @@ function renderChart() {
   renderColumns();
 }
 
+function onLegendMouseOver(event: string) {
+  const delay = props.enableAnimations
+    ? vizDurations.withAnimations
+    : vizDurations.withoutAnimations;
+
+  const columns = chartColumns.value
+    .transition()
+    .delay(vizDelay)
+    .duration(delay);
+
+  columns.attr("opacity", (row: IChartData) => {
+    return row.xValue !== event ? 0.2 : 1;
+  });
+
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", (row: IChartData) => {
+      return row.xValue === event && row.yValue && parseInt(row.yValue) !== 0
+        ? 1
+        : 0;
+    });
+  }
+}
+
+function onLegendMouseOut() {
+  const delay = props.enableAnimations
+    ? vizDurations.withAnimations
+    : vizDurations.withoutAnimations;
+
+  const columns = chartColumns.value
+    .transition()
+    .delay(vizDelay)
+    .duration(delay);
+  columns.attr("opacity", 1);
+
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", 0);
+  }
+}
+
 onMounted(() => {
   renderChart();
   useEventListener("resize", renderChart);
@@ -259,16 +398,37 @@ watch(
 </script>
 
 <template>
-  <div ref="container" class="grid gap-1 w-full chart_layout_default">
+  <div
+    ref="container"
+    class="grid gap-1 w-full"
+    :class="{
+      chart_layout_default: !isGroupedColumnChart,
+      chart_layout_with_legend_top:
+        isGroupedColumnChart && groupedChartLegendPosition === 'top',
+      chart_layout_with_legend_bottom:
+        isGroupedColumnChart && groupedChartLegendPosition === 'bottom',
+    }"
+  >
     <ChartTitle
       :id="`${id}-context`"
       :title="(chartTitle as string)"
       :description="chartDescription"
       style="grid-area: context"
     >
-      <slot name="additionalChartInfo"></slot>
     </ChartTitle>
+    <ChartLegend
+      v-if="isGroupedColumnChart && legendIsEnabled"
+      :legend-id="`${id}-legend`"
+      :data="(legendData as Record<string,any>)"
+      :markerType="legendIcon"
+      :enableClicks="false"
+      :enableHovering="enableHoverEvents"
+      @legend-item-mouseover="enableHoverEvents && onLegendMouseOver($event)"
+      @legend-item-mouseout="enableHoverEvents && onLegendMouseOut()"
+      style="grid-area: legend"
+    />
     <div style="grid-area: chart">
+      <slot name="additionalChartInfo"></slot>
       <svg
         :id="id"
         :width="width"
@@ -282,6 +442,48 @@ watch(
         >
           <g class="columns">
             <g
+              v-if="isGroupedColumnChart && xSubScale && internalChartData"
+              v-for="row in internalChartData"
+              :transform="`translate(${xSubScale(row[0] as unknown as string)}, 0)`"
+              class="rect-group"
+            >
+              <g class="rect-subgroup">
+                <rect
+                  v-for="nestedRow in (row[1] as unknown as IChartData[])"
+                  :key="nestedRow.id"
+                  :data-x="nestedRow.xValue"
+                  :data-y="nestedRow.yValue"
+                  :data-group="nestedRow.primaryGroupValue"
+                  class="column"
+                  :x="xScale(nestedRow.xValue as string)"
+                  :width="xScale.bandwidth()"
+                  :fill="(colorPalette(nestedRow.xValue) as string)"
+                  :stroke="strokeColor ? strokeColor : undefined"
+                  :stroke-width="strokeColor ? '1' : undefined"
+                  :opacity="1"
+                />
+              </g>
+              <g class="text-subgroup">
+                <text
+                  v-for="nestedRow in (row[1] as unknown as IChartData[])"
+                  :key="nestedRow.id"
+                  :data-x="nestedRow.xValue"
+                  :data-y="nestedRow.yValue"
+                  :data-group="nestedRow.primaryGroupValue"
+                  class="fill-chart-text text-body-base"
+                  text-anchor="middle"
+                  :opacity="0"
+                  :x="xScale(nestedRow.xValue)"
+                  :y="yScale(parseInt(nestedRow.yValue))"
+                  :dx="xScale.bandwidth() / 2"
+                  :dy="parseInt(nestedRow.yValue) < 0 ? '1.15em' : '-0.35em'"
+                >
+                  {{ nestedRow.yLabel || nestedRow.yValue }}
+                </text>
+              </g>
+            </g>
+            <g
+              v-else
               v-for="row in chartData"
               class="rect-group"
               :key="row.xValue"
@@ -290,9 +492,11 @@ watch(
             >
               <rect
                 class="column"
-                :width="xScale.bandwidth()"
-                :fill="(colorPalette[row.xValue as keyof IChartPalette] as string)"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :x="xScale(row.xValue)"
+                :width="xScale.bandwidth()"
+                :fill="(colorPalette(row.xValue) as string)"
                 :stroke="strokeColor ? strokeColor : undefined"
                 :stroke-width="strokeColor ? '1' : undefined"
               />
@@ -300,6 +504,8 @@ watch(
               <text
                 class="fill-chart-text text-body-base"
                 text-anchor="middle"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :opacity="0"
                 :x="xScale(row.xValue)"
                 :y="yScale(parseInt(row.yValue))"

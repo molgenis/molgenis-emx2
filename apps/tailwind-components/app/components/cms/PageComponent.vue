@@ -59,6 +59,10 @@ const componentDisplayName = computed<string>(() => {
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
+const sourceItems =
+  props.component?.orderedItems || props.component?.unorderedItems || [];
+const cachedListItems = ref<string[]>([...sourceItems]);
+
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });
@@ -131,7 +135,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     emit("dragging", {
       dragging: action === "grab",
       componentType: props.componentType,
-      componentName: props.mg_tableclass.split(".")[1],
+      componentName: schemaTableName.value,
       action: "move",
       moveOrderId: props.orderId,
       parentId: props.parent,
@@ -197,17 +201,33 @@ function asSingularName(value: string | undefined): string | undefined {
   return value;
 }
 
-const debouncedUpdateText = useDebounceFn((text: string) => {
-  updateCMSfield(
-    componentMetadata.value?.schemaId || "",
-    schemaTableName.value as "Paragraphs" | "Headings",
-    props.component.id,
-    text
-  );
-}, 1000);
+const debouncedUpdateText = useDebounceFn(
+  (text: string | string[], field: string) => {
+    // regular expression used to capitalize first letter of each word and remove the spaces
+    updateCMSfield(
+      componentMetadata.value?.schemaId || "",
+      schemaTableName.value?.replace(/\s+(.)/g, (_, char) =>
+        char.toUpperCase()
+      ),
+      props.component.id,
+      text,
+      field
+    );
+  },
+  1000
+);
 
-function updateText(text: string) {
-  debouncedUpdateText(text);
+function updateText(text: string | string[], field: string = "text") {
+  debouncedUpdateText(text, field);
+}
+
+function updateListItems(item: { key: number; text: string }, field: string) {
+  cachedListItems.value[item.key] = item.text;
+  updateText(cachedListItems.value, field);
+}
+
+function inlineSave() {
+  debouncedUpdateText.flush();
 }
 </script>
 
@@ -220,6 +240,8 @@ function updateText(text: string) {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateTitle="updateText($event, 'title')"
+    @updateSubtitle="updateText($event, 'subtitle')"
   />
   <EditableSection
     v-else-if="mg_tableclass.endsWith('.Sections')"
@@ -290,6 +312,8 @@ function updateText(text: string) {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateOrderedItems="updateListItems($event, 'orderedItems')"
+    @inlineSave="inlineSave"
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
@@ -298,11 +322,15 @@ function updateText(text: string) {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateUnorderedItems="updateListItems($event, 'unorderedItems')"
+    @inlineSave="inlineSave"
   />
   <EditableColumnChart
     v-else-if="
       mg_tableclass.endsWith('.Statistical charts') &&
-      component.chartType?.name === 'Column chart'
+      ['Column chart', 'Grouped column chart'].includes(
+        component.chartType?.name
+      )
     "
     v-bind="component"
     :isEditable="editingIsEnabled"
