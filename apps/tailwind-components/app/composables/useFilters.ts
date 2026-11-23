@@ -287,7 +287,7 @@ export function useFilters(
             signal: controller.signal,
           });
         } catch (e: any) {
-          if (e?.name !== "AbortError") fetchFailed = true;
+          if (!controller.signal.aborted) fetchFailed = true;
           throw e;
         }
       };
@@ -342,16 +342,16 @@ export function useFilters(
         }
       }
     } catch (err: any) {
-      if (err?.name !== "AbortError") {
+      if (!controller.signal.aborted) {
         console.error(`fetchColumnCounts failed for ${columnId}:`, err);
         countErrors.value = new Set(countErrors.value).add(columnId);
       }
     } finally {
-      const newLoading = new Set(loadingSet.value);
-      newLoading.delete(columnId);
-      loadingSet.value = newLoading;
       if (abortControllers.get(columnId) === controller) {
         abortControllers.delete(columnId);
+        const newLoading = new Set(loadingSet.value);
+        newLoading.delete(columnId);
+        loadingSet.value = newLoading;
       }
     }
   }
