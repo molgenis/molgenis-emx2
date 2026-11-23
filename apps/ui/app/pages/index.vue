@@ -53,7 +53,7 @@ const filter = ref("");
   <Container>
     <PageHeader title="Databases" />
 
-    <div class="flex flex-row justify-center items-center mb-4 px-5 lg:px-0">
+    <div class="flex flex-row justify-center items-center mb-4">
       <InputSearch
         v-model="filter"
         placeholder="Search databases"

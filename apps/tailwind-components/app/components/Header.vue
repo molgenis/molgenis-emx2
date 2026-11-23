@@ -22,7 +22,7 @@ const props = withDefaults(
 </script>
 <template>
   <header
-    class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
+    class="antialiased xl:bg-navigation border-b-theme border-color-theme box-border"
   >
     <Container :wide="props.wide">
       <div class="items-center hidden xl:flex h-20">

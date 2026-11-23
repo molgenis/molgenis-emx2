@@ -58,7 +58,7 @@ const menu = [
 </script>
 
 <template>
-  <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
+  <header class="antialiased xl:bg-navigation">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo :link="`/`" :image="logoSrc" :alt="siteTitle" />

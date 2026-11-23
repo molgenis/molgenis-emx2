@@ -9,7 +9,7 @@ const props = withDefaults(
 );
 </script>
 <template>
-  <div class="mx-auto lg:px-[30px] px-0" :class="{ 'max-w-lg': !props.wide }">
+  <div class="mx-auto px-5 lg:px-[30px]" :class="{ 'max-w-lg': !props.wide }">
     <slot></slot>
   </div>
 </template>

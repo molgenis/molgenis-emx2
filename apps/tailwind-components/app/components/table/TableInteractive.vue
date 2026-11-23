@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { useDebounceFn } from "@vueuse/core";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import {
+  useDebounceFn,
+  useElementBounding,
+  useElementSize,
+} from "@vueuse/core";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -19,10 +23,19 @@ import InputSearch from "../input/Search.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import Sidebar from "../Sidebar.vue";
+import Button from "../Button.vue";
 import TableCellEMX2 from "./CellEMX2.vue";
+import ActionMenuItem from "./control/ActionMenuItem.vue";
 import RowControls from "./control/RowControls.vue";
 
 const STICKY_SELECT_COLUMN_WIDTH = 48;
+// Toolbar width (px) below which it switches to the compact single-row layout.
+// Keep in sync with the `@5xl/toolbar` (64rem) container variant used in the template.
+const COMPACT_TOOLBAR_WIDTH = 64 * 16;
+// Toolbar indent before it can be measured (SSR, first paint): the expanded
+// sidebar width (w-80 / xl:w-96) plus gap-6, minus the lg:-ml-[30px] offset.
+const SIDEBAR_INSET_ESTIMATE =
+  "@5xl/toolbar:pl-[344px] lg:@5xl/toolbar:pl-[314px] xl:@5xl/toolbar:pl-[378px]";
 
 const props = withDefaults(
   defineProps<{
@@ -65,6 +78,43 @@ const columns = computed(
   () => props.sortedVisibleColumns || props.tableMetadata.columns
 );
 const numberOfSelectedRows = computed(() => props.selectedRows?.size || 0);
+
+// The layout switch itself is CSS (container queries), so SSR renders it
+// correctly; this width is only needed for elements outside the toolbar
+// container that cannot use its container queries: the teleported "more" menu
+// and the filter sidebar (a drawer over the table while the toolbar shows a
+// filters button, hidden when collapsed).
+const toolbar = ref<HTMLElement | null>(null);
+const { width: toolbarWidth } = useElementSize(toolbar);
+const isCompact = computed(
+  () => toolbarWidth.value > 0 && toolbarWidth.value < COMPACT_TOOLBAR_WIDTH
+);
+
+// Indent of the toolbar content so it lines up with the table's left edge
+// (next to the pushing sidebar on wide toolbars); null until measured.
+const tableColumn = ref<HTMLElement | null>(null);
+const { left: toolbarLeft } = useElementBounding(toolbar);
+const { left: tableColumnLeft, width: tableColumnWidth } =
+  useElementBounding(tableColumn);
+const tableInset = computed<number | null>(() => {
+  if (!props.features.showFilters) return 0;
+  if (!toolbarWidth.value || !tableColumnWidth.value) return null;
+  if (isCompact.value) return 0;
+  return Math.max(0, Math.round(tableColumnLeft.value - toolbarLeft.value));
+});
+const searchExpanded = ref(!!props.settings.search);
+
+async function expandSearch() {
+  searchExpanded.value = true;
+  await nextTick();
+  document.getElementById("search-input")?.focus();
+}
+
+function runMenuAction(hide: () => void, action: string) {
+  hide();
+  handleRowAction({ action });
+}
+
 const hasFiltersOrSearch = computed(
   () =>
     (props.filters?.activeFilters.value.length ?? 0) ||
@@ -166,6 +216,8 @@ interface FeatureFlags {
   showStickyHeader?: boolean;
   showDraftColumn?: boolean;
   showRolesColumn?: boolean;
+  /** the "more" menu has items (from the more-actions slot) on wide toolbars too */
+  hasMoreActions?: boolean;
 }
 
 interface Permissions {
@@ -178,54 +230,200 @@ interface Permissions {
 </script>
 
 <template>
-  <div class="flex mb-[30px] justify-between h-50px">
-    <RowControls
-      :numberOfSelectedRows="numberOfSelectedRows"
-      :allRowsSelected="
-        numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
+  <!--
+    Always a single row. Two nested containers:
+    - "toolbar" (full width) picks the layout, so it does not depend on the
+      sidebar state:
+      - below @5xl (compact): [filters] [search button] ... [buttons] [more];
+        row selection and secondary actions live in the "more" menu, and the
+        search button expands the input over the full row
+      - @5xl and up: [row controls] [search input] ... [buttons] [more]
+    - the inner (unnamed) container is indented to line up with the table's
+      left edge (next to the filter sidebar); from @6xl of its width, buttons
+      with responsiveLabel also show their label
+  -->
+  <div ref="toolbar" class="@container/toolbar mb-[30px]">
+    <div
+      class="@container"
+      :class="{ [SIDEBAR_INSET_ESTIMATE]: tableInset === null }"
+      :style="
+        tableInset === null ? undefined : { paddingLeft: `${tableInset}px` }
       "
-      :canUpdate="permissions.canUpdate"
-      :canDelete="permissions.canDelete"
-      :canModifySelection="permissions.canModifySelection"
-      @rowAction="handleRowAction"
-    />
+    >
+      <div class="flex flex-nowrap items-center gap-[10px]">
+        <Button
+          v-if="features.showFilters && filters"
+          class="shrink-0 @5xl/toolbar:hidden"
+          :class="{ hidden: searchExpanded }"
+          type="outline"
+          icon="filter-alt"
+          :icon-only="true"
+          :label="sidebarCollapsed ? 'Show filters' : 'Hide filters'"
+          @click="sidebarCollapsed = !sidebarCollapsed"
+        />
 
-    <InputSearch
-      v-if="features.showSearch"
-      class="w-3/5 xl:w-2/5 2xl:w-1/5"
-      id="search-input"
-      size="medium"
-      :modelValue="settings.search"
-      :placeholder="searchPlaceholder"
-      @update:modelValue="handleSearchChange($event)"
-    />
+        <Button
+          v-if="features.showSearch"
+          class="shrink-0 @5xl/toolbar:hidden"
+          :class="{ hidden: searchExpanded }"
+          type="outline"
+          icon="search"
+          :icon-only="true"
+          label="Search"
+          aria-controls="search-input"
+          @click="expandSearch"
+        />
 
-    <slot name="buttons" />
+        <RowControls
+          class="hidden @5xl/toolbar:inline-flex shrink-0 h-50px"
+          :numberOfSelectedRows="numberOfSelectedRows"
+          :allRowsSelected="
+            numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
+          "
+          :canUpdate="permissions.canUpdate"
+          :canDelete="permissions.canDelete"
+          :canModifySelection="permissions.canModifySelection"
+          @rowAction="handleRowAction"
+        />
+
+        <InputSearch
+          v-if="features.showSearch"
+          class="min-w-0 @5xl/toolbar:flex @5xl/toolbar:basis-48 @5xl/toolbar:grow @5xl/toolbar:max-w-md"
+          :class="searchExpanded ? 'grow' : 'hidden'"
+          id="search-input"
+          size="medium"
+          :modelValue="settings.search"
+          :placeholder="searchPlaceholder"
+          @update:modelValue="handleSearchChange($event)"
+        />
+        <Button
+          v-if="features.showSearch && searchExpanded"
+          class="shrink-0 @5xl/toolbar:hidden"
+          type="inline"
+          icon="cross"
+          :icon-only="true"
+          label="Close search"
+          @click="searchExpanded = false"
+        />
+
+        <div
+          class="flex shrink-0 items-center gap-[10px] ml-auto"
+          :class="{ 'hidden @5xl/toolbar:flex': searchExpanded }"
+        >
+          <slot name="buttons" :isCompact="isCompact" />
+
+          <VDropdown
+            :class="{ '@5xl/toolbar:hidden': !features.hasMoreActions }"
+            :distance="6"
+            placement="bottom-end"
+            :triggers="['click']"
+          >
+            <Button
+              id="table-more-actions"
+              type="outline"
+              size="medium"
+              icon="more-vert"
+              label="More actions"
+              :icon-only="true"
+            />
+            <template #popper="{ hide }">
+              <ul class="bg-form p-[10px] min-w-[200px] border border-form">
+                <template v-if="isCompact">
+                  <ActionMenuItem
+                    icon="checklist"
+                    label="Select all on this page"
+                    @click="runMenuAction(hide, 'select-all-on-page')"
+                  />
+                  <ActionMenuItem
+                    icon="cross"
+                    label="Select none"
+                    :disabled="numberOfSelectedRows === 0"
+                    @click="runMenuAction(hide, 'select-none')"
+                  />
+                  <ActionMenuItem
+                    icon="docs"
+                    label="Select drafts"
+                    @click="runMenuAction(hide, 'select-drafts')"
+                  />
+                  <ActionMenuItem
+                    v-if="permissions.canDelete"
+                    icon="trash"
+                    label="Delete selection"
+                    :disabled="
+                      numberOfSelectedRows === 0 ||
+                      !permissions.canModifySelection
+                    "
+                    @click="runMenuAction(hide, 'delete-selection')"
+                  />
+                  <ActionMenuItem
+                    v-if="permissions.canUpdate"
+                    icon="edit"
+                    label="Edit selection"
+                    :disabled="
+                      numberOfSelectedRows !== 1 ||
+                      !permissions.canModifySelection
+                    "
+                    @click="runMenuAction(hide, 'edit-selection')"
+                  />
+                  <ActionMenuItem
+                    icon="info"
+                    label="View details"
+                    :disabled="numberOfSelectedRows !== 1"
+                    @click="runMenuAction(hide, 'view-details')"
+                  />
+                  <li
+                    aria-hidden="true"
+                    class="my-[5px] border-t border-form"
+                  />
+                </template>
+                <slot name="more-actions" :hide="hide" :isCompact="isCompact" />
+              </ul>
+            </template>
+          </VDropdown>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- on lg the pushing sidebar sits in the page gutter; the drawer does not -->
   <div
     :class="{
-      flex: features.showFilters,
-      'overflow-hidden': features.showFilters,
-      'gap-6': features.showFilters,
-      'lg:-ml-[30px]': features.showFilters,
+      'relative flex gap-6': features.showFilters,
+      'overflow-hidden lg:-ml-[30px]': features.showFilters && !isCompact,
     }"
   >
-    <Sidebar
+    <!--
+      Wide toolbar: the sidebar is a flex item that pushes the table aside.
+      Compact toolbar (filters button shown): it is a drawer over the table,
+      hidden entirely while collapsed.
+    -->
+    <div
       v-if="features.showFilters && filters"
-      :collapsed="sidebarCollapsed"
-      :activeFilterCount="filters.activeFilters.value.length"
-      @update:collapsed="sidebarCollapsed = $event"
+      :class="
+        isCompact
+          ? [
+              'absolute top-0 left-0 z-[45] max-w-full rounded-t-base rounded-b-alt shadow-primary',
+              { hidden: sidebarCollapsed },
+            ]
+          : 'contents'
+      "
     >
-      <FilterSidebarContent
-        :filters="filters"
-        :columns="filters.columns.value"
-        :schemaId="tableMetadata.schemaId"
-        :tableId="tableMetadata.id"
-      />
-    </Sidebar>
+      <Sidebar
+        class="max-w-full"
+        :collapsed="sidebarCollapsed"
+        :activeFilterCount="filters.activeFilters.value.length"
+        @update:collapsed="sidebarCollapsed = $event"
+      >
+        <FilterSidebarContent
+          :filters="filters"
+          :columns="filters.columns.value"
+          :schemaId="tableMetadata.schemaId"
+          :tableId="tableMetadata.id"
+        />
+      </Sidebar>
+    </div>
 
-    <div class="flex-1 min-w-0">
+    <div ref="tableColumn" class="flex-1 min-w-0">
       <ActiveFilters
         v-if="features.showFilters && filters"
         :filters="filters.activeFilters.value"

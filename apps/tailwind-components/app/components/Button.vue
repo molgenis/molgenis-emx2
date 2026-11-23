@@ -19,6 +19,11 @@ const props = withDefaults(
     iconPosition?: ButtonIconPosition;
     disabled?: boolean;
     iconOnly?: boolean;
+    /**
+     * Icon-only (with tooltip) unless the nearest `@container` ancestor is at
+     * least `@6xl` (72rem) wide; then the label is shown. Requires `label`.
+     */
+    responsiveLabel?: boolean;
     tooltip?: string;
     href?: string;
   }>(),
@@ -29,11 +34,15 @@ const props = withDefaults(
     iconPosition: "left",
     disabled: false,
     iconOnly: false,
+    responsiveLabel: false,
   }
 );
 
 watchEffect(() => {
-  if (props.iconOnly && (props.label === "" || props.label === undefined)) {
+  if (
+    (props.iconOnly || props.responsiveLabel) &&
+    (props.label === "" || props.label === undefined)
+  ) {
     console.error("Icon only buttons must have a label");
   }
 });
@@ -70,6 +79,17 @@ const ICON_ONLY_SIZE_MAPPING = {
   large: "p-[9px] h-button-large w-button-large",
 };
 
+// icon-only sizing by default, regular sizing from the @6xl container width up
+const RESPONSIVE_LABEL_SIZE_MAPPING = {
+  tiny: "h-button-tiny w-button-tiny p-[7px] @6xl:w-auto @6xl:p-2 @6xl:gap-2 @6xl:text-heading-sm",
+  small:
+    "h-button-small w-button-small p-[11px] @6xl:w-auto @6xl:px-5 @6xl:py-0 @6xl:gap-3 @6xl:text-heading-lg",
+  medium:
+    "h-button-default w-button-default p-[12px] @6xl:w-auto @6xl:px-7.5 @6xl:py-0 @6xl:gap-4 @6xl:text-heading-xl",
+  large:
+    "h-button-large w-button-large p-[9px] @6xl:w-auto @6xl:px-8.75 @6xl:py-0 @6xl:gap-5 @6xl:text-heading-xl",
+};
+
 const ICON_SIZE_MAPPING = {
   tiny: 16,
   small: 18,
@@ -83,9 +103,9 @@ const ICON_POSITION_MAPPING = {
 };
 
 const sizeClasses = computed(() => {
-  return props.iconOnly
-    ? ICON_ONLY_SIZE_MAPPING[props.size]
-    : SIZE_MAPPING[props.size];
+  if (props.iconOnly) return ICON_ONLY_SIZE_MAPPING[props.size];
+  if (props.responsiveLabel) return RESPONSIVE_LABEL_SIZE_MAPPING[props.size];
+  return SIZE_MAPPING[props.size];
 });
 
 const iconPositionClass = computed(() => {
@@ -97,7 +117,9 @@ const iconSize = computed(() => {
 });
 
 const tooltipText = computed(() => {
-  return props.tooltip || props.iconOnly ? props.label : "";
+  return props.tooltip || props.iconOnly || props.responsiveLabel
+    ? props.label
+    : "";
 });
 
 const tag = computed(() => (props.href ? "a" : "button"));
@@ -131,7 +153,7 @@ const disabledClasses = computed(() => {
     <span
       :class="`${type === 'text' && !disabled ? TEXT_STYLING : ''} ${
         iconOnly ? 'sr-only' : ''
-      }`"
+      } ${responsiveLabel ? 'sr-only @6xl:not-sr-only whitespace-nowrap' : ''}`"
     >
       {{ label }}
       <slot />
