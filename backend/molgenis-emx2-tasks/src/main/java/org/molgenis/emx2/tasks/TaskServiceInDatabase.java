@@ -2,6 +2,7 @@ package org.molgenis.emx2.tasks;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -122,9 +123,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             .retrieveRows();
     byte[] fileContents = new byte[0];
     if (!fileRows.isEmpty()) {
-      fileContents = fileRows.getFirst().getBinary(columnName + "_contents");
+      fileContents = fileRows.getFirst().getBinary(columnName + FILE_CONTENTS);
     }
-    scriptMetadata.set(columnName + "_contents", fileContents);
+    scriptMetadata.set(columnName + FILE_CONTENTS, fileContents);
     return new ScriptTask(scriptMetadata);
   }
 

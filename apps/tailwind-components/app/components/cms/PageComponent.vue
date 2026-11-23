@@ -4,7 +4,6 @@ import { hideAllPoppers } from "floating-vue";
 import { useDebounceFn } from "@vueuse/core";
 
 import Paragraph from "./paragraph/Paragraph.vue";
-import Heading from "./heading/Heading.vue";
 
 import EditableHeader from "./header/EditableHeader.vue";
 import EditableSection from "./section/EditableSection.vue";
@@ -361,18 +360,10 @@ function inlineSave() {
     :metadata="componentMetadata"
     :formValues="(formComponentData as Record<string,any>)"
     :isInsert="false"
+    :title="`Edit ${componentDisplayName}`"
     @update:updated="onEdited"
     v-model:visible="showEditModal"
-  >
-    <template #header>
-      <Heading
-        id="component-form-edit-heading"
-        :level="2"
-        class="font-display mb-5"
-        :text="`Edit ${componentDisplayName}`"
-      />
-    </template>
-  </EditModal>
+  />
   <Modal
     v-model:visible="showDeleteModal"
     :title="`Delete ${componentDisplayName}?`"

@@ -38,6 +38,7 @@ import {
   generateAxisTickData,
   newNumericAxisGenerator,
   newCategoricalAxisGenerator,
+  selectMouseOverElements,
 } from "../../../utils/viz";
 
 import type {
@@ -67,6 +68,7 @@ const props = withDefaults(defineProps<IStatisticalCharts>(), {
   enableHoverEvents: true,
   enableClickEvents: false,
   enableAnimations: true,
+  showValuesOnLegendHoverEvent: false,
 });
 
 const emits = defineEmits(["column-clicked"]);
@@ -78,7 +80,8 @@ const parentElem = computed<HTMLElement>(() => {
 
 const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
-const chartColumns = ref(); // receives d3.select rect
+const chartColumns = ref(); // receives d3.select
+const chartLabels = ref(); // receives d3.select
 
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
@@ -259,38 +262,34 @@ function renderChartAxes() {
   }
 }
 
-function onMouseOver(event: Event, row: IChartData) {
-  const rect = event.target as HTMLElement;
-  let text: SVGTextElement;
+function onMouseOver(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
 
-  if (isGroupedColumnChart.value) {
-    text = chartArea.value.select(
-      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
-    )._groups[0][0];
-  } else {
-    text = rect.nextSibling as SVGTextElement;
-  }
-  rect.style.fill = props.hoverFillColor;
-  text.style.opacity = "1";
+  rect.attr("fill", props.hoverFillColor);
+  text.attr("opacity", 1);
 }
 
-function onMouseOut(event: Event, row: IChartData) {
-  const rect = event.target as HTMLElement;
-  let text: SVGTextElement;
-  if (isGroupedColumnChart.value) {
-    text = chartArea.value.select(
-      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
-    )._groups[0][0];
-  } else {
-    text = rect.nextSibling as SVGTextElement;
-  }
-  rect.style.fill = colorPalette.value(row.xValue) as string;
-  text.style.opacity = "0";
+function onMouseOut(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
+
+  rect.attr("fill", () => colorPalette.value(row.xValue));
+  text.attr("opacity", 0);
 }
 
 function renderColumns() {
   const chartColumnArea = chartArea.value.select("g.columns");
   chartColumns.value = chartColumnArea.selectAll("rect").data(props.chartData);
+  chartLabels.value = chartColumnArea.selectAll("text").data(props.chartData);
 
   let rectElem = chartColumns.value;
   if (props.enableAnimations) {
@@ -317,10 +316,8 @@ function renderColumns() {
   if (props.enableHoverEvents) {
     chartColumns.value
       .style("cursor", "pointer")
-      .on("mouseover", onMouseOver)
-      .on("mouseout", (event: Event, row: IChartData) =>
-        onMouseOut(event, row)
-      );
+      .on("mouseover", (_: Event, row: IChartData) => onMouseOver(row))
+      .on("mouseout", (_: Event, row: IChartData) => onMouseOut(row));
   }
 
   if (props.enableClickEvents) {
@@ -358,6 +355,15 @@ function onLegendMouseOver(event: string) {
   columns.attr("opacity", (row: IChartData) => {
     return row.xValue !== event ? 0.2 : 1;
   });
+
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", (row: IChartData) => {
+      return row.xValue === event && row.yValue && parseInt(row.yValue) !== 0
+        ? 1
+        : 0;
+    });
+  }
 }
 
 function onLegendMouseOut() {
@@ -369,8 +375,12 @@ function onLegendMouseOut() {
     .transition()
     .delay(vizDelay)
     .duration(delay);
-
   columns.attr("opacity", 1);
+
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", 0);
+  }
 }
 
 onMounted(() => {
@@ -463,7 +473,6 @@ watch(
                   class="fill-chart-text text-body-base"
                   text-anchor="middle"
                   :opacity="0"
-                  filter="url(#textBackground)"
                   :x="xScale(nestedRow.xValue)"
                   :y="yScale(parseInt(nestedRow.yValue))"
                   :dx="xScale.bandwidth() / 2"
@@ -483,6 +492,8 @@ watch(
             >
               <rect
                 class="column"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :x="xScale(row.xValue)"
                 :width="xScale.bandwidth()"
                 :fill="(colorPalette(row.xValue) as string)"
@@ -493,6 +504,8 @@ watch(
               <text
                 class="fill-chart-text text-body-base"
                 text-anchor="middle"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :opacity="0"
                 :x="xScale(row.xValue)"
                 :y="yScale(parseInt(row.yValue))"
