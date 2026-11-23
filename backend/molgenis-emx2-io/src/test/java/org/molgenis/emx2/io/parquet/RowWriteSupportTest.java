@@ -116,7 +116,7 @@ class RowWriteSupportTest {
     int epochDay = Math.toIntExact(date.toEpochDay());
 
     LocalDateTime dateTime = LocalDateTime.of(2026, Month.NOVEMBER, 23, 6, 30, 15, 123_456_000);
-    long millis = 1_795_415_415_123L;
+    long micros = 1_795_415_415_123_456L;
 
     return Stream.of(
         Arguments.of("string", "Bread", List.of("Bread")),
@@ -125,7 +125,7 @@ class RowWriteSupportTest {
         Arguments.of("decimal", 2.49, List.of(2.49)),
         Arguments.of("bool", true, List.of(true)),
         Arguments.of("date", date, List.of(epochDay)),
-        Arguments.of("datetime", dateTime, List.of(millis)),
+        Arguments.of("datetime", dateTime, List.of(micros)),
         Arguments.of(
             "string_array",
             new String[] {"fresh", "local, organic"},
@@ -135,7 +135,7 @@ class RowWriteSupportTest {
         Arguments.of("decimal_array", new Double[] {0.8, 1.2}, List.of(0.8, 1.2)),
         Arguments.of("bool_array", new Boolean[] {true, false}, List.of(true, false)),
         Arguments.of("date_array", new LocalDate[] {date}, List.of(epochDay)),
-        Arguments.of("datetime_array", new LocalDateTime[] {dateTime}, List.of(millis)));
+        Arguments.of("datetime_array", new LocalDateTime[] {dateTime}, List.of(micros)));
   }
 
   @ParameterizedTest(name = "{0}")

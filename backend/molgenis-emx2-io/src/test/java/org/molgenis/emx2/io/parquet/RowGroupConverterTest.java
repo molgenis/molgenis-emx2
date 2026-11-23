@@ -3,15 +3,19 @@ package org.molgenis.emx2.io.parquet;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.function.Consumer;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.PrimitiveConverter;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.TimeUnit;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 import org.apache.parquet.schema.Types;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.datamodels.util.CompareTools;
@@ -34,6 +38,27 @@ class RowGroupConverterTest {
       MolgenisException exception =
           assertThrows(MolgenisException.class, () -> new RowGroupConverter(schema));
       assertTrue(exception.getMessage().contains("address"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = TimeUnit.class,
+        names = {"MILLIS", "NANOS"})
+    void givenTimestampNotInMicros_whenCreatingConverter_thenThrow(TimeUnit unit) {
+      MessageType schema =
+          Types.buildMessage()
+              .optional(PrimitiveTypeName.INT64)
+              .as(LogicalTypeAnnotation.timestampType(false, unit))
+              .named("bakedAt")
+              .named("Row");
+
+      MolgenisException exception =
+          assertThrows(MolgenisException.class, () -> new RowGroupConverter(schema));
+      assertEquals(
+          "Parquet column 'bakedAt' is a timestamp in "
+              + unit
+              + ", only timestamps in MICROS are supported",
+          exception.getMessage());
     }
 
     @Test
@@ -133,6 +158,21 @@ class RowGroupConverterTest {
     }
 
     @Test
+    void givenLongWithLocalTimestampType_whenConverting_thenValueIsLocalDateTime() {
+      RowGroupConverter converter =
+          new RowGroupConverter(
+              Types.buildMessage()
+                  .optional(PrimitiveTypeName.INT64)
+                  .as(LogicalTypeAnnotation.timestampType(false, TimeUnit.MICROS))
+                  .named("bakedAt")
+                  .named("Row"));
+
+      Object value = convert(converter, column -> column.addLong(1_795_415_415_123_456L));
+
+      assertEquals(LocalDateTime.of(2026, 11, 23, 6, 30, 15, 123_456_000), value);
+    }
+
+    @Test
     void givenFloat_whenConverting_thenValueIsDouble() {
       RowGroupConverter converter = converterFor(PrimitiveTypeName.FLOAT, "price");
 
@@ -158,6 +198,50 @@ class RowGroupConverterTest {
 
       assertEquals(true, value);
     }
+  }
+
+  @Nested
+  class Repeated {
+
+    @Test
+    void givenRepeatedValues_whenConverting_thenValueIsArray() {
+      RowGroupConverter converter = repeatedConverterFor(PrimitiveTypeName.INT32, "batches");
+
+      Object value =
+          convert(
+              converter,
+              column -> {
+                column.addInt(1);
+                column.addInt(2);
+                column.addInt(3);
+              });
+
+      assertArrayEquals(new Integer[] {1, 2, 3}, (Object[]) value);
+    }
+
+    @Test
+    void givenRepeatedColumnWithoutValues_whenConverting_thenValueIsNull() {
+      RowGroupConverter converter = repeatedConverterFor(PrimitiveTypeName.INT32, "batches");
+
+      Object value = convert(converter, column -> {});
+
+      assertNull(value);
+    }
+
+    @Test
+    void givenPreviousRow_whenConvertingNextRow_thenValuesAreNotCarriedOver() {
+      RowGroupConverter converter = repeatedConverterFor(PrimitiveTypeName.INT32, "batches");
+
+      convert(converter, column -> column.addInt(1));
+      Object value = convert(converter, column -> column.addInt(2));
+
+      assertArrayEquals(new Integer[] {2}, (Object[]) value);
+    }
+  }
+
+  private static RowGroupConverter repeatedConverterFor(PrimitiveTypeName type, String columnName) {
+    return new RowGroupConverter(
+        Types.buildMessage().repeated(type).named(columnName).named("Row"));
   }
 
   private static RowGroupConverter converterFor(PrimitiveTypeName type, String columnName) {
