@@ -88,7 +88,6 @@ export async function getSchemas() {
 
 export async function getUsers(): Promise<{
   newUsers: User[];
-  newUserCount: number;
   newRolesByUser: Record<string, Role[]>;
 }> {
   const query = `
@@ -99,7 +98,6 @@ export async function getUsers(): Promise<{
         enabled, 
         roles { schemaId, role } 
       } 
-      userCount 
     } 
   }`;
   return $fetch<AdminResponse>(API_GRAPHQL, {
@@ -112,17 +110,16 @@ export async function getUsers(): Promise<{
     .then((response) => {
       const loadedUsers = response?.data._admin.users || [];
       const newUsers = mapBackendUserToUser(loadedUsers);
-      const newUserCount = response?.data._admin.userCount ?? 0;
       const newRolesByUser = loadedUsers.reduce((acc, user) => {
         acc[user.email] = user.roles || [];
         return acc;
       }, {} as Record<string, Role[]>);
 
-      return { newUsers, newUserCount, newRolesByUser };
+      return { newUsers, newRolesByUser };
     })
     .catch((error) => {
       handleError("Error loading users: ", error.value);
-      return { newUsers: [], newUserCount: 0, newRolesByUser: {} };
+      return { newUsers: [], newRolesByUser: {} };
     });
 }
 
@@ -166,7 +163,6 @@ interface AdminResponse {
   data: {
     _admin: {
       users: BackendUser[];
-      userCount: number;
     };
   };
 }

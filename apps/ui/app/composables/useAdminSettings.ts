@@ -13,7 +13,6 @@ const rolesByUser = ref<Record<string, Role[]>>({});
 const schemas = ref<SchemaInfo[]>([]);
 const totalUserPages = ref(0);
 const users = ref<User[]>([]);
-const userCount = ref(0);
 const loaded = ref(false);
 
 export default async function useAdminSettings() {
@@ -24,9 +23,8 @@ export default async function useAdminSettings() {
       return;
     }
 
-    const { newUsers, newUserCount, newRolesByUser } = await getUsers();
+    const { newUsers, newRolesByUser } = await getUsers();
     users.value = newUsers;
-    userCount.value = newUserCount;
     rolesByUser.value = newRolesByUser;
 
     schemas.value = await getSchemas();
@@ -59,7 +57,6 @@ export default async function useAdminSettings() {
     rolesByUser,
     schemas,
     users,
-    userCount,
     totalUserPages,
     addUser,
     getRolesForUser,
