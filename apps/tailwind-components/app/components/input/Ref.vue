@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import {
-  isColumnValueObject,
-  type ITableMetaData,
-  type columnValueObject,
-  type recordValue,
+import type {
+  ITableMetaData,
+  columnValueObject,
+  recordValue,
 } from "../../../../metadata-utils/src/types";
 import type { ITableDataResponse } from "../../composables/fetchTableData";
 
@@ -48,8 +47,8 @@ const modelValue = defineModel<
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
-const optionMap = ref<recordValue>({});
-const selectionMap = ref<recordValue>({});
+const options = ref<IValueLabel[]>([]);
+const selection = ref<IValueLabel[]>([]);
 const initialCount = ref<number>(0);
 const count = ref<number>(0);
 const searchTerms = ref<string>("");
@@ -61,14 +60,8 @@ const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
 });
 
-const optionLabels = computed((): string[] => Object.keys(optionMap.value));
-
-const listOptions = computed((): IValueLabel[] =>
-  optionLabels.value.map((label) => ({ value: label }))
-);
-
-const selectedLabels = computed((): string[] =>
-  Object.keys(selectionMap.value)
+const selectedKeys = computed((): string[] =>
+  selection.value.map((entry) => entry.value)
 );
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
@@ -110,11 +103,7 @@ async function init() {
       props.refTableId,
       { filter: { equals: keys }, expandLevel: 1 }
     );
-    if (data.rows) {
-      data.rows.forEach(
-        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
-      );
-    }
+    selection.value = await Promise.all((data.rows ?? []).map(toEntry));
   }
 
   await loadOptions(false);
@@ -132,6 +121,13 @@ function applyTemplate(template: string, row: Record<string, any>): string {
   return label;
 }
 
+async function toEntry(row: recordValue): Promise<IValueLabel> {
+  return {
+    value: JSON.stringify(await extractPrimaryKey(row)),
+    label: applyTemplate(props.refLabel, row),
+  };
+}
+
 async function loadOptions(append: boolean, pageSize = PAGE_SIZE) {
   const request = ++latestRequest;
   const data: ITableDataResponse = await fetchTableData(
@@ -144,17 +140,16 @@ async function loadOptions(append: boolean, pageSize = PAGE_SIZE) {
       expandLevel: 1,
     }
   );
+  const rows = data.rows ?? [];
+  const entries = await Promise.all(rows.map(toEntry));
   if (request < latestRequest) {
     return;
   }
-  const rows = data.rows ?? [];
   if (!append) {
-    optionMap.value = {};
+    options.value = [];
     loadedRows = 0;
   }
-  rows.forEach(
-    (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
-  );
+  options.value.push(...entries);
   loadedRows += rows.length;
   count.value = data.count;
   logger.debug("loaded options for " + props.id);
@@ -180,39 +175,25 @@ async function loadMore() {
   }
 }
 
-async function setSelection(labels: string[]) {
-  const next: recordValue = {};
-  for (const label of labels) {
-    next[label] = Object.hasOwn(selectionMap.value, label)
-      ? selectionMap.value[label]
-      : await primaryKeyOfOption(label);
-  }
-  selectionMap.value = next;
-  emit(
-    "update:modelValue",
-    props.isArray ? Object.values(next) : Object.values(next)[0] ?? null
-  );
+function setSelection(keys: string[]) {
+  const known = [...selection.value, ...options.value];
+  const next = keys.map((key) => known.find((entry) => entry.value === key)!);
+  selection.value = next;
+  const rows = next.map((entry) => JSON.parse(entry.value));
+  emit("update:modelValue", props.isArray ? rows : rows[0] ?? null);
   onBlur();
-}
-
-async function primaryKeyOfOption(label: string) {
-  const row = optionMap.value[label];
-  if (!isColumnValueObject(row)) {
-    throw new Error("Invalid option value for label: " + label);
-  }
-  return await extractPrimaryKey(row);
 }
 
 async function extractPrimaryKey(row: recordValue) {
   return await getPrimaryKey(row, props.refTableId, props.refSchemaId);
 }
 
-function select(label: string) {
-  setSelection(props.isArray ? [...selectedLabels.value, label] : [label]);
+function select(key: string) {
+  setSelection(props.isArray ? [...selectedKeys.value, key] : [key]);
 }
 
-function deselect(label: string) {
-  setSelection(selectedLabels.value.filter((selected) => selected !== label));
+function deselect(key: string) {
+  setSelection(selectedKeys.value.filter((selected) => selected !== key));
 }
 
 function clearSelection() {
@@ -234,14 +215,16 @@ const onBlur = useDebounceFn(() => {
     enableSearch
     showClearButton
     :id="id"
-    :options="optionLabels"
+    :options="options"
     :placeholder="placeholder"
     :invalid="invalid"
     :valid="valid"
     :disabled="disabled"
     :describedBy="describedBy"
-    :modelValue="selectedLabels"
-    @update:modelValue="setSelection($event ?? [])"
+    :modelValue="selection"
+    @update:modelValue="
+      setSelection(($event ?? []).map((entry) => entry.value))
+    "
     @search="updateSearch($event)"
     @load-more="loadMore"
     @focus="emit('focus')"
@@ -252,14 +235,14 @@ const onBlur = useDebounceFn(() => {
     enableSearch
     showClearButton
     :id="id"
-    :options="optionLabels"
+    :options="options"
     :placeholder="placeholder"
     :invalid="invalid"
     :valid="valid"
     :disabled="disabled"
     :describedBy="describedBy"
-    :modelValue="selectedLabels[0] ?? null"
-    @update:modelValue="setSelection($event == null ? [] : [$event])"
+    :modelValue="selection[0] ?? null"
+    @update:modelValue="setSelection($event == null ? [] : [$event.value])"
     @search="updateSearch($event)"
     @load-more="loadMore"
     @focus="emit('focus')"
@@ -290,8 +273,8 @@ const onBlur = useDebounceFn(() => {
           <InputCheckboxGroup
             v-if="isArray"
             :id="id"
-            :options="listOptions"
-            :modelValue="selectedLabels"
+            :options="options"
+            :modelValue="selectedKeys"
             @select="select"
             @deselect="deselect"
             :invalid="invalid"
@@ -301,8 +284,8 @@ const onBlur = useDebounceFn(() => {
           <InputRadioGroup
             v-else
             :id="id"
-            :options="listOptions"
-            :modelValue="selectedLabels[0]"
+            :options="options"
+            :modelValue="selectedKeys[0]"
             @select="select"
             @deselect="deselect"
             :invalid="invalid"
@@ -313,7 +296,7 @@ const onBlur = useDebounceFn(() => {
       </InputGroupContainer>
     </div>
     <Button
-      v-if="selectedLabels.length"
+      v-if="selectedKeys.length"
       @click="clearSelection"
       type="text"
       size="tiny"
