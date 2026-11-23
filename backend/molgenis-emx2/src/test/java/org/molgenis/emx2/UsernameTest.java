@@ -11,13 +11,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 class UsernameTest {
 
   @Test
-  void givenSurroundingWhitespace_thenTrim() {
+  void givenSurroundingWhitespace_thenStrip() {
     assertEquals("hello", new Username("  hello  ").value());
   }
 
   @Test
-  void givenTabsAndNewlines_thenTrim() {
-    assertEquals("hello", new Username("\thello\n").value());
+  void givenTabsAndNewlines_thenStrip() {
+    assertEquals("hello", new Username("\thello\n ").value());
   }
 
   @Test

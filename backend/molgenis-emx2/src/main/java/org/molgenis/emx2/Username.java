@@ -15,7 +15,7 @@ public record Username(String value) {
       throw new MolgenisException("Username cannot be blank");
     }
 
-    return value.trim();
+    return value.strip();
   }
 
   @Override
