@@ -532,14 +532,13 @@ public class SqlRoleManager {
   }
 
   public void removeMembers(String schemaName, List<Member> members) {
-    List<String> usernames = members.stream().map(Member::getUser).toList();
     String rolePrefix = rolePrefix(schemaName);
     database.tx(
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           try {
             for (Member m : getMembers(jooq, schemaName)) {
-              if (usernames.contains(m.getUser())) {
+              if (members.stream().anyMatch(removal -> isRemovalOf(removal, m))) {
                 revoke(jooq, name(rolePrefix + m.getRole()), name(MG_USER_PREFIX + m.getUser()));
               }
             }
@@ -547,6 +546,11 @@ public class SqlRoleManager {
             throw new SqlMolgenisException("Remove of member failed", dae);
           }
         });
+  }
+
+  private static boolean isRemovalOf(Member removal, Member current) {
+    return removal.getUser().equals(current.getUser())
+        && (removal.getRole() == null || removal.getRole().equals(current.getRole()));
   }
 
   public List<Member> getMembers(String schemaName) {

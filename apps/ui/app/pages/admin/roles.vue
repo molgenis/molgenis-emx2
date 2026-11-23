@@ -15,6 +15,7 @@ import type {
   cellPayload,
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
+import RoleModal from "../../components/RoleModal.vue";
 import DeleteRoleConfirmation from "../../components/DeleteRoleConfirmation.vue";
 import { errorToMessage } from "../../../../tailwind-components/app/utils/errorToMessage";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
@@ -73,6 +74,8 @@ const selectedRows = ref<Map<string, CustomRole>>(new Map());
 const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
 const showCellDetailSideModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
+const showRoleModal = ref(false);
+const roleToEdit = ref<CustomRole>();
 const showDeleteRoleModal = ref(false);
 const rolesForDeletion = ref<CustomRole[]>([]);
 const deleteRolesErrorMessage = ref("");
@@ -104,6 +107,11 @@ function filterRoles(search: string, roles: CustomRole[]): CustomRole[] {
       value?.toLowerCase().includes(search)
     )
   );
+}
+
+function openRoleModal(role?: CustomRole) {
+  roleToEdit.value = role;
+  showRoleModal.value = true;
 }
 
 function showDeleteRoleConfirmation(role?: CustomRole) {
@@ -157,6 +165,11 @@ function handleRowAction(payload: { action: string }) {
     case "delete-selection":
       showDeleteRoleConfirmation();
       break;
+    case "edit-selection":
+      if (selectedRows.value.size === 1) {
+        openRoleModal(selectedRows.value.values().next().value);
+      }
+      break;
     case "select-all-on-page":
       rolesShown.value.forEach((role) => {
         selectedRows.value.set(role._rowIdString, role);
@@ -206,6 +219,7 @@ function roleDisplayName(row: TableRow): string {
             type="inline"
             icon="edit"
             :label="`Edit role: ${roleDisplayName(row)}`"
+            @click="openRoleModal(rowToRole(row))"
           />
           <Button
             :id="`delete-role-${row._rowIdString}`"
@@ -218,7 +232,13 @@ function roleDisplayName(row: TableRow): string {
         </template>
 
         <template #buttons>
-          <Button type="primary" size="medium" icon="add-circle">
+          <Button
+            id="create-role"
+            type="primary"
+            size="medium"
+            icon="add-circle"
+            @click="openRoleModal()"
+          >
             Create role
           </Button>
         </template>
@@ -229,6 +249,12 @@ function roleDisplayName(row: TableRow): string {
         :payload="cellDetailPayload"
         :schemaId="ROLES_SCHEMA_ID"
         v-model:showModal="showCellDetailSideModal"
+      />
+
+      <RoleModal
+        v-if="showRoleModal"
+        v-model:visible="showRoleModal"
+        :role="roleToEdit"
       />
 
       <DeleteRoleConfirmation

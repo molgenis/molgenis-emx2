@@ -1,10 +1,12 @@
 import { $fetch } from "ofetch";
-import type { TablePermission } from "../../../tailwind-components/types/types";
 import type {
   BackendCustomRole,
   BackendUser,
   CustomRole,
+  CustomRoleUpdate,
+  NewCustomRole,
   Role,
+  RolePermission,
   SchemaInfo,
   UpdateUser,
   User,
@@ -164,7 +166,7 @@ export function isValidPassword(password1: string, password2: string) {
 
 export async function loadCustomRoles(): Promise<{
   customRoles: CustomRole[];
-  permissions: Record<string, TablePermission[]>;
+  permissions: Record<string, RolePermission[]>;
 }> {
   const query = `query customRoles{
     _admin {
@@ -210,11 +212,79 @@ export async function deleteCustomRoles(customRoles: CustomRole[]) {
   });
 }
 
+export async function getRootTableNames(schemaId: string): Promise<string[]> {
+  const response = await $fetch<{
+    data: {
+      _schema: { tables: { name: string; inheritName?: string | null }[] };
+    };
+  }>(schemaGraphqlUrl(schemaId), {
+    method: "post",
+    body: { query: "{_schema{tables{name,inheritName}}}" },
+  });
+  return response.data._schema.tables
+    .filter((table) => !table.inheritName)
+    .map((table) => table.name);
+}
+
+export async function createCustomRole(newRole: NewCustomRole) {
+  return changeCustomRole(
+    newRole.schemaId,
+    newRole.role,
+    newRole.permissions,
+    newRole.users
+  );
+}
+
+export async function updateCustomRole(roleUpdate: CustomRoleUpdate) {
+  await changeCustomRole(
+    roleUpdate.schemaId,
+    roleUpdate.role,
+    roleUpdate.permissions,
+    roleUpdate.addedUsers
+  );
+  if (roleUpdate.removedUsers.length) {
+    await $fetch(schemaGraphqlUrl(roleUpdate.schemaId), {
+      method: "post",
+      body: {
+        query: `mutation dropMemberRoles($memberRoles:[MolgenisMembersInput]){drop(memberRoles:$memberRoles){status,message}}`,
+        variables: {
+          memberRoles: roleUpdate.removedUsers.map((email) => ({
+            email,
+            role: roleUpdate.role,
+          })),
+        },
+      },
+    });
+  }
+}
+
+function changeCustomRole(
+  schemaId: string,
+  role: string,
+  permissions: RolePermission[],
+  users: string[]
+) {
+  return $fetch(schemaGraphqlUrl(schemaId), {
+    method: "post",
+    body: {
+      query: `mutation changeRole($roles:[MolgenisRoleInput],$members:[MolgenisMembersInput]){change(roles:$roles,members:$members){status,message}}`,
+      variables: {
+        roles: [{ name: role, permissions }],
+        members: users.map((email) => ({ email, role })),
+      },
+    },
+  });
+}
+
+function schemaGraphqlUrl(schemaId: string) {
+  return `/${encodeURIComponent(schemaId)}${GRAPHQL}`;
+}
+
 function mapBackendCustomRolesToFrontEnd(
   backEndCustomRoles: BackendCustomRole[]
 ): {
   customRoles: CustomRole[];
-  permissions: Record<string, TablePermission[]>;
+  permissions: Record<string, RolePermission[]>;
 } {
   const customRoles =
     backEndCustomRoles.map((customRole) => ({
@@ -228,7 +298,7 @@ function mapBackendCustomRolesToFrontEnd(
       _rowIdString: `${customRole.schemaId}-${customRole.role}`,
     })) || [];
   const permissions = backEndCustomRoles.reduce(
-    (accum: Record<string, TablePermission[]>, customRole) => {
+    (accum: Record<string, RolePermission[]>, customRole) => {
       accum[`${customRole.schemaId}-${customRole.role}`] =
         customRole.permissions || [];
       return accum;

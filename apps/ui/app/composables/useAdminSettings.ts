@@ -1,13 +1,17 @@
 import { reactive, ref } from "vue";
-import type { TablePermission } from "../../../tailwind-components/types/types.ts";
 import type {
   CustomRole,
+  CustomRoleUpdate,
+  NewCustomRole,
   Role,
+  RolePermission,
   SchemaInfo,
   User,
 } from "../interfaces/interfaces.ts";
 import {
   createUser,
+  createCustomRole,
+  updateCustomRole,
   deleteCustomRoles,
   deleteUser,
   getRoles,
@@ -23,7 +27,7 @@ const totalUserPages = ref(0);
 const users = ref<User[]>([]);
 const loaded = ref(false);
 const customRoles = ref<CustomRole[]>();
-const customRolePermissions = ref<Record<string, TablePermission[]>>({});
+const customRolePermissions = ref<Record<string, RolePermission[]>>({});
 
 export default async function useAdminSettings() {
   await loadAdminData();
@@ -77,12 +81,22 @@ export default async function useAdminSettings() {
     return getCustomRoles();
   }
 
+  async function addCustomRole(newRole: NewCustomRole) {
+    await createCustomRole(newRole);
+    await Promise.all([reloadCustomRoles(), reloadAdminData()]);
+  }
+
+  async function editCustomRole(roleUpdate: CustomRoleUpdate) {
+    await updateCustomRole(roleUpdate);
+    await Promise.all([reloadCustomRoles(), reloadAdminData()]);
+  }
+
   async function removeCustomRoles(rolesToRemove: CustomRole[]) {
     await deleteCustomRoles(rolesToRemove);
     await Promise.all([reloadCustomRoles(), reloadAdminData()]);
   }
 
-  function getPermissionsForCustomRole(role: CustomRole): TablePermission[] {
+  function getPermissionsForCustomRole(role: CustomRole): RolePermission[] {
     return customRolePermissions.value[role._rowIdString] || [];
   }
 
@@ -96,6 +110,8 @@ export default async function useAdminSettings() {
     addUser,
     getCustomRoles,
     reloadCustomRoles,
+    addCustomRole,
+    editCustomRole,
     removeCustomRoles,
     getPermissionsForCustomRole,
     getRolesForUser,
