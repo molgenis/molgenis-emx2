@@ -155,6 +155,12 @@ When a plain string (for example from a route query or setting) must be narrowed
 Unit tests, run by Vitest use the `.test.ts` extension.
 End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
 
+### Which e2e suites run in CI
+
+CI runs the Playwright suites in the `test-e2e` job of [`.circleci/config.yml`](https://github.com/molgenis/molgenis-emx2/blob/master/.circleci/config.yml). To see what a suite runs against, check `webServer` and `baseURL` in its `playwright.config.ts`. Only the catalogue suite ([`apps/catalogue/playwright.config.ts`](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/playwright.config.ts)) starts the real SSR server, so use it for changes on the SSR path.
+
+For a test that simulates how visitors really arrive, see [page-renders-for-visitor-from-other-site.spec.ts](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/tests/page-renders-for-visitor-from-other-site.spec.ts).
+
 ## For java development
 
 ### We don't use var
