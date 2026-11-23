@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
@@ -63,7 +64,6 @@ class TestGraphqlAdminFields {
 
   @Test
   void testUsers() {
-    // put in transaction so user count is not affected by other operations
     database.tx(
         tdb -> {
           tdb.becomeAdmin();
@@ -85,6 +85,23 @@ class TestGraphqlAdminFields {
             assertTrue(e.getMessage().contains("FieldUndefined"));
           }
           tdb.becomeAdmin();
+        });
+  }
+
+  @Test
+  void testGetUsersWithNullEmail() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.addMember(new Username("testUser"), VIEWER.toString());
+
+          try {
+            JsonNode result = execute("{_admin{users(email: null){email} userCount}}");
+            assertTrue(result.at("/_admin/userCount").intValue() > 0);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
         });
   }
 

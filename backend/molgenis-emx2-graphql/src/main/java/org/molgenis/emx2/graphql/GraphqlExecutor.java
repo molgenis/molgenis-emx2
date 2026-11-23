@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS_USER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
@@ -24,8 +26,6 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.molgenis.emx2.Constants.ANONYMOUS_USER;
 
 public class GraphqlExecutor {
   private static final Logger logger = LoggerFactory.getLogger(GraphqlExecutor.class);

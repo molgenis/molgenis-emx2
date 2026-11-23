@@ -156,9 +156,14 @@ public final class GraphqlAdminFieldFactory {
     Map<String, Object> args = selectedField.getArguments();
     int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 100;
     int offset = args.containsKey(OFFSET) ? (int) args.get(OFFSET) : 0;
-    Username username = args.containsKey(EMAIL) ? new Username((String) args.get(EMAIL)) : null;
-    List<Member> members = db.loadUserRoles();
+    Username username = null;
 
+    String email = (String) args.get(EMAIL);
+    if (email != null) {
+      username = new Username(email);
+    }
+
+    List<Member> members = db.loadUserRoles();
     if (username != null) {
       return List.of(toGraphqlUser(db.getUser(username), members));
     } else {

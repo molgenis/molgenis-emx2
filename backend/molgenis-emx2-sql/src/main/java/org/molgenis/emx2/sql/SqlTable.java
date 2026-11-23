@@ -4,7 +4,6 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.time.LocalDateTime;

@@ -29,7 +29,7 @@ public class SigninDataFetcher implements DataFetcher<Object> {
   @Override
   public Object get(DataFetchingEnvironment dataFetchingEnvironment) throws Exception {
     String email = dataFetchingEnvironment.getArgument(EMAIL);
-    if (email == null) {
+    if (email == null || email.isBlank()) {
       return new GraphqlApiMutationResult(FAILED, "Sign in failed: user or password not provided");
     }
 
