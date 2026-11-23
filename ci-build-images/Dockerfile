@@ -9,8 +9,7 @@ RUN useradd -m molgenis
 RUN apt-get update && apt-get install vim python3 python3-venv python3-pip python3-setuptools python3-setuptools-whl -y
 RUN python3 -m pip config set global.break-system-packages true
 RUN python3 --version
-# sarif-tools: renders the PMD sarif reports as one html report in CI
-RUN python3 -m pip install sarif-tools==3.0.5
+RUN python3 -m pip install sarif-tools==3.0.5 # used for generating PMD HTML report
 
 ENV NODE_VERSION=24.19.0
 RUN apt install -y curl
