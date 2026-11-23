@@ -43,7 +43,10 @@ const showMenu = ref<boolean>(false);
     <Paragraph
       v-bind="props"
       :contenteditable="props.isEditable"
-      @input="props.isEditable && emit('updateText', $el.innerHTML)"
+      @input="
+        props.isEditable &&
+          emit('updateText', ($event.target as HTMLElement)?.innerHTML ?? '')
+      "
     />
   </VMenu>
   <Paragraph v-else v-bind="props" />
