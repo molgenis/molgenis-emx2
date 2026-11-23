@@ -275,7 +275,7 @@ function rowToUser(row: TableRow): User {
             @click="openEditUserModal(rowToUser(row))"
           />
           <Button
-            v-if="!SYSTEM_USERS.includes(row.email)"
+            v-if="!SYSTEM_USERS.includes(rowToUser(row).email)"
             :id="`delete-user-${row.email}`"
             iconOnly
             type="inline"
