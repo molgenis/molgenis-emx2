@@ -1,131 +1,3 @@
-<template>
-  <template v-if="showButton">
-    <slot>
-      <Button
-        class="m-10"
-        type="primary"
-        size="small"
-        icon="plus"
-        @click="visible = true"
-      >
-        {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
-      </Button>
-    </slot>
-  </template>
-
-  <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
-    <template #header>
-      <header
-        class="pt-[36px] px-8 overflow-visible border-b border-divider flex-none"
-      >
-        <slot name="header" :formValues="formValues" />
-
-        <button
-          @click="onCancel"
-          aria-label="Close modal"
-          class="absolute top-7 right-8 p-1"
-        >
-          <BaseIcon class="text-gray-400" name="cross" />
-        </button>
-      </header>
-    </template>
-
-    <div
-      v-if="visible"
-      class="min-h-0 flex-1"
-      :class="{
-        'grid grid-cols-4 gap-1': form?.showLegend.value,
-        'overflow-y-auto': !form?.showLegend.value,
-      }"
-    >
-      <div
-        v-if="form?.showLegend.value"
-        class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
-      >
-        <Legend
-          class="sticky top-0"
-          :sections="form.sections.value"
-          @goToSection="gotoSection"
-        />
-      </div>
-
-      <Form
-        class="col-span-3"
-        v-if="form !== undefined"
-        :form="form"
-        :constantValues="constantValues"
-      />
-    </div>
-
-    <TransitionSlideUp>
-      <FormError
-        v-show="errorMessage"
-        :message="errorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-        @error-prev="form?.gotoPreviousError"
-        @error-next="form?.gotoNextError"
-      />
-    </TransitionSlideUp>
-    <TransitionSlideUp>
-      <FormError
-        v-show="saveErrorMessage"
-        :message="saveErrorMessage"
-        :show-prev-next-buttons="!showReAuthenticateButton"
-        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-      >
-        <Button
-          v-if="showReAuthenticateButton"
-          type="outline"
-          size="small"
-          @click="reAuthenticate"
-        >
-          Re-authenticate
-        </Button>
-      </FormError>
-    </TransitionSlideUp>
-    <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
-      <FormMessage
-        v-show="formMessage"
-        :message="formMessage"
-        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-      />
-    </TransitionSlideUp>
-
-    <template #footer>
-      <div class="flex justify-between items-center flex-none">
-        <FormRequiredInfoSection
-          :message="requiredMessage"
-          @required-next="form?.gotoNextRequiredField"
-          @required-prev="form?.gotoPreviousRequiredField"
-        />
-        <menu class="flex items-center justify-end h-modal-footer">
-          <div class="flex gap-4">
-            <Button type="secondary" :disabled="saving" @click="onCancel">
-              Cancel
-            </Button>
-            <Button type="outline" :disabled="saving" @click="onSave(true)">
-              Save as draft
-              <BaseIcon
-                v-if="savingDraft"
-                class="inline animate-spin"
-                name="ProgressActivity"
-              />
-            </Button>
-            <Button type="primary" :disabled="saving" @click="onSave(false)">
-              Save
-              <BaseIcon
-                v-if="saving"
-                class="inline animate-spin"
-                name="ProgressActivity"
-              />
-            </Button>
-          </div>
-        </menu>
-      </div>
-    </template>
-  </Modal>
-</template>
-
 <script setup lang="ts">
 import { computed, nextTick, ref, toRaw, watch } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
@@ -148,6 +20,7 @@ import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
 import Form from "./Form.vue";
 import Legend from "../Legend.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
@@ -159,6 +32,7 @@ const props = withDefaults(
     constantValues?: IRow;
     showButton?: boolean;
     formValues?: Record<columnId, columnValue>;
+    title?: string;
   }>(),
   {
     showButton: true,
@@ -177,7 +51,9 @@ const emit = defineEmits([
   "update:addedFormValues",
 ]);
 
-const visible = defineModel<boolean>("visible");
+const visible = defineModel<boolean>("visible", {
+  default: false,
+});
 
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
@@ -189,6 +65,7 @@ const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
 const tableId = computed(() => props.metadata.id);
+const isDraft = computed(() => formValues.value["mg_draft"] === true);
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
@@ -335,3 +212,141 @@ async function updateAutoIds() {
   }
 }
 </script>
+
+<template>
+  <template v-if="showButton">
+    <slot>
+      <Button
+        class="m-10"
+        type="primary"
+        size="small"
+        icon="plus"
+        @click="visible = true"
+      >
+        {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
+      </Button>
+    </slot>
+  </template>
+
+  <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
+    <template #header>
+      <header
+        class="py-5 px-8 min-h-[4.75rem] flex-none border-b border-divider flex justify-between"
+      >
+        <div class="w-2/5 flex gap-2">
+          <h2
+            class="uppercase text-heading-4xl font-display text-title-contrast"
+          >
+            {{ title ?? `${isInsert ? "Add" : "Edit"} ${tableId}` }}
+          </h2>
+          <DraftLabel v-if="isDraft" />
+        </div>
+        <div class="flex-grow">
+          <slot name="header-controls" :formValues="formValues" />
+        </div>
+        <div class="w-13"></div>
+        <button
+          @click="onCancel"
+          aria-label="Close modal"
+          class="top-4 right-4 p-1 absolute"
+        >
+          <BaseIcon class="text-button-input-toggle" name="cross" />
+        </button>
+      </header>
+    </template>
+
+    <div
+      v-if="visible"
+      class="min-h-0 flex-1"
+      :class="{
+        'grid grid-cols-4 gap-1': form?.showLegend.value,
+        'overflow-y-auto': !form?.showLegend.value,
+      }"
+    >
+      <div
+        v-if="form?.showLegend.value"
+        class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
+      >
+        <Legend
+          class="sticky top-0"
+          :sections="form.sections.value"
+          @goToSection="gotoSection"
+        />
+      </div>
+
+      <Form
+        class="col-span-3"
+        v-if="form !== undefined"
+        :form="form"
+        :constantValues="constantValues"
+      />
+    </div>
+
+    <TransitionSlideUp>
+      <FormError
+        v-show="errorMessage"
+        :message="errorMessage"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+        @error-prev="form?.gotoPreviousError"
+        @error-next="form?.gotoNextError"
+      />
+    </TransitionSlideUp>
+    <TransitionSlideUp>
+      <FormError
+        v-show="saveErrorMessage"
+        :message="saveErrorMessage"
+        :show-prev-next-buttons="!showReAuthenticateButton"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+      >
+        <Button
+          v-if="showReAuthenticateButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+        >
+          Re-authenticate
+        </Button>
+      </FormError>
+    </TransitionSlideUp>
+    <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
+      <FormMessage
+        v-show="formMessage"
+        :message="formMessage"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+      />
+    </TransitionSlideUp>
+
+    <template #footer>
+      <div class="flex justify-between items-center flex-none">
+        <FormRequiredInfoSection
+          :message="requiredMessage"
+          @required-next="form?.gotoNextRequiredField"
+          @required-prev="form?.gotoPreviousRequiredField"
+        />
+        <menu class="flex items-center justify-end h-modal-footer">
+          <div class="flex gap-4">
+            <Button type="secondary" :disabled="saving" @click="onCancel">
+              Cancel
+            </Button>
+            <Button type="outline" :disabled="saving" @click="onSave(true)">
+              Save as draft
+              <BaseIcon
+                v-if="savingDraft"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
+            <Button type="primary" :disabled="saving" @click="onSave(false)">
+              Save
+              <BaseIcon
+                v-if="saving"
+                class="inline animate-spin"
+                name="ProgressActivity"
+              />
+            </Button>
+          </div>
+        </menu>
+      </div>
+    </template>
+  </Modal>
+</template>

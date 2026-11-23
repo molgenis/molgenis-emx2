@@ -5,6 +5,6 @@ MOLGENIS EMX2 can be run via
 * [local install using java + postgresql](run_java.md)
 * [quick test drive via docker-compose](run_docker.md)
 * [cloud deploy on kubernetes + helm](run_helm.md)
-* [by compiling the source code (for developers)](run_source.md)
+* [by compiling the source code (for developers)](dev_quickstart.md)
 * [OIDC integration](use_permissions.md)
 * [Backup](run_backup.md)

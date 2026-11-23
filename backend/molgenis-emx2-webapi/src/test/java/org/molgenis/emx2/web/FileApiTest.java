@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.javalin.http.Context;
+import io.restassured.response.Response;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.jooq.Field;
@@ -23,7 +25,9 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 
-class FileApiTest {
+class FileApiTest extends ApiTestBase {
+
+  private static final String NON_EXISTING_SCHEMA = "nonexisting";
 
   @Test
   void serveFileReturnsRequestedFile() {
@@ -94,5 +98,23 @@ class FileApiTest {
           "Download failed: file id 'missing-file' not found in table documents",
           exception.getMessage());
     }
+  }
+
+  @Test
+  void serveFileForUnknownSchema_isRejected() {
+    Response response =
+        given().when().get("/" + NON_EXISTING_SCHEMA + "/api/file/documents/attachment/file-123");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Schema nonexisting unknown"
+            }
+          ]
+        }""",
+        response.getBody().asString());
   }
 }

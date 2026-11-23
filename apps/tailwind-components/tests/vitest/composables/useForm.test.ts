@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
@@ -549,6 +549,221 @@ describe("useForm", () => {
       expect(requiredMap["col4"].value).toBe(true);
       expect(requiredMap["col5"].value).toBe(false);
       expect(requiredMap["col6"].value).toBe(true);
+    });
+  });
+
+  describe("computed columns", () => {
+    const computedMetadata = ref<ITableMetaData>({
+      id: "persons",
+      label: "persons",
+      schemaId: "test",
+      tableType: "DATA",
+      columns: [
+        { columnType: "STRING", id: "firstName", label: "first name" },
+        { columnType: "STRING", id: "lastName", label: "last name" },
+        {
+          columnType: "STRING",
+          id: "fullName",
+          label: "full name",
+          required: true,
+          computed: "firstName && lastName ? firstName + ' ' + lastName : null",
+        },
+        {
+          columnType: "STRING",
+          id: "greeting",
+          label: "greeting",
+          computed: "fullName ? 'hello ' + fullName : null",
+        },
+        {
+          columnType: "STRING",
+          id: "multiLine",
+          label: "multi line",
+          computed: "let initials = firstName ? firstName[0] : '';\ninitials",
+        },
+        {
+          columnType: "STRING",
+          id: "broken",
+          label: "broken",
+          computed: "firstName.does.not.exist",
+        },
+      ],
+    });
+
+    test("should compute the value from the referenced fields", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(getValue("fullName")).toBe("Jane Doe");
+    });
+
+    test("should compute values that depend on other computed columns", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(getValue("greeting")).toBe("hello Jane Doe");
+    });
+
+    test("should count a required computed column as filled once it has a value", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { emptyRequiredFields } = useForm(computedMetadata, formValues);
+      expect(emptyRequiredFields.value.map((c) => c.id)).toEqual(["fullName"]);
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(emptyRequiredFields.value.map((c) => c.id)).toEqual([]);
+    });
+
+    test("should pass validation when a required computed column has a value", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { isValid, visibleColumnErrors } = useForm(
+        computedMetadata,
+        formValues
+      );
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      isValid();
+      expect(visibleColumnErrors.value.fullName).toBeUndefined();
+    });
+
+    test("should support multi-line expressions", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      formValues.value.firstName = "Jane";
+      expect(getValue("multiLine")).toBe("J");
+    });
+
+    test("should return null when the expression fails", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue } = useForm(computedMetadata, formValues);
+      expect(getValue("broken")).toBe(null);
+    });
+
+    test("should show an error on the field when the expression is invalid", () => {
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue, visibleColumnErrors, isValid } = useForm(
+        ref<ITableMetaData>({
+          id: "persons",
+          label: "persons",
+          schemaId: "test",
+          tableType: "DATA",
+          columns: [
+            { columnType: "STRING", id: "firstName", label: "first name" },
+            { columnType: "STRING", id: "lastName", label: "last name" },
+            {
+              columnType: "STRING",
+              id: "fullName",
+              label: "full name",
+              required: true,
+              // typographic quotes are not valid javascript
+              computed: "firstName + \u201c \u201c + lastName",
+            },
+          ],
+        }),
+        formValues
+      );
+      formValues.value.firstName = "Jane";
+      formValues.value.lastName = "Doe";
+      expect(getValue("fullName")).toBe(null);
+      expect(visibleColumnErrors.value.fullName).toContain(
+        "Computed expression failed: SyntaxError"
+      );
+      expect(isValid()).toBe(false);
+    });
+  });
+
+  describe("computed columns using simplePostClient", () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    test("should expose simplePostClient in the computed expression scope", () => {
+      const requests: {
+        method: string;
+        url: string;
+        async: boolean;
+        body: string;
+      }[] = [];
+      class MockXMLHttpRequest {
+        responseText = "";
+        private request = { method: "", url: "", async: true, body: "" };
+        open(method: string, url: string, async: boolean) {
+          this.request = { method, url, async, body: "" };
+        }
+        send(body: string) {
+          this.request.body = body;
+          requests.push(this.request);
+          this.responseText = JSON.stringify({
+            data: {
+              SourceTable: [
+                {
+                  clinCharacteristic1: { name: "HP:1", label: "one" },
+                  clinCharacteristic2: null,
+                  clinCharacteristicsPresent: [{ name: "HP:2", label: "two" }],
+                },
+              ],
+            },
+          });
+        }
+      }
+      vi.stubGlobal("XMLHttpRequest", MockXMLHttpRequest);
+
+      const metadata = ref<ITableMetaData>({
+        id: "LinkedTable",
+        label: "LinkedTable",
+        schemaId: "issue5446",
+        tableType: "DATA",
+        columns: [
+          {
+            columnType: "REF",
+            id: "id",
+            label: "id",
+          },
+          {
+            columnType: "ONTOLOGY_ARRAY",
+            id: "allClinCharacteristics",
+            label: "all clin characteristics",
+            computed: `(function () {
+  if (!id) return;
+  let response = simplePostClient(
+    \`query SourceTable($filter:SourceTableFilter) { SourceTable(filter:$filter) { clinCharacteristic1{name, label}, clinCharacteristic2{name, label}, clinCharacteristicsPresent{name, label} }}\`,
+    { filter: { id: { equals: id.id } } },
+    'issue5446'
+  );
+  const row = response.SourceTable[0];
+  const result = [];
+  if (row.clinCharacteristic1) result.push(row.clinCharacteristic1);
+  if (row.clinCharacteristic2) result.push(row.clinCharacteristic2);
+  return row.clinCharacteristicsPresent
+    ? result.concat(row.clinCharacteristicsPresent)
+    : result;
+})()`,
+          },
+        ],
+      });
+
+      const formValues = ref<Record<string, columnValue>>({});
+      const { getValue, visibleColumnErrors } = useForm(metadata, formValues);
+
+      expect(getValue("allClinCharacteristics")).toBeUndefined();
+      expect(requests).toHaveLength(0);
+
+      formValues.value.id = { id: "source1" };
+
+      expect(getValue("allClinCharacteristics")).toEqual([
+        { name: "HP:1", label: "one" },
+        { name: "HP:2", label: "two" },
+      ]);
+      expect(visibleColumnErrors.value.allClinCharacteristics).toBeUndefined();
+      expect(requests).toHaveLength(1);
+      expect(requests[0]?.method).toBe("POST");
+      expect(requests[0]?.url).toBe("/issue5446/graphql");
+      expect(requests[0]?.async).toBe(false);
+      const body = JSON.parse(requests[0]!.body);
+      expect(body.query).toContain("SourceTable(filter:$filter)");
+      expect(body.variables).toEqual({
+        filter: { id: { equals: "source1" } },
+      });
     });
   });
 });

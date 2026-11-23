@@ -157,7 +157,6 @@ public class TriggerRepositoryImpl implements TriggerRepository {
       throw new MolgenisException("failed to delete trigger");
     }
   }
-  ;
 
   @Override
   public boolean updateTrigger(Trigger trigger) {

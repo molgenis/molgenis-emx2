@@ -4,6 +4,11 @@ import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
+import static org.molgenis.emx2.Constants.FILE_SIZE;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
@@ -216,7 +221,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (!column.isHeading()) {
         if (column.isFile()) {
           list.add(column(column.getName()));
-          list.add(column(column.getName() + "_filename"));
+          list.add(column(column.getName() + FILE_FILENAME));
         } else {
           list.add(column);
         }
@@ -237,14 +242,17 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (c.isFile()) {
         result.put(c.getName(), new Column(c.getTable(), c.getName()));
         result.put(
-            c.getName() + "_contents",
-            new Column(c.getTable(), c.getName() + "_contents").setType(FILE));
-        result.put(c.getName() + "_mimetype", new Column(c.getTable(), c.getName() + "_mimetype"));
-        result.put(c.getName() + "_filename", new Column(c.getTable(), c.getName() + "_filename"));
+            c.getName() + FILE_CONTENTS,
+            new Column(c.getTable(), c.getName() + FILE_CONTENTS).setType(FILE));
         result.put(
-            c.getName() + "_extension", new Column(c.getTable(), c.getName() + "_extension"));
+            c.getName() + FILE_MIMETYPE, new Column(c.getTable(), c.getName() + FILE_MIMETYPE));
         result.put(
-            c.getName() + "_size", new Column(c.getTable(), c.getName() + "_size").setType(INT));
+            c.getName() + FILE_FILENAME, new Column(c.getTable(), c.getName() + FILE_FILENAME));
+        result.put(
+            c.getName() + FILE_EXTENSION, new Column(c.getTable(), c.getName() + FILE_EXTENSION));
+        result.put(
+            c.getName() + FILE_SIZE,
+            new Column(c.getTable(), c.getName() + FILE_SIZE).setType(INT));
       } else
       // expand composite keys if necessary
       if (c.isReference()) {
@@ -332,10 +340,14 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public Column getColumn(String name) {
-    if (columns.containsKey(name)) return new Column(this, columns.get(name));
+    if (columns.containsKey(name)) {
+      return new Column(this, columns.get(name));
+    }
     if (getInheritedTable() != null) {
       Column c = getInheritedTable().getColumn(name);
-      if (c != null) return new Column(c.getTable(), c);
+      if (c != null) {
+        return new Column(c.getTable(), c);
+      }
     }
     return null;
   }
@@ -394,10 +406,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public void dropColumn(String name) {
-    if (Arrays.asList(getPrimaryKeys()).contains(name))
+    if (getPrimaryKeys().contains(name)) {
       throw new MolgenisException("Remove column failed: Column is primary key");
-    if (columns.get(name) == null)
+    }
+    if (columns.get(name) == null) {
       throw new MolgenisException("Remove column failed: Column '" + name + "' unknown");
+    }
     columns.remove(name);
   }
 
@@ -495,6 +509,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getTableName();
   }
 
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();
@@ -643,9 +658,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   @Override
+  @SuppressWarnings(
+      "PMD.OverrideBothEqualsAndHashCodeOnComparable") // sorted by name, equality stays
+  // identity-based
   public int compareTo(Object o) {
     if (o instanceof TableMetadata metadata) {
-      return getTableName().compareTo((metadata).getTableName());
+      return getTableName().compareTo(metadata.getTableName());
     }
     return 0;
   }
@@ -664,7 +682,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public String getLabel() {
-    if (this.getLabels().get("en") != null && !this.getLabels().get("en").trim().equals("")) {
+    if (this.getLabels().get("en") != null && !"".equals(this.getLabels().get("en").trim())) {
       return this.getLabels().get("en");
     } else {
       return this.getTableName();
@@ -673,7 +691,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getDescription() {
     if (this.getDescriptions().get("en") != null
-        && !this.getDescriptions().get("en").trim().equals("")) {
+        && !"".equals(this.getDescriptions().get("en").trim())) {
       return this.getDescriptions().get("en");
     } else {
       return null;

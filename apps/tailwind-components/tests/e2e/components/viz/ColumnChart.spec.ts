@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
 
+import { vizDurations, vizDelay } from "../../../../app/utils/cms/constants";
+
+const chartAnimationDelay: number =
+  (vizDelay + vizDurations.withAnimations) * 1.1;
+
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
@@ -51,9 +56,9 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const yAxisTickLabels = await page
       .locator("#column-chart-demo-1 g.axes g.y-axis g.tick text")
       .all();
-    expect(yAxisTicks.length).toEqual(5);
-    expect(yAxisTickLines.length).toEqual(5);
-    expect(yAxisTickLabels.length).toEqual(5);
+    expect(yAxisTicks.length).toEqual(9);
+    expect(yAxisTickLines.length).toEqual(9);
+    expect(yAxisTickLabels.length).toEqual(9);
 
     const xAxisTicks = await page
       .locator("#column-chart-demo-1 g.axes g.x-axis g.tick")
@@ -79,7 +84,8 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     const rectTextElem = await page.locator(
       "#column-chart-demo-1 g.columns g:first-child text"
     );
-    expect(await rectTextElem.getAttribute("style")).toBe("opacity: 1;");
+    await page.waitForTimeout(chartAnimationDelay);
+    expect(await rectTextElem.getAttribute("opacity")).toBe("1");
   });
 
   test("clicking on a columns emits data point", async ({ page }) => {
@@ -88,5 +94,31 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     expect(await selection.innerText()).toBe(
       'Clicked element: { "id": "value-jan", "xValue": "Jan", "yValue": "18" }'
     );
+  });
+
+  test("grouped column charts return the correct nested groups", async ({
+    page,
+  }) => {
+    const allGroups = await page
+      .locator("#column-chart-demo-3 g.rect-group")
+      .all();
+    const rectGroups = await page
+      .locator("#column-chart-demo-3 g.rect-subgroup")
+      .all();
+    const textGroups = await page
+      .locator("#column-chart-demo-3 g.text-subgroup")
+      .all();
+    const rectElems = await page
+      .locator("#column-chart-demo-3 g.rect-subgroup rect.column")
+      .all();
+    const textElems = await page
+      .locator("#column-chart-demo-3 g.text-subgroup text")
+      .all();
+
+    expect(allGroups.length).toEqual(5);
+    expect(rectGroups.length).toEqual(5);
+    expect(textGroups.length).toEqual(5);
+    expect(rectElems.length).toEqual(15);
+    expect(textElems.length).toEqual(15);
   });
 });

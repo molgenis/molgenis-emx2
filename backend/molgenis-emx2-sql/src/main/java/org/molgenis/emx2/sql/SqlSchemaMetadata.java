@@ -40,7 +40,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
           this.tables.keySet().stream()
               .filter(t -> !from.tables.containsKey(t))
               .collect(Collectors.toSet());
-      remove.forEach(t -> this.tables.remove(t));
+      remove.forEach(this.tables::remove);
 
       // sync tables metadata
       from.tables
@@ -214,9 +214,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static void toggleChangeLogIfNeeded(
       SqlDatabase db, SqlSchemaMetadata schema, String settingsValue) {
     boolean currentValue =
-        TRUE.equals(
-            TypeUtils.toBool(schema.getSettings().containsKey(Constants.IS_CHANGELOG_ENABLED)));
-    boolean newValue = Boolean.parseBoolean(settingsValue);
+        TRUE.equals(TypeUtils.toBool(schema.getSettings().get(Constants.IS_CHANGELOG_ENABLED)));
+    boolean newValue = TRUE.equals(TypeUtils.toBool(settingsValue));
     if (currentValue != newValue) {
       if (newValue) {
         ChangeLogExecutor.enableChangeLog(db, schema);
@@ -224,11 +223,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         ChangeLogExecutor.disableChangeLog(db, schema);
       }
     }
-  }
-
-  @Override
-  public Map<String, String> getSettings() {
-    return super.getSettings();
   }
 
   protected DSLContext getJooq() {
@@ -271,10 +265,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public String getRoleForUser(String user) {
     SqlRoleManager roleManager = getDatabase().getRoleManager();
-    if (user == null) user = ANONYMOUS;
+    if (user == null) {
+      user = ANONYMOUS;
+    }
     user = user.trim();
     for (Member m : roleManager.getMembers(getName())) {
-      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) return m.getRole();
+      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) {
+        return m.getRole();
+      }
     }
     return null;
   }

@@ -9,25 +9,32 @@ import Message from "./Message.vue";
 
 const modelValue = defineModel<columnValue>({ required: true });
 
-defineProps<
-  IInputProps & {
-    type: CellValueType;
-    label?: string;
-    description?: string | null;
-    required?: boolean;
-    errorMessage?: string | null;
-    refSchemaId?: string;
-    refTableId?: string;
-    refLabel?: string;
-    refBackId?: string;
-    rowKey?: any;
-    options?: IValueLabel[];
-    allowedValues?: string[];
-    trueLabel?: string;
-    falseLabel?: string;
-    align?: "horizontal" | "vertical";
+withDefaults(
+  defineProps<
+    IInputProps & {
+      type: CellValueType;
+      label?: string;
+      description?: string | null;
+      required?: boolean;
+      errorMessage?: string | null;
+      refSchemaId?: string;
+      refTableId?: string;
+      refLabel?: string;
+      refBackId?: string;
+      rowKey?: any;
+      options?: IValueLabel[];
+      allowedValues?: string[];
+      trueLabel?: string;
+      falseLabel?: string;
+      showClearButton?: boolean;
+      align?: "horizontal" | "vertical";
+    }
+  >(),
+  {
+    // undefined (not Vue's implicit false) so Boolean.vue keeps its own default
+    showClearButton: undefined,
   }
->();
+);
 const emit = defineEmits(["focus", "blur"]);
 </script>
 
@@ -66,6 +73,7 @@ const emit = defineEmits(["focus", "blur"]);
       :refBackColumn="(refBackId as string)"
       :trueLabel="trueLabel"
       :falseLabel="falseLabel"
+      :showClearButton="showClearButton"
       @blur="emit('blur')"
       @focus="emit('focus')"
       :align="align"

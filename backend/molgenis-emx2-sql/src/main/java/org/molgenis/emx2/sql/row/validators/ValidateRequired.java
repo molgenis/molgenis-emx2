@@ -10,7 +10,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
-public class ValidateRequired {
+public final class ValidateRequired {
 
   private ValidateRequired() {
     // hide constructor
@@ -76,10 +76,14 @@ public class ValidateRequired {
     try {
       Object error = executeJavascriptOnMap(validationScript, context);
       if (error instanceof Boolean) {
-        if ((Boolean) error) return validationScript;
+        if ((Boolean) error) {
+          return validationScript;
+        }
         return null;
       }
-      if (error != null) return error.toString();
+      if (error != null) {
+        return error.toString();
+      }
     } catch (MolgenisException me) {
       throw me;
     }

@@ -6,7 +6,7 @@ import type { IHeadings } from "../../../../types/cms";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
 
 const props = withDefaults(
   defineProps<IHeadings & { isEditable?: boolean }>(),
@@ -52,7 +52,10 @@ const showMenu = ref<boolean>(false);
           'sr-only': headingIsHidden,
         }"
         :contenteditable="props.isEditable"
-        @input="props.isEditable && emit('updateText', $el.textContent)"
+        @input="
+          props.isEditable &&
+            emit('updateText', ($event.target as HTMLElement)?.innerHTML ?? '')
+        "
       />
     </div>
   </VMenu>

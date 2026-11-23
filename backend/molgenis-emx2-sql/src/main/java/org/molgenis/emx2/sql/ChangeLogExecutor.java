@@ -16,13 +16,15 @@ import java.util.Comparator;
 import java.util.List;
 import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.Table;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
 
-public class ChangeLogExecutor {
+public final class ChangeLogExecutor {
 
   static final int CHANGELOG_LIMIT_CAP = 1000;
+  static final String STAMP_INDEX = "mg_changelog_stamp_idx";
 
   private static final Field<String> OPERATION =
       field(name(Constants.CHANGELOG_OPERATION), CHAR(1).nullable(false));
@@ -45,12 +47,12 @@ public class ChangeLogExecutor {
 
   static void enableChangeLog(SqlDatabase db, SchemaMetadata schema) {
     // Create change log table
-    org.jooq.Table<Record> changelogTable =
-        table(name(schema.getName(), Constants.CHANGELOG_TABLE));
+    Table<Record> changelogTable = table(name(schema.getName(), Constants.CHANGELOG_TABLE));
     db.getJooq()
         .createTableIfNotExists(changelogTable)
         .columns(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
         .execute();
+    createStampIndex(db.getJooq(), schema.getName());
 
     // Grant rights to all to insert into change log, only admin and owner can read
     final String schemaName = schema.getName();
@@ -78,6 +80,12 @@ public class ChangeLogExecutor {
       db.getJooq()
           .execute(ChangeLogUtils.buildAuditTrigger(schema.getName(), table.getTableName()));
     }
+  }
+
+  static void createStampIndex(DSLContext jooq, String schemaName) {
+    jooq.createIndexIfNotExists(name(STAMP_INDEX))
+        .on(name(schemaName, Constants.CHANGELOG_TABLE), name(Constants.CHANGELOG_STAMP))
+        .execute();
   }
 
   static void executeDropChangeLogTableForSchema(SqlDatabase db, Schema schema) {
@@ -142,6 +150,7 @@ public class ChangeLogExecutor {
         .toList();
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   static List<LastUpdate> executeLastUpdates(DSLContext jooq) {
 
     // get a list of schema's with changelogs, need due to limited support for cross schema queries

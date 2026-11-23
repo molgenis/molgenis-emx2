@@ -24,7 +24,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import sass.embedded_protocol.EmbeddedSass;
 
-public class BootstrapThemeService {
+public final class BootstrapThemeService {
   private static final String HEX_WEBCOLOR_PATTERN = "^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$";
   private static final Pattern pattern = Pattern.compile(HEX_WEBCOLOR_PATTERN);
   private static Map<String, String> cache = new LinkedHashMap<>();
@@ -73,17 +73,17 @@ public class BootstrapThemeService {
   }
 
   private static Map<String, String> splitQuery(String query) {
-    Map<String, String> query_pairs = new LinkedHashMap<>();
+    Map<String, String> queryPairs = new LinkedHashMap<>();
     if (query != null) {
       String[] pairs = query.split("&");
       for (String pair : pairs) {
         int idx = pair.indexOf("=");
-        query_pairs.put(
+        queryPairs.put(
             URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8),
             URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8));
       }
     }
-    return query_pairs;
+    return queryPairs;
   }
 
   /**
@@ -99,16 +99,15 @@ public class BootstrapThemeService {
         String.format(
             "$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n", primaryColor, secondaryColor);
     String useMath = "@use \"sass:math\";\n@use \"sass:list\";\n\n";
-    StringBuilder CssPlusScss = new StringBuilder();
-    CssPlusScss.append(useMath);
-    CssPlusScss.append(input);
+    StringBuilder cssPlusScss = new StringBuilder();
+    cssPlusScss.append(useMath);
+    cssPlusScss.append(input);
     try {
-      CssPlusScss.append(getScssFileContents("theme/theme.scss"));
-      SassCompiler sassCompiler = SassCompilerFactory.bundled();
-      sassCompiler.setOutputStyle(EmbeddedSass.OutputStyle.COMPRESSED);
-      String cssCompiled = sassCompiler.compileScssString(CssPlusScss.toString()).getCss();
-      sassCompiler.close();
-      return cssCompiled;
+      cssPlusScss.append(getScssFileContents("theme/theme.scss"));
+      try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
+        sassCompiler.setOutputStyle(EmbeddedSass.OutputStyle.COMPRESSED);
+        return sassCompiler.compileScssString(cssPlusScss.toString()).getCss();
+      }
     } catch (Exception e) {
       logger.error(String.format("SASS compilation failed, input was:%n%s", input));
       throw new MolgenisException("SASS compilation failed", e);
@@ -121,33 +120,37 @@ public class BootstrapThemeService {
    */
   public static String getScssFileContents(String file) throws IOException {
     StringBuilder stringBuilder = new StringBuilder();
-    InputStream fileFromResourceAsStream = getFileFromResourceAsStream(file);
-    InputStreamReader inputStreamReader =
-        new InputStreamReader(fileFromResourceAsStream, StandardCharsets.UTF_8);
-    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-    String line;
-    while ((line = bufferedReader.readLine()) != null) {
-      if (line.startsWith("@import")) {
-        String importFileLocation =
-            line.replace("@import", "").replace("\"", "").replace("'", "").replace(";", "").trim();
-        if (!importFileLocation.endsWith(".scss")) {
-          int lastFwdSlashIndex = importFileLocation.lastIndexOf("/");
-          if (lastFwdSlashIndex == -1) {
-            importFileLocation = "_" + importFileLocation + ".scss";
-          } else {
-            importFileLocation =
-                importFileLocation.substring(0, lastFwdSlashIndex + 1)
-                    + "_"
-                    + importFileLocation.substring(lastFwdSlashIndex + 1)
-                    + ".scss";
+    try (BufferedReader bufferedReader =
+        new BufferedReader(
+            new InputStreamReader(getFileFromResourceAsStream(file), StandardCharsets.UTF_8))) {
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        if (line.startsWith("@import")) {
+          String importFileLocation =
+              line.replace("@import", "")
+                  .replace("\"", "")
+                  .replace("'", "")
+                  .replace(";", "")
+                  .trim();
+          if (!importFileLocation.endsWith(".scss")) {
+            int lastFwdSlashIndex = importFileLocation.lastIndexOf("/");
+            if (lastFwdSlashIndex == -1) {
+              importFileLocation = "_" + importFileLocation + ".scss";
+            } else {
+              importFileLocation =
+                  importFileLocation.substring(0, lastFwdSlashIndex + 1)
+                      + "_"
+                      + importFileLocation.substring(lastFwdSlashIndex + 1)
+                      + ".scss";
+            }
           }
-        }
-        String fileParent = file.substring(0, file.lastIndexOf("/"));
-        String completeFileImportLocation = fileParent + "/" + importFileLocation;
-        stringBuilder.append(getScssFileContents(completeFileImportLocation));
-      } else {
-        if (!line.startsWith("@use ")) {
-          stringBuilder.append(line).append(System.lineSeparator());
+          String fileParent = file.substring(0, file.lastIndexOf("/"));
+          String completeFileImportLocation = fileParent + "/" + importFileLocation;
+          stringBuilder.append(getScssFileContents(completeFileImportLocation));
+        } else {
+          if (!line.startsWith("@use ")) {
+            stringBuilder.append(line).append(System.lineSeparator());
+          }
         }
       }
     }

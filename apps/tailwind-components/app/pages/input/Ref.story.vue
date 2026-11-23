@@ -59,11 +59,11 @@ function onBlur() {
       <div class="pt-5">value selected: {{ value }}</div>
     </div>
     <div class="pt-5">
-      <label for="story-ref-array">
-        <span class="text-title font-bold">Select pets by name</span>
+      <label for="story-ref-single">
+        <span class="text-title font-bold">Select one pet by name</span>
       </label>
       <InputRef
-        id="story-ref"
+        id="story-ref-single"
         v-model="value2"
         :refSchemaId="schemaId"
         :refTableId="tableId"
@@ -77,11 +77,11 @@ function onBlur() {
     </div>
     <div class="pt-5">value selected: {{ value2 }}</div>
     <div class="pt-5">
-      <label for="story-ref-array">
+      <label for="story-ref-long">
         <span class="text-title font-bold">Example of a long ref</span>
       </label>
       <InputRef
-        id="story-ref"
+        id="story-ref-long"
         :limit="0"
         v-model="value3"
         :refSchemaId="schemaId2"
@@ -95,11 +95,13 @@ function onBlur() {
     </div>
     <div class="pt-5">value selected: {{ value3 }}</div>
     <div class="pt-5">
-      <label for="story-ref-array">
-        <span class="text-title font-bold">Example of a long ref</span>
+      <label for="story-ref-long-array">
+        <span class="text-title font-bold"
+          >Example of a long ref, several values</span
+        >
       </label>
       <InputRef
-        id="story-ref"
+        id="story-ref-long-array"
         :limit="0"
         v-model="value4"
         :refSchemaId="schemaId2"

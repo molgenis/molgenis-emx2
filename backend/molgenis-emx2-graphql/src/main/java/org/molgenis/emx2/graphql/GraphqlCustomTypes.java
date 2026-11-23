@@ -10,7 +10,7 @@ import java.util.Map;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.utils.MolgenisObjectMapper;
 
-public class GraphqlCustomTypes {
+public final class GraphqlCustomTypes {
   private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
 
   private GraphqlCustomTypes() {
@@ -92,7 +92,8 @@ public class GraphqlCustomTypes {
                           "Couldn't read content of the uploaded file");
                     }
                   } else {
-                    return null;
+                    throw new CoercingParseValueException(
+                        "A file value must be null, a file object or an uploaded file part: this request cannot take file content as text");
                   }
                 }
 

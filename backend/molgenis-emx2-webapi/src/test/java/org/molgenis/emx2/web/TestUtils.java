@@ -17,12 +17,12 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class TestUtils {
+public final class TestUtils {
   private TestUtils() {}
 
   public static List<String> readExcelSheet(File file) throws IOException {
     FileInputStream fip = new FileInputStream(file);
-    return TestUtils.readExcelSheet(fip);
+    return readExcelSheet(fip);
   }
 
   public static List<String> readExcelSheet(InputStream inputStream) throws IOException {
@@ -51,10 +51,9 @@ public class TestUtils {
 
     String contentDisposition = response.getHeader("content-disposition");
     String fileName = contentDisposition.substring(21);
-    FileOutputStream fos = new FileOutputStream(fileName);
-
-    fos.write(response.getBody().asByteArray());
-    fos.close();
+    try (FileOutputStream fos = new FileOutputStream(fileName)) {
+      fos.write(response.getBody().asByteArray());
+    }
 
     File file = new File(fileName);
     file.deleteOnExit();

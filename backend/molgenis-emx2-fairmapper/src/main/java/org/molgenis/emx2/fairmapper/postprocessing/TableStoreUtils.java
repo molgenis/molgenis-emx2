@@ -9,7 +9,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-public class TableStoreUtils {
+public final class TableStoreUtils {
 
   private TableStoreUtils() {
     /* This utility class should not be instantiated */

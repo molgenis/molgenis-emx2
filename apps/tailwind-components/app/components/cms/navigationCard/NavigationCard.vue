@@ -1,16 +1,37 @@
 <script setup lang="ts">
+import { useTemplateRef } from "vue";
 import type { INavigationCards } from "../../../../types/cms";
 import ExternalLink from "../../global/icons/ExternalLink.vue";
 
-withDefaults(defineProps<INavigationCards>(), {
+const props = withDefaults(defineProps<INavigationCards>(), {
   urlIsExternal: false,
 });
+
+const spanEl = useTemplateRef<HTMLSpanElement>("linkText");
+
+function onMouseOver() {
+  const offsetWidth = spanEl.value?.offsetWidth as number;
+  const scrollWidth = spanEl.value?.scrollWidth as number;
+  if (offsetWidth < scrollWidth) {
+    (spanEl.value as HTMLSpanElement).title = props.urlLabel || props.url;
+  }
+}
+
+function onMouseOut() {
+  (spanEl.value as HTMLSpanElement).title = "";
+}
 </script>
 
 <template>
   <div
     :id="id"
-    class="relative w-full grid grid-cols-1 gap-1.5 p-5 text-title-contrast text-center rounded-base border border-current"
+    class="relative w-full grid grid-cols-1 gap-1.5 m-auto p-5 mb-2.5 text-title-contrast text-center rounded-base border border-current"
+    :class="{
+      'sm:w-1/3': navigationCardWidth?.name === 'small',
+      'sm:w-1/2': navigationCardWidth?.name === 'medium',
+      'sm:w-2/3': navigationCardWidth?.name === 'large',
+      'sm:w-full': navigationCardWidth?.name === 'full',
+    }"
   >
     <h3 v-if="title" class="text-title text-heading-lg font-bold">
       {{ title }}
@@ -22,8 +43,14 @@ withDefaults(defineProps<INavigationCards>(), {
       :rel="urlIsExternal ? 'noopener noreferrer' : undefined"
       :target="urlIsExternal ? '_blank' : undefined"
     >
-      <span v-if="urlLabel">{{ urlLabel }}</span>
-      <span v-else>{{ url }}</span>
+      <span
+        ref="linkText"
+        class="truncate"
+        @mouseover="onMouseOver"
+        @mouseout="onMouseOut"
+      >
+        {{ urlLabel || url }}
+      </span>
       <template v-if="urlIsExternal">
         <span class="sr-only">(url opens in a new tab)</span>
         <ExternalLink class="w-6 h-6" />

@@ -1,6 +1,11 @@
 package org.molgenis.emx2.tasks;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeXSI;
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
+import static org.molgenis.emx2.Constants.FILE_SIZE;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.*;
@@ -31,17 +36,17 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
-  private HashMap<String, Object> extraFile;
+  private Map<String, Object> extraFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
 
   private static final String EXTRA_FILE = "extraFile";
-  private static final String EXTRA_FILE_FILENAME = EXTRA_FILE + "_filename";
-  private static final String EXTRA_FILE_CONTENTS = EXTRA_FILE + "_contents";
-  private static final String EXTRA_FILE_EXTENSION = EXTRA_FILE + "_extension";
-  private static final String EXTRA_FILE_MIMETYPE = EXTRA_FILE + "_mimetype";
-  private static final String EXTRA_FILE_SIZE = EXTRA_FILE + "_size";
+  private static final String EXTRA_FILE_FILENAME = EXTRA_FILE + FILE_FILENAME;
+  private static final String EXTRA_FILE_CONTENTS = EXTRA_FILE + FILE_CONTENTS;
+  private static final String EXTRA_FILE_EXTENSION = EXTRA_FILE + FILE_EXTENSION;
+  private static final String EXTRA_FILE_MIMETYPE = EXTRA_FILE + FILE_MIMETYPE;
+  private static final String EXTRA_FILE_SIZE = EXTRA_FILE + FILE_SIZE;
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
@@ -186,7 +191,7 @@ public class ScriptTask extends Task {
       try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
         fos.write(extraFileContent);
       }
-      if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
+      if (extraFileExtension != null && "zip".equalsIgnoreCase(extraFileExtension.toString())) {
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(extraFilePath.toFile()))) {
           byte[] buffer = new byte[1024];
           ZipEntry entry;

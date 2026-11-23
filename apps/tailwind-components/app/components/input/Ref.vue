@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import type {
   ITableMetaData,
   columnValueObject,
@@ -8,19 +7,21 @@ import type {
 import type { ITableDataResponse } from "../../composables/fetchTableData";
 
 import { useDebounceFn } from "@vueuse/core";
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { type IInputProps, type IValueLabel } from "../../../types/types";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import { useClickOutside } from "../../composables/useClickOutside";
 import logger from "../../utils/logger";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
 import InputGroupContainer from "../input/InputGroupContainer.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
+import InputListbox from "./Listbox.vue";
 import InputRadioGroup from "./RadioGroup.vue";
+
+const PAGE_SIZE = 20;
 
 const props = withDefaults(
   defineProps<
@@ -45,33 +46,22 @@ const modelValue = defineModel<
 >();
 const tableMetadata = ref<ITableMetaData>();
 
-const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
-const optionMap = ref<recordValue>({});
-const selectionMap = ref<recordValue>({});
+const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+const options = ref<IValueLabel[]>([]);
+const selection = ref<IValueLabel[]>([]);
 const initialCount = ref<number>(0);
 const count = ref<number>(0);
-const offset = ref<number>(0);
-const showSearch = ref<boolean>(false);
 const searchTerms = ref<string>("");
-const hasNoResults = ref<boolean>(true);
-const showSelect = ref(false);
-const searchInput = ref<HTMLInputElement | null>(null);
+let loadedRows = 0;
+let latestRequest = 0;
+let isLoadingMore = false;
 
 const columnName = computed<string>(() => {
   return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
 });
 
-//computed elements to translate to CheckboxGroup or
-const listOptions = computed((): IValueLabel[] => {
-  return Object.keys(optionMap.value).map((label) => {
-    return { value: label };
-  });
-});
-
-const selection = computed((): string | string[] | undefined =>
-  props.isArray
-    ? Object.keys(selectionMap.value)
-    : Object.keys(selectionMap.value)[0]
+const selectedKeys = computed((): string[] =>
+  selection.value.map((entry) => entry.value)
 );
 
 const displayAsSelect = computed(() => initialCount.value > props.limit);
@@ -113,15 +103,13 @@ async function init() {
       props.refTableId,
       { filter: { equals: keys }, expandLevel: 1 }
     );
-    if (data.rows) {
-      hasNoResults.value = false;
-      data.rows.forEach(
-        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
-      );
-    }
+    selection.value = await Promise.all((data.rows ?? []).map(toEntry));
   }
 
-  await loadOptions({ limit: props.limit });
+  await loadOptions(false);
+  if (count.value <= props.limit && loadedRows < count.value) {
+    await loadOptions(true, count.value - loadedRows);
+  }
   initialCount.value = count.value;
   isInitLoading.value = false;
 }
@@ -133,113 +121,66 @@ function applyTemplate(template: string, row: Record<string, any>): string {
   return label;
 }
 
-async function loadOptions(filter: IQueryMetaData) {
-  hasNoResults.value = true;
-  filter.expandLevel = 1;
+async function toEntry(row: recordValue): Promise<IValueLabel> {
+  return {
+    value: JSON.stringify(await extractPrimaryKey(row)),
+    label: applyTemplate(props.refLabel, row),
+  };
+}
+
+async function loadOptions(append: boolean, pageSize = PAGE_SIZE) {
+  const request = ++latestRequest;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
-    filter
+    {
+      limit: pageSize,
+      offset: append ? loadedRows : 0,
+      searchTerms: searchTerms.value,
+      expandLevel: 1,
+    }
   );
-
-  if (!filter.offset) {
-    optionMap.value = {}; //empty
+  const rows = data.rows ?? [];
+  const entries = await Promise.all(rows.map(toEntry));
+  if (request < latestRequest) {
+    return;
   }
-  if (data.rows) {
-    hasNoResults.value = false;
-    data.rows.forEach(
-      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
-    );
-    count.value = data.count;
-  } else {
-    hasNoResults.value = true;
+  if (!append) {
+    options.value = [];
+    loadedRows = 0;
   }
+  options.value.push(...entries);
+  loadedRows += rows.length;
+  count.value = data.count;
   logger.debug("loaded options for " + props.id);
 }
 
-function toggleSearch() {
-  showSearch.value = !showSearch.value;
-  if (searchTerms.value) {
-    updateSearch("");
+function updateSearch(newSearchTerms: string | undefined) {
+  const terms = newSearchTerms ?? "";
+  if (terms !== searchTerms.value) {
+    searchTerms.value = terms;
+    loadOptions(false);
   }
 }
 
-const wrapperRef = useTemplateRef("wrapperRef");
-// Close dropdown when clicking outside
-useClickOutside(wrapperRef, () => {
-  showSelect.value = false;
-});
-
-const sentinel = useTemplateRef("sentinel");
-let loadMoreObserver: IntersectionObserver | null = null;
-onMounted(() => {
-  loadMoreObserver = new IntersectionObserver(
-    async (entries) => {
-      const entry = entries[0];
-      if (entry?.isIntersecting) {
-        loadMore();
-      }
-    },
-    {
-      root: wrapperRef.value, // the container
-      threshold: 0.25,
-      rootMargin: "100px", //more smooth
-    }
-  );
-});
-
-function toggleSelect() {
-  if (showSelect.value) {
-    showSelect.value = false;
-    searchTerms.value = "";
-    loadMoreObserver?.disconnect();
-  } else {
-    showSelect.value = true;
-    if (sentinel.value) {
-      loadMoreObserver?.observe(sentinel.value!);
-    }
-    nextTick(() => {
-      searchInput.value?.focus();
-    });
+async function loadMore() {
+  if (isLoadingMore || loadedRows >= count.value) {
+    return;
+  }
+  isLoadingMore = true;
+  try {
+    await loadOptions(true);
+  } finally {
+    isLoadingMore = false;
   }
 }
 
-function updateSearch(newSearchTerms: string) {
-  optionMap.value = {};
-  offset.value = 0;
-  searchTerms.value = newSearchTerms;
-  loadOptions({ limit: props.limit, searchTerms: searchTerms.value });
-}
-
-async function select(label: string) {
-  if (!props.isArray) {
-    selectionMap.value = {};
-  }
-  const optionValue = optionMap.value[label];
-  if (
-    optionValue !== undefined &&
-    optionValue !== null &&
-    typeof optionValue === "object" &&
-    !Array.isArray(optionValue)
-  ) {
-    selectionMap.value[label] = await extractPrimaryKey(optionValue);
-  } else {
-    throw new Error("Invalid option value for label: " + label);
-  }
-
-  if (searchTerms.value) {
-    toggleSearch();
-  }
-  // close select dropdown for single select once an option is selected
-  if (!props.isArray && showSelect.value === true) {
-    toggleSelect();
-  }
-  emit(
-    "update:modelValue",
-    props.isArray
-      ? Object.values(selectionMap.value)
-      : Object.values(selectionMap.value)[0]
-  );
+function setSelection(keys: string[]) {
+  const known = [...selection.value, ...options.value];
+  const next = keys.map((key) => known.find((entry) => entry.value === key)!);
+  selection.value = next;
+  const rows = next.map((entry) => JSON.parse(entry.value));
+  emit("update:modelValue", props.isArray ? rows : rows[0] ?? null);
   onBlur();
 }
 
@@ -247,38 +188,16 @@ async function extractPrimaryKey(row: recordValue) {
   return await getPrimaryKey(row, props.refTableId, props.refSchemaId);
 }
 
-function deselect(label: string) {
-  if (searchTerms.value) {
-    toggleSearch();
-  }
+function select(key: string) {
+  setSelection(props.isArray ? [...selectedKeys.value, key] : [key]);
+}
 
-  if (props.isArray) {
-    delete selectionMap.value[label];
-    emit("update:modelValue", Object.values(selectionMap.value));
-  } else {
-    if (showSelect.value === true) {
-      toggleSelect();
-    }
-    selectionMap.value = {};
-    emit("update:modelValue", null);
-  }
-  onBlur();
+function deselect(key: string) {
+  setSelection(selectedKeys.value.filter((selected) => selected !== key));
 }
 
 function clearSelection() {
-  selectionMap.value = {};
-  emit("update:modelValue", props.isArray ? [] : null);
-  onBlur();
-  updateSearch("");
-}
-
-function loadMore() {
-  offset.value += 25;
-  loadOptions({
-    offset: offset.value,
-    limit: props.limit,
-    searchTerms: searchTerms.value,
-  });
+  setSelection([]);
 }
 
 const onBlur = useDebounceFn(() => {
@@ -287,123 +206,75 @@ const onBlur = useDebounceFn(() => {
 </script>
 
 <template>
-  <div
-    ref="lazyLoadTrigger"
-    v-show="isInitLoading"
-    class="h-20 flex justify-start items-center"
-  >
+  <div v-show="isInitLoading" class="h-20 flex justify-start items-center">
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
-  <div
-    v-show="!isInitLoading && initialCount"
-    :class="{
-      'flex items-center border outline-none rounded-base cursor-pointer':
-        displayAsSelect,
-      'bg-input ': displayAsSelect && !disabled,
-      'border-disabled': displayAsSelect && disabled,
-      'border-valid text-valid': valid && !disabled,
-      'border-invalid text-invalid': invalid && !disabled,
-      'text-disabled cursor-not-allowed': disabled,
-      'bg-disabled border-valid text-valid cursor-not-allowed':
-        valid && disabled,
-      'bg-disabled border-invalid text-invalid cursor-not-allowed':
-        invalid && disabled,
-      'text-input hover:border-input-hover focus-within:border-input-focused':
-        !disabled && !invalid && !valid,
-    }"
-    @click.stop="displayAsSelect && !showSelect ? toggleSelect : null"
-  >
-    <InputGroupContainer
-      :id="`${id}-ref`"
-      class="border-transparent w-full relative"
-      @focus="emit('focus')"
-      @blur="onBlur"
+  <InputListbox
+    v-if="displayAsSelect && isArray"
+    multiple
+    enableSearch
+    showClearButton
+    :id="id"
+    :options="options"
+    :placeholder="placeholder"
+    :invalid="invalid"
+    :valid="valid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :modelValue="selection"
+    @update:modelValue="
+      setSelection(($event ?? []).map((entry) => entry.value))
+    "
+    @search="updateSearch($event)"
+    @load-more="loadMore"
+    @focus="emit('focus')"
+    @blur="onBlur"
+  />
+  <InputListbox
+    v-else-if="displayAsSelect"
+    enableSearch
+    showClearButton
+    :id="id"
+    :options="options"
+    :placeholder="placeholder"
+    :invalid="invalid"
+    :valid="valid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :modelValue="selection[0] ?? null"
+    @update:modelValue="setSelection($event == null ? [] : [$event.value])"
+    @search="updateSearch($event)"
+    @load-more="loadMore"
+    @focus="emit('focus')"
+    @blur="onBlur"
+  />
+  <template v-else-if="initialCount">
+    <div
+      :class="{
+        'border-valid text-valid': valid && !disabled,
+        'border-invalid text-invalid': invalid && !disabled,
+        'text-disabled cursor-not-allowed': disabled,
+        'bg-disabled border-valid text-valid cursor-not-allowed':
+          valid && disabled,
+        'bg-disabled border-invalid text-invalid cursor-not-allowed':
+          invalid && disabled,
+        'text-input hover:border-input-hover focus-within:border-input-focused':
+          !disabled && !invalid && !valid,
+      }"
     >
-      <div
-        v-show="displayAsSelect"
-        class="flex items-center justify-between gap-2 p-2 min-h-input h-auto"
-        @click.stop="toggleSelect"
-      >
-        <div class="flex flex-wrap items-center gap-2">
-          <template v-if="isArray && selection?.length" role="group">
-            <Button
-              id="dsfdsdf"
-              v-for="label in isArray ? selection : [selection]"
-              icon="cross"
-              iconPosition="right"
-              type="filterWell"
-              size="tiny"
-              class="h-[36px]"
-              :class="{
-                'text-disabled cursor-not-allowed': disabled,
-                'text-valid bg-valid': valid,
-                'text-invalid bg-invalid': invalid,
-              }"
-              @click="deselect(label as string)"
-            >
-              {{ label }}
-            </Button>
-          </template>
-          <template v-else-if="!isArray && selection">
-            {{ selection }}
-          </template>
-          <div v-if="!disabled">
-            <label :for="`search-for-${id}`" class="sr-only">
-              search in ontology
-            </label>
-            <input
-              :id="`search-for-${id}`"
-              type="text"
-              ref="searchInput"
-              v-model="searchTerms"
-              @input="updateSearch(searchTerms)"
-              class="flex-1 min-w-[10px] bg-transparent focus:outline-none"
-              :placeholder="showSelect ? 'Search in options' : ''"
-              autocomplete="off"
-              @click.stop="showSelect ? null : toggleSelect()"
-            />
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <BaseIcon
-            v-show="showSelect"
-            name="caret-up"
-            :class="{
-              'text-valid': valid,
-              'text-invalid': invalid,
-              'text-disabled cursor-not-allowed': disabled,
-              'text-input': !disabled,
-            }"
-            @click.stop.self="toggleSelect"
-          />
-          <BaseIcon
-            v-show="!showSelect"
-            name="caret-down"
-            :class="{
-              'text-valid': valid,
-              'text-invalid': invalid,
-              'text-disabled cursor-not-allowed': disabled,
-              'text-input': !disabled,
-            }"
-            @click.stop.self="toggleSelect"
-          />
-        </div>
-      </div>
-      <div
-        ref="wrapperRef"
-        :class="{
-          'max-h-[50vh] top-4 rounded-alt bg-input overflow-y-auto w-full pt-2 pb-6 pl-4 ':
-            displayAsSelect,
-        }"
-        v-show="(showSelect && !disabled) || !displayAsSelect"
+      <InputGroupContainer
+        :id="`${id}-ref`"
+        class="border-transparent w-full relative"
+        @focus="emit('focus')"
+        @blur="onBlur"
       >
         <fieldset>
           <legend class="sr-only">select {{ columnName }} options</legend>
           <InputCheckboxGroup
             v-if="isArray"
             :id="id"
-            :options="listOptions"
-            :modelValue="(selection as string[])"
+            :options="options"
+            :modelValue="selectedKeys"
             @select="select"
             @deselect="deselect"
             :invalid="invalid"
@@ -413,8 +284,8 @@ const onBlur = useDebounceFn(() => {
           <InputRadioGroup
             v-else
             :id="id"
-            :options="listOptions"
-            :modelValue="(selection as string)"
+            :options="options"
+            :modelValue="selectedKeys[0]"
             @select="select"
             @deselect="deselect"
             :invalid="invalid"
@@ -422,26 +293,23 @@ const onBlur = useDebounceFn(() => {
             :disabled="disabled"
           />
         </fieldset>
-        <div ref="sentinel" class="h-1"></div>
-        <div v-if="!listOptions?.length">No options found</div>
-      </div>
-    </InputGroupContainer>
-  </div>
+      </InputGroupContainer>
+    </div>
+    <Button
+      v-if="selectedKeys.length"
+      @click="clearSelection"
+      type="text"
+      size="tiny"
+      iconPosition="right"
+      class="mr-2 underline cursor-pointer"
+    >
+      Clear
+    </Button>
+  </template>
   <div
-    v-show="initialCount === 0"
+    v-else-if="!isInitLoading"
     class="py-4 flex justify-start items-center text-input-description"
   >
     <TextNoResultsMessage label="No options available" />
   </div>
-  <Button
-    v-if="isArray ? selection?.length : selection"
-    @click="clearSelection"
-    type="text"
-    size="tiny"
-    iconPosition="right"
-    class="mr-2 underline cursor-pointer"
-    :class="{ 'ml-2': displayAsSelect }"
-  >
-    Clear
-  </Button>
 </template>
