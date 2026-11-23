@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.tablestore.processor;
 
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
 import static org.molgenis.emx2.Constants.MG_DELETE;
 
 import java.util.ArrayList;
@@ -104,8 +105,8 @@ public class ImportRowProcessor implements RowProcessor {
       TableAndFileStore source, Column column, Row row, int index) {
     try {
       BinaryFileWrapper wrapper = source.getBinaryFileWrapper(row.getString(column.getName()));
-      if (row.containsName(column.getName() + "_filename")) {
-        wrapper.setFileName(row.getString(column.getName() + "_filename"));
+      if (row.containsName(column.getName() + FILE_FILENAME)) {
+        wrapper.setFileName(row.getString(column.getName() + FILE_FILENAME));
       }
 
       return wrapper;
