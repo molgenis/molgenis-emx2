@@ -93,7 +93,7 @@ public class OIDCController {
     }
 
     Object email = oidcProfile.get().getAttribute("email");
-    if (email == null) {
+    if (email == null || email.toString().isBlank()) {
       logger.error("OIDC sign in failed, email claim is empty");
       ctx.status(500);
       ctx.redirect("/");
