@@ -179,8 +179,13 @@ public final class GraphqlAdminFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
-              database.removeUser(new Username(email));
-              return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
+              if (email == null || email.isBlank()) {
+                return new GraphqlApiMutationResult(FAILED, "No email provided");
+              }
+
+              Username username = new Username(email);
+              database.removeUser(username);
+              return new GraphqlApiMutationResult(SUCCESS, "User %s removed", username.value());
             })
         .build();
   }

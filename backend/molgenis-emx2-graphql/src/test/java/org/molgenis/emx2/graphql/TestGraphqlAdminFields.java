@@ -306,6 +306,45 @@ class TestGraphqlAdminFields {
         });
   }
 
+  @Test
+  void shouldRemoveUser() {
+    database.tx(
+        testDatabase -> {
+          testDatabase.becomeAdmin();
+          testDatabase.addUser(TEST_PERSOON);
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+
+          try {
+            String message =
+                execute("mutation{removeUser(email:\"  testPersoon  \"){message}}")
+                    .at("/removeUser/message")
+                    .asText();
+            assertEquals("User testPersoon removed", message);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          assertFalse(testDatabase.hasUser(TEST_PERSOON));
+        });
+  }
+
+  @Test
+  void givenNoEmail_whenRemoveUser_thenFail() {
+    database.tx(
+        testDatabase -> {
+          testDatabase.becomeAdmin();
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+
+          try {
+            JsonNode result = execute("mutation{removeUser{status message}}").at("/removeUser");
+            assertEquals("FAILED", result.get("status").asText());
+            assertEquals("No email provided", result.get("message").asText());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
   @NotNull
   private static Map<String, Object> createUpdateUserVar() {
     Map<String, Object> variables = new HashMap<>();
