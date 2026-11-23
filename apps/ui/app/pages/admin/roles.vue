@@ -15,6 +15,7 @@ import type {
   ITableMetaData,
   TableRow,
 } from "../../../../metadata-utils/src/types.ts";
+import type { CustomRole } from "../../interfaces/interfaces.ts";
 
 definePageMeta({
   middleware: "admin-only",
@@ -44,7 +45,7 @@ const tablePermissions = {
 
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
-  { label: "Role Name", id: "roleName", columnType: "STRING" },
+  { label: "Role Name", id: "role", columnType: "STRING" },
   { label: "Tables", id: "tables", columnType: "STRING" },
   { label: "Users", id: "users", columnType: "STRING" },
 ];
@@ -58,13 +59,13 @@ const tableMetadata: ITableMetaData = {
   columns: COLUMNS,
 };
 
-const rows = ref<TableRow[]>([]);
+const adminSettings = await useAdminSettings();
+
+const rows = ref<CustomRole[]>(await adminSettings.getCustomRoles());
 const selectedRows = ref<Map<string, any>>(new Map());
 const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
 const showCellDetailSideModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
-
-const adminSettings = await useAdminSettings();
 
 function handleUpdateSettings(newSettings: ITableSettings) {
   tableSettings.value = newSettings;

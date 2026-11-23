@@ -1,6 +1,9 @@
 import { $fetch } from "ofetch";
+import type { TablePermission } from "../../../tailwind-components/types/types";
 import type {
+  BackendCustomRole,
   BackendUser,
+  CustomRole,
   Role,
   SchemaInfo,
   UpdateUser,
@@ -159,10 +162,67 @@ export function isValidPassword(password1: string, password2: string) {
   return password1.length > 7 && password1 === password2;
 }
 
+export async function loadCustomRoles(): Promise<{
+  customRoles: CustomRole[];
+  permissions: Record<string, TablePermission[]>;
+}> {
+  const query = `query customRoles{
+    _admin {
+      customRoles {
+        schemaId, 
+        role, 
+        users, 
+        permissions { 
+          table, select, insert, update, delete, isRowLevel 
+        }
+      }
+    }
+  }`;
+  return $fetch<AdminResponse>(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query,
+    },
+  })
+    .then((response) => {
+      return mapBackendCustomRolesToFrontEnd(response.data._admin.customRoles);
+    })
+    .catch((error) => {
+      handleError("Error loading custom roles: ", error.value);
+      return { customRoles: [], permissions: {} };
+    });
+}
+
+function mapBackendCustomRolesToFrontEnd(
+  backEndCustomRoles: BackendCustomRole[]
+): {
+  customRoles: CustomRole[];
+  permissions: Record<string, TablePermission[]>;
+} {
+  const customRoles =
+    backEndCustomRoles.map((customRole) => ({
+      schemaId: customRole.schemaId,
+      role: customRole.role,
+      users: customRole.users,
+      _rowId: { schemaId: customRole.schemaId, role: customRole.role },
+      _rowIdString: `${customRole.schemaId}-${customRole.role}`,
+    })) || [];
+  const permissions = backEndCustomRoles.reduce(
+    (accum: Record<string, TablePermission[]>, customRole) => {
+      accum[`${customRole.schemaId}-${customRole.role}`] =
+        customRole.permissions || [];
+      return accum;
+    },
+    {}
+  );
+  return { customRoles, permissions };
+}
+
 interface AdminResponse {
   data: {
     _admin: {
       users: BackendUser[];
+      customRoles: BackendCustomRole[];
     };
   };
 }

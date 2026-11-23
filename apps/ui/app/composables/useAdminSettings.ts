@@ -1,11 +1,18 @@
 import { reactive, ref } from "vue";
-import type { Role, SchemaInfo, User } from "~/interfaces/interfaces.ts";
+import type { TablePermission } from "../../../tailwind-components/types/types.ts";
+import type {
+  CustomRole,
+  Role,
+  SchemaInfo,
+  User,
+} from "../interfaces/interfaces.ts";
 import {
   createUser,
   deleteUser,
   getRoles,
   getSchemas,
   getUsers,
+  loadCustomRoles,
 } from "../util/adminUtils";
 
 const roles = ref<string[]>([]);
@@ -14,6 +21,8 @@ const schemas = ref<SchemaInfo[]>([]);
 const totalUserPages = ref(0);
 const users = ref<User[]>([]);
 const loaded = ref(false);
+const customRoles = ref<CustomRole[]>();
+const customRolePermissions = ref<Record<string, TablePermission[]>>({});
 
 export default async function useAdminSettings() {
   await loadAdminData();
@@ -52,6 +61,21 @@ export default async function useAdminSettings() {
     return rolesByUser.value[email] || [];
   }
 
+  async function getCustomRoles() {
+    if (!customRoles.value) {
+      const { customRoles: newRoles, permissions: newPermissions } =
+        await loadCustomRoles();
+      customRoles.value = newRoles;
+      customRolePermissions.value = newPermissions;
+      console.log("customRoles.value", customRoles.value);
+    }
+    return customRoles.value;
+  }
+
+  function getPermissionsForCustomRole(role: CustomRole): TablePermission[] {
+    return customRolePermissions.value[role._rowIdString] || [];
+  }
+
   return reactive({
     roles,
     rolesByUser,
@@ -59,6 +83,8 @@ export default async function useAdminSettings() {
     users,
     totalUserPages,
     addUser,
+    getCustomRoles,
+    getPermissionsForCustomRole,
     getRolesForUser,
     reloadAdminData,
     removeUsers,
