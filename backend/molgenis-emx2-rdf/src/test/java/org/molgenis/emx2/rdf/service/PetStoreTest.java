@@ -218,8 +218,7 @@ class PetStoreTest extends RdfServiceTestRunner {
 
   @Nested
   class Emx2PetStoreTest {
-    private static final String SCHEMA_NAME_PREFIX =
-        org.molgenis.emx2.rdf.service.PetStoreTest.Emx2PetStoreTest.class.getSimpleName() + "_";
+    private static final String SCHEMA_NAME_PREFIX = Emx2PetStoreTest.class.getSimpleName() + "_";
 
     /**
      * Encoded id for the Pet pooky. The id string is composed by base64 encoding the id columns and
