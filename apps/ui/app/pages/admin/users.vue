@@ -20,6 +20,7 @@ import NewUserModal from "../../components/NewUserModal.vue";
 import TokenManagement from "../../components/TokenManagement.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { User } from "../../interfaces/interfaces.ts";
+import { paginateRows, sortRows } from "../../util/adminUtils";
 
 /**
  * Todo:
@@ -111,7 +112,7 @@ const userNames = computed<string[]>(() => {
 const matchingUsers = computed<User[]>(() => {
   const search = tableSettings.value.search?.toLowerCase() || "";
   const filteredUsers = filterUsers(search, adminSettings.users);
-  return sortUsers(
+  return sortRows(
     filteredUsers,
     tableSettings.value.orderby?.column || "email",
     tableSettings.value.orderby?.direction || "ASC"
@@ -119,7 +120,7 @@ const matchingUsers = computed<User[]>(() => {
 });
 
 const usersShown = computed<User[]>(() =>
-  paginateUsers(
+  paginateRows(
     matchingUsers.value,
     tableSettings.value.page,
     tableSettings.value.pageSize
@@ -211,32 +212,6 @@ function filterUsers(search: string, users: User[]): User[] {
       );
     });
   }
-}
-
-function sortUsers(
-  users: User[],
-  column: string,
-  direction: "ASC" | "DESC"
-): User[] {
-  return [...users].sort((a, b) => {
-    const aValue = JSON.stringify(a[column as keyof User]);
-    const bValue = JSON.stringify(b[column as keyof User]);
-    if (aValue === undefined || bValue === undefined) {
-      return 0;
-    }
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return direction === "ASC"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
-    return 0;
-  });
-}
-
-function paginateUsers(users: User[], page: number, pageSize: number): User[] {
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  return users.slice(startIndex, endIndex);
 }
 
 function rowToUser(row: TableRow): User {

@@ -67,7 +67,6 @@ export default async function useAdminSettings() {
         await loadCustomRoles();
       customRoles.value = newRoles;
       customRolePermissions.value = newPermissions;
-      console.log("customRoles.value", customRoles.value);
     }
     return customRoles.value;
   }

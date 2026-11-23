@@ -40,4 +40,4 @@ export type BackendCustomRole = abstractRole & {
   permissions: TablePermission[];
 };
 
-export type CustomRole = abstractRole & TableRow;
+export type CustomRole = abstractRole & TableRow & { tables: string[] };

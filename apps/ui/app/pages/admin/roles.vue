@@ -1,31 +1,34 @@
 <script lang="ts" setup>
 import { definePageMeta } from "#imports";
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import type {
+  IColumn,
+  ITableMetaData,
+  TableRow,
+} from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import CellDetailModal from "../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
 import type {
   cellPayload,
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
-import type {
-  IColumn,
-  ITableMetaData,
-  TableRow,
-} from "../../../../metadata-utils/src/types.ts";
 import type { CustomRole } from "../../interfaces/interfaces.ts";
+import { paginateRows, sortRows } from "../../util/adminUtils";
 
 definePageMeta({
   middleware: "admin-only",
 });
 
+const ROLES_SCHEMA_ID = "roles";
 const DEFAULT_TABLE_SETTINGS: ITableSettings = {
   page: 1,
   pageSize: 50,
   orderby: {
-    column: "email",
+    column: "schemaId",
     direction: "ASC",
   },
 };
@@ -46,14 +49,14 @@ const tablePermissions = {
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
   { label: "Role Name", id: "role", columnType: "STRING" },
-  { label: "Tables", id: "tables", columnType: "STRING" },
-  { label: "Users", id: "users", columnType: "STRING" },
+  { label: "Tables", id: "tables", columnType: "STRING_ARRAY" },
+  { label: "Users", id: "users", columnType: "STRING_ARRAY" },
 ];
 
 const tableMetadata: ITableMetaData = {
-  id: "roles",
-  schemaId: "roles",
-  name: "roles",
+  id: ROLES_SCHEMA_ID,
+  schemaId: ROLES_SCHEMA_ID,
+  name: ROLES_SCHEMA_ID,
   label: "Roles",
   tableType: "DATA",
   columns: COLUMNS,
@@ -61,15 +64,44 @@ const tableMetadata: ITableMetaData = {
 
 const adminSettings = await useAdminSettings();
 
-const rows = ref<CustomRole[]>(await adminSettings.getCustomRoles());
-const selectedRows = ref<Map<string, any>>(new Map());
+const roles = ref<CustomRole[]>(await adminSettings.getCustomRoles());
+const selectedRows = ref<Map<string, CustomRole>>(new Map());
 const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
 const showCellDetailSideModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
 
+const matchingRoles = computed<CustomRole[]>(() => {
+  const search = tableSettings.value.search?.toLowerCase() || "";
+  return sortRows(
+    filterRoles(search, roles.value),
+    tableSettings.value.orderby?.column || "schemaId",
+    tableSettings.value.orderby?.direction || "ASC"
+  );
+});
+
+const rolesShown = computed<CustomRole[]>(() =>
+  paginateRows(
+    matchingRoles.value,
+    tableSettings.value.page,
+    tableSettings.value.pageSize
+  )
+);
+
+function filterRoles(search: string, roles: CustomRole[]): CustomRole[] {
+  if (!search) {
+    return roles;
+  }
+  return roles.filter((role) =>
+    [role.schemaId, role.role, ...role.tables, ...role.users].some((value) =>
+      value?.toLowerCase().includes(search)
+    )
+  );
+}
+
 function handleUpdateSettings(newSettings: ITableSettings) {
   tableSettings.value = newSettings;
 }
+
 function handleCellClicked(payload: cellPayload) {
   cellDetailPayload.value = payload;
   showCellDetailSideModal.value = true;
@@ -79,36 +111,30 @@ function handleToggleRowSelection(row: TableRow) {
   if (selectedRows.value.has(row._rowIdString)) {
     selectedRows.value.delete(row._rowIdString);
   } else {
-    selectedRows.value.set(row._rowIdString, row);
+    selectedRows.value.set(row._rowIdString, rowToRole(row));
   }
 }
 
 function handleRowAction(payload: { action: string }) {
-  if ("action" in payload) {
-    const action = payload.action;
-    const singleRowSelected =
-      selectedRows.value.size === 1
-        ? rows.value.find((row) => selectedRows.value.has(row._rowIdString))
-        : null;
-    switch (action) {
-      case "delete-selection":
-        // showDeleteUserConfirmation();
-        break;
-      case "edit-selection":
-        if (singleRowSelected) {
-          //   openEditUserModal(singleRowSelected);
-        }
-        break;
-      case "select-all-on-page":
-        rows.value.forEach((row) => {
-          selectedRows.value.set(row._rowIdString, row);
-        });
-        break;
-      case "select-none":
-        selectedRows.value.clear();
-        break;
-    }
+  switch (payload.action) {
+    case "select-all-on-page":
+      rolesShown.value.forEach((role) => {
+        selectedRows.value.set(role._rowIdString, role);
+      });
+      break;
+    case "select-none":
+      selectedRows.value.clear();
+      break;
   }
+}
+
+function rowToRole(row: TableRow): CustomRole {
+  return row as CustomRole;
+}
+
+function roleDisplayName(row: TableRow): string {
+  const role = rowToRole(row);
+  return `${role.role} (${role.schemaId})`;
 }
 </script>
 
@@ -117,13 +143,13 @@ function handleRowAction(payload: { action: string }) {
     <ContentBlock
       class="w-full mt-3"
       title="Role management"
-      :description="`${rows.length} roles found`"
+      :description="`${matchingRoles.length} roles found`"
     >
       <TableInteractive
         :features="tableFeatures"
         :permissions="tablePermissions"
-        :rows="rows"
-        :rowCount="rows.length"
+        :rows="rolesShown"
+        :rowCount="matchingRoles.length"
         :selectedRows="selectedRows"
         :settings="tableSettings"
         :tableMetadata="tableMetadata"
@@ -135,38 +161,34 @@ function handleRowAction(payload: { action: string }) {
       >
         <template #row-action="{ row }">
           <Button
-            :id="`edit-role-${row.email}`"
+            :id="`edit-role-${row._rowIdString}`"
             iconOnly
             type="inline"
             icon="edit"
-            :label="`Edit role: ${row.email}`"
-            @click=""
+            :label="`Edit role: ${roleDisplayName(row)}`"
           />
           <Button
-            :id="`delete-role-${row.email}`"
+            :id="`delete-role-${row._rowIdString}`"
             iconOnly
             type="inline"
             icon="trash"
-            :label="`Delete role: ${row.email}`"
-            @click=""
+            :label="`Delete role: ${roleDisplayName(row)}`"
           />
-          <Button
-            v-if="Array.isArray(row.tokens) && row.tokens.length"
-            :id="`manage-tokens-${row.email}`"
-            type="inline"
-            size="tiny"
-            @click=""
-          >
-            {{ row.tokens?.length }} tokens
-          </Button>
         </template>
 
         <template #buttons>
-          <Button type="primary" size="medium" icon="add-circle" @click="">
+          <Button type="primary" size="medium" icon="add-circle">
             Create role
           </Button>
         </template>
       </TableInteractive>
+
+      <CellDetailModal
+        v-if="cellDetailPayload"
+        :payload="cellDetailPayload"
+        :schemaId="ROLES_SCHEMA_ID"
+        v-model:showModal="showCellDetailSideModal"
+      />
     </ContentBlock>
   </Container>
 </template>

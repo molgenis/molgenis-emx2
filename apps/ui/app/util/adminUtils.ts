@@ -204,6 +204,9 @@ function mapBackendCustomRolesToFrontEnd(
       schemaId: customRole.schemaId,
       role: customRole.role,
       users: customRole.users,
+      tables: (customRole.permissions || []).map(
+        (permission) => permission.table
+      ),
       _rowId: { schemaId: customRole.schemaId, role: customRole.role },
       _rowIdString: `${customRole.schemaId}-${customRole.role}`,
     })) || [];
@@ -216,6 +219,32 @@ function mapBackendCustomRolesToFrontEnd(
     {}
   );
   return { customRoles, permissions };
+}
+
+export function sortRows<T extends object>(
+  rows: T[],
+  column: string,
+  direction: "ASC" | "DESC"
+): T[] {
+  return [...rows].sort((a, b) => {
+    const aValue = JSON.stringify(a[column as keyof T]);
+    const bValue = JSON.stringify(b[column as keyof T]);
+    if (aValue === undefined || bValue === undefined) {
+      return 0;
+    }
+    return direction === "ASC"
+      ? aValue.localeCompare(bValue)
+      : bValue.localeCompare(aValue);
+  });
+}
+
+export function paginateRows<T>(
+  rows: T[],
+  page: number,
+  pageSize: number
+): T[] {
+  const startIndex = (page - 1) * pageSize;
+  return rows.slice(startIndex, startIndex + pageSize);
 }
 
 interface AdminResponse {
