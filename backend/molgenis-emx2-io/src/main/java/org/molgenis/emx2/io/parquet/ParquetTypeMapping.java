@@ -42,14 +42,14 @@ final class ParquetTypeMapping {
    */
   static MessageType schema(SequencedMap<String, ColumnType> columnTypes) {
     Types.MessageTypeBuilder schema = Types.buildMessage();
+
     for (Map.Entry<String, ColumnType> column : columnTypes.entrySet()) {
       String columnName = column.getKey();
       ColumnType columnType = column.getValue();
       Class<?> valueType = valueType(columnType);
-      Type.Repetition repetition = Type.Repetition.OPTIONAL;
-      if (isRepeated(columnType)) {
-        repetition = Type.Repetition.REPEATED;
-      }
+
+      Type.Repetition repetition =
+          (isRepeated(columnType)) ? Type.Repetition.REPEATED : Type.Repetition.OPTIONAL;
 
       switch (valueType.getSimpleName()) {
         case "Boolean" -> schema.primitive(PrimitiveTypeName.BOOLEAN, repetition).named(columnName);
@@ -64,7 +64,7 @@ final class ParquetTypeMapping {
         case "LocalDateTime" ->
             schema
                 .primitive(PrimitiveTypeName.INT64, repetition)
-                .as(LogicalTypeAnnotation.timestampType(false, TimeUnit.MICROS))
+                .as(LogicalTypeAnnotation.timestampType(false, TimeUnit.MILLIS))
                 .named(columnName);
         case "String" ->
             schema

@@ -23,7 +23,7 @@ import org.molgenis.emx2.TableMetadata;
 public class RowWriteSupport extends WriteSupport<Row> {
 
   private final SequencedMap<String, ColumnType> columnTypes = new LinkedHashMap<>();
-  private RecordConsumer recordConsumer;
+  private RecordConsumer consumer;
 
   public RowWriteSupport(TableMetadata table, List<String> columnNames) {
     for (String columnName : columnNames) {
@@ -59,13 +59,13 @@ public class RowWriteSupport extends WriteSupport<Row> {
   }
 
   @Override
-  public void prepareForWrite(RecordConsumer recordConsumer) {
-    this.recordConsumer = recordConsumer;
+  public void prepareForWrite(RecordConsumer consumer) {
+    this.consumer = consumer;
   }
 
   @Override
   public void write(Row row) {
-    recordConsumer.startMessage();
+    consumer.startMessage();
 
     try {
       int index = 0;
@@ -77,7 +77,7 @@ public class RowWriteSupport extends WriteSupport<Row> {
         index++;
       }
     } finally {
-      recordConsumer.endMessage();
+      consumer.endMessage();
     }
   }
 
@@ -95,26 +95,21 @@ public class RowWriteSupport extends WriteSupport<Row> {
   }
 
   private void writeField(String columnName, int index, List<Object> values) {
-    recordConsumer.startField(columnName, index);
-    for (Object value : values) {
-      consumeValue(value);
-    }
-    recordConsumer.endField(columnName, index);
+    consumer.startField(columnName, index);
+    values.forEach(this::consumeValue);
+    consumer.endField(columnName, index);
   }
 
   private void consumeValue(Object value) {
     switch (value) {
-      case Boolean bool -> recordConsumer.addBoolean(bool);
-      case Integer integer -> recordConsumer.addInteger(integer);
-      case Long longValue -> recordConsumer.addLong(longValue);
-      case Double decimal -> recordConsumer.addDouble(decimal);
-      case LocalDate date -> recordConsumer.addInteger(Math.toIntExact(date.toEpochDay()));
-      case LocalDateTime dateTime -> {
-        long micros =
-            dateTime.toEpochSecond(ZoneOffset.UTC) * 1_000_000L + dateTime.getNano() / 1_000L;
-        recordConsumer.addLong(micros);
-      }
-      case String string -> recordConsumer.addBinary(Binary.fromString(string));
+      case Boolean bool -> consumer.addBoolean(bool);
+      case Integer integer -> consumer.addInteger(integer);
+      case Long longValue -> consumer.addLong(longValue);
+      case Double decimal -> consumer.addDouble(decimal);
+      case LocalDate date -> consumer.addInteger(Math.toIntExact(date.toEpochDay()));
+      case LocalDateTime dateTime ->
+          consumer.addLong(dateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
+      case String string -> consumer.addBinary(Binary.fromString(string));
       default ->
           throw new MolgenisException(
               "Cannot write value of type " + value.getClass().getName() + " to Parquet");

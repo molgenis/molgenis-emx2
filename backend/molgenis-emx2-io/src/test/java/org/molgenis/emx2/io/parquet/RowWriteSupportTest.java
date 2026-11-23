@@ -61,7 +61,7 @@ class RowWriteSupportTest {
               Column.column("uuid_array").setType(ColumnType.UUID_ARRAY));
 
   @Test
-  void givenColumns_whenWriting_thenColumnsAreOptionalStrings() throws IOException {
+  void givenStringColumn_whenWriting_thenColumnIsOptionalString() throws IOException {
     Path file = write(List.of("string"), List.of(Row.row("string", "Bread")));
 
     Type column = fileSchema(file).getType("string");
@@ -94,9 +94,11 @@ class RowWriteSupportTest {
 
   static Stream<Arguments> writtenValuesAndStoredValues() {
     LocalDate date = LocalDate.of(2026, 11, 30);
-    LocalDateTime dateTime = LocalDateTime.of(2026, 11, 23, 6, 30, 15, 123_456_000);
     int epochDay = Math.toIntExact(date.toEpochDay());
-    long micros = 1_795_415_415_123_456L;
+
+    LocalDateTime dateTime = LocalDateTime.of(2026, 11, 23, 6, 30, 15, 123_456_000);
+    long millis = 1_795_415_415_123L;
+
     return Stream.of(
         Arguments.of("string", "Bread", List.of("Bread")),
         Arguments.of("int", 3, List.of(3)),
@@ -104,7 +106,7 @@ class RowWriteSupportTest {
         Arguments.of("decimal", 2.49, List.of(2.49)),
         Arguments.of("bool", true, List.of(true)),
         Arguments.of("date", date, List.of(epochDay)),
-        Arguments.of("datetime", dateTime, List.of(micros)),
+        Arguments.of("datetime", dateTime, List.of(millis)),
         Arguments.of(
             "string_array",
             new String[] {"fresh", "local, organic"},
@@ -114,14 +116,14 @@ class RowWriteSupportTest {
         Arguments.of("decimal_array", new Double[] {0.8, 1.2}, List.of(0.8, 1.2)),
         Arguments.of("bool_array", new Boolean[] {true, false}, List.of(true, false)),
         Arguments.of("date_array", new LocalDate[] {date}, List.of(epochDay)),
-        Arguments.of("datetime_array", new LocalDateTime[] {dateTime}, List.of(micros)));
+        Arguments.of("datetime_array", new LocalDateTime[] {dateTime}, List.of(millis)));
   }
 
-  @ParameterizedTest
+  @ParameterizedTest(name = "{0}")
   @MethodSource("writtenValuesAndStoredValues")
-  void givenValue_whenWriting_thenStoredValuesAreReadBack(
-      String columnName, Object value, List<Object> expected) throws IOException {
-    Path file = write(List.of(columnName), List.of(Row.row(columnName, value)));
+  void givenValue_whenWriting_thenValueIsStoredInParquetEncoding(
+      String columnName, Object rawValue, List<Object> expected) throws IOException {
+    Path file = write(List.of(columnName), List.of(Row.row(columnName, rawValue)));
 
     assertEquals(expected, storedValues(readRows(file).getFirst(), columnName));
   }
@@ -138,7 +140,7 @@ class RowWriteSupportTest {
   }
 
   @Test
-  void givenEmptyOrNullArrays_whenWriting_thenFieldsHaveNoValues() throws IOException {
+  void givenEmptyAllNullOrMissingArrays_whenWriting_thenFieldsHaveNoValues() throws IOException {
     Row row = Row.row("int_array", new Integer[] {}, "decimal_array", new Double[] {null, null});
 
     Path file = write(List.of("int_array", "decimal_array", "bool_array"), List.of(row));
@@ -198,6 +200,7 @@ class RowWriteSupportTest {
     PrimitiveTypeName primitiveType =
         group.getType().getType(columnName).asPrimitiveType().getPrimitiveTypeName();
     List<Object> values = new ArrayList<>();
+
     for (int i = 0; i < group.getFieldRepetitionCount(columnName); i++) {
       switch (primitiveType) {
         case INT32 -> values.add(group.getInteger(columnName, i));
@@ -208,6 +211,7 @@ class RowWriteSupportTest {
         default -> fail("No getter for " + primitiveType);
       }
     }
+
     return values;
   }
 
