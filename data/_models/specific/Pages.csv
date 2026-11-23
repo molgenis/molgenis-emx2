@@ -165,6 +165,13 @@ Charts,,legend marker type,ontology,,,,Data viz legend markers,,,"(() => {
         return false;
     }
 })();",,,"={name:""circle""}",sio:SIO_000468,The shape of the legend item icon: squares or circles,pages
+Charts,,show values on legend hover event,bool,,,,,,,"(() => {
+    if ([""Grouped bar chart"", ""Grouped column chart""].includes(chartType?.name) && legendIsEnabled) {
+     return true;
+    } else {
+        return false;
+    }
+})();",,,FALSE,,"If this option is true and the legend is enabled, the underlying values will also be displayed when a item in the legend is hovered.",pages
 Chart data,,,,,,,,,,,,,,sio:SIO_000089,Data that is displayed in the chart,pages
 Chart data,,id,string,1,TRUE,,,,,,,,,sio:SIO_000115,A value that identifies a specific point in the chart,pages
 Statistical chart data,Chart data,,,,,,,,,,,,,sio:SIO_000089,"Data used in statistical visualisations, e.g., column charts, line charts, etc.",pages
