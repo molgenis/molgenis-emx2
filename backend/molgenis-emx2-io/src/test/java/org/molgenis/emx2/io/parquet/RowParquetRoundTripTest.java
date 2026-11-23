@@ -1,10 +1,13 @@
 package org.molgenis.emx2.io.parquet;
 
+import static org.molgenis.emx2.Column.column;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,12 +25,20 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.datamodels.util.CompareTools;
 
-class RowParquetReadWriteTest {
+class RowParquetRoundTripTest {
 
-  private static final LocalDateTime NOW = LocalDateTime.now();
+  private static final LocalDateTime NOW = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
   private static final UUID RANDOM_UUID = UUID.randomUUID();
+
+  private static final TableMetadata PRODUCTS =
+      new TableMetadata("products")
+          .add(
+              column("name").setType(ColumnType.STRING),
+              column("price").setType(ColumnType.DECIMAL),
+              column("stock").setType(ColumnType.INT));
 
   @TempDir Path tmp;
 
@@ -59,10 +70,11 @@ class RowParquetReadWriteTest {
   @ParameterizedTest(name = "{0} {1}")
   @MethodSource("valuesPerColumnType")
   void givenValueOfColumnType_whenWritingAndReadingBack_thenValueIsEqual(
-      ColumnType ignored, Object rawValue) throws IOException {
+      ColumnType columnType, Object rawValue) throws IOException {
+    TableMetadata table = new TableMetadata("values").add(column("value").setType(columnType));
     Row row = Row.row("value", rawValue);
 
-    Path file = write(List.of("value"), List.of(row));
+    Path file = write(table, List.of("value"), List.of(row));
 
     CompareTools.assertEquals(List.of(row), readAll(file));
   }
@@ -70,7 +82,10 @@ class RowParquetReadWriteTest {
   @Test
   void givenRowMissingColumn_whenWriting_thenValueIsNull() throws IOException {
     Path file =
-        write(List.of("name", "price", "stock"), List.of(Row.row("name", "Bread", "stock", 42)));
+        write(
+            PRODUCTS,
+            List.of("name", "price", "stock"),
+            List.of(Row.row("name", "Bread", "stock", 42)));
 
     CompareTools.assertEquals(
         List.of(Row.row("name", "Bread", "price", null, "stock", 42)), readAll(file));
@@ -78,15 +93,16 @@ class RowParquetReadWriteTest {
 
   @Test
   void givenRowWithExtraColumn_whenWriting_thenExtraColumnIsDropped() throws IOException {
-    Path file = write(List.of("name"), List.of(Row.row("name", "Bread", "price", 1)));
+    Path file = write(PRODUCTS, List.of("name"), List.of(Row.row("name", "Bread", "price", 1)));
 
     CompareTools.assertEquals(List.of(Row.row("name", "Bread")), readAll(file));
   }
 
-  private Path write(List<String> columnNames, List<Row> rows) throws IOException {
+  private Path write(TableMetadata table, List<String> columnNames, List<Row> rows)
+      throws IOException {
     Path file = tmp.resolve("product.parquet");
     try (ParquetWriter<Row> writer =
-        new RowParquetWriterBuilder(new LocalOutputFile(file), columnNames)
+        new RowParquetWriterBuilder(new LocalOutputFile(file), table, columnNames)
             .withConf(new PlainParquetConfiguration())
             .build()) {
       for (Row row : rows) {

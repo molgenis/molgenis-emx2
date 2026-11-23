@@ -2,7 +2,6 @@ package org.molgenis.emx2.io.parquet;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -109,11 +108,7 @@ public class RowWriteSupport extends WriteSupport<Row> {
       case Long longValue -> recordConsumer.addLong(longValue);
       case Double decimal -> recordConsumer.addDouble(decimal);
       case LocalDate date -> recordConsumer.addInteger(Math.toIntExact(date.toEpochDay()));
-      case LocalDateTime dateTime -> {
-        long micros =
-            dateTime.toEpochSecond(ZoneOffset.UTC) * 1_000_000L + dateTime.getNano() / 1_000L;
-        recordConsumer.addLong(micros);
-      }
+      case LocalDateTime dateTime -> recordConsumer.addLong(ParquetTimestamp.toMicros(dateTime));
       case String string -> recordConsumer.addBinary(Binary.fromString(string));
       default ->
           throw new MolgenisException(
