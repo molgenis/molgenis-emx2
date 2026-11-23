@@ -8,6 +8,7 @@ import type {
 } from "../interfaces/interfaces.ts";
 import {
   createUser,
+  deleteCustomRoles,
   deleteUser,
   getRoles,
   getSchemas,
@@ -71,6 +72,16 @@ export default async function useAdminSettings() {
     return customRoles.value;
   }
 
+  function reloadCustomRoles() {
+    customRoles.value = undefined;
+    return getCustomRoles();
+  }
+
+  async function removeCustomRoles(rolesToRemove: CustomRole[]) {
+    await deleteCustomRoles(rolesToRemove);
+    await Promise.all([reloadCustomRoles(), reloadAdminData()]);
+  }
+
   function getPermissionsForCustomRole(role: CustomRole): TablePermission[] {
     return customRolePermissions.value[role._rowIdString] || [];
   }
@@ -80,9 +91,12 @@ export default async function useAdminSettings() {
     rolesByUser,
     schemas,
     users,
+    customRoles,
     totalUserPages,
     addUser,
     getCustomRoles,
+    reloadCustomRoles,
+    removeCustomRoles,
     getPermissionsForCustomRole,
     getRolesForUser,
     reloadAdminData,

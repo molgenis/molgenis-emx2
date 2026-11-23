@@ -15,6 +15,7 @@ import type {
   cellPayload,
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
+import DeleteRoleConfirmation from "../../components/DeleteRoleConfirmation.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { CustomRole } from "../../interfaces/interfaces.ts";
 import { paginateRows, sortRows } from "../../util/adminUtils";
@@ -64,11 +65,15 @@ const tableMetadata: ITableMetaData = {
 
 const adminSettings = await useAdminSettings();
 
-const roles = ref<CustomRole[]>(await adminSettings.getCustomRoles());
+await adminSettings.getCustomRoles();
+
+const roles = computed<CustomRole[]>(() => adminSettings.customRoles ?? []);
 const selectedRows = ref<Map<string, CustomRole>>(new Map());
 const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
 const showCellDetailSideModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
+const showDeleteRoleModal = ref(false);
+const rolesForDeletion = ref<CustomRole[]>([]);
 
 const matchingRoles = computed<CustomRole[]>(() => {
   const search = tableSettings.value.search?.toLowerCase() || "";
@@ -98,6 +103,20 @@ function filterRoles(search: string, roles: CustomRole[]): CustomRole[] {
   );
 }
 
+function showDeleteRoleConfirmation(role?: CustomRole) {
+  const candidates = role ? [role] : Array.from(selectedRows.value.values());
+  if (!candidates.length) {
+    return;
+  }
+  rolesForDeletion.value = candidates;
+  showDeleteRoleModal.value = true;
+}
+
+async function handleDeleteRoles(rolesToDelete: CustomRole[]) {
+  await adminSettings.removeCustomRoles(rolesToDelete);
+  rolesToDelete.forEach((role) => selectedRows.value.delete(role._rowIdString));
+}
+
 function handleUpdateSettings(newSettings: ITableSettings) {
   tableSettings.value = newSettings;
 }
@@ -117,6 +136,9 @@ function handleToggleRowSelection(row: TableRow) {
 
 function handleRowAction(payload: { action: string }) {
   switch (payload.action) {
+    case "delete-selection":
+      showDeleteRoleConfirmation();
+      break;
     case "select-all-on-page":
       rolesShown.value.forEach((role) => {
         selectedRows.value.set(role._rowIdString, role);
@@ -173,6 +195,7 @@ function roleDisplayName(row: TableRow): string {
             type="inline"
             icon="trash"
             :label="`Delete role: ${roleDisplayName(row)}`"
+            @click="showDeleteRoleConfirmation(rowToRole(row))"
           />
         </template>
 
@@ -188,6 +211,13 @@ function roleDisplayName(row: TableRow): string {
         :payload="cellDetailPayload"
         :schemaId="ROLES_SCHEMA_ID"
         v-model:showModal="showCellDetailSideModal"
+      />
+
+      <DeleteRoleConfirmation
+        v-if="showDeleteRoleModal"
+        v-model:visible="showDeleteRoleModal"
+        :roles="rolesForDeletion"
+        @deleteRoles="handleDeleteRoles"
       />
     </ContentBlock>
   </Container>

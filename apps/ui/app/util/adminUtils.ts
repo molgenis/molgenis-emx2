@@ -193,6 +193,25 @@ export async function loadCustomRoles(): Promise<{
     });
 }
 
+export async function deleteCustomRoles(customRoles: CustomRole[]) {
+  if (!customRoles.length) return;
+
+  return $fetch(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query: `mutation dropRoles($roles:[DropRoleInput]){drop(roles:$roles){status,message}}`,
+      variables: {
+        roles: customRoles.map((customRole) => ({
+          schemaId: customRole.schemaId,
+          roles: customRole.role,
+        })),
+      },
+    },
+  }).catch((error) => {
+    handleError("Error deleting custom roles: ", error);
+  });
+}
+
 function mapBackendCustomRolesToFrontEnd(
   backEndCustomRoles: BackendCustomRole[]
 ): {
