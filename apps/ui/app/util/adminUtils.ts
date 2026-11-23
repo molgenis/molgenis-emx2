@@ -207,8 +207,6 @@ export async function deleteCustomRoles(customRoles: CustomRole[]) {
         })),
       },
     },
-  }).catch((error) => {
-    handleError("Error deleting custom roles: ", error);
   });
 }
 

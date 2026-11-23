@@ -16,6 +16,7 @@ import type {
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
 import DeleteRoleConfirmation from "../../components/DeleteRoleConfirmation.vue";
+import { errorToMessage } from "../../../../tailwind-components/app/utils/errorToMessage";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { CustomRole } from "../../interfaces/interfaces.ts";
 import { paginateRows, sortRows } from "../../util/adminUtils";
@@ -74,6 +75,8 @@ const showCellDetailSideModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
 const showDeleteRoleModal = ref(false);
 const rolesForDeletion = ref<CustomRole[]>([]);
+const deleteRolesErrorMessage = ref("");
+const deletingRoles = ref(false);
 
 const matchingRoles = computed<CustomRole[]>(() => {
   const search = tableSettings.value.search?.toLowerCase() || "";
@@ -109,12 +112,27 @@ function showDeleteRoleConfirmation(role?: CustomRole) {
     return;
   }
   rolesForDeletion.value = candidates;
+  deleteRolesErrorMessage.value = "";
   showDeleteRoleModal.value = true;
 }
 
 async function handleDeleteRoles(rolesToDelete: CustomRole[]) {
-  await adminSettings.removeCustomRoles(rolesToDelete);
-  rolesToDelete.forEach((role) => selectedRows.value.delete(role._rowIdString));
+  deletingRoles.value = true;
+  deleteRolesErrorMessage.value = "";
+  try {
+    await adminSettings.removeCustomRoles(rolesToDelete);
+    rolesToDelete.forEach((role) =>
+      selectedRows.value.delete(role._rowIdString)
+    );
+    showDeleteRoleModal.value = false;
+  } catch (error) {
+    deleteRolesErrorMessage.value = errorToMessage(
+      error,
+      "Error deleting role(s)"
+    );
+  } finally {
+    deletingRoles.value = false;
+  }
 }
 
 function handleUpdateSettings(newSettings: ITableSettings) {
@@ -217,6 +235,8 @@ function roleDisplayName(row: TableRow): string {
         v-if="showDeleteRoleModal"
         v-model:visible="showDeleteRoleModal"
         :roles="rolesForDeletion"
+        :errorMessage="deleteRolesErrorMessage"
+        :deleting="deletingRoles"
         @deleteRoles="handleDeleteRoles"
       />
     </ContentBlock>
