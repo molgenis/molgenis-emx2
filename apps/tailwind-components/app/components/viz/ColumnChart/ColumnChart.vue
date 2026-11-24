@@ -13,7 +13,6 @@ import {
   min,
   scaleLinear,
   axisLeft,
-  schemeBlues,
 } from "d3";
 
 const d3 = {
@@ -27,7 +26,6 @@ const d3 = {
   min,
   scaleLinear,
   axisLeft,
-  schemeBlues,
 };
 
 import ChartTitle from "../ChartTitle.vue";
@@ -38,13 +36,11 @@ import {
   generateAxisTickData,
   newNumericAxisGenerator,
   newCategoricalAxisGenerator,
+  selectMouseOverElements,
 } from "../../../utils/viz";
+import { ColorPaletteGenerator } from "../../../utils/viz/ColorPaletteGenerator.ts";
 
-import type {
-  IStatisticalCharts,
-  IChartData,
-  IChartPalette,
-} from "../../../../types/cms.ts";
+import type { IStatisticalCharts, IChartData } from "../../../../types/cms.ts";
 
 import type {
   NumericAxisTickData,
@@ -67,6 +63,7 @@ const props = withDefaults(defineProps<IStatisticalCharts>(), {
   enableHoverEvents: true,
   enableClickEvents: false,
   enableAnimations: true,
+  showValuesOnLegendHoverEvent: false,
 });
 
 const emits = defineEmits(["column-clicked"]);
@@ -78,7 +75,9 @@ const parentElem = computed<HTMLElement>(() => {
 
 const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
-const chartColumns = ref(); // receives d3.select rect
+const chartColumns = ref(); // receives d3.select
+const chartLabels = ref(); // receives d3.select
+const legendData = ref<Record<string, string>>({});
 
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
@@ -196,49 +195,22 @@ const yScale = computed(() => {
 });
 
 const colorPalette = computed(() => {
-  let domains: string[] = [...new Set(xAxisData.value.domains)].sort();
-  let colors: string[];
+  const domains = [...new Set(xAxisData.value.domains)].sort();
+  const palette = ColorPaletteGenerator({
+    data: props.chartData as IChartData[],
+    axisDomains: domains,
+    isGroupedChart: isGroupedColumnChart.value,
+    colorPalette: props.colorPalette,
+    fillColor: props.fillColor,
+    fallbackColor: "#ccc",
+  });
 
-  if (isGroupedColumnChart.value && props.colorPalette) {
-    const paletteSorted = props.colorPalette.sort(
-      (current: IChartPalette, next: IChartPalette) => {
-        return current.value.localeCompare(next.value);
-      }
-    );
-    domains = paletteSorted.map((row: IChartPalette) => row.value);
-    colors = paletteSorted.map((row: IChartPalette) => row.color);
-
-    legendData.value = Object.fromEntries(
-      paletteSorted.map((item) => [item.value, item.color])
-    );
-  } else if (isGroupedColumnChart.value && !props.colorPalette) {
-    const length = domains.length === 2 ? 3 : domains.length;
-    colors = d3.schemeBlues[length as number] as string[];
-
-    legendData.value = Object.fromEntries(
-      domains.map((item, index) => {
-        return [item, colors[index] || "#ccc"];
-      })
-    );
-  } else if (props.chartData?.find((row) => row.fillColor)) {
-    const newColorData = (props.chartData as IChartData[]).map(
-      (row: IChartData) => {
-        return {
-          xValue: row.xValue,
-          fillColor: row.fillColor || props.fillColor,
-        };
-      }
-    );
-
-    domains = newColorData.map((row) => row.xValue);
-    colors = newColorData.map((row) => row.fillColor);
-  } else {
-    colors = Array(domains.length).fill(props.fillColor);
+  if (palette.legendData) {
+    legendData.value = palette.legendData;
   }
-  return d3.scaleOrdinal().domain(domains).range(colors).unknown("#ccc");
-});
 
-const legendData = ref<Record<string, any>>({});
+  return palette.generator;
+});
 
 function renderChartAxes() {
   if (chartArea.value) {
@@ -259,38 +231,34 @@ function renderChartAxes() {
   }
 }
 
-function onMouseOver(event: Event, row: IChartData) {
-  const rect = event.target as HTMLElement;
-  let text: SVGTextElement;
+function onMouseOver(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
 
-  if (isGroupedColumnChart.value) {
-    text = chartArea.value.select(
-      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
-    )._groups[0][0];
-  } else {
-    text = rect.nextSibling as SVGTextElement;
-  }
-  rect.style.fill = props.hoverFillColor;
-  text.style.opacity = "1";
+  rect.attr("fill", props.hoverFillColor);
+  text.attr("opacity", 1);
 }
 
-function onMouseOut(event: Event, row: IChartData) {
-  const rect = event.target as HTMLElement;
-  let text: SVGTextElement;
-  if (isGroupedColumnChart.value) {
-    text = chartArea.value.select(
-      `text[data-x="${row.xValue}"][data-group="${row.primaryGroupValue}"]`
-    )._groups[0][0];
-  } else {
-    text = rect.nextSibling as SVGTextElement;
-  }
-  rect.style.fill = colorPalette.value(row.xValue) as string;
-  text.style.opacity = "0";
+function onMouseOut(row: IChartData) {
+  let { rect, text } = selectMouseOverElements({
+    svgChartArea: chartArea.value,
+    row: row,
+    isGroupedChart: isGroupedColumnChart.value,
+    enableAnimations: props.enableAnimations,
+  });
+
+  rect.attr("fill", () => colorPalette.value(row.xValue));
+  text.attr("opacity", 0);
 }
 
 function renderColumns() {
   const chartColumnArea = chartArea.value.select("g.columns");
   chartColumns.value = chartColumnArea.selectAll("rect").data(props.chartData);
+  chartLabels.value = chartColumnArea.selectAll("text").data(props.chartData);
 
   let rectElem = chartColumns.value;
   if (props.enableAnimations) {
@@ -317,10 +285,8 @@ function renderColumns() {
   if (props.enableHoverEvents) {
     chartColumns.value
       .style("cursor", "pointer")
-      .on("mouseover", onMouseOver)
-      .on("mouseout", (event: Event, row: IChartData) =>
-        onMouseOut(event, row)
-      );
+      .on("mouseover", (_: Event, row: IChartData) => onMouseOver(row))
+      .on("mouseout", (_: Event, row: IChartData) => onMouseOut(row));
   }
 
   if (props.enableClickEvents) {
@@ -356,8 +322,17 @@ function onLegendMouseOver(event: string) {
     .duration(delay);
 
   columns.attr("opacity", (row: IChartData) => {
-    return row.xValue !== event ? 0.2 : 1;
+    return row.xValue !== event ? 0.125 : 1;
   });
+
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", (row: IChartData) => {
+      return row.xValue === event && row.yValue && parseInt(row.yValue) !== 0
+        ? 1
+        : 0;
+    });
+  }
 }
 
 function onLegendMouseOut() {
@@ -369,8 +344,12 @@ function onLegendMouseOut() {
     .transition()
     .delay(vizDelay)
     .duration(delay);
-
   columns.attr("opacity", 1);
+
+  if (props.showValuesOnLegendHoverEvent) {
+    const text = chartLabels.value.transition().delay(vizDelay).duration(delay);
+    text.attr("opacity", 0);
+  }
 }
 
 onMounted(() => {
@@ -463,7 +442,6 @@ watch(
                   class="fill-chart-text text-body-base"
                   text-anchor="middle"
                   :opacity="0"
-                  filter="url(#textBackground)"
                   :x="xScale(nestedRow.xValue)"
                   :y="yScale(parseInt(nestedRow.yValue))"
                   :dx="xScale.bandwidth() / 2"
@@ -483,6 +461,8 @@ watch(
             >
               <rect
                 class="column"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :x="xScale(row.xValue)"
                 :width="xScale.bandwidth()"
                 :fill="(colorPalette(row.xValue) as string)"
@@ -493,6 +473,8 @@ watch(
               <text
                 class="fill-chart-text text-body-base"
                 text-anchor="middle"
+                :data-x="row.xValue"
+                :data-y="row.yValue"
                 :opacity="0"
                 :x="xScale(row.xValue)"
                 :y="yScale(parseInt(row.yValue))"

@@ -13,6 +13,12 @@ vi.mock("../../../../app/composables/fetchTableMetadata", () => {
   };
 });
 
+vi.mock("../../../../app/utils/getPrimaryKey", () => {
+  return {
+    getPrimaryKey: async (row: { id: string }) => ({ id: row.id }),
+  };
+});
+
 vi.mock("../../../../app/composables/fetchTableData", () => {
   return {
     default: async () => {
