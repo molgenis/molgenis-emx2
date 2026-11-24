@@ -132,18 +132,22 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
     Map<IRI, Set<Value>> predicatesMap = resources.get(subject);
     Set<Value> objects = predicatesMap.get(RDFS.LABEL);
 
+    IRI testSubject = Values.iri("http://example.com/new");
+    Value testObject = Values.literal("new");
+    Set<Value> testObjects = Set.of(testObject);
+
     assertAll(
         () ->
             assertThrows(
                 UnsupportedOperationException.class,
-                () -> resources.put(Values.iri("http://example.com/new"), new HashMap<>())),
+                () -> resources.put(testSubject, new HashMap<>())),
         () ->
             assertThrows(
                 UnsupportedOperationException.class,
-                () -> predicatesMap.put(RDFS.COMMENT, Set.of(Values.literal("new")))),
+                () -> predicatesMap.put(RDFS.COMMENT, testObjects)),
         () ->
             assertThrows(
-                UnsupportedOperationException.class, () -> objects.add(Values.literal("new"))));
+                UnsupportedOperationException.class, () -> objects.add(testObject)));
   }
 
   @Test
@@ -153,8 +157,10 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
 
     Set<Namespace> namespaces = handler.getNamespaces();
 
+    Namespace testNamespace = Values.namespace("ex", "http://example.com/");
+
     assertThrows(
         UnsupportedOperationException.class,
-        () -> namespaces.add(Values.namespace("ex", "http://example.com/")));
+        () -> namespaces.add(testNamespace));
   }
 }
