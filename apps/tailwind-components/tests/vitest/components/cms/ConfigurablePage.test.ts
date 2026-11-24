@@ -64,12 +64,12 @@ const page = mount(ConfigurablePage, {
 
 describe("Configurable page", () => {
   test("Blocks are rendered in the correct order", () => {
-    const firstElem = page.find("#configurable-page-main > div > div > header");
+    const firstElem = page.find("#configurable-page-main > div > header");
     expect(firstElem.element.tagName).toEqual("HEADER");
     expect(firstElem.element.id).toEqual("home-banner");
 
     const secondElem = page.find(
-      "#configurable-page-main > div > div#welcome-section"
+      "#configurable-page-main > div#welcome-section"
     );
     expect(secondElem.exists()).toBeTruthy();
   });
