@@ -18,6 +18,7 @@ import type {
   IFileLists,
   IStatisticalCharts,
   IStatisticalChartData,
+  IDataHighlights,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
@@ -37,7 +38,8 @@ export interface IPageComponent
     IFiles,
     IFileLists,
     INavigationCards,
-    IStatisticalCharts {}
+    IStatisticalCharts,
+    IDataHighlights {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
@@ -45,6 +47,7 @@ export interface IContainerMetadata {
 }
 
 export type ICmsJsFetchPriority = "high" | "low" | "auto";
+export type ICmsComponentWidths = "small" | "medium" | "large" | "full";
 
 export interface FetchGraphqlBody {
   status?: string;

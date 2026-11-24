@@ -1,4 +1,4 @@
-// Generated (on: 2026-11-19T11:27:09.477915) from Generator.java for schema: cms
+// Generated (on: 2026-11-24T12:36:47.135060) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -46,13 +46,13 @@ export interface IBlocks extends IMgTableClass {
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
   id: string;
-  columns?: number;
-  applyShadedBackground?: boolean;
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
   pageHeaderHeight?: IOntologyNode;
+  columns?: number;
+  applyShadedBackground?: boolean;
 }
 
 export interface IBlocks_agg {
@@ -206,30 +206,11 @@ export interface IComponentOrders_agg {
 export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
-  fileIsAnExternalLink?: boolean;
-  file?: IFile;
-  linkToExternalFile?: string;
-  alternateFileName?: string;
-  fileTag?: string;
-  displayName?: string;
-  image?: IFile;
-  alt?: string;
-  width?: string;
-  height?: string;
-  imageIsCentered?: boolean;
-  orderedItems?: string[];
-  text?: string;
-  level?: number;
-  headingIsCentered?: boolean;
-  headingIsHidden?: boolean;
-  paragraphIsCentered?: boolean;
   buttonLink?: string;
   buttonLabel?: string;
   buttonType?: string;
   buttonSize?: string;
   buttonIsCentered?: boolean;
-  showFilesWithTag?: string;
-  unorderedItems?: string[];
   chartType: IOntologyNode;
   chartTitle: string;
   chartDescription?: string;
@@ -267,12 +248,34 @@ export interface IComponents extends IMgTableClass {
   yAxisMaxValue?: number;
   yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
+  highlightLabel: string;
+  highlightValue: number;
+  highlightWidth?: IOntologyNode;
+  showFilesWithTag?: string;
+  fileIsAnExternalLink?: boolean;
+  file?: IFile;
+  linkToExternalFile?: string;
+  alternateFileName?: string;
+  fileTag?: string;
+  displayName?: string;
+  image?: IFile;
+  alt?: string;
+  width?: string;
+  height?: string;
+  imageIsCentered?: boolean;
   title?: string;
   description?: string;
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
   navigationCardWidth?: IOntologyNode;
+  orderedItems?: string[];
+  text?: string;
+  level?: number;
+  headingIsCentered?: boolean;
+  headingIsHidden?: boolean;
+  paragraphIsCentered?: boolean;
+  unorderedItems?: string[];
 }
 
 export interface IComponents_agg {
@@ -293,6 +296,8 @@ export interface IConfigurablePages_agg {
 export interface IContainers extends IMgTableClass {
   name: string;
   description?: string;
+  blocks?: IBlocks[];
+  blockOrder?: IBlockOrders[];
   html?: string;
   css?: string;
   javascript?: string;
@@ -300,11 +305,21 @@ export interface IContainers extends IMgTableClass {
   enableBaseStyles?: boolean;
   enableButtonStyles?: boolean;
   enableFullScreen?: boolean;
-  blocks?: IBlocks[];
-  blockOrder?: IBlockOrders[];
 }
 
 export interface IContainers_agg {
+  count: number;
+}
+
+export interface IDataHighlights extends IMgTableClass {
+  highlightLabel: string;
+  highlightValue: number;
+  highlightWidth?: IOntologyNode;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IDataHighlights_agg {
   count: number;
 }
 
