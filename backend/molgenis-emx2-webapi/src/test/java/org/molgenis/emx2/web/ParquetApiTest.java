@@ -164,7 +164,9 @@ class ParquetApiTest extends ApiTestBase {
   private List<Row> readParquet(Response response) throws IOException {
     Files.write(downloadDir.resolve(TABLE_NAME + ".parquet"), response.asByteArray());
     List<Row> rows = new ArrayList<>();
-    new TableStoreForParquet(downloadDir).readTable(TABLE_NAME).forEach(rows::add);
+    new TableStoreForParquet(downloadDir, schema.getMetadata())
+        .readTable(TABLE_NAME)
+        .forEach(rows::add);
     return rows;
   }
 }

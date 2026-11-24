@@ -40,7 +40,8 @@ public final class ParquetApi {
             table.getMetadata(), requestedColumns(ctx), includeSystemColumns(ctx));
 
     try (TempFile tmp = new TempFile(table.getName() + PARQUET_EXTENSION)) {
-      TableStore store = new TableStoreForParquet(tmp.get().getParent());
+      TableStore store =
+          new TableStoreForParquet(tmp.get().getParent(), table.getSchema().getMetadata());
       store.writeTableStreaming(
           table.getName(),
           downloadColumns,
