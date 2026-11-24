@@ -1,23 +1,23 @@
 import { reactive, ref } from "vue";
+import type { TablePermission } from "../../../tailwind-components/types/types.ts";
 import type {
   CustomRole,
   CustomRoleUpdate,
   NewCustomRole,
   Role,
-  RolePermission,
   SchemaInfo,
   User,
 } from "../interfaces/interfaces.ts";
 import {
-  createUser,
   createCustomRole,
-  updateCustomRole,
+  createUser,
   deleteCustomRoles,
   deleteUser,
   getRoles,
   getSchemas,
   getUsers,
   loadCustomRoles,
+  updateCustomRole,
 } from "../util/adminUtils";
 
 const roles = ref<string[]>([]);
@@ -27,7 +27,7 @@ const totalUserPages = ref(0);
 const users = ref<User[]>([]);
 const loaded = ref(false);
 const customRoles = ref<CustomRole[]>();
-const customRolePermissions = ref<Record<string, RolePermission[]>>({});
+const customRolePermissions = ref<Record<string, TablePermission[]>>({});
 
 export default async function useAdminSettings() {
   await loadAdminData();
@@ -96,7 +96,7 @@ export default async function useAdminSettings() {
     await Promise.all([reloadCustomRoles(), reloadAdminData()]);
   }
 
-  function getPermissionsForCustomRole(role: CustomRole): RolePermission[] {
+  function getPermissionsForCustomRole(role: CustomRole): TablePermission[] {
     return customRolePermissions.value[role._rowIdString] || [];
   }
 

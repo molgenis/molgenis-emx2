@@ -1,4 +1,5 @@
 import { $fetch } from "ofetch";
+import type { TablePermission } from "../../../tailwind-components/types/types";
 import type {
   BackendCustomRole,
   BackendUser,
@@ -6,7 +7,6 @@ import type {
   CustomRoleUpdate,
   NewCustomRole,
   Role,
-  RolePermission,
   SchemaInfo,
   UpdateUser,
   User,
@@ -166,7 +166,7 @@ export function isValidPassword(password1: string, password2: string) {
 
 export async function loadCustomRoles(): Promise<{
   customRoles: CustomRole[];
-  permissions: Record<string, RolePermission[]>;
+  permissions: Record<string, TablePermission[]>;
 }> {
   const query = `query customRoles{
     _admin {
@@ -261,7 +261,7 @@ export async function updateCustomRole(roleUpdate: CustomRoleUpdate) {
 function changeCustomRole(
   schemaId: string,
   role: string,
-  permissions: RolePermission[],
+  permissions: TablePermission[],
   users: string[]
 ) {
   return $fetch(schemaGraphqlUrl(schemaId), {
@@ -284,7 +284,7 @@ function mapBackendCustomRolesToFrontEnd(
   backEndCustomRoles: BackendCustomRole[]
 ): {
   customRoles: CustomRole[];
-  permissions: Record<string, RolePermission[]>;
+  permissions: Record<string, TablePermission[]>;
 } {
   const customRoles =
     backEndCustomRoles.map((customRole) => ({
@@ -298,7 +298,7 @@ function mapBackendCustomRolesToFrontEnd(
       _rowIdString: `${customRole.schemaId}-${customRole.role}`,
     })) || [];
   const permissions = backEndCustomRoles.reduce(
-    (accum: Record<string, RolePermission[]>, customRole) => {
+    (accum: Record<string, TablePermission[]>, customRole) => {
       accum[`${customRole.schemaId}-${customRole.role}`] =
         customRole.permissions || [];
       return accum;

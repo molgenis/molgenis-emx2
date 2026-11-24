@@ -37,21 +37,19 @@ export interface UpdateUser {
 type abstractRole = { schemaId: string; role: string; users: string[] };
 
 export type BackendCustomRole = abstractRole & {
-  permissions: RolePermission[];
+  permissions: TablePermission[];
 };
 
 export type CustomRole = abstractRole & TableRow & { tables: string[] };
 
-export type RolePermission = TablePermission & { select: boolean };
-
-export type NewCustomRole = abstractRole & { permissions: RolePermission[] };
+export type NewCustomRole = abstractRole & { permissions: TablePermission[] };
 
 export type RoleModalMode = "create" | "edit" | "copy";
 
 export type CustomRoleUpdate = {
   schemaId: string;
   role: string;
-  permissions: RolePermission[];
+  permissions: TablePermission[];
   addedUsers: string[];
   removedUsers: string[];
 };
