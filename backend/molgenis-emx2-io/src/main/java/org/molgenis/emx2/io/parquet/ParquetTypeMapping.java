@@ -49,7 +49,7 @@ final class ParquetTypeMapping {
       Class<?> valueType = valueType(columnType);
 
       Type.Repetition repetition =
-          (isRepeated(columnType)) ? Type.Repetition.REPEATED : Type.Repetition.OPTIONAL;
+          isRepeated(columnType) ? Type.Repetition.REPEATED : Type.Repetition.OPTIONAL;
 
       switch (valueType.getSimpleName()) {
         case "Boolean" -> schema.primitive(PrimitiveTypeName.BOOLEAN, repetition).named(columnName);
