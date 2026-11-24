@@ -10,13 +10,13 @@ import Button from "../../../../tailwind-components/app/components/Button.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import CellDetailModal from "../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
+import { errorToMessage } from "../../../../tailwind-components/app/utils/errorToMessage";
 import type {
   cellPayload,
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
-import RoleModal from "../../components/RoleModal.vue";
 import DeleteRoleConfirmation from "../../components/DeleteRoleConfirmation.vue";
-import { errorToMessage } from "../../../../tailwind-components/app/utils/errorToMessage";
+import RoleModal from "../../components/RoleModal.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { CustomRole, RoleModalMode } from "../../interfaces/interfaces.ts";
 import { paginateRows, sortRows } from "../../util/adminUtils";
