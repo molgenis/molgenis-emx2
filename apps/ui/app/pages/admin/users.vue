@@ -2,7 +2,7 @@
   <ContentBlock
     class="w-full"
     title="User management"
-    :description="`${usersShown.length} users found`"
+    :description="`${matchingUsers.length} users found`"
   >
     <TableInteractive
       :features="tableFeatures"
