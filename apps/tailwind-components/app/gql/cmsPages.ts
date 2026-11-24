@@ -135,6 +135,13 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         orderedItems
                         unorderedItems
                         
+                        # Data Highlights
+                        highlightLabel
+                        highlightValue
+                        highlightWidth {
+                            name
+                        }
+                        
                         # statistical charts
                         chartType {
                             name
