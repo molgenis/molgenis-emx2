@@ -43,8 +43,8 @@ class RowGroupConverterTest {
     @ParameterizedTest
     @EnumSource(
         value = TimeUnit.class,
-        names = {"MILLIS", "NANOS"})
-    void givenTimestampNotInMicros_whenCreatingConverter_thenThrow(TimeUnit unit) {
+        names = {"MICROS", "NANOS"})
+    void givenTimestampNotInMillis_whenCreatingConverter_thenThrow(TimeUnit unit) {
       MessageType schema =
           Types.buildMessage()
               .optional(PrimitiveTypeName.INT64)
@@ -57,7 +57,7 @@ class RowGroupConverterTest {
       assertEquals(
           "Parquet column 'bakedAt' is a timestamp in "
               + unit
-              + ", only timestamps in MICROS are supported",
+              + ", only timestamps in MILLIS are supported",
           exception.getMessage());
     }
 
@@ -163,13 +163,13 @@ class RowGroupConverterTest {
           new RowGroupConverter(
               Types.buildMessage()
                   .optional(PrimitiveTypeName.INT64)
-                  .as(LogicalTypeAnnotation.timestampType(false, TimeUnit.MICROS))
+                  .as(LogicalTypeAnnotation.timestampType(false, TimeUnit.MILLIS))
                   .named("bakedAt")
                   .named("Row"));
 
-      Object value = convert(converter, column -> column.addLong(1_795_415_415_123_456L));
+      Object value = convert(converter, column -> column.addLong(1_795_415_415_123L));
 
-      assertEquals(LocalDateTime.of(2026, 11, 23, 6, 30, 15, 123_456_000), value);
+      assertEquals(LocalDateTime.of(2026, 11, 23, 6, 30, 15, 123_000_000), value);
     }
 
     @Test

@@ -104,7 +104,7 @@ public class RowWriteSupport extends WriteSupport<Row> {
       case Long longValue -> consumer.addLong(longValue);
       case Double decimal -> consumer.addDouble(decimal);
       case LocalDate date -> consumer.addInteger(Math.toIntExact(date.toEpochDay()));
-      case LocalDateTime dateTime -> consumer.addLong(ParquetTimestamp.toMicros(dateTime));
+      case LocalDateTime dateTime -> consumer.addLong(ParquetTimestamp.toMillis(dateTime));
       case String string -> consumer.addBinary(Binary.fromString(string));
       default ->
           throw new MolgenisException(

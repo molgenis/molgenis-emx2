@@ -27,13 +27,13 @@ class RowGroupConverter extends GroupConverter {
             "Parquet column '" + field.getName() + "' is nested, which is not supported");
       }
       if (field.getLogicalTypeAnnotation() instanceof TimestampLogicalTypeAnnotation timestamp
-          && timestamp.getUnit() != TimeUnit.MICROS) {
+          && timestamp.getUnit() != TimeUnit.MILLIS) {
         throw new MolgenisException(
             "Parquet column '"
                 + field.getName()
                 + "' is a timestamp in "
                 + timestamp.getUnit()
-                + ", only timestamps in MICROS are supported");
+                + ", only timestamps in MILLIS are supported");
       }
       columnConverters.add(
           new ColumnConverter(

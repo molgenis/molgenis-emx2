@@ -7,13 +7,13 @@ import org.apache.parquet.schema.LogicalTypeAnnotation.TimeUnit;
 
 /**
  * EMX2 datetimes have no zone, so they are written as Parquet timestamps that are not adjusted to
- * UTC: the number of microseconds between 1970-01-01T00:00 and the date-time, both read as local
+ * UTC: the number of milliseconds between 1970-01-01T00:00 and the date-time, both read as local
  * time. Reading a value back gives the written date-time, whatever zone the reader runs in.
  */
 final class ParquetTimestamp {
 
   private static final LogicalTypeAnnotation LOGICAL_TYPE =
-      LogicalTypeAnnotation.timestampType(false, TimeUnit.MICROS);
+      LogicalTypeAnnotation.timestampType(false, TimeUnit.MILLIS);
   private static final LocalDateTime EPOCH = LocalDateTime.of(1970, 1, 1, 0, 0);
 
   private ParquetTimestamp() {
@@ -24,11 +24,11 @@ final class ParquetTimestamp {
     return LOGICAL_TYPE;
   }
 
-  static long toMicros(LocalDateTime dateTime) {
-    return ChronoUnit.MICROS.between(EPOCH, dateTime);
+  static long toMillis(LocalDateTime dateTime) {
+    return ChronoUnit.MILLIS.between(EPOCH, dateTime);
   }
 
-  static LocalDateTime toLocalDateTime(long micros) {
-    return EPOCH.plus(micros, ChronoUnit.MICROS);
+  static LocalDateTime toLocalDateTime(long millis) {
+    return EPOCH.plus(millis, ChronoUnit.MILLIS);
   }
 }

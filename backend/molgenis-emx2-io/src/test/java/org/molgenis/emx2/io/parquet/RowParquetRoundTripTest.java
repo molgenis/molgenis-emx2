@@ -30,7 +30,7 @@ import org.molgenis.emx2.datamodels.util.CompareTools;
 
 class RowParquetRoundTripTest {
 
-  private static final LocalDateTime NOW = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+  private static final LocalDateTime NOW = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS);
   private static final UUID RANDOM_UUID = UUID.randomUUID();
 
   private static final TableMetadata PRODUCTS =
