@@ -145,9 +145,7 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
             assertThrows(
                 UnsupportedOperationException.class,
                 () -> predicatesMap.put(RDFS.COMMENT, testObjects)),
-        () ->
-            assertThrows(
-                UnsupportedOperationException.class, () -> objects.add(testObject)));
+        () -> assertThrows(UnsupportedOperationException.class, () -> objects.add(testObject)));
   }
 
   @Test
@@ -159,8 +157,6 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
 
     Namespace testNamespace = Values.namespace("ex", "http://example.com/");
 
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> namespaces.add(testNamespace));
+    assertThrows(UnsupportedOperationException.class, () -> namespaces.add(testNamespace));
   }
 }
