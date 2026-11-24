@@ -83,7 +83,8 @@ public class ValidatePkeyProcessor implements RowProcessor {
       String keyValue = compoundKey.toString();
       validateKeyValue(keyValue);
 
-      task.setProgress(++index);
+      index++;
+      task.setProgress(index);
     }
 
     if (!duplicates.isEmpty()) {
@@ -91,9 +92,10 @@ public class ValidatePkeyProcessor implements RowProcessor {
           "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
     }
 
-    if (hasEmptyKeys)
+    if (hasEmptyKeys) {
       task.completeWithError(
           "Missing keys found in table '" + metadata.getTableName() + "': " + errorMessage);
+    }
   }
 
   private void checkWarningColumns() {
@@ -118,7 +120,7 @@ public class ValidatePkeyProcessor implements RowProcessor {
               .collect(Collectors.joining(","));
 
       task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
-    } else if (!keyValue.isEmpty() && !keyValue.equals("null")) {
+    } else if (!keyValue.isEmpty() && !"null".equals(keyValue)) {
       keys.add(keyValue);
     }
   }

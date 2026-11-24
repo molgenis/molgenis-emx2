@@ -23,15 +23,10 @@ class CustomRdfTest extends RdfServiceTestRunner {
   void testCustomRdfSetting() throws IOException {
     final String schemaName = SCHEMA_NAME_PREFIX + "CustomRdfEdit";
 
-    final Set<Namespace> defaultNamespaces =
-        new HashSet<>() {
-          {
-            add(
-                new SimpleNamespace(
-                    "RefLinkTest_CustomRdfEdit", BASE_URL + "/RefLinkTest_CustomRdfEdit/api/rdf/"));
-            addAll(DEFAULT_NAMESPACES);
-          }
-        };
+    final Set<Namespace> defaultNamespaces = new HashSet<>(DEFAULT_NAMESPACES);
+    defaultNamespaces.add(
+        new SimpleNamespace(
+            "RefLinkTest_CustomRdfEdit", BASE_URL + "/RefLinkTest_CustomRdfEdit/api/rdf/"));
 
     final String customRdf =
         """

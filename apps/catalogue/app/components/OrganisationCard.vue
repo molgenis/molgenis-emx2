@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import type { IOrganisations } from "../../interfaces/catalogue";
+import type { IOrganisationRoles } from "../../interfaces/catalogue";
+import { organisationName } from "../utils/organisationName";
 
-const props = defineProps<{
-  organisation: IOrganisations;
+defineProps<{
+  organisation: IOrganisationRoles;
 }>();
-
-const organisationName = computed(
-  () =>
-    props.organisation.organisation?.name ||
-    props.organisation.otherOrganisation
-);
 </script>
 
 <template>
@@ -20,8 +14,8 @@ const organisationName = computed(
   >
     <div class="flex items-start flex-col h-full">
       <span class="block">
-        <span class="font-bold" v-if="organisationName">
-          {{ organisationName }}
+        <span class="font-bold" v-if="organisationName(organisation)">
+          {{ organisationName(organisation) }}
           <template v-if="organisation?.organisation?.acronym">
             ({{ organisation.organisation.acronym }})
           </template>
@@ -36,10 +30,10 @@ const organisationName = computed(
       </span>
       <a
         class="text-link block hover:underline"
-        v-if="organisation.organisation?.website"
-        :href="organisation.organisation?.website"
+        v-if="organisation.organisationWebsite"
+        :href="organisation.organisationWebsite"
       >
-        {{ organisation.organisation?.website }}
+        {{ organisation.organisationWebsite }}
       </a>
 
       <div v-if="organisation.role" class="mt-3">
@@ -47,12 +41,6 @@ const organisationName = computed(
           <i>{{ organisation.role.map((r) => r.name).join(", ") }}</i>
         </p>
       </div>
-
-      <!-- todo: decide how we will bring back logo <img
-        v-if="organisation.logo"
-        class="max-h-11"
-        :src="organisation.logo.url"
-      /-->
     </div>
   </li>
 </template>

@@ -3,7 +3,11 @@ package org.molgenis.emx2.io;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.Row;
 
-public class ExcelIOUtil {
+public final class ExcelIOUtil {
+
+  private ExcelIOUtil() {
+    // no instances
+  }
 
   public static String toExcelFormat(Row row, String key) {
     String cellValue = row.getString(key);

@@ -1,0 +1,6 @@
+order,name,code,parent,ontologyTermURI,definition
+,Years,,,http://purl.obolibrary.org/obo/UO_0000036,A time unit which is equal to 12 months which is science is taken to be equal to 365.25 days.
+,Months,,,http://purl.obolibrary.org/obo/UO_0000035,A time unit which is approximately equal to the length of time of one of cycle of the moon's phases which in science is taken to be equal to 30 days.
+,Weeks,,,http://purl.obolibrary.org/obo/UO_0000034,A time unit which is equal to 7 days.
+,Days,,,http://purl.obolibrary.org/obo/UO_0000033,A time unit which is equal to 24 hours.
+,Gestational weeks,,,http://purl.obolibrary.org/obo/PBPKO_00388,A physiological parameter representing the specific week of gestation.

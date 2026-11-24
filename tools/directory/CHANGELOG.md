@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.6.2
+
+- Update dependencies
+
 ## Version 1.6.1
 
 - Fix bug which caused false deletion warnings to be displayed

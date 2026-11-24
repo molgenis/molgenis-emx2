@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.ColumnType.REFBACK;
+import static org.molgenis.emx2.Constants.FILE_COLUMN_SUFFIXES;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
@@ -22,7 +23,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
 
-public class SqlColumnExecutor {
+public final class SqlColumnExecutor {
   private SqlColumnExecutor() {
     // hide
   }
@@ -74,8 +75,7 @@ public class SqlColumnExecutor {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
       if (newColumn.isFile()) {
-        for (String suffix :
-            new String[] {"", "_filename", "_extension", "_size", "_contents", "_mimetype"}) {
+        for (String suffix : FILE_COLUMN_SUFFIXES) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),
@@ -507,13 +507,10 @@ public class SqlColumnExecutor {
   }
 
   static void executeCreateRefConstraints(DSLContext jooq, Column column) {
-    // set constraints
     if (column.isRef()) {
       createRefConstraints(jooq, column);
     } else if (column.isRefArray()) {
       createRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 
@@ -528,7 +525,7 @@ public class SqlColumnExecutor {
     } else if (column.isRef() || column.isRefArray()) {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
-        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
+        executeRemoveColumn(jooq, column.getReferenceRefback());
         ((SqlSchemaMetadata) column.getTable().getSchema())
             .getDatabase()
             .getListener()
@@ -546,7 +543,7 @@ public class SqlColumnExecutor {
           .dropColumnIfExists(field(name(column.getName())))
           .execute();
     }
-    MetadataUtils.deleteColumn(jooq, column);
+    deleteColumn(jooq, column);
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {

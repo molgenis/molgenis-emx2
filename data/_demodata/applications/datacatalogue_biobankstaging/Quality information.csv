@@ -1,0 +1,4 @@
+resource,name,standard,certification number,has certification,mg_draft
+testSampleCollection,TSC-quality-mark-1,ISO 20387,,true,false
+testBiobank,quality mark for TestBioBank,ISO 12345,,true,false
+testService,quality mark for testService,ISO 00001,,true,false

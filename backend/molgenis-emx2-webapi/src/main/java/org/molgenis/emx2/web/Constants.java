@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-public class Constants {
+public final class Constants {
   static final String TABLE = "table";
   public static final String CONTENT_TYPE = "Content-type";
   public static final String X_MOLGENIS_TOKEN = "x-molgenis-token";
@@ -32,6 +32,11 @@ public class Constants {
   Optional api request param key to add system columns ( mg_..) to the result
   */
   public static final String INCLUDE_SYSTEM_COLUMNS = "includeSystemColumns";
+
+  /*
+  Optional api request param key to limit a table download to these columns (names or ids)
+  */
+  public static final String COLUMNS = "columns";
 
   public static final String EMX_2_METRICS_SESSION_TOTAL = "emx2_active_sessions";
 }

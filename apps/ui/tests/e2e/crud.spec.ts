@@ -46,6 +46,8 @@ test("add new row", async ({ page }) => {
   await page.getByRole("textbox", { name: "weight Required" }).click();
   await page.getByRole("textbox", { name: "weight Required" }).fill("23");
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  // wait for the insert to finish, closing the modal earlier skips the table refresh
+  await expect(page.getByText("inserted Pet")).toBeVisible();
   await page.getByRole("button", { name: "Close modal", exact: true }).click();
 
   await expect(

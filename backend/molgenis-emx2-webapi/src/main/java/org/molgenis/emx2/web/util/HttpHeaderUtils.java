@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web.util;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.net.MediaType;
 import io.javalin.http.Context;
 import io.javalin.http.Header;
@@ -8,13 +7,17 @@ import java.util.*;
 import org.jspecify.annotations.NonNull;
 import org.molgenis.emx2.MolgenisException;
 
-public class HttpHeaderUtils {
+public final class HttpHeaderUtils {
   // Sort order: see https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
       Comparator.comparing( // ensures q-value does not influence sorting.
               (MediaType mediaType) -> mediaType.withParameter("q", "0").parameters().size() > 1)
-          .thenComparing(mediaType -> !mediaType.type().equals("*"))
-          .thenComparing(mediaType -> !mediaType.subtype().equals("*"));
+          .thenComparing(mediaType -> !"*".equals(mediaType.type()))
+          .thenComparing(mediaType -> !"*".equals(mediaType.subtype()));
+
+  private HttpHeaderUtils() {
+    // no instances
+  }
 
   /**
    * Returns what media type to use as defined in <a
@@ -52,13 +55,15 @@ public class HttpHeaderUtils {
     if (allowedMediaTypes.stream()
         .anyMatch(
             mediaType ->
-                mediaType.parameters().keySet().stream().anyMatch(key -> !key.equals("q")))) {
+                mediaType.parameters().keySet().stream().anyMatch(key -> !"q".equals(key)))) {
       throw new IllegalArgumentException(
           "allowedMediaTypes should not contain parameters! (currently not supported)");
     }
 
     String acceptHeader = ctx.header(Header.ACCEPT);
-    if (acceptHeader == null) return allowedMediaTypes.getFirst();
+    if (acceptHeader == null) {
+      return allowedMediaTypes.getFirst();
+    }
 
     Map<MediaType, Double> allowedMediaTypeScores = new LinkedHashMap<>();
     allowedMediaTypes.forEach(i -> allowedMediaTypeScores.put(i, null));
@@ -82,12 +87,18 @@ public class HttpHeaderUtils {
             .filter(
                 mediaType -> {
                   Set<String> paramKeys = mediaType.parameters().keySet();
-                  if (paramKeys.isEmpty()) return true;
+                  if (paramKeys.isEmpty()) {
+                    return true;
+                  }
                   for (String key : paramKeys) {
-                    if (!(key.equals("q") || key.equals("charset"))) return false;
-                    if (key.equals("charset")
+                    if (!("q".equals(key) || "charset".equals(key))) {
+                      return false;
+                    }
+                    if ("charset".equals(key)
                         && mediaType.parameters().get("charset").stream()
-                            .noneMatch(i -> i.equalsIgnoreCase("utf-8"))) return false;
+                            .noneMatch("utf-8"::equalsIgnoreCase)) {
+                      return false;
+                    }
                   }
                   return true;
                 })
@@ -115,8 +126,10 @@ public class HttpHeaderUtils {
   }
 
   private static Double getQualityScore(MediaType mediaType) {
-    ImmutableList<@NonNull String> param = mediaType.parameters().get("q");
-    if (param.isEmpty()) return 1.0;
+    List<@NonNull String> param = mediaType.parameters().get("q");
+    if (param.isEmpty()) {
+      return 1.0;
+    }
     return Double.parseDouble(param.getFirst());
   }
 }

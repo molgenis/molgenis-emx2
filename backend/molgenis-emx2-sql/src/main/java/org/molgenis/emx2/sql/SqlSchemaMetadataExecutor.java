@@ -12,7 +12,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
 
-class SqlSchemaMetadataExecutor {
+final class SqlSchemaMetadataExecutor {
 
   private SqlSchemaMetadataExecutor() {
     // hide

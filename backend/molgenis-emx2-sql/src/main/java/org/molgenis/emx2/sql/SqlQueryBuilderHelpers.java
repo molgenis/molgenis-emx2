@@ -3,6 +3,11 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.ColumnType.TEXT;
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
+import static org.molgenis.emx2.Constants.FILE_EXTENSION;
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
+import static org.molgenis.emx2.Constants.FILE_SIZE;
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
@@ -19,41 +24,40 @@ import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.TableMetadata;
 
-class SqlQueryBuilderHelpers {
+final class SqlQueryBuilderHelpers {
 
   private SqlQueryBuilderHelpers() {
     // hide constructor
   }
 
   static SelectConnectByStep<Record> orderBy(
-      TableMetadata table,
-      SelectColumn select,
-      SelectConnectByStep<org.jooq.Record> query,
-      String tableAlias) {
+      TableMetadata table, SelectColumn select, SelectConnectByStep<Record> query) {
     for (Map.Entry<String, Order> orderEntry : select.getOrderBy().entrySet()) {
       Column column = getColumnByName(table, orderEntry.getKey());
-      query = setOrderByForColumn(column, orderEntry.getValue(), query, tableAlias);
+      query = setOrderByForColumn(column, orderEntry.getValue(), query);
     }
     return query;
   }
 
   private static SelectJoinStep<Record> setOrderByForColumn(
-      Column column, Order order, SelectConnectByStep<org.jooq.Record> query, String tableAlias) {
+      Column column, Order order, SelectConnectByStep<Record> query) {
     if (column.isRefback()) {
       // Not supported. Feature request: https://github.com/molgenis/molgenis-emx2/issues/4021
-    } else if (column.isReference()) {
+      return (SelectJoinStep<Record>) query;
+    }
+    if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         final Column refColumn = ref.toPrimitiveColumn();
-        query = setOrderByForColumn(refColumn, order, query);
+        query = setOrderByForPrimitiveColumn(refColumn, order, query);
       }
     } else {
-      query = setOrderByForColumn(column, order, query);
+      query = setOrderByForPrimitiveColumn(column, order, query);
     }
-    return (SelectJoinStep<org.jooq.Record>) query;
+    return (SelectJoinStep<Record>) query;
   }
 
-  private static SelectJoinStep<Record> setOrderByForColumn(
-      Column column, Order order, SelectConnectByStep<org.jooq.Record> query) {
+  private static SelectJoinStep<Record> setOrderByForPrimitiveColumn(
+      Column column, Order order, SelectConnectByStep<Record> query) {
     final Field<?> field =
         isCaseSensitiveField(column) ? lower(column.getJooqField()) : column.getJooqField();
     Field<?> collatedField =
@@ -61,7 +65,7 @@ class SqlQueryBuilderHelpers {
             ? field.collate(unquotedName("\"MOLGENIS\".numeric"))
             : field;
     final SortField<?> sortField = ASC.equals(order) ? collatedField.asc() : collatedField.desc();
-    return (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
+    return (SelectJoinStep<Record>) query.orderBy(sortField);
   }
 
   static Column getColumnByName(TableMetadata table, String columnName) {
@@ -87,11 +91,11 @@ class SqlQueryBuilderHelpers {
         if (c.isFile()
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())
-                || columnName.endsWith("_mimetype")
-                || columnName.endsWith("_filename")
-                || columnName.endsWith("_extension")
-                || columnName.endsWith("_size")
-                || columnName.endsWith("_contents"))) {
+                || columnName.endsWith(FILE_MIMETYPE)
+                || columnName.endsWith(FILE_FILENAME)
+                || columnName.endsWith(FILE_EXTENSION)
+                || columnName.endsWith(FILE_SIZE)
+                || columnName.endsWith(FILE_CONTENTS))) {
           return new Column(table, columnName);
         }
       }

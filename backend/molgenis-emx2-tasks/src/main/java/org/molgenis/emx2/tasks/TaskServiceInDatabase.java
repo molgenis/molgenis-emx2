@@ -2,6 +2,7 @@ package org.molgenis.emx2.tasks;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.FILE_CONTENTS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -83,7 +84,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                   .getTable("Jobs")
                   .where(f("id", EQUALS, id))
                   .retrieveRows();
-          if (rows.size() > 0) {
+          if (!rows.isEmpty()) {
             Row jobRow = rows.get(0);
             json.append(jobRow.getString("log"));
           }
@@ -91,7 +92,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     try {
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      return (mapper.readValue(json.toString(), Task.class));
+      return mapper.readValue(json.toString(), Task.class);
     } catch (Exception e) {
       throw new MolgenisException("getTask(" + id + ") failed", e);
     }
@@ -122,9 +123,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             .retrieveRows();
     byte[] fileContents = new byte[0];
     if (!fileRows.isEmpty()) {
-      fileContents = fileRows.getFirst().getBinary(columnName + "_contents");
+      fileContents = fileRows.getFirst().getBinary(columnName + FILE_CONTENTS);
     }
-    scriptMetadata.set(columnName + "_contents", fileContents);
+    scriptMetadata.set(columnName + FILE_CONTENTS, fileContents);
     return new ScriptTask(scriptMetadata);
   }
 
@@ -244,35 +245,34 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("cron")
                             .setDescription(
                                 "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. Use * for any and ? for ignore.Note you cannot set 'day of week' and 'day of month' at same time (use ? for one of them). An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));
-            Table jobs =
-                schema.create(
-                    table(
-                        "Jobs",
-                        column("id").setPkey(),
-                        column("status").setType(ColumnType.ONTOLOGY).setRefTable("JobStatus"),
-                        column("type").setDescription("Type of the task, typically its class"),
-                        column("description")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("As provided by the task"),
-                        column("parameters")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("As provided by user who started the script"),
-                        column("script").setDescription("Contents of the script that was run"),
-                        column("submitUser").setDescription("User that submitted the job"),
-                        column("submitDate").setType(ColumnType.DATETIME),
-                        column("startDate")
-                            .setType(ColumnType.DATETIME)
-                            .setDescription("When the job moved from submitted to running"),
-                        column("duration")
-                            .setType(ColumnType.INT)
-                            .setDescription("Duration in milliseconds"),
-                        column("log")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("Log of task execution in JSON format"),
-                        column("output")
-                            .setType(ColumnType.FILE)
-                            .setDescription(
-                                "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
+            schema.create(
+                table(
+                    "Jobs",
+                    column("id").setPkey(),
+                    column("status").setType(ColumnType.ONTOLOGY).setRefTable("JobStatus"),
+                    column("type").setDescription("Type of the task, typically its class"),
+                    column("description")
+                        .setType(ColumnType.TEXT)
+                        .setDescription("As provided by the task"),
+                    column("parameters")
+                        .setType(ColumnType.TEXT)
+                        .setDescription("As provided by user who started the script"),
+                    column("script").setDescription("Contents of the script that was run"),
+                    column("submitUser").setDescription("User that submitted the job"),
+                    column("submitDate").setType(ColumnType.DATETIME),
+                    column("startDate")
+                        .setType(ColumnType.DATETIME)
+                        .setDescription("When the job moved from submitted to running"),
+                    column("duration")
+                        .setType(ColumnType.INT)
+                        .setDescription("Duration in milliseconds"),
+                    column("log")
+                        .setType(ColumnType.TEXT)
+                        .setDescription("Log of task execution in JSON format"),
+                    column("output")
+                        .setType(ColumnType.FILE)
+                        .setDescription(
+                            "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
             // import defaults
             String demoScript =
 """
@@ -313,8 +313,8 @@ f.close()
                       f(
                           "status",
                           or(
-                              f("name", Operator.EQUALS, TaskStatus.WAITING),
-                              f("name", Operator.EQUALS, TaskStatus.RUNNING))))
+                              f("name", EQUALS, TaskStatus.WAITING),
+                              f("name", EQUALS, TaskStatus.RUNNING))))
                   .retrieveRows()
                   .stream()
                   .map(

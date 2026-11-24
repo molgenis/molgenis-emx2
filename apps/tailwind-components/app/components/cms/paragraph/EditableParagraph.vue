@@ -2,11 +2,11 @@
 import { ref } from "vue";
 import Paragraph from "./Paragraph.vue";
 import ComponentActions from "../ComponentActions.vue";
-import type { IParagraphs } from "../../../../types/cms";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
+import type { IParagraphs } from "../../../../types/cms";
 
 const props = withDefaults(
   defineProps<IParagraphs & { isEditable?: boolean }>(),
@@ -43,7 +43,10 @@ const showMenu = ref<boolean>(false);
     <Paragraph
       v-bind="props"
       :contenteditable="props.isEditable"
-      @input="props.isEditable && emit('updateText', $el.innerHTML)"
+      @input="
+        props.isEditable &&
+          emit('updateText', ($event.target as HTMLElement)?.innerHTML ?? '')
+      "
     />
   </VMenu>
   <Paragraph v-else v-bind="props" />

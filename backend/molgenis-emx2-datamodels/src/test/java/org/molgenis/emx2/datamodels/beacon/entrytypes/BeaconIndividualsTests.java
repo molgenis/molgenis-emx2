@@ -101,7 +101,7 @@ public class BeaconIndividualsTests extends TestLoaders {
   }
 
   @Test
-  public void FilterOnGenderAtBirth_MultipleTerms_twentyResult() throws Exception {
+  public void filterOnGenderAtBirth_MultipleTerms_twentyResult() throws Exception {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestRegular(
             """
@@ -123,7 +123,7 @@ public class BeaconIndividualsTests extends TestLoaders {
   }
 
   @Test
-  public void FilterOnGenderAtBirthGssoTerm_eightResult() throws Exception {
+  public void filterOnGenderAtBirthGssoTerm_eightResult() throws Exception {
     BeaconRequestBody beaconRequest =
         BeaconTestUtil.mockIndividualsPostRequestRegular(
             """

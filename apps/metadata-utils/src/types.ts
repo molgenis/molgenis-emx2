@@ -203,6 +203,13 @@ export type IInputValueLabel = {
 
 export type IRow = Record<columnId, columnValue>;
 
+// An IRow with front-end specific properties adorned to it. These properties are not part of the data model and are used for front-end purposes only.
+export type TableRow = IRow & {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+  mg_roles?: string[];
+};
+
 export type DateValue = Date | string | undefined | null;
 
 export type TaskStatus =

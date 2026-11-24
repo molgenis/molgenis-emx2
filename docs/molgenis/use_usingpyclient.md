@@ -287,7 +287,8 @@ Asynchronously exports data from a schema to a file in the desired format and in
 If the table is specified, only data from that table is exported, otherwise the export contains all tables on the schema.
 
 The name of the file to which the data is exported can be specified in the `filename` parameter.
-If no file name is given a single table is by default exported using the _csv API_ and the collection of tables on the schema using the _zip API_.
+If no file name is given, no file is created and only a `BytesIO` object is returned.
+By default, a single table is exported using the _csv API_ and a collection of tables from a schema using the _zip API_.
 The `as_excel` parameter specifies whether to export the data in Excel format. This is ignored if a filename is given.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 

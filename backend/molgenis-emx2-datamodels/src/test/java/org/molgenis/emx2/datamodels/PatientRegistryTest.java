@@ -15,9 +15,6 @@ public class PatientRegistryTest extends TestLoaders {
 
   @Test
   void testPatientRegistryLoader() {
-    // 62 = 61 + the Biobanks subtype table, which PatientRegistry inherits via its
-    // DataCatalogueFlat
-    // profile tag (Biobanks is DataCatalogueFlat-only).
-    assertEquals(62, patientRegistry.getTableNames().size());
+    assertEquals(63, patientRegistry.getTableNames().size());
   }
 }

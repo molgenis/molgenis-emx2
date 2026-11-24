@@ -1,4 +1,4 @@
-// Generated (on: 2026-10-07T16:14:17.748348) from Generator.java for schema: cms
+// Generated (on: 2026-11-19T11:27:09.477915) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -40,6 +40,8 @@ export interface IBlockOrders_agg {
 
 export interface IBlocks extends IMgTableClass {
   enableFullScreenWidth?: boolean;
+  enableTopPadding?: boolean;
+  enableBottomPadding?: boolean;
   inContainer?: any;
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
@@ -119,6 +121,7 @@ export interface ICharts extends IMgTableClass {
   legendPosition?: IOntologyNode;
   legendIsHorizontal?: boolean;
   legendMarkerType?: IOntologyNode;
+  showValuesOnLegendHoverEvent?: boolean;
   fillColor?: string;
   strokeColor?: string;
   hoverFillColor?: string;
@@ -133,6 +136,8 @@ export interface ICharts extends IMgTableClass {
   enableAnimations?: boolean;
   enableHoverEvents?: boolean;
   enableClickEvents?: boolean;
+  inBlock?: any;
+  id: string;
   x: string;
   y: string;
   primaryGroupValues?: string;
@@ -147,11 +152,26 @@ export interface ICharts extends IMgTableClass {
   yAxisMaxValue?: number;
   yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
-  inBlock?: any;
-  id: string;
 }
 
 export interface ICharts_agg {
+  count: number;
+}
+
+export interface ICmsComponentWidths extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICmsComponentWidths;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICmsComponentWidths[];
+}
+
+export interface ICmsComponentWidths_agg {
   count: number;
 }
 
@@ -205,15 +225,10 @@ export interface IComponents extends IMgTableClass {
   paragraphIsCentered?: boolean;
   buttonLink?: string;
   buttonLabel?: string;
-  buttonStyle?: string;
+  buttonType?: string;
   buttonSize?: string;
   buttonIsCentered?: boolean;
   showFilesWithTag?: string;
-  title?: string;
-  description?: string;
-  url: string;
-  urlLabel?: string;
-  urlIsExternal?: boolean;
   unorderedItems?: string[];
   chartType: IOntologyNode;
   chartTitle: string;
@@ -223,6 +238,7 @@ export interface IComponents extends IMgTableClass {
   legendPosition?: IOntologyNode;
   legendIsHorizontal?: boolean;
   legendMarkerType?: IOntologyNode;
+  showValuesOnLegendHoverEvent?: boolean;
   fillColor?: string;
   strokeColor?: string;
   hoverFillColor?: string;
@@ -251,6 +267,12 @@ export interface IComponents extends IMgTableClass {
   yAxisMaxValue?: number;
   yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
+  title?: string;
+  description?: string;
+  url: string;
+  urlLabel?: string;
+  urlIsExternal?: boolean;
+  navigationCardWidth?: IOntologyNode;
 }
 
 export interface IComponents_agg {
@@ -418,6 +440,8 @@ export interface IHeaders extends IMgTableClass {
   titleIsCentered?: boolean;
   pageHeaderHeight?: IOntologyNode;
   enableFullScreenWidth?: boolean;
+  enableTopPadding?: boolean;
+  enableBottomPadding?: boolean;
   inContainer?: any;
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
@@ -485,6 +509,7 @@ export interface INavigationCards extends IMgTableClass {
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
+  navigationCardWidth?: IOntologyNode;
   inBlock?: any;
   id: string;
 }
@@ -518,6 +543,8 @@ export interface ISections extends IMgTableClass {
   columns?: number;
   enableFullScreenWidth?: boolean;
   applyShadedBackground?: boolean;
+  enableTopPadding?: boolean;
+  enableBottomPadding?: boolean;
   inContainer?: any;
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
@@ -571,6 +598,7 @@ export interface IStatisticalCharts extends IMgTableClass {
   legendPosition?: IOntologyNode;
   legendIsHorizontal?: boolean;
   legendMarkerType?: IOntologyNode;
+  showValuesOnLegendHoverEvent?: boolean;
   fillColor?: string;
   strokeColor?: string;
   hoverFillColor?: string;

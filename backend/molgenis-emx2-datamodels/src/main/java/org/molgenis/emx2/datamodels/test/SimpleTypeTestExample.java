@@ -8,7 +8,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
-public class SimpleTypeTestExample {
+public final class SimpleTypeTestExample {
   public static final String TYPE_TEST = "TypeTest";
 
   private SimpleTypeTestExample() {

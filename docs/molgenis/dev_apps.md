@@ -115,6 +115,22 @@ NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
 
 In production the catalogue runs as its own container (`molgenis/ssr-catalogue`, see `docker-compose.yml`) next to the backend. See [apps/catalogue/README.md](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/README.md) for more details.
 
+#### How requests reach the backend
+
+A request can reach the backend through several paths. The request headers do not always come from the caller itself:
+
+| Caller | Path | Request headers come from |
+|---|---|---|
+| Browser | browser → reverse proxy ([example](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/sample-nginx.conf)) → backend | the browser |
+| Catalogue SSR | Nuxt server → [Nitro routes](https://github.com/molgenis/molgenis-emx2/tree/master/apps/tailwind-components/server/routes) → backend | the visitor's page request for `useFetch` with a relative URL, none for `$fetch` (see Nuxt: [Passing headers and cookies](https://github.com/nuxt/nuxt/blob/main/docs/1.getting-started/12.data-fetching.md#passing-headers-and-cookies)) |
+| Vite dev server | browser → [Vite proxy](https://github.com/molgenis/molgenis-emx2/blob/master/apps/dev-proxy.config.js) → backend | the browser |
+| pyclient, scripts, curl | client → backend | the client |
+
+This has two consequences:
+
+- The Nitro server routes are production code. Every SSR data fetch goes through them, also when the reverse proxy sends the browser's own `/graphql` calls straight to the backend. The SSR call never passes the reverse proxy.
+- A backend check that reads request headers also sees the visitor's headers on SSR calls, such as the session cookie and the `Referer`. The test [page-renders-for-visitor-from-other-site.spec.ts](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/tests/page-renders-for-visitor-from-other-site.spec.ts) checks that a visitor who comes from another site still gets a page.
+
 ## Deploying your application
 
 When you have finished building your app, commit your changes and open a new PR. See our [contributing guidelines](https://github.com/molgenis/molgenis-emx2/blog/master/CONTRIBUTING.md) for more information on contributing to the EMX2 code base. When your PR is accepted and merged with the main EMX2 branch, a [new release](https://github.com/molgenis/molgenis-emx2/releases) will be created. Then, update your server with the latest version of EMX2.
