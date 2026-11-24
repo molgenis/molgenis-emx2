@@ -42,11 +42,14 @@ public class InMemoryRDFHandler implements RDFHandler {
   private static final DatatypeFactory datatypeFactory;
   private static final XMLGregorianCalendar REPLACEMENT_DATE;
 
-  private boolean fixValuesForComparison;
+  private final boolean fixValuesForComparison;
   private final Map<Value, Value> fileIriMappings = new HashMap<>();
 
-  public Map<Resource, Map<IRI, Set<Value>>> resources = new HashMap<>();
-  public Set<Namespace> namespaces = new HashSet<>();
+  // after endRDF() they become unmodifiable
+  private Map<Resource, Map<IRI, Set<Value>>> resources = new HashMap<>();
+  private Set<Namespace> namespaces = new HashSet<>();
+
+  private boolean ended = false;
 
   static {
     try {
@@ -66,6 +69,28 @@ public class InMemoryRDFHandler implements RDFHandler {
 
   public InMemoryRDFHandler(boolean fixValuesForComparison) {
     this.fixValuesForComparison = fixValuesForComparison;
+  }
+
+  /**
+   * @return an unmodifiable view of all resources
+   * @throws IllegalStateException if called before {@link #endRDF()}
+   */
+  public Map<Resource, Map<IRI, Set<Value>>> getResources() {
+    if (!ended) {
+      throw new IllegalStateException("Resources are only available after endRDF() is called");
+    }
+    return resources;
+  }
+
+  /**
+   * @return an unmodifiable view of all namespaces
+   * @throws IllegalStateException if called before {@link #endRDF()}
+   */
+  public Set<Namespace> getNamespaces() {
+    if (!ended) {
+      throw new IllegalStateException("Namespaces are only available after endRDF() is called");
+    }
+    return namespaces;
   }
 
   @Override
@@ -124,9 +149,23 @@ public class InMemoryRDFHandler implements RDFHandler {
 
   @Override
   public void endRDF() throws RDFHandlerException {
+    if (ended) {
+      throw new IllegalStateException("endRDF() was already called");
+    }
     if (fixValuesForComparison) {
       processFileIris();
     }
+    createUnmodifiableCopy();
+    ended = true;
+  }
+
+  private void createUnmodifiableCopy() {
+    resources
+        .values()
+        .forEach(predicates -> predicates.replaceAll((p, values) -> Set.copyOf(values)));
+    resources.replaceAll((subject, predicates) -> Map.copyOf(predicates));
+    resources = Map.copyOf(resources);
+    namespaces = Set.copyOf(namespaces);
   }
 
   private void processFileIris() {

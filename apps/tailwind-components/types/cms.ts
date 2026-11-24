@@ -1,4 +1,4 @@
-// Generated (on: 2026-11-04T10:24:32.666949) from Generator.java for schema: cms
+// Generated (on: 2026-11-19T11:27:09.477915) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -46,13 +46,13 @@ export interface IBlocks extends IMgTableClass {
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
   id: string;
+  columns?: number;
+  applyShadedBackground?: boolean;
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
   pageHeaderHeight?: IOntologyNode;
-  columns?: number;
-  applyShadedBackground?: boolean;
 }
 
 export interface IBlocks_agg {
@@ -121,6 +121,7 @@ export interface ICharts extends IMgTableClass {
   legendPosition?: IOntologyNode;
   legendIsHorizontal?: boolean;
   legendMarkerType?: IOntologyNode;
+  showValuesOnLegendHoverEvent?: boolean;
   fillColor?: string;
   strokeColor?: string;
   hoverFillColor?: string;
@@ -227,6 +228,7 @@ export interface IComponents extends IMgTableClass {
   buttonType?: string;
   buttonSize?: string;
   buttonIsCentered?: boolean;
+  showFilesWithTag?: string;
   unorderedItems?: string[];
   chartType: IOntologyNode;
   chartTitle: string;
@@ -236,6 +238,7 @@ export interface IComponents extends IMgTableClass {
   legendPosition?: IOntologyNode;
   legendIsHorizontal?: boolean;
   legendMarkerType?: IOntologyNode;
+  showValuesOnLegendHoverEvent?: boolean;
   fillColor?: string;
   strokeColor?: string;
   hoverFillColor?: string;
@@ -270,7 +273,6 @@ export interface IComponents extends IMgTableClass {
   urlLabel?: string;
   urlIsExternal?: boolean;
   navigationCardWidth?: IOntologyNode;
-  showFilesWithTag?: string;
 }
 
 export interface IComponents_agg {
@@ -291,8 +293,6 @@ export interface IConfigurablePages_agg {
 export interface IContainers extends IMgTableClass {
   name: string;
   description?: string;
-  blocks?: IBlocks[];
-  blockOrder?: IBlockOrders[];
   html?: string;
   css?: string;
   javascript?: string;
@@ -300,6 +300,8 @@ export interface IContainers extends IMgTableClass {
   enableBaseStyles?: boolean;
   enableButtonStyles?: boolean;
   enableFullScreen?: boolean;
+  blocks?: IBlocks[];
+  blockOrder?: IBlockOrders[];
 }
 
 export interface IContainers_agg {
@@ -596,6 +598,7 @@ export interface IStatisticalCharts extends IMgTableClass {
   legendPosition?: IOntologyNode;
   legendIsHorizontal?: boolean;
   legendMarkerType?: IOntologyNode;
+  showValuesOnLegendHoverEvent?: boolean;
   fillColor?: string;
   strokeColor?: string;
   hoverFillColor?: string;

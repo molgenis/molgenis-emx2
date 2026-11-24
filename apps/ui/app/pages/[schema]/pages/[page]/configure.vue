@@ -57,5 +57,6 @@ async function updatePage() {
     :is-editable="enableEditing"
     :schema="schema || ''"
     @updatePage="updatePage"
+    :route="route"
   />
 </template>

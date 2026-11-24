@@ -139,7 +139,7 @@ const props = defineProps<{
   roles: string[];
 }>();
 
-const visible = defineModel("visible", {
+const visible = defineModel<boolean>("visible", {
   required: true,
 });
 

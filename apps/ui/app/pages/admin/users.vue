@@ -1,3 +1,104 @@
+<template>
+  <ContentBlock
+    class="w-full"
+    title="User management"
+    :description="`${matchingUsers.length} users found`"
+  >
+    <TableInteractive
+      :features="tableFeatures"
+      :permissions="tablePermissions"
+      :rows="usersShown"
+      :rowCount="matchingUsers.length"
+      :selectedRows="selectedRows"
+      :settings="tableSettings"
+      :tableMetadata="tableMetadata"
+      searchPlaceholder="Search users"
+      @update:settings="handleUpdateSettings"
+      @cellClicked="handleCellClicked"
+      @rowAction="handleRowAction"
+      @toggleRowSelection="handleToggleRowSelection"
+    >
+      <template #row-action="{ row }">
+        <Button
+          :id="`edit-user-${row.email}`"
+          iconOnly
+          type="inline"
+          icon="edit"
+          :label="`Edit user: ${row.email}`"
+          @click="openEditUserModal(rowToUser(row))"
+        />
+        <Button
+          v-if="!SYSTEM_USERS.includes(rowToUser(row).email)"
+          :id="`delete-user-${row.email}`"
+          iconOnly
+          type="inline"
+          icon="trash"
+          :label="`Delete user: ${row.email}`"
+          @click="showDeleteUserConfirmation(rowToUser(row))"
+        />
+        <Button
+          v-if="Array.isArray(row.tokens) && row.tokens.length"
+          :id="`manage-tokens-${row.email}`"
+          type="inline"
+          size="tiny"
+          @click="openManageTokensModal(rowToUser(row))"
+        >
+          {{ row.tokens?.length }} tokens
+        </Button>
+      </template>
+
+      <template #buttons>
+        <Button
+          type="primary"
+          size="medium"
+          icon="add-circle"
+          @click="showNewUserModal = true"
+        >
+          Create user
+        </Button>
+      </template>
+    </TableInteractive>
+
+    <CellDetailModal
+      v-if="cellDetailPayload"
+      :payload="cellDetailPayload"
+      :schemaId="USER_SCHEMA_ID"
+      v-model:showModal="showCellDetailSideModal"
+    />
+
+    <NewUserModal
+      v-if="showNewUserModal"
+      v-model:visible="showNewUserModal"
+      :usernames="userNames"
+      @addUser="adminSettings.addUser"
+    />
+
+    <EditUserModal
+      v-if="selectedUser && showEditUserModal"
+      v-model:visible="showEditUserModal"
+      :schemas="adminSettings.schemas"
+      :roles="adminSettings.roles"
+      :user="selectedUser"
+      @userUpdated="adminSettings.reloadAdminData"
+    />
+
+    <DeleteUserConfirmation
+      v-if="showDeleteUserModal"
+      v-model:visible="showDeleteUserModal"
+      :users="usersForDeletion"
+      :systemUsers="skippedSystemUsers"
+      @deleteUser="adminSettings.removeUsers(usersForDeletion)"
+    />
+
+    <TokenManagement
+      v-if="selectedUser && showTokenModal"
+      v-model:visible="showTokenModal"
+      :user="selectedUser"
+      @userUpdated="adminSettings.reloadAdminData"
+    />
+  </ContentBlock>
+</template>
+
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
@@ -6,7 +107,6 @@ import type {
   TableRow,
 } from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import CellDetailModal from "../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
@@ -64,16 +164,16 @@ const tableMetadata: ITableMetaData = {
   tableType: "DATA",
   columns: [
     {
-      columnType: "BOOL",
-      id: "enabled",
-      name: "enabled",
-      label: "Enabled",
-    },
-    {
       columnType: "STRING",
       id: "email",
       name: "email",
       label: "Name / Email",
+    },
+    {
+      columnType: "BOOL",
+      id: "enabled",
+      name: "enabled",
+      label: "Enabled",
     },
     {
       columnType: "STRING_ARRAY",
@@ -220,104 +320,102 @@ function rowToUser(row: TableRow): User {
 </script>
 
 <template>
-  <Container class="flex flex-col items-center">
-    <ContentBlock
-      class="w-full mt-3"
-      title="User management"
-      :description="`${matchingUsers.length} users found`"
+  <ContentBlock
+    class="w-full"
+    title="User management"
+    :description="`${matchingUsers.length} users found`"
+  >
+    <TableInteractive
+      :features="tableFeatures"
+      :permissions="tablePermissions"
+      :rows="usersShown"
+      :rowCount="matchingUsers.length"
+      :selectedRows="selectedRows"
+      :settings="tableSettings"
+      :tableMetadata="tableMetadata"
+      searchPlaceholder="Search users"
+      @update:settings="handleUpdateSettings"
+      @cellClicked="handleCellClicked"
+      @rowAction="handleRowAction"
+      @toggleRowSelection="handleToggleRowSelection"
     >
-      <TableInteractive
-        :features="tableFeatures"
-        :permissions="tablePermissions"
-        :rows="usersShown"
-        :rowCount="matchingUsers.length"
-        :selectedRows="selectedRows"
-        :settings="tableSettings"
-        :tableMetadata="tableMetadata"
-        searchPlaceholder="Search users"
-        @update:settings="handleUpdateSettings"
-        @cellClicked="handleCellClicked"
-        @rowAction="handleRowAction"
-        @toggleRowSelection="handleToggleRowSelection"
-      >
-        <template #row-action="{ row }">
-          <Button
-            :id="`edit-user-${row.email}`"
-            iconOnly
-            type="inline"
-            icon="edit"
-            :label="`Edit user: ${row.email}`"
-            @click="openEditUserModal(rowToUser(row))"
-          />
-          <Button
-            v-if="!SYSTEM_USERS.includes(rowToUser(row).email)"
-            :id="`delete-user-${row.email}`"
-            iconOnly
-            type="inline"
-            icon="trash"
-            :label="`Delete user: ${row.email}`"
-            @click="showDeleteUserConfirmation(rowToUser(row))"
-          />
-          <Button
-            v-if="Array.isArray(row.tokens) && row.tokens.length"
-            :id="`manage-tokens-${row.email}`"
-            type="inline"
-            size="tiny"
-            @click="openManageTokensModal(rowToUser(row))"
-          >
-            {{ row.tokens?.length }} tokens
-          </Button>
-        </template>
+      <template #row-action="{ row }">
+        <Button
+          :id="`edit-user-${row.email}`"
+          iconOnly
+          type="inline"
+          icon="edit"
+          :label="`Edit user: ${row.email}`"
+          @click="openEditUserModal(rowToUser(row))"
+        />
+        <Button
+          v-if="!SYSTEM_USERS.includes(rowToUser(row).email)"
+          :id="`delete-user-${row.email}`"
+          iconOnly
+          type="inline"
+          icon="trash"
+          :label="`Delete user: ${row.email}`"
+          @click="showDeleteUserConfirmation(rowToUser(row))"
+        />
+        <Button
+          v-if="Array.isArray(row.tokens) && row.tokens.length"
+          :id="`manage-tokens-${row.email}`"
+          type="inline"
+          size="tiny"
+          @click="openManageTokensModal(rowToUser(row))"
+        >
+          {{ row.tokens?.length }} tokens
+        </Button>
+      </template>
 
-        <template #buttons>
-          <Button
-            type="primary"
-            size="medium"
-            icon="add-circle"
-            @click="showNewUserModal = true"
-          >
-            Create user
-          </Button>
-        </template>
-      </TableInteractive>
+      <template #buttons>
+        <Button
+          type="primary"
+          size="medium"
+          icon="add-circle"
+          @click="showNewUserModal = true"
+        >
+          Create user
+        </Button>
+      </template>
+    </TableInteractive>
 
-      <CellDetailModal
-        v-if="cellDetailPayload"
-        :payload="cellDetailPayload"
-        :schemaId="USER_SCHEMA_ID"
-        v-model:showModal="showCellDetailSideModal"
-      />
+    <CellDetailModal
+      v-if="cellDetailPayload"
+      :payload="cellDetailPayload"
+      :schemaId="USER_SCHEMA_ID"
+      v-model:showModal="showCellDetailSideModal"
+    />
 
-      <NewUserModal
-        v-if="showNewUserModal"
-        v-model:visible="showNewUserModal"
-        :usernames="userNames"
-        @addUser="adminSettings.addUser"
-      />
+    <NewUserModal
+      v-if="showNewUserModal"
+      v-model:visible="showNewUserModal"
+      :usernames="userNames"
+      @addUser="adminSettings.addUser"
+    />
 
-      <EditUserModal
-        v-if="selectedUser && showEditUserModal"
-        v-model:visible="showEditUserModal"
-        :schemas="adminSettings.schemas"
-        :roles="adminSettings.roles"
-        :user="selectedUser"
-        @userUpdated="adminSettings.reloadAdminData"
-      />
+    <EditUserModal
+      v-if="selectedUser && showEditUserModal"
+      v-model:visible="showEditUserModal"
+      :schemas="adminSettings.schemas"
+      :roles="adminSettings.roles"
+      :user="selectedUser"
+      @userUpdated="adminSettings.reloadAdminData"
+    />
 
-      <DeleteUserConfirmation
-        v-if="showDeleteUserModal"
-        v-model:visible="showDeleteUserModal"
-        :users="usersForDeletion"
-        :systemUsers="skippedSystemUsers"
-        @deleteUser="adminSettings.removeUsers(usersForDeletion)"
-      />
+    <DeleteUserConfirmation
+      v-if="showDeleteUserModal"
+      v-model:visible="showDeleteUserModal"
+      :users="usersForDeletion"
+      :systemUsers="skippedSystemUsers"
+      @deleteUser="adminSettings.removeUsers(usersForDeletion)"
+    />
 
-      <TokenManagement
-        v-if="selectedUser && showTokenModal"
-        v-model:visible="showTokenModal"
-        :user="selectedUser"
-        @userUpdated="adminSettings.reloadAdminData"
-      />
-    </ContentBlock>
-  </Container>
+    <TokenManagement
+      v-if="selectedUser && showTokenModal"
+      v-model:visible="showTokenModal"
+      :user="selectedUser"
+      @userUpdated="adminSettings.reloadAdminData"
+    />
+  </ContentBlock>
 </template>

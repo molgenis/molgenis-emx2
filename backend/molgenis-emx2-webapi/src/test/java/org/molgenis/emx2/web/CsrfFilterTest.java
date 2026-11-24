@@ -53,15 +53,22 @@ class CsrfFilterTest {
   }
 
   @Test
-  void givenNoOriginOrRefererWhenPostThenAllowed() {
+  void givenNoOriginWhenPostThenAllowed() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", null);
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }
 
   @Test
-  void givenCrossSiteRefererWhenPostWithoutOriginThenRejected() {
+  void givenCrossSiteRefererWithoutOriginWhenPostThenAllowed() {
     Context ctx = request(HandlerType.POST, "emx2.example.org", null);
-    when(ctx.header(Header.REFERER)).thenReturn("https://evil.example/page");
+    when(ctx.header(Header.REFERER)).thenReturn("https://www.google.com/");
+    assertDoesNotThrow(() -> CsrfFilter.check(ctx));
+  }
+
+  @Test
+  void givenCrossSiteOriginAndOwnRefererWhenPostThenRejected() {
+    Context ctx = request(HandlerType.POST, "emx2.example.org", "https://evil.example");
+    when(ctx.header(Header.REFERER)).thenReturn("https://emx2.example.org/page");
     assertThrows(ForbiddenResponse.class, () -> CsrfFilter.check(ctx));
   }
 
@@ -82,13 +89,6 @@ class CsrfFilterTest {
   @Test
   void givenUnderscoreHostNameWhenPostThenAllowed() {
     Context ctx = request(HandlerType.POST, "molgenis_emx2:8080", "http://molgenis_emx2:8080");
-    assertDoesNotThrow(() -> CsrfFilter.check(ctx));
-  }
-
-  @Test
-  void givenRefererWithPipeInQueryWhenPostWithoutOriginThenAllowed() {
-    Context ctx = request(HandlerType.POST, "emx2.example.org", null);
-    when(ctx.header(Header.REFERER)).thenReturn("https://emx2.example.org/catalogue?filter=a|b");
     assertDoesNotThrow(() -> CsrfFilter.check(ctx));
   }
 

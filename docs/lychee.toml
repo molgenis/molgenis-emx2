@@ -1,0 +1,9 @@
+# Link check for the docs site. Run from the repository root:
+#   lychee --config docs/lychee.toml --root-dir "$PWD/docs" 'docs/**/*.md'
+
+offline = true
+include_fragments = "anchor-only"
+index_files = ["README.md", "index.html"]
+fallback_extensions = ["md"]
+exclude_path = ["docs/build"]
+no_progress = true

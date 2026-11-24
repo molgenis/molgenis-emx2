@@ -21,6 +21,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
+import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
 
 class SemanticTest extends RdfServiceTestRunner {
   private static final String SCHEMA_NAME = SemanticTest.class.getSimpleName();
@@ -78,14 +79,14 @@ class SemanticTest extends RdfServiceTestRunner {
     // Test default behaviour.
     assertFalse(schema.hasSetting(SETTING_SEMANTIC_PREFIXES));
     InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
-    assertEquals(defaultNamespaces, handlerBefore.namespaces);
+    assertEquals(defaultNamespaces, handlerBefore.getNamespaces());
 
     // Change setting
     schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
 
     // Test behaviour after changing setting.
     InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
-    assertEquals(customNamespaces, handlerAfter.namespaces);
+    assertEquals(customNamespaces, handlerAfter.getNamespaces());
   }
 
   @Test
@@ -119,7 +120,7 @@ class SemanticTest extends RdfServiceTestRunner {
 
     schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
     InMemoryRDFHandler handler = parseSchemaRdf(schema);
-    assertEquals(expectedNamespaces, handler.namespaces);
+    assertEquals(expectedNamespaces, handler.getNamespaces());
   }
 
   @Test
@@ -212,20 +213,38 @@ class SemanticTest extends RdfServiceTestRunner {
   }
 
   @Test
-  void prefixedNamesValidRow() throws IOException {
+  void semanticGenerator_prefixedNamesValidRow() throws IOException {
     Set<IRI> expectedPredicates =
         Set.of(
             Values.iri("http://purl.org/dc/terms/title"),
             Values.iri("http://purl.org/dc/terms/description"));
 
-    InMemoryRDFHandler handler = parseRowRdf(semanticTest, "SemanticTable", "id=1");
+    InMemoryRDFHandler handler =
+        parseRowRdf(RdfApiGeneratorFactory.SEMANTIC, semanticTest, "SemanticTable", "id=1");
     Set<IRI> actualPredicates =
-        handler.resources.get(Values.iri(getApi(semanticTest) + "SemanticTable/id=1")).keySet();
+        handler
+            .getResources()
+            .get(Values.iri(getApi(semanticTest) + "SemanticTable/id=1"))
+            .keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));
   }
 
   @Test
-  void prefixedNamesRowUsingUndefinedPrefix() {
-    assertThrows(MolgenisException.class, () -> parseRowRdf(semanticTest, "SemanticTable", "id=2"));
+  void semanticGenerator_prefixedNamesRowUsingUndefinedPrefix() {
+    assertThrows(
+        MolgenisException.class,
+        () -> parseRowRdf(RdfApiGeneratorFactory.SEMANTIC, semanticTest, "SemanticTable", "id=2"));
+  }
+
+  @Test
+  void emx2Generator_anyRowWhenUndefinedPrefixIsDefined() {
+    // Due to the fact that the EMX2 generator always tries to describe every column of a table
+    // (while the semantic generator only tries to write triples where data is present), an
+    // incorrect semantic field causes the EMX2 generator to ALWAYS fail with invalid semantics
+    // while the semantic generator only fails when data is present. Therefore, this throws an
+    // exception for the EMX2 generator while it does not for the semantic generator.
+    assertThrows(
+        MolgenisException.class,
+        () -> parseRowRdf(RdfApiGeneratorFactory.EMX2, semanticTest, "SemanticTable", "id=1"));
   }
 }

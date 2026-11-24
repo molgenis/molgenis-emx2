@@ -3,26 +3,15 @@ import { ref } from "vue";
 import ColumnChart from "../../components/viz/ColumnChart/ColumnChart.vue";
 import ComponentOutput from "../../components/story/ComponentOutput.vue";
 
-const recruitmentDataExample = [
-  { id: "value-jan", xValue: "Jan", yValue: "18" },
-  { id: "value-feb", xValue: "Feb", yValue: "33" },
-  { id: "value-mar", xValue: "Mar", yValue: "56" },
-  { id: "value-apr", xValue: "Apr", yValue: "75" },
-  { id: "value-may", xValue: "May", yValue: "22" },
-  { id: "value-jun", xValue: "Jun", yValue: "10" },
-];
-
-const data = [
-  { id: "value-jan", xValue: "Jan", yValue: "-32", fillColor: "#e14f62" },
-  { id: "value-feb", xValue: "Feb", yValue: "17", yLabel: "+17" },
-  { id: "value-mar", xValue: "Mar", yValue: "6", yLabel: "+6" },
-  { id: "value-apr", xValue: "Apr", yValue: "-25", fillColor: "#e14f62" },
-  { id: "value-may", xValue: "May", yValue: "-28", fillColor: "#e14f62" },
-  { id: "value-jun", xValue: "Jun", yValue: "-40", fillColor: "#e14f62" },
-];
+import {
+  recruitmentByGender,
+  recruitmentDataExample,
+  recruitmentTargetExample,
+} from "../../utils/viz/data.ts";
 
 const chartClick1 = ref<Record<string, number>>();
 const chartClick2 = ref<Record<string, number>>();
+const chartClick3 = ref<Record<string, number>>();
 </script>
 
 <template>
@@ -38,8 +27,6 @@ const chartClick2 = ref<Record<string, number>>();
         y="yValue"
         xAxisTitle="Experimental group"
         yAxisTitle="Number of participants"
-        :yAxisMaxValue="100"
-        :yAxisTicks="[0, 25, 50, 75, 100]"
         :enableAnimations="true"
         :enableClickEvents="true"
         :enableHoverEvents="true"
@@ -55,20 +42,38 @@ const chartClick2 = ref<Record<string, number>>();
         :chartType="{ name: 'ColumnChart' }"
         chartTitle="Participant recruitment goals"
         chartDescription="The difference of participant recruitment in relation to the target per month (n=50). This is chart that demonstrates negative numbers and custom colors."
-        :chartData="data"
+        :chartData="recruitmentTargetExample"
         x="xValue"
         y="yValue"
         yAxisTitle="recruitment difference"
-        :yAxisMinValue="-50"
-        :yAxisMaxValue="20"
-        :yAxisTicks="[-50, -40, -30, -20, -10, 0, 10, 20]"
         :enableAnimations="true"
         :enableClickEvents="true"
         :enableHoverEvents="true"
-        @column-clicked="chartClick2 = $event"
+        @columnClicked="chartClick2 = $event"
       />
       <ComponentOutput class="my-2.5">
         Clicked element: {{ chartClick2 }}
+      </ComponentOutput>
+    </div>
+    <div>
+      <ColumnChart
+        id="column-chart-demo-3"
+        :chartType="{ name: 'Grouped column chart' }"
+        chartTitle="Participant recruitment by age group and center"
+        :chartData="recruitmentByGender"
+        x="xValue"
+        y="yValue"
+        primaryGroupValue="primaryGroupValue"
+        yAxisTitle="Number of participants"
+        :enableAnimations="true"
+        :enableClickEvents="true"
+        :enableHoverEvents="true"
+        :legendIsEnabled="true"
+        :legendPosition="{ name: 'top' }"
+        @columnClicked="chartClick3 = $event"
+      />
+      <ComponentOutput class="my-2.5">
+        Clicked element: {{ chartClick3 }}
       </ComponentOutput>
     </div>
   </div>

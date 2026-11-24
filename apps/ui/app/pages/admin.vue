@@ -2,10 +2,17 @@
 import { definePageMeta } from "#imports";
 import { useRoute } from "nuxt/app";
 import { computed } from "vue";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import ButtonBar from "../../../tailwind-components/app/components/ButtonBar.vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
-import Tab from "../../../tailwind-components/app/components/Tab.vue";
 import Users from "./admin/users.vue";
+
+const ADMIN_SECTIONS = [
+  { id: "users", label: "Users", to: "/admin/users" },
+  { id: "roles", label: "Roles", to: "/admin/roles" },
+  { id: "settings", label: "Settings", to: "/admin/settings" },
+] as const;
 
 definePageMeta({
   middleware: "admin-only",
@@ -13,29 +20,39 @@ definePageMeta({
 
 const route = useRoute();
 
-const activeTab = computed(() => {
-  if (route.path.includes("users")) return "users";
-  if (route.path.includes("roles")) return "roles";
-  if (route.path.includes("settings")) return "settings";
-  return "users";
-});
+const activeSection = computed(
+  () =>
+    ADMIN_SECTIONS.find((section) => route.path.includes(section.id))?.id ??
+    "users"
+);
 </script>
 
 <template>
-  <PageHeader title="Admin Tools" />
-  <Container class="flex flex-col items-center">
-    <div class="flex flex-nowrap w-full">
-      <NuxtLink to="/admin/users">
-        <Tab :active="activeTab === 'users'">Users</Tab>
-      </NuxtLink>
-      <NuxtLink to="/admin/roles">
-        <Tab :active="activeTab === 'roles'">Roles</Tab>
-      </NuxtLink>
-      <NuxtLink to="/admin/settings">
-        <Tab :active="activeTab === 'settings'">Settings</Tab>
-      </NuxtLink>
-    </div>
-    <Users v-if="activeTab === 'users'" />
+  <Container>
+    <PageHeader title="Admin Tools" />
+    <nav aria-label="Admin sections" class="mb-3 px-5 lg:px-0">
+      <ButtonBar>
+        <NuxtLink
+          v-for="section in ADMIN_SECTIONS"
+          :key="section.id"
+          :to="section.to"
+          custom
+          v-slot="{ href, navigate }"
+        >
+          <Button
+            :id="`admin-section-${section.id}`"
+            :href="href ?? undefined"
+            :type="activeSection === section.id ? 'primary' : 'outline'"
+            size="small"
+            :aria-current="activeSection === section.id ? 'page' : undefined"
+            @click="navigate"
+          >
+            {{ section.label }}
+          </Button>
+        </NuxtLink>
+      </ButtonBar>
+    </nav>
+    <Users v-if="activeSection === 'users'" />
     <NuxtPage v-else />
   </Container>
 </template>
