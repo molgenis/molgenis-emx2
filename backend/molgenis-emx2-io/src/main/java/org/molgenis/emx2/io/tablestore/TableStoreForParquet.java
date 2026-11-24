@@ -16,22 +16,32 @@ import org.apache.parquet.io.LocalInputFile;
 import org.apache.parquet.io.LocalOutputFile;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.io.parquet.RowParquetReaderBuilder;
 import org.molgenis.emx2.io.parquet.RowParquetWriterBuilder;
 import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
+/**
+ * The TableStore contains a schema that is only used when writing: it decides the Parquet type of
+ * each column. So a table can only be written when the schema has a table with that name, and every
+ * written column must be a column of that table. Trying to write tables that aren't part of the
+ * schema, result in a {@link MolgenisException}.
+ */
 public class TableStoreForParquet implements TableStore {
 
   private static final String PARQUET_EXTENSION = ".parquet";
   private static final PlainParquetConfiguration PARQUET_CONFIG = new PlainParquetConfiguration();
 
   private final Path directoryPath;
+  private final SchemaMetadata schema;
 
-  public TableStoreForParquet(Path directoryPath) {
+  public TableStoreForParquet(Path directoryPath, SchemaMetadata schema) {
     if (!Files.isDirectory(directoryPath)) {
       throw new MolgenisException("Directory " + directoryPath + " doesn't exist");
     }
     this.directoryPath = directoryPath;
+    this.schema = schema;
   }
 
   @Override
@@ -41,20 +51,25 @@ public class TableStoreForParquet implements TableStore {
 
   @Override
   public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
+    TableMetadata tableMetadata = schema.getTableMetadata(name);
+    if (tableMetadata == null) {
+      throw new MolgenisException("No table in schema " + schema.getName() + ": " + name);
+    }
+
     RowParquetWriterBuilder builder =
-        new RowParquetWriterBuilder(new LocalOutputFile(tableFile(name)), columnNames)
+        new RowParquetWriterBuilder(
+                new LocalOutputFile(tableFile(name)), tableMetadata, columnNames)
             .withConf(PARQUET_CONFIG)
             .withWriteMode(ParquetFileWriter.Mode.OVERWRITE);
 
     try (ParquetWriter<Row> writer = builder.build()) {
-      rows.produce(
-          row -> {
-            try {
-              writer.write(row);
-            } catch (IOException e) {
-              throw new UncheckedIOException(e);
-            }
-          });
+      rows.produce(row -> {
+        try {
+          writer.write(row);
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      });
     } catch (IOException | UncheckedIOException e) {
       throw new MolgenisException("Writing parquet file for table '" + name + "' failed", e);
     }
