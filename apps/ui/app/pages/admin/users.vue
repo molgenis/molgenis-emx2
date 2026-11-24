@@ -63,16 +63,16 @@ const tableMetadata: ITableMetaData = {
   tableType: "DATA",
   columns: [
     {
-      columnType: "BOOL",
-      id: "enabled",
-      name: "enabled",
-      label: "Enabled",
-    },
-    {
       columnType: "STRING",
       id: "email",
       name: "email",
       label: "Name / Email",
+    },
+    {
+      columnType: "BOOL",
+      id: "enabled",
+      name: "enabled",
+      label: "Enabled",
     },
     {
       columnType: "STRING_ARRAY",
