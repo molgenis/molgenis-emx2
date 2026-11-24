@@ -20,7 +20,6 @@ import type { CustomRole, RoleModalMode } from "../interfaces/interfaces.ts";
 import { getRootTableNames } from "../util/adminUtils";
 
 const RIGHTS = ["select", "insert", "update", "delete"] as const;
-type Right = (typeof RIGHTS)[number];
 const RIGHT_LABELS: Record<Right, string> = {
   select: "Select",
   insert: "Insert",
@@ -42,7 +41,7 @@ const RLS_ROLE_PREFIX = "RLS_";
 
 const props = withDefaults(
   defineProps<{
-    mode?: RoleModalMode;
+    mode: RoleModalMode;
     role?: CustomRole;
   }>(),
   {
@@ -60,11 +59,11 @@ const isEditing = computed(() => props.mode === "edit" && !!props.role);
 const title = computed(() => {
   if (props.role && props.mode === "edit") {
     return `Edit role: ${props.role.role}`;
-  }
-  if (props.role && props.mode === "copy") {
+  } else if (props.role && props.mode === "copy") {
     return `Copy role: ${props.role.role}`;
+  } else {
+    return "Create role";
   }
-  return "Create role";
 });
 const originalUsers = new Set(isEditing.value ? props.role?.users : []);
 
@@ -170,8 +169,8 @@ const removedUsers = computed(() =>
 
 const hasChanges = computed(
   () =>
-    changedPermissions.value.length > 0 ||
-    addedUsers.value.length > 0 ||
+    changedPermissions.value.length ||
+    addedUsers.value.length ||
     removedUsers.value.length > 0
 );
 
@@ -192,9 +191,11 @@ async function loadTables(newSchemaId: string | null) {
   originalPermissions.value = {};
   permissions.value = {};
   errorMessage.value = "";
+
   if (!newSchemaId) {
     return;
   }
+
   loadingTables.value = true;
   try {
     const names = await getRootTableNames(newSchemaId);
@@ -229,8 +230,9 @@ async function loadTables(newSchemaId: string | null) {
 function initialRoleName(): string {
   if (!props.role || props.mode === "create") {
     return "";
+  } else {
+    return props.mode === "copy" ? `${props.role.role}_copy` : props.role.role;
   }
-  return props.mode === "copy" ? `${props.role.role}_copy` : props.role.role;
 }
 
 function storedPermission(tableName: string): TablePermission {
@@ -239,17 +241,19 @@ function storedPermission(tableName: string): TablePermission {
         .getPermissionsForCustomRole(props.role)
         .find((permission) => permission.table === tableName)
     : undefined;
+
   if (!stored) {
     return noPermissions(tableName);
+  } else {
+    return {
+      table: tableName,
+      select: Boolean(stored.select),
+      insert: Boolean(stored.insert),
+      update: Boolean(stored.update),
+      delete: Boolean(stored.delete),
+      isRowLevel: Boolean(stored.isRowLevel),
+    };
   }
-  return {
-    table: tableName,
-    select: Boolean(stored.select),
-    insert: Boolean(stored.insert),
-    update: Boolean(stored.update),
-    delete: Boolean(stored.delete),
-    isRowLevel: Boolean(stored.isRowLevel),
-  };
 }
 
 function effectivePermission(permission: TablePermission): TablePermission {
@@ -297,15 +301,18 @@ function setRightsForAllTables(value: boolean) {
 function userNote(email: string): string {
   const otherRole = customRoleByUser.value[email];
   const selected = selectedUsers.value.has(email);
+
   if (isEditing.value && originalUsers.has(email) && !selected) {
     return "will be removed from this role";
   }
+
   if (otherRole) {
     return selected && !originalUsers.has(email)
       ? `will be removed from role '${otherRole}'`
       : `member of role '${otherRole}'`;
+  } else {
+    return "";
   }
-  return "";
 }
 
 function setUserSelected(email: string, selected: boolean) {
@@ -349,6 +356,8 @@ async function save() {
     saving.value = false;
   }
 }
+
+type Right = (typeof RIGHTS)[number];
 </script>
 
 <template>
@@ -424,9 +433,9 @@ async function save() {
                 >
                   {{ RIGHT_LABELS[right] }}
                 </TableHead>
-                <TableHead class="text-table-column-header"
-                  >Row level</TableHead
-                >
+                <TableHead class="text-table-column-header">
+                  Row level
+                </TableHead>
               </TableHeadRow>
             </template>
             <template #body>
