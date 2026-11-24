@@ -51,7 +51,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["updatePage", "dragging"]);
+const emit = defineEmits(["updatePage", "dragging", "savingStatus"]);
 
 const componentDisplayName = computed<string>(() => {
   return asSingularName(componentMetadata.value?.name as string) as string;
@@ -63,7 +63,6 @@ const sourceItems =
   props.component?.orderedItems || props.component?.unorderedItems || [];
 const cachedListItems = ref<string[]>([...sourceItems]);
 
-const currentlyChanged = ref<boolean>(false);
 const currentlySaving = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
@@ -205,9 +204,6 @@ function asSingularName(value: string | undefined): string | undefined {
 
 const debouncedUpdateText = useDebounceFn(
   async (text: string | string[], field: string) => {
-    currentlyChanged.value = false;
-    currentlySaving.value = true;
-
     // regular expression used to capitalize first letter of each word and remove the spaces
     await updateCMSfield(
       componentMetadata.value?.schemaId || "",
@@ -219,21 +215,18 @@ const debouncedUpdateText = useDebounceFn(
       field
     );
     emit("updatePage");
-    currentlySaving.value = false;
+  emit("savingStatus", {state:false, component: props.component.id});
   },
   1000
 );
 
 function updateText(text: string | string[], field: string = "text") {
-  currentlyChanged.value = true;
-  currentlySaving.value = false;
-
+  emit("savingStatus", {state:true, component: props.component.id});
   debouncedUpdateText(text, field);
 }
 
 function updateListItems(item: { key: number; text: string }, field: string) {
-  currentlyChanged.value = true;
-  currentlySaving.value = false;
+  emit("savingStatus", {state:true, component: props.component.id});
   cachedListItems.value[item.key] = item.text;
   updateText(cachedListItems.value, field);
 }
@@ -244,10 +237,6 @@ function inlineSave() {
 </script>
 
 <template>
-  <div
-    class="contents"
-    :class="{ saving: currentlySaving, changed: currentlyChanged }"
-  >
     <EditableHeader
       v-if="mg_tableclass.endsWith('.Headers')"
       v-bind="component"
@@ -366,7 +355,6 @@ function inlineSave() {
       name="Error"
       :text="`Component ${mg_tableclass} is not yet supported`"
     />
-  </div>
   <EditModal
     v-if="componentMetadata && showEditModal"
     :key="`edit-modal-${componentMetadata.id}`"
@@ -424,43 +412,3 @@ function inlineSave() {
     </template>
   </Modal>
 </template>
-
-<style scoped>
-:deep(*:has(> [contenteditable])) {
-  position: relative;
-}
-
-:deep([contenteditable]::before) {
-  content: "saving...";
-  position: absolute;
-  font-size: 12px;
-  font-family: var(--dp-font-family);
-  bottom: 100%;
-  top: auto;
-  left: 0;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: black;
-  pointer-events: none;
-  background-color: var(--color-orange-500);
-  opacity: 0;
-  transition: opacity 1s ease-in;
-}
-
-.saving :deep([contenteditable]) {
-  outline-color: var(--color-orange-500);
-}
-
-.saving :deep([contenteditable]::before) {
-  opacity: 1;
-  transition: none;
-}
-
-.changed :deep([contenteditable]::before) {
-  content: "changed";
-  background-color: var(--text-color-button-outline-hover);
-  color: var(--background-color-button-outline);
-  opacity: 1;
-  transition: none;
-}
-</style>

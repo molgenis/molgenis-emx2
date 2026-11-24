@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 import PageComponent from "./PageComponent.vue";
 import Paragraph from "./paragraph/Paragraph.vue";
@@ -23,10 +23,23 @@ const props = withDefaults(
     isEditable: false,
   }
 );
+
 const emit = defineEmits(["updatePage"]);
+
 const handleDragEvent = (value: IDraggingInfo) => {
   draggingInfo.value = value;
 };
+
+const currentlySaving = computed(() => activeSaves.value.size > 0);
+const activeSaves = ref<Set<string>>(new Set());
+const handleSavingStatus = (value: {state:boolean, component:string}) => {
+  if (value.state) {
+    activeSaves.value.add(value.component);
+  } else {
+    activeSaves.value.delete(value.component);
+  }
+};
+
 const draggingInfo = ref<IDraggingInfo>({
   dragging: false,
   action: "create",
@@ -88,6 +101,7 @@ const sidebarCollapsed = ref(false);
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
           @dragging="handleDragEvent"
+          @savingStatus="handleSavingStatus"
         />
 
         <PageComponent
@@ -148,6 +162,7 @@ const sidebarCollapsed = ref(false);
                 :metadata="metadata"
                 @updatePage="$emit('updatePage')"
                 @dragging="handleDragEvent"
+                @savingStatus="handleSavingStatus"
               />
               <ComponentDropZone
                 v-if="isEditable && !(orderedBlock.block.columns > 1)"
@@ -207,6 +222,7 @@ const sidebarCollapsed = ref(false);
       pageType="cms.Configurable pages"
       :route="route"
       :schema="schema"
+      :saving="currentlySaving"
     />
   </div>
 </template>
