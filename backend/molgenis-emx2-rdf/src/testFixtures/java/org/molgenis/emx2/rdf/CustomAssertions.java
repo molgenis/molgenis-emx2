@@ -34,31 +34,31 @@ public abstract class CustomAssertions {
   public static void assertRdfEquals(InMemoryRDFHandler expected, InMemoryRDFHandler actual) {
     AssertionFailureBuilder failureBuilder = assertionFailure();
 
-    if (!expected.namespaces.equals(actual.namespaces)) {
+    if (!expected.getNamespaces().equals(actual.getNamespaces())) {
       failureBuilder
           .message("Namespaces are not equal")
-          .expected(expected.namespaces.stream().sorted().toList())
-          .actual(actual.namespaces.stream().sorted().toList())
+          .expected(expected.getNamespaces().stream().sorted().toList())
+          .actual(actual.getNamespaces().stream().sorted().toList())
           .buildAndThrow();
     }
 
-    if (!expected.resources.equals(actual.resources)) {
+    if (!expected.getResources().equals(actual.getResources())) {
       Collection<Resource> subjectsUnion =
-          CollectionUtils.union(expected.resources.keySet(), actual.resources.keySet());
+          CollectionUtils.union(expected.getResources().keySet(), actual.getResources().keySet());
       for (Resource subject : subjectsUnion) {
-        if (!expected.resources.containsKey(subject)) {
+        if (!expected.getResources().containsKey(subject)) {
           failureBuilder
               .message("Actual contains unexpected subject")
               .actual(subject)
               .buildAndThrow();
         }
 
-        if (!actual.resources.containsKey(subject)) {
+        if (!actual.getResources().containsKey(subject)) {
           failureBuilder.message("Actual missing subject").expected(subject).buildAndThrow();
         }
 
-        Map<IRI, Set<Value>> expectedPredicateMaps = expected.resources.get(subject);
-        Map<IRI, Set<Value>> actualPredicateMaps = actual.resources.get(subject);
+        Map<IRI, Set<Value>> expectedPredicateMaps = expected.getResources().get(subject);
+        Map<IRI, Set<Value>> actualPredicateMaps = actual.getResources().get(subject);
 
         if (!expectedPredicateMaps.equals(actualPredicateMaps)) {
           failureBuilder

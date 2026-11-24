@@ -155,33 +155,43 @@ class TableInheritanceTest extends RdfServiceTestRunner {
     assertAll(
         () ->
             assertTrue(
-                handler.resources.containsKey(
-                    Values.iri(getApi(SCHEMA_NAME) + "Root/column/rootColumn")),
+                handler
+                    .getResources()
+                    .containsKey(Values.iri(getApi(SCHEMA_NAME) + "Root/column/rootColumn")),
                 "There should be a predicate for the rootColumn in the Root table"),
         () ->
             assertFalse(
-                handler.resources.containsKey(
-                    Values.iri(getApi(SCHEMA_NAME) + "Child/column/rootColumn")),
+                handler
+                    .getResources()
+                    .containsKey(Values.iri(getApi(SCHEMA_NAME) + "Child/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the Child table"),
         () ->
             assertFalse(
-                handler.resources.containsKey(
-                    Values.iri(getApi(SCHEMA_NAME) + "GrandchildTypeA/column/rootColumn")),
+                handler
+                    .getResources()
+                    .containsKey(
+                        Values.iri(getApi(SCHEMA_NAME) + "GrandchildTypeA/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the GrandchildTypeA table"),
         () ->
             assertFalse(
-                handler.resources.containsKey(
-                    Values.iri(getApi(SCHEMA_NAME) + "GrandchildTypeB/column/rootColumn")),
+                handler
+                    .getResources()
+                    .containsKey(
+                        Values.iri(getApi(SCHEMA_NAME) + "GrandchildTypeB/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the GrandchildTypeB table"),
         () ->
             assertFalse(
-                handler.resources.containsKey(
-                    Values.iri(getApi(SCHEMA_NAME) + "ExternalChild/column/rootColumn")),
+                handler
+                    .getResources()
+                    .containsKey(
+                        Values.iri(getApi(SCHEMA_NAME) + "ExternalChild/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the ExternalChild table"),
         () ->
             assertFalse(
-                handler.resources.containsKey(
-                    Values.iri(getApi(SCHEMA_NAME) + "ExternalGrandchild/column/rootColumn")),
+                handler
+                    .getResources()
+                    .containsKey(
+                        Values.iri(getApi(SCHEMA_NAME) + "ExternalGrandchild/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the ExternalGrandchild table"));
   }
 
@@ -555,7 +565,7 @@ class TableInheritanceTest extends RdfServiceTestRunner {
     }
 
     private Set<String> getEmx2Predicates(InMemoryRDFHandler handler) {
-      return handler.resources.values().stream()
+      return handler.getResources().values().stream()
           .flatMap(predicatesMap -> predicatesMap.keySet().stream())
           .map(IRI::stringValue)
           .filter(predicate -> predicate.contains(EMX2_IRI_PATH))
@@ -563,7 +573,7 @@ class TableInheritanceTest extends RdfServiceTestRunner {
     }
 
     private Set<String> getEmx2ColumnSubjects(InMemoryRDFHandler handler) {
-      return handler.resources.keySet().stream()
+      return handler.getResources().keySet().stream()
           .map(Resource::stringValue)
           .filter(subject -> subject.contains(EMX2_IRI_PATH))
           .collect(Collectors.toSet());
