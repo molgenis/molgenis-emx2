@@ -72,6 +72,8 @@ class TestGraphqlAdminFields {
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
             assertTrue(result.at("/_admin/userCount").intValue() > 0);
+            assertEquals(
+                result.at("/_admin/userCount").intValue(), result.at("/_admin/users").size());
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
