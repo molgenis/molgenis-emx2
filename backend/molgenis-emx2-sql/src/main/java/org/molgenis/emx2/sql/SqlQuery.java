@@ -135,7 +135,7 @@ public class SqlQuery extends QueryBean {
 
     // if empty selection, we will add the default selection here, incl File and Refback
     // will generally be all you need
-    if (select == null || select.getColumnNames().isEmpty()) {
+    if (select.getColumnNames().isEmpty()) {
       for (Column c :
           table.getColumns().stream()
               .filter(
@@ -231,19 +231,19 @@ public class SqlQuery extends QueryBean {
           fields.add(field(name(alias(tableAlias), column.getName())));
         }
         if (select.has("contents")) {
-          fields.add(field(name(alias(tableAlias), column.getName() + "_contents")));
+          fields.add(field(name(alias(tableAlias), column.getName() + FILE_CONTENTS)));
         }
         if (select.has("size")) {
-          fields.add(field(name(alias(tableAlias), column.getName() + "_size")));
+          fields.add(field(name(alias(tableAlias), column.getName() + FILE_SIZE)));
         }
         if (select.has("mimetype")) {
-          fields.add(field(name(alias(tableAlias), column.getName() + "_mimetype")));
+          fields.add(field(name(alias(tableAlias), column.getName() + FILE_MIMETYPE)));
         }
         if (select.has("filename")) {
-          fields.add(field(name(alias(tableAlias), column.getName() + "_filename")));
+          fields.add(field(name(alias(tableAlias), column.getName() + FILE_FILENAME)));
         }
         if (select.has("extension")) {
-          fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
+          fields.add(field(name(alias(tableAlias), column.getName() + FILE_EXTENSION)));
         }
       } else if (column.isRef() || column.isRefArray()) {
         checkNotExpandedBeyondPkey(select, column);
@@ -1808,11 +1808,11 @@ public class SqlQuery extends QueryBean {
         if (c.isFile()
             && columnName.startsWith(c.getName())
             && (columnName.equals(c.getName())
-                || columnName.endsWith("_mimetype")
-                || columnName.endsWith("_filename")
-                || columnName.endsWith("_extension")
-                || columnName.endsWith("_size")
-                || columnName.endsWith("_contents"))) {
+                || columnName.endsWith(FILE_MIMETYPE)
+                || columnName.endsWith(FILE_FILENAME)
+                || columnName.endsWith(FILE_EXTENSION)
+                || columnName.endsWith(FILE_SIZE)
+                || columnName.endsWith(FILE_CONTENTS))) {
           return new Column(table, columnName);
         }
       }

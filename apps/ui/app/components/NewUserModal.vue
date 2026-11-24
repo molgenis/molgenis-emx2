@@ -56,7 +56,7 @@ import InputString from "../../../tailwind-components/app/components/input/Strin
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import { isValidPassword } from "../util/adminUtils";
 
-const visible = defineModel("visible", {
+const visible = defineModel<boolean>("visible", {
   required: true,
 });
 

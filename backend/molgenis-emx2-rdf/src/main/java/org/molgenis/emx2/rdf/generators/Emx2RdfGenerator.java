@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.generators;
 
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.IriGenerator.columnIRI;
@@ -25,6 +26,7 @@ import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
+import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
@@ -44,20 +46,33 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     describeRoot();
     describeSchema(schema);
     tables.forEach(this::describeTable);
-    tables.forEach(i -> describeColumns(i, null));
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
   }
 
   @Override
   public void generate(Table table) {
-    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    Set<Table> tables = descendantsAndSelf(table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());
     describeTable(table);
-    describeColumns(table, null);
-    tables.forEach(i -> processRows(rdfMapData, i, null));
+    tables.forEach(this::describeColumns);
+    ancestors(table).forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t));
+  }
+
+  @Override
+  public void generate(Table table, PrimaryKey primaryKey) {
+    Set<Table> tables = descendantsAndSelf(table);
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+
+    generatePrefixes(table.getSchema());
+    generateCustomRdf(table.getSchema());
+    tables.forEach(this::describeColumns);
+    ancestors(table).forEach(this::describeColumns);
+    tables.forEach(t -> processRows(rdfMapData, t, primaryKey));
   }
 
   @Override
@@ -124,14 +139,17 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
+  void describeColumns(final Table table) {
+    describeColumns(table, null);
+  }
+
   void describeColumns(final Table table, final String columnName) {
     if (table.getMetadata().getTableType() != TableType.DATA) {
       return;
     }
 
     for (final Column column : table.getMetadata().getNonInheritedColumns()) {
-      // Exclude the system columns that refer to specific users
-      if (column.isSystemAddUpdateByUserColumn()) {
+      if (isExcludedColumn(column)) {
         continue;
       }
       if (columnName == null || columnName.equals(column.getName())) {
@@ -242,8 +260,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   private void processDataRowColumn(
       final RdfMapData rdfMapData, final Row row, final Column column, final IRI subject) {
-    // Exclude the system columns that refer to specific users
-    if (column.isSystemAddUpdateByUserColumn()) {
+    if (isExcludedColumn(column)) {
       return;
     }
     IRI columnIRI = columnIRI(getBaseURL(), column);
@@ -276,6 +293,10 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
         }
       }
     }
+  }
+
+  private static boolean isExcludedColumn(final Column column) {
+    return column.isSystemAddUpdateByUserColumn() || MG_TABLECLASS.equals(column.getName());
   }
 
   private String getLabelForRow(final Row row, final TableMetadata metadata) {

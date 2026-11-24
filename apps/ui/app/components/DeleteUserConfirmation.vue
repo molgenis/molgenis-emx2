@@ -8,7 +8,7 @@ const props = defineProps<{
   systemUsers: User[];
 }>();
 
-const visible = defineModel("visible", {
+const visible = defineModel<boolean>("visible", {
   required: true,
 });
 
