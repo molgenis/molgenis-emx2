@@ -30,10 +30,19 @@ watch(
   }
 );
 
-function updateText($event: Event) {
-  const newText = ($event.target as HTMLElement)?.innerText ?? "";
-  draftText.value = newText;
-  emit("updateText", newText);
+function onFocus() {
+  displayTextOnly.value = true;
+}
+function onBlur() {
+  displayTextOnly.value = false;
+  localText.value = draftText.value;
+}
+function onInput($event: Event) {
+  if (props.isEditable) {
+    const newText = ($event.target as HTMLElement)?.innerText ?? "";
+    draftText.value = newText;
+    emit("updateText", newText);
+  }
 }
 </script>
 
@@ -63,12 +72,9 @@ function updateText($event: Event) {
       v-bind="props"
       :text="localText"
       :contenteditable="props.isEditable && 'plaintext-only'"
-      @input="props.isEditable && updateText($event)"
-      @focus="displayTextOnly = true"
-      @blur="
-        displayTextOnly = false;
-        localText = draftText;
-      "
+      @input="onInput"
+      @focus="onFocus"
+      @blur="onBlur"
       :asText="displayTextOnly"
     />
   </VMenu>
