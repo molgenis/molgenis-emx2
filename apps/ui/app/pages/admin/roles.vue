@@ -7,7 +7,6 @@ import type {
   TableRow,
 } from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import CellDetailModal from "../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
@@ -194,88 +193,86 @@ function roleDisplayName(row: TableRow): string {
 </script>
 
 <template>
-  <Container class="flex flex-col items-center">
-    <ContentBlock
-      class="w-full mt-3"
-      title="Role management"
-      :description="`${matchingRoles.length} roles found`"
+  <ContentBlock
+    class="w-full"
+    title="Role management"
+    :description="`${matchingRoles.length} roles found`"
+  >
+    <TableInteractive
+      :features="tableFeatures"
+      :permissions="tablePermissions"
+      :rows="rolesShown"
+      :rowCount="matchingRoles.length"
+      :selectedRows="selectedRows"
+      :settings="tableSettings"
+      :tableMetadata="tableMetadata"
+      searchPlaceholder="Search roles"
+      @update:settings="handleUpdateSettings"
+      @cellClicked="handleCellClicked"
+      @rowAction="handleRowAction"
+      @toggleRowSelection="handleToggleRowSelection"
     >
-      <TableInteractive
-        :features="tableFeatures"
-        :permissions="tablePermissions"
-        :rows="rolesShown"
-        :rowCount="matchingRoles.length"
-        :selectedRows="selectedRows"
-        :settings="tableSettings"
-        :tableMetadata="tableMetadata"
-        searchPlaceholder="Search roles"
-        @update:settings="handleUpdateSettings"
-        @cellClicked="handleCellClicked"
-        @rowAction="handleRowAction"
-        @toggleRowSelection="handleToggleRowSelection"
-      >
-        <template #row-action="{ row }">
-          <Button
-            :id="`edit-role-${row._rowIdString}`"
-            iconOnly
-            type="inline"
-            icon="edit"
-            :label="`Edit role: ${roleDisplayName(row)}`"
-            @click="openRoleModal('edit', rowToRole(row))"
-          />
-          <Button
-            :id="`copy-role-${row._rowIdString}`"
-            iconOnly
-            type="inline"
-            icon="copy"
-            :label="`Copy role: ${roleDisplayName(row)}`"
-            @click="openRoleModal('copy', rowToRole(row))"
-          />
-          <Button
-            :id="`delete-role-${row._rowIdString}`"
-            iconOnly
-            type="inline"
-            icon="trash"
-            :label="`Delete role: ${roleDisplayName(row)}`"
-            @click="showDeleteRoleConfirmation(rowToRole(row))"
-          />
-        </template>
+      <template #row-action="{ row }">
+        <Button
+          :id="`edit-role-${row._rowIdString}`"
+          iconOnly
+          type="inline"
+          icon="edit"
+          :label="`Edit role: ${roleDisplayName(row)}`"
+          @click="openRoleModal('edit', rowToRole(row))"
+        />
+        <Button
+          :id="`copy-role-${row._rowIdString}`"
+          iconOnly
+          type="inline"
+          icon="copy"
+          :label="`Copy role: ${roleDisplayName(row)}`"
+          @click="openRoleModal('copy', rowToRole(row))"
+        />
+        <Button
+          :id="`delete-role-${row._rowIdString}`"
+          iconOnly
+          type="inline"
+          icon="trash"
+          :label="`Delete role: ${roleDisplayName(row)}`"
+          @click="showDeleteRoleConfirmation(rowToRole(row))"
+        />
+      </template>
 
-        <template #buttons>
-          <Button
-            id="create-role"
-            type="primary"
-            size="medium"
-            icon="add-circle"
-            @click="openRoleModal('create')"
-          >
-            Create role
-          </Button>
-        </template>
-      </TableInteractive>
+      <template #buttons>
+        <Button
+          id="create-role"
+          type="primary"
+          size="medium"
+          icon="add-circle"
+          @click="openRoleModal('create')"
+        >
+          Create role
+        </Button>
+      </template>
+    </TableInteractive>
 
-      <CellDetailModal
-        v-if="cellDetailPayload"
-        :payload="cellDetailPayload"
-        :schemaId="ROLES_SCHEMA_ID"
-        v-model:showModal="showCellDetailSideModal"
-      />
+    <CellDetailModal
+      v-if="cellDetailPayload"
+      :payload="cellDetailPayload"
+      :schemaId="ROLES_SCHEMA_ID"
+      v-model:showModal="showCellDetailSideModal"
+    />
 
-      <RoleModal
-        v-if="showRoleModal"
-        v-model:visible="showRoleModal"
-        :mode="roleModalMode"
-        :role="roleModalRole"
-      />
+    <RoleModal
+      v-if="showRoleModal"
+      v-model:visible="showRoleModal"
+      :mode="roleModalMode"
+      :role="roleModalRole"
+    />
 
-      <DeleteRoleConfirmation
-        v-if="showDeleteRoleModal"
-        v-model:visible="showDeleteRoleModal"
-        :roles="rolesForDeletion"
-        :errorMessage="deleteRolesErrorMessage"
-        :deleting="deletingRoles"
-        @deleteRoles="handleDeleteRoles"
-      />
-    </ContentBlock>
-  </Container>
+    <DeleteRoleConfirmation
+      v-if="showDeleteRoleModal"
+      v-model:visible="showDeleteRoleModal"
+      :roles="rolesForDeletion"
+      :errorMessage="deleteRolesErrorMessage"
+      :deleting="deletingRoles"
+      @deleteRoles="handleDeleteRoles"
+    />
+  </ContentBlock>
 </template>
