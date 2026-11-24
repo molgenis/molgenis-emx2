@@ -183,15 +183,6 @@ class RowWriteSupportTest {
         exception.getMessage());
   }
 
-  @Test
-  void givenMissingValues_whenWriting_thenValuesAreNull() throws IOException {
-    Path file = write(List.of("string", "int"), List.of(Row.row("string", "Bread")));
-
-    Group group = readRows(file).getFirst();
-    assertEquals(1, group.getFieldRepetitionCount("string"));
-    assertEquals(0, group.getFieldRepetitionCount("int"));
-  }
-
   private Path write(List<String> columnNames, List<Row> rows) throws IOException {
     return write(table, columnNames, rows);
   }

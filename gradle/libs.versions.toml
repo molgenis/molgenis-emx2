@@ -84,7 +84,6 @@ okhttp-brotli = { module = "com.squareup.okhttp3:okhttp-brotli", version.ref = "
 pac4j-core = { module = "org.pac4j:pac4j-core", version.ref = "pac4j" }
 pac4j-http = { module = "org.pac4j:pac4j-http", version.ref = "pac4j" }
 pac4j-oidc = { module = "org.pac4j:pac4j-oidc", version.ref = "pac4j" }
-parquet-avro = { module = "org.apache.parquet:parquet-avro", version.ref = "parquet" }
 parquet-hadoop = { module = "org.apache.parquet:parquet-hadoop", version.ref = "parquet" }
 hadoop-client-api = { module = "org.apache.hadoop:hadoop-client-api", version.ref = "hadoop" }
 picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
