@@ -32,7 +32,7 @@ const handleDragEvent = (value: IDraggingInfo) => {
 
 const currentlySaving = computed(() => activeSaves.value.size > 0);
 const activeSaves = ref<Set<string>>(new Set());
-const handleSavingStatus = (value: {state:boolean, component:string}) => {
+const handleSavingStatus = (value: { state: boolean; component: string }) => {
   if (value.state) {
     activeSaves.value.add(value.component);
   } else {

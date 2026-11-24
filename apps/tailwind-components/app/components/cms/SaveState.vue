@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
-const props = 
-  defineProps<{
-    saving?: boolean;
-  }>();
+const props = defineProps<{
+  saving?: boolean;
+}>();
 
 const done = ref(false);
 watch(
@@ -21,18 +20,13 @@ watch(
     }
   }
 );
-
 </script>
 
 <template>
-    <BaseIcon 
-        v-if="saving && !done"
-        class="inline animate-spin"
-        name="ProgressActivity"
-    />
-    <BaseIcon
-        v-if="done"
-        class="inline animate-pulse"
-        name="Check"
-    />
+  <BaseIcon
+    v-if="saving && !done"
+    class="inline animate-spin"
+    name="ProgressActivity"
+  />
+  <BaseIcon v-if="done" class="inline animate-pulse" name="Check" />
 </template>
