@@ -408,6 +408,7 @@ type Right = (typeof RIGHTS)[number];
         <p v-else-if="!tableNames.length" class="text-title-contrast">
           No tables found in schema '{{ schemaId }}'
         </p>
+
         <template v-else>
           <Table>
             <template #head>
