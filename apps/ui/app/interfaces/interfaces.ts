@@ -46,6 +46,8 @@ export type RolePermission = TablePermission & { select: boolean };
 
 export type NewCustomRole = abstractRole & { permissions: RolePermission[] };
 
+export type RoleModalMode = "create" | "edit" | "copy";
+
 export type CustomRoleUpdate = {
   schemaId: string;
   role: string;

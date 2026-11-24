@@ -19,7 +19,7 @@ import RoleModal from "../../components/RoleModal.vue";
 import DeleteRoleConfirmation from "../../components/DeleteRoleConfirmation.vue";
 import { errorToMessage } from "../../../../tailwind-components/app/utils/errorToMessage";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
-import type { CustomRole } from "../../interfaces/interfaces.ts";
+import type { CustomRole, RoleModalMode } from "../../interfaces/interfaces.ts";
 import { paginateRows, sortRows } from "../../util/adminUtils";
 
 definePageMeta({
@@ -75,7 +75,8 @@ const tableSettings = ref<ITableSettings>(DEFAULT_TABLE_SETTINGS);
 const showCellDetailSideModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
 const showRoleModal = ref(false);
-const roleToEdit = ref<CustomRole>();
+const roleModalMode = ref<RoleModalMode>("create");
+const roleModalRole = ref<CustomRole>();
 const showDeleteRoleModal = ref(false);
 const rolesForDeletion = ref<CustomRole[]>([]);
 const deleteRolesErrorMessage = ref("");
@@ -109,8 +110,9 @@ function filterRoles(search: string, roles: CustomRole[]): CustomRole[] {
   );
 }
 
-function openRoleModal(role?: CustomRole) {
-  roleToEdit.value = role;
+function openRoleModal(mode: RoleModalMode, role?: CustomRole) {
+  roleModalMode.value = mode;
+  roleModalRole.value = role;
   showRoleModal.value = true;
 }
 
@@ -167,7 +169,7 @@ function handleRowAction(payload: { action: string }) {
       break;
     case "edit-selection":
       if (selectedRows.value.size === 1) {
-        openRoleModal(selectedRows.value.values().next().value);
+        openRoleModal("edit", selectedRows.value.values().next().value);
       }
       break;
     case "select-all-on-page":
@@ -219,7 +221,15 @@ function roleDisplayName(row: TableRow): string {
             type="inline"
             icon="edit"
             :label="`Edit role: ${roleDisplayName(row)}`"
-            @click="openRoleModal(rowToRole(row))"
+            @click="openRoleModal('edit', rowToRole(row))"
+          />
+          <Button
+            :id="`copy-role-${row._rowIdString}`"
+            iconOnly
+            type="inline"
+            icon="copy"
+            :label="`Copy role: ${roleDisplayName(row)}`"
+            @click="openRoleModal('copy', rowToRole(row))"
           />
           <Button
             :id="`delete-role-${row._rowIdString}`"
@@ -237,7 +247,7 @@ function roleDisplayName(row: TableRow): string {
             type="primary"
             size="medium"
             icon="add-circle"
-            @click="openRoleModal()"
+            @click="openRoleModal('create')"
           >
             Create role
           </Button>
@@ -254,7 +264,8 @@ function roleDisplayName(row: TableRow): string {
       <RoleModal
         v-if="showRoleModal"
         v-model:visible="showRoleModal"
-        :role="roleToEdit"
+        :mode="roleModalMode"
+        :role="roleModalRole"
       />
 
       <DeleteRoleConfirmation

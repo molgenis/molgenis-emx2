@@ -205,7 +205,11 @@ import TableHeadRow from "../../../tailwind-components/app/components/TableHeadR
 import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
 import { errorToMessage } from "../../../tailwind-components/app/utils/errorToMessage";
 import useAdminSettings from "../composables/useAdminSettings.ts";
-import type { CustomRole, RolePermission } from "../interfaces/interfaces.ts";
+import type {
+  CustomRole,
+  RoleModalMode,
+  RolePermission,
+} from "../interfaces/interfaces.ts";
 import { getRootTableNames } from "../util/adminUtils";
 
 const RIGHTS = ["select", "insert", "update", "delete"] as const;
@@ -229,9 +233,15 @@ const SYSTEM_ROLE_NAMES = [
 ];
 const RLS_ROLE_PREFIX = "RLS_";
 
-const props = defineProps<{
-  role?: CustomRole;
-}>();
+const props = withDefaults(
+  defineProps<{
+    mode?: RoleModalMode;
+    role?: CustomRole;
+  }>(),
+  {
+    mode: "create",
+  }
+);
 
 const visible = defineModel("visible", {
   required: true,
@@ -239,13 +249,19 @@ const visible = defineModel("visible", {
 
 const adminSettings = await useAdminSettings();
 
-const isEditing = computed(() => !!props.role);
-const title = computed(() =>
-  props.role ? `Edit role: ${props.role.role}` : "Create role"
-);
-const originalUsers = new Set(props.role?.users ?? []);
+const isEditing = computed(() => props.mode === "edit" && !!props.role);
+const title = computed(() => {
+  if (props.role && props.mode === "edit") {
+    return `Edit role: ${props.role.role}`;
+  }
+  if (props.role && props.mode === "copy") {
+    return `Copy role: ${props.role.role}`;
+  }
+  return "Create role";
+});
+const originalUsers = new Set(isEditing.value ? props.role?.users : []);
 
-const roleName = ref(props.role?.role ?? "");
+const roleName = ref(initialRoleName());
 const schemaId = ref<string | null>(props.role?.schemaId ?? null);
 const tableNames = ref<string[]>([]);
 const originalPermissions = ref<Record<string, RolePermission>>({});
@@ -266,7 +282,7 @@ const otherCustomRolesInSchema = computed(() =>
   (adminSettings.customRoles ?? []).filter(
     (customRole) =>
       customRole.schemaId === schemaId.value &&
-      customRole.role !== props.role?.role
+      !(isEditing.value && customRole.role === props.role?.role)
   )
 );
 
@@ -378,13 +394,15 @@ async function loadTables(newSchemaId: string | null) {
     if (schemaId.value === newSchemaId) {
       tableNames.value = names;
       originalPermissions.value = Object.fromEntries(
-        names.map((tableName) => [tableName, storedPermission(tableName)])
-      );
-      permissions.value = Object.fromEntries(
         names.map((tableName) => [
           tableName,
-          { ...originalPermissions.value[tableName]! },
+          isEditing.value
+            ? storedPermission(tableName)
+            : noPermissions(tableName),
         ])
+      );
+      permissions.value = Object.fromEntries(
+        names.map((tableName) => [tableName, storedPermission(tableName)])
       );
     }
   } catch (error) {
@@ -399,6 +417,13 @@ async function loadTables(newSchemaId: string | null) {
       loadingTables.value = false;
     }
   }
+}
+
+function initialRoleName(): string {
+  if (!props.role || props.mode === "create") {
+    return "";
+  }
+  return props.mode === "copy" ? `${props.role.role}_copy` : props.role.role;
 }
 
 function storedPermission(tableName: string): RolePermission {
