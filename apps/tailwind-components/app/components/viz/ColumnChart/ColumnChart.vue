@@ -13,7 +13,6 @@ import {
   min,
   scaleLinear,
   axisLeft,
-  schemeBlues,
 } from "d3";
 
 const d3 = {
@@ -27,7 +26,6 @@ const d3 = {
   min,
   scaleLinear,
   axisLeft,
-  schemeBlues,
 };
 
 import ChartTitle from "../ChartTitle.vue";
@@ -40,12 +38,9 @@ import {
   newCategoricalAxisGenerator,
   selectMouseOverElements,
 } from "../../../utils/viz";
+import { ColorPaletteGenerator } from "../../../utils/viz/ColorPaletteGenerator.ts";
 
-import type {
-  IStatisticalCharts,
-  IChartData,
-  IChartPalette,
-} from "../../../../types/cms.ts";
+import type { IStatisticalCharts, IChartData } from "../../../../types/cms.ts";
 
 import type {
   NumericAxisTickData,
@@ -82,6 +77,7 @@ const svg = ref(); // receives d3.select
 const chartArea = ref(); // receives d3.select
 const chartColumns = ref(); // receives d3.select
 const chartLabels = ref(); // receives d3.select
+const legendData = ref<Record<string, string>>({});
 
 const isGroupedColumnChart = computed<boolean>(() => {
   return props.chartType?.name === "Grouped column chart";
@@ -199,49 +195,22 @@ const yScale = computed(() => {
 });
 
 const colorPalette = computed(() => {
-  let domains: string[] = [...new Set(xAxisData.value.domains)].sort();
-  let colors: string[];
+  const domains = [...new Set(xAxisData.value.domains)].sort();
+  const palette = ColorPaletteGenerator({
+    data: props.chartData as IChartData[],
+    axisDomains: domains,
+    isGroupedChart: isGroupedColumnChart.value,
+    colorPalette: props.colorPalette,
+    fillColor: props.fillColor,
+    fallbackColor: "#ccc",
+  });
 
-  if (isGroupedColumnChart.value && props.colorPalette) {
-    const paletteSorted = props.colorPalette.sort(
-      (current: IChartPalette, next: IChartPalette) => {
-        return current.value.localeCompare(next.value);
-      }
-    );
-    domains = paletteSorted.map((row: IChartPalette) => row.value);
-    colors = paletteSorted.map((row: IChartPalette) => row.color);
-
-    legendData.value = Object.fromEntries(
-      paletteSorted.map((item) => [item.value, item.color])
-    );
-  } else if (isGroupedColumnChart.value && !props.colorPalette) {
-    const length = domains.length === 2 ? 3 : domains.length;
-    colors = d3.schemeBlues[length as number] as string[];
-
-    legendData.value = Object.fromEntries(
-      domains.map((item, index) => {
-        return [item, colors[index] || "#ccc"];
-      })
-    );
-  } else if (props.chartData?.find((row) => row.fillColor)) {
-    const newColorData = (props.chartData as IChartData[]).map(
-      (row: IChartData) => {
-        return {
-          xValue: row.xValue,
-          fillColor: row.fillColor || props.fillColor,
-        };
-      }
-    );
-
-    domains = newColorData.map((row) => row.xValue);
-    colors = newColorData.map((row) => row.fillColor);
-  } else {
-    colors = Array(domains.length).fill(props.fillColor);
+  if (palette.legendData) {
+    legendData.value = palette.legendData;
   }
-  return d3.scaleOrdinal().domain(domains).range(colors).unknown("#ccc");
-});
 
-const legendData = ref<Record<string, any>>({});
+  return palette.generator;
+});
 
 function renderChartAxes() {
   if (chartArea.value) {
@@ -353,7 +322,7 @@ function onLegendMouseOver(event: string) {
     .duration(delay);
 
   columns.attr("opacity", (row: IChartData) => {
-    return row.xValue !== event ? 0.2 : 1;
+    return row.xValue !== event ? 0.125 : 1;
   });
 
   if (props.showValuesOnLegendHoverEvent) {

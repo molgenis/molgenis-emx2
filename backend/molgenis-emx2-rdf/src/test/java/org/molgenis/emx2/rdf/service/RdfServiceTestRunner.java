@@ -101,10 +101,10 @@ abstract class RdfServiceTestRunner {
     }
 
     InMemoryRDFHandler handler = parseRootRdf(List.of(schema1, schema2));
-    assertEquals(expectedNamespaces, handler.namespaces);
+    assertEquals(expectedNamespaces, handler.getNamespaces());
   }
 
-  InMemoryRDFHandler parseRootRdf(List<Schema> schemas) throws IOException {
+  static InMemoryRDFHandler parseRootRdf(List<Schema> schemas) throws IOException {
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfRootService rdfService =
@@ -116,20 +116,21 @@ abstract class RdfServiceTestRunner {
     return handler;
   }
 
-  InMemoryRDFHandler parseSchemaRdf(Schema schema) throws IOException {
+  static InMemoryRDFHandler parseSchemaRdf(Schema schema) throws IOException {
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     parseSchemaRdf(RdfApiGeneratorFactory.EMX2, handler, schema);
     return handler;
   }
 
-  InMemoryRDFHandler parseSchemaRdf(RdfApiGeneratorFactory generatorFactory, Schema schema)
+  static InMemoryRDFHandler parseSchemaRdf(RdfApiGeneratorFactory generatorFactory, Schema schema)
       throws IOException {
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     parseSchemaRdf(generatorFactory, handler, schema);
     return handler;
   }
 
-  void parseSchemaRdf(RdfApiGeneratorFactory generatorFactory, RDFHandler handler, Schema schema)
+  static void parseSchemaRdf(
+      RdfApiGeneratorFactory generatorFactory, RDFHandler handler, Schema schema)
       throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfOutputStreamWriter writer =
@@ -141,7 +142,7 @@ abstract class RdfServiceTestRunner {
     }
   }
 
-  InMemoryRDFHandler parseTableRdf(Schema schema, String tableName) throws IOException {
+  static InMemoryRDFHandler parseTableRdf(Schema schema, String tableName) throws IOException {
     Table table = schema.getTable(tableName);
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
@@ -156,7 +157,14 @@ abstract class RdfServiceTestRunner {
     return handler;
   }
 
-  InMemoryRDFHandler parseRowRdf(Schema schema, String tableName, String rowId) throws IOException {
+  static InMemoryRDFHandler parseRowRdf(Schema schema, String tableName, String rowId)
+      throws IOException {
+    return parseRowRdf(RdfApiGeneratorFactory.EMX2, schema, tableName, rowId);
+  }
+
+  static InMemoryRDFHandler parseRowRdf(
+      RdfApiGeneratorFactory generatorFactory, Schema schema, String tableName, String rowId)
+      throws IOException {
     Table table = schema.getTable(tableName);
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, rowId);
 
@@ -164,7 +172,7 @@ abstract class RdfServiceTestRunner {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfOutputStreamWriter writer =
           OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
-        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+        RdfApiGenerator generator = generatorFactory.create(writer, BASE_URL);
         generator.generate(table, primaryKey);
       }
       parseString(handler, outputStream.toString());
@@ -172,7 +180,7 @@ abstract class RdfServiceTestRunner {
     return handler;
   }
 
-  InMemoryRDFHandler parseColumnRdf(Schema schema, String tableName, String columnName)
+  static InMemoryRDFHandler parseColumnRdf(Schema schema, String tableName, String columnName)
       throws IOException {
     Table table = schema.getTable(tableName);
     Column column = column(columnName);

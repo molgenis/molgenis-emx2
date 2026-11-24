@@ -18,7 +18,7 @@ the [R client (MolgenisArmadillo)](https://github.com/molgenis/molgenis-r-armadi
 
 We distinguish three roles within each federated network.
 
-|     |     | [Researcher](data_researcher.md) | [Cohort data manager](data_cohort-data-manager.md) | [Network data manager](../catalogue/cat_network-data-manager.md) |
+|     |     | [Researcher](data_researcher.md) | [Cohort data manager](data_cohort-data-manager.md) | [Network data manager](../catalogue/cat_data-manager.md) |
 | --- | --- | --- | --- | --- |
 | Armadillo | Initial data upload | | [X](data_cohort-data-manager.md#initial-upload) | |
 | Armadillo | Request access | [X](data_researcher.md#request-federated-access) | [X](data_cohort-data-manager.md#request-access-armadillo) | |

@@ -5,6 +5,7 @@ import PageComponent from "./PageComponent.vue";
 import Paragraph from "./paragraph/Paragraph.vue";
 import AddComponentPalette from "./AddComponentPalette.vue";
 import ComponentDropZone from "./ComponentDropZone.vue";
+import PageToolbar from "./gallery/PageToolbar.vue";
 
 import type { IConfigurablePages } from "../../../types/cms";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
@@ -16,6 +17,7 @@ const props = withDefaults(
     isEditable: boolean;
     metadata: ITableMetaData[];
     schema: string;
+    route: Record<string, any>;
   }>(),
   {
     isEditable: false,
@@ -201,6 +203,11 @@ const sidebarCollapsed = ref(false);
         @updatePage="$emit('updatePage')"
       />
     </div>
+    <PageToolbar
+      pageType="cms.Configurable pages"
+      :route="route"
+      :schema="schema"
+    />
   </div>
 </template>
 

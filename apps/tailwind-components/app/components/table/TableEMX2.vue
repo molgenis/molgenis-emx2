@@ -165,7 +165,7 @@
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
   >
-    <template #header="{ formValues }">
+    <template #header-controls="{ formValues }">
       <EditModalHeader
         v-if="formValues"
         :formValues="formValues"
@@ -186,7 +186,7 @@
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
   >
-    <template #header="{ formValues }">
+    <template #header-controls="{ formValues }">
       <EditModalHeader
         v-if="formValues"
         :formValues="formValues"
@@ -201,7 +201,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type {
-  columnValue,
   IColumn,
   IRow,
   ITableMetaData,
@@ -274,7 +273,7 @@ const showModal = ref(false);
 const isCopy = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
-const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
+const selectedRows = ref<Map<string, IRow>>(new Map());
 
 const tableMetadata = computed<ITableMetaData | null>(
   () => data.value?.tableMetadata ?? null
