@@ -14,11 +14,7 @@ import org.apache.parquet.conf.ParquetConfiguration;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 
 public class RowWriteSupport extends WriteSupport<Row> {
 
@@ -32,16 +28,18 @@ public class RowWriteSupport extends WriteSupport<Row> {
   }
 
   private static ColumnType toColumType(TableMetadata table, String columnName) {
-    Column column = table.getColumn(columnName);
-    if (column == null) {
-      throw new MolgenisException(
-          "Cannot write column '"
-              + columnName
-              + "' to Parquet: table '"
-              + table.getTableName()
-              + "' has no column with that name");
+    for (Column column : table.getDownloadColumnNames()) {
+      if (column.getName().equalsIgnoreCase(columnName)) {
+        return column.getColumnType();
+      }
     }
-    return column.getColumnType();
+
+    throw new MolgenisException(
+        "Cannot write column '"
+            + columnName
+            + "' to Parquet: table '"
+            + table.getTableName()
+            + "' has no column with that name");
   }
 
   @Override
@@ -82,7 +80,7 @@ public class RowWriteSupport extends WriteSupport<Row> {
   }
 
   private static List<Object> valuesToWrite(Row row, String columnName, ColumnType columnType) {
-    if (row.isNull(columnName, columnType)) {
+    if (!row.containsName(columnName)) {
       return List.of();
     }
 

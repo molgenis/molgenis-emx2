@@ -58,7 +58,8 @@ class RowWriteSupportTest {
               Column.column("bool_array").setType(ColumnType.BOOL_ARRAY),
               Column.column("date_array").setType(ColumnType.DATE_ARRAY),
               Column.column("datetime_array").setType(ColumnType.DATETIME_ARRAY),
-              Column.column("uuid_array").setType(ColumnType.UUID_ARRAY));
+              Column.column("uuid_array").setType(ColumnType.UUID_ARRAY),
+              Column.column("file").setType(ColumnType.FILE));
 
   @Test
   void givenStringColumn_whenWriting_thenColumnIsOptionalString() throws IOException {
@@ -68,6 +69,22 @@ class RowWriteSupportTest {
     assertEquals(Type.Repetition.OPTIONAL, column.getRepetition());
     assertEquals(PrimitiveTypeName.BINARY, column.asPrimitiveType().getPrimitiveTypeName());
     assertEquals(LogicalTypeAnnotation.stringType(), column.getLogicalTypeAnnotation());
+  }
+
+  @Test
+  void givenFileColumn_whenWritingWithFilename_thenBothAreStringColumns() throws IOException {
+    Path file =
+        write(
+            List.of("file", "file_filename"),
+            List.of(Row.row("file", "a1b2c3", "file_filename", "bread.jpg")));
+
+    MessageType schema = fileSchema(file);
+    assertPrimitive(schema, "file", PrimitiveTypeName.BINARY, LogicalTypeAnnotation.stringType());
+    assertPrimitive(
+        schema, "file_filename", PrimitiveTypeName.BINARY, LogicalTypeAnnotation.stringType());
+    Group group = readRows(file).getFirst();
+    assertEquals("a1b2c3", group.getString("file", 0));
+    assertEquals("bread.jpg", group.getString("file_filename", 0));
   }
 
   @Test
@@ -173,6 +190,11 @@ class RowWriteSupportTest {
   }
 
   private Path write(List<String> columnNames, List<Row> rows) throws IOException {
+    return write(table, columnNames, rows);
+  }
+
+  private Path write(TableMetadata table, List<String> columnNames, List<Row> rows)
+      throws IOException {
     Path file = tmp.resolve("product.parquet");
     try (ParquetWriter<Row> writer =
         new RowParquetWriterBuilder(new LocalOutputFile(file), table, columnNames)
