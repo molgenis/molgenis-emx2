@@ -882,7 +882,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.1.0")
             .getBody()
             .asString();
 
