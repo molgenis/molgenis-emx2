@@ -1,0 +1,7 @@
+name,code,ontologyTermURI,definition
+CC BY 4.0 (Attribution),CC BY 4.0,https://creativecommons.org/licenses/by/4.0/,"Allows sharing and adapting for any purpose, including commercial, with attribution."
+CC BY-SA 4.0 (Attribution-ShareAlike),CC BY-SA 4.0,https://creativecommons.org,"Allows sharing and adapting, including commercial,  if adaptations use the same license."
+CC BY-NC 4.0 (Attribution-NonCommercial),CC BY-NC 4.0,https://creativecommons.org,Allows sharing and adapting for non-commercial purposes only.
+CC BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike),CC BY-NC-SA 4.0,https://creativecommons.org,Allows non-commercial sharing and adapting if adaptations use the same license.
+CC BY-ND 4.0 (Attribution-NoDerivatives),CC BY-ND 4.0,https://creativecommons.org,Allows sharing (including commercial) in unchanged form only; no derivative adaptations.
+CC BY-NC-ND 4.0 (Attribution-NonCommercial-NoDerivatives),CC BY-NC-ND 4.0,https://creativecommons.org,Most restrictive; allows non-commercial sharing of unchanged work only.
