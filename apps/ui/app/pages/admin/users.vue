@@ -1,126 +1,120 @@
 <template>
-  <Container class="flex flex-col items-center">
-    <ContentBlock
-      class="w-full mt-3"
-      title="User management"
-      :description="`${adminSettings.userCount} users found`"
+  <ContentBlock
+    class="w-full"
+    title="User management"
+    :description="`${adminSettings.userCount} users found`"
+  >
+    <Button
+      icon="plus"
+      con="user"
+      type="secondary"
+      size="small"
+      @click="showNewUserModal = true"
     >
-      <Button
-        icon="plus"
-        con="user"
-        type="secondary"
-        size="small"
-        @click="showNewUserModal = true"
-      >
-        Create User
-      </Button>
+      Create User
+    </Button>
 
-      <Table>
-        <template #head>
-          <TableHeadRow>
-            <TableHead></TableHead>
-            <TableHead>Enabled</TableHead>
-            <TableHead>Name / Email</TableHead>
-            <TableHead>Roles</TableHead>
-            <!-- <TableHead>Tokens</TableHead> -->
-          </TableHeadRow>
-        </template>
-        <template #body>
-          <TableRow v-for="user in adminSettings.users">
-            <TableCell>
-              <div class="flex gap-1">
-                <Button
-                  iconOnly
-                  icon="user"
-                  type="secondary"
-                  size="small"
-                  :label="`Edit user: ${user.email}`"
-                  @click="openEditUserModal(user)"
-                />
-                <Button
-                  v-if="canDelete(user)"
-                  iconOnly
-                  class="hover:text-red-500"
-                  icon="trash"
-                  type="secondary"
-                  size="small"
-                  :label="`Delete user: ${user.email}`"
-                  @click="showDeleteUserConfirmation(user)"
-                />
-              </div>
-            </TableCell>
-            <TableCell>
-              <BaseIcon
-                v-if="user.enabled"
-                class="text-green-800"
-                name="Check"
+    <Table>
+      <template #head>
+        <TableHeadRow>
+          <TableHead></TableHead>
+          <TableHead>Enabled</TableHead>
+          <TableHead>Name / Email</TableHead>
+          <TableHead>Roles</TableHead>
+          <!-- <TableHead>Tokens</TableHead> -->
+        </TableHeadRow>
+      </template>
+      <template #body>
+        <TableRow v-for="user in adminSettings.users">
+          <TableCell>
+            <div class="flex gap-1">
+              <Button
+                iconOnly
+                icon="user"
+                type="secondary"
+                size="small"
+                :label="`Edit user: ${user.email}`"
+                @click="openEditUserModal(user)"
               />
-              <BaseIcon v-else class="text-red-500" name="Cross" />
-            </TableCell>
-            <TableCell>{{ user.email }}</TableCell>
-            <TableCell>
-              <div v-if="user.roles && user.roles.length > 3">
-                <ShowMore :maxLines="3">
-                  <template #more>
-                    show all {{ user.roles.length }} roles
-                  </template>
-                  <div v-for="role in user.roles">
-                    {{ role.schemaId }} ({{ role.role }})
-                  </div>
-                </ShowMore>
-              </div>
-              <div v-else v-for="role in user.roles">
-                {{ role.schemaId }} ({{ role.role }})
-              </div>
-            </TableCell>
-            <TableCell>
-              <div
-                v-if="user.tokens && user.tokens.length > 0"
-                class="flex gap-1"
+              <Button
+                v-if="canDelete(user)"
+                iconOnly
+                class="hover:text-red-500"
+                icon="trash"
+                type="secondary"
+                size="small"
+                :label="`Delete user: ${user.email}`"
+                @click="showDeleteUserConfirmation(user)"
+              />
+            </div>
+          </TableCell>
+          <TableCell>
+            <BaseIcon v-if="user.enabled" class="text-green-800" name="Check" />
+            <BaseIcon v-else class="text-red-500" name="Cross" />
+          </TableCell>
+          <TableCell>{{ user.email }}</TableCell>
+          <TableCell>
+            <div v-if="user.roles && user.roles.length > 3">
+              <ShowMore :maxLines="3">
+                <template #more>
+                  show all {{ user.roles.length }} roles
+                </template>
+                <div v-for="role in user.roles">
+                  {{ role.schemaId }} ({{ role.role }})
+                </div>
+              </ShowMore>
+            </div>
+            <div v-else v-for="role in user.roles">
+              {{ role.schemaId }} ({{ role.role }})
+            </div>
+          </TableCell>
+          <TableCell>
+            <div
+              v-if="user.tokens && user.tokens.length > 0"
+              class="flex gap-1"
+            >
+              <Button
+                type="secondary"
+                size="tiny"
+                @click="openManageTokensModal(user)"
               >
-                <Button
-                  type="secondary"
-                  size="tiny"
-                  @click="openManageTokensModal(user)"
-                >
-                  {{ user.tokens?.length }} tokens
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        </template>
-      </Table>
-      <NewUserModal
-        v-if="showNewUserModal"
-        v-model:visible="showNewUserModal"
-        :usernames="usernames"
-        @addUser="adminSettings.addUser"
-      />
+                {{ user.tokens?.length }} tokens
+              </Button>
+            </div>
+          </TableCell>
+        </TableRow>
+      </template>
+    </Table>
+    <NewUserModal
+      v-if="showNewUserModal"
+      v-model:visible="showNewUserModal"
+      :usernames="usernames"
+      @addUser="adminSettings.addUser"
+    />
 
-      <EditUserModal
-        v-if="selectedUser && showEditUserModal"
-        v-model:visible="showEditUserModal"
-        :schemas="schemas"
-        :roles="roles"
-        :user="selectedUser"
-        @userUpdated="adminSettings.retrieveUsers"
-      />
+    <EditUserModal
+      v-if="selectedUser && showEditUserModal"
+      v-model:visible="showEditUserModal"
+      :schemas="schemas"
+      :roles="roles"
+      :user="selectedUser"
+      @userUpdated="adminSettings.retrieveUsers"
+    />
 
-      <DeleteUserConfirmation
-        v-if="selectedUser && showDeleteUserModal"
-        v-model:visible="showDeleteUserModal"
-        :user="selectedUser"
-        @deleteUser="adminSettings.removeUser(selectedUser)"
-      />
+    <DeleteUserConfirmation
+      v-if="selectedUser && showDeleteUserModal"
+      v-model:visible="showDeleteUserModal"
+      :user="selectedUser"
+      @deleteUser="adminSettings.removeUser(selectedUser)"
+    />
 
-      <TokenManagement
-        v-if="selectedUser && showTokenModal"
-        v-model:visible="showTokenModal"
-        :user="selectedUser"
-        @userUpdated="adminSettings.retrieveUsers"
-      />
-    </ContentBlock>
-  </Container>
+    <TokenManagement
+      v-if="selectedUser && showTokenModal"
+      v-model:visible="showTokenModal"
+      :user="selectedUser"
+      @userUpdated="adminSettings.retrieveUsers"
+    />
+  </ContentBlock>
 </template>
 
 <script setup lang="ts">
@@ -128,7 +122,6 @@ import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
 import Table from "../../../../tailwind-components/app/components/Table.vue";
