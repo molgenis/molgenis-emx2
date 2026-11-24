@@ -1,3 +1,20 @@
+<script setup lang="ts">
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import Modal from "../../../tailwind-components/app/components/Modal.vue";
+import type { User } from "../interfaces/interfaces.ts";
+
+const props = defineProps<{
+  users: User[];
+  systemUsers: User[];
+}>();
+
+const visible = defineModel("visible", {
+  required: true,
+});
+
+const emit = defineEmits(["deleteUser"]);
+</script>
+
 <template>
   <Modal v-model:visible="visible" :title="`Delete user(s)`">
     <div class="overflow-y-auto">
@@ -11,7 +28,7 @@
           </div>
           This action cannot be undone.
         </div>
-        <div v-if="props.systemUsers.length" id="system-users-notice">
+        <div v-if="props.systemUsers.length" id="delete-system-users-warning">
           <p>
             The following system users cannot be deleted and will be skipped:
           </p>
@@ -45,20 +62,3 @@
     </template>
   </Modal>
 </template>
-
-<script setup lang="ts">
-import Button from "../../../tailwind-components/app/components/Button.vue";
-import Modal from "../../../tailwind-components/app/components/Modal.vue";
-import type { User } from "../interfaces/interfaces.ts";
-
-const props = defineProps<{
-  users: User[];
-  systemUsers: User[];
-}>();
-
-const visible = defineModel("visible", {
-  required: true,
-});
-
-const emit = defineEmits(["deleteUser"]);
-</script>

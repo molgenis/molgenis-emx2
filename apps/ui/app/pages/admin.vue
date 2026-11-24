@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useRoute } from "#app/composables/router";
 import { definePageMeta } from "#imports";
+import { useRoute } from "nuxt/app";
 import { computed } from "vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
