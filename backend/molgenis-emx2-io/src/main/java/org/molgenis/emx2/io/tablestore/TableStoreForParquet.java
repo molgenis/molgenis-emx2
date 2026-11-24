@@ -63,13 +63,14 @@ public class TableStoreForParquet implements TableStore {
             .withWriteMode(ParquetFileWriter.Mode.OVERWRITE);
 
     try (ParquetWriter<Row> writer = builder.build()) {
-      rows.produce(row -> {
-        try {
-          writer.write(row);
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      });
+      rows.produce(
+          row -> {
+            try {
+              writer.write(row);
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          });
     } catch (IOException | UncheckedIOException e) {
       throw new MolgenisException("Writing parquet file for table '" + name + "' failed", e);
     }
