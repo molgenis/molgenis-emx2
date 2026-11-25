@@ -478,10 +478,11 @@ type Right = (typeof RIGHTS)[number];
     </div>
 
     <template #footer>
-      <div class="flex justify-between items-center">
+      <div class="flex w-full justify-end items-center flex-none">
         <menu class="flex items-center justify-end h-modal-footer">
           <div class="flex gap-4">
             <Button
+              id="role-modal-cancel"
               type="secondary"
               :disabled="saving"
               @click="visible = false"
