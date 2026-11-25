@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Value;
@@ -22,7 +23,6 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
  * When a new {@link ColumnType} is added and/or {@link #validateAllColumnTypesCovered()} fails, be
  * sure to add thew new {@link ColumnType} to all tests!!!
  */
-@DefaultTimeZone("Europe/Amsterdam")
 class ColumnTypeRdfMapperTest {
   static final String TEST_SCHEMA = "AllColumnTypes";
   static final String TEST_TABLE = "TestTable";
@@ -230,9 +230,11 @@ class ColumnTypeRdfMapperTest {
     // exclude mg columns because they might be not empty for the empty test
     testRows = allColumnTypes.getTable(TEST_TABLE).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
 
-    // Prepares RdfMapData
     rdfMapData =
-        new RdfMapData(BASE_URL, new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)));
+        new RdfMapData(
+            BASE_URL,
+            new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)),
+            ZoneId.of("Europe/Amsterdam"));
   }
 
   @AfterAll

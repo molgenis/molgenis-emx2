@@ -191,7 +191,7 @@ public abstract class ColumnTypeRdfMapper {
             row.getDateTimeArray(column.getName()),
             (i) ->
                 literal(
-                    formatDateTime((LocalDateTime) i, ZoneId.systemDefault()), getCoreDatatype()));
+                    formatDateTime((LocalDateTime) i, rdfMapData.getZoneId()), getCoreDatatype()));
       }
     },
     DURATION(CoreDatatype.XSD.DURATION) {

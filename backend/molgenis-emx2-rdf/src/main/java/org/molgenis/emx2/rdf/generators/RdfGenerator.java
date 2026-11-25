@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RdfUtils.*;
+import static org.molgenis.emx2.utils.TimeZoneUtils.getZoneId;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
@@ -41,6 +43,10 @@ public abstract class RdfGenerator {
 
   protected String getBaseURL() {
     return baseURL;
+  }
+
+  RdfMapData getMapData(Database database, Collection<Table> tables) {
+    return new RdfMapData(getBaseURL(), new OntologyIriMapper(tables), getZoneId(database));
   }
 
   protected void processRows(
