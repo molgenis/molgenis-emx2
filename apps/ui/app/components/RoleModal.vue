@@ -303,23 +303,6 @@ function setRightsForAllTables(value: boolean) {
   tablePermissions.value.forEach((permission) => setRights(permission, value));
 }
 
-// function userNote(email: string): string {
-//   const otherRole = customRoleByUser.value[email];
-//   const selected = selectedUsers.value.includes(email);
-
-//   if (isEditing.value && originalUsers.has(email) && !selected) {
-//     return "will be removed from this role";
-//   }
-
-//   if (otherRole) {
-//     return selected && !originalUsers.has(email)
-//       ? `will be removed from role '${otherRole}'`
-//       : `member of role '${otherRole}'`;
-//   } else {
-//     return "";
-//   }
-// }
-
 async function save() {
   if (!canSave.value || !schemaId.value) {
     return;
@@ -397,9 +380,10 @@ type Right = (typeof RIGHTS)[number];
         />
       </div>
 
-      <div v-if="schemaId" class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2">
         <span class="text-title-contrast font-bold">Permissions</span>
-        <p v-if="loadingTables" class="text-title-contrast">
+        <p v-if="!schemaId">No schema selected</p>
+        <p v-else-if="loadingTables" class="text-title-contrast">
           Loading tables...
         </p>
         <p v-else-if="!tableNames.length" class="text-title-contrast">
@@ -489,38 +473,8 @@ type Right = (typeof RIGHTS)[number];
           :allowedValues="matchingUserEmails"
           :isArray="true"
         />
-        <!-- <InputSearch
-          id="role-modal-user-search"
-          v-model="userSearch"
-          placeholder="Search users"
-          size="small"
-        />
-        <ul class="max-h-64 overflow-y-auto">
-          <li
-            v-for="email in matchingUserEmails"
-            :key="email"
-            class="flex items-center gap-2 py-1 text-title-contrast"
-          >
-            <InputCheckbox
-              :id="`role-modal-user-${email}`"
-              :aria-label="`Assign ${email} to role`"
-              :modelValue="selectedUsers.has(email)"
-              @update:modelValue="
-                (checked) => setUserSelected(email, Boolean(checked))
-              "
-            />
-            <label :for="`role-modal-user-${email}`" class="cursor-pointer">
-              {{ email }}
-            </label>
-            <span v-if="userNote(email)" class="italic">
-              {{ userNote(email) }}
-            </span>
-          </li>
-          <li v-if="!matchingUserEmails.length" class="text-title-contrast">
-            No users found
-          </li>
-        </ul> -->
       </div>
+      <div>warning of users that have their role overwritten todo</div>
     </div>
 
     <template #footer>
