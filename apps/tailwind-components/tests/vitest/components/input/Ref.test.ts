@@ -286,9 +286,7 @@ describe("Ref, select above the limit", () => {
     await wrapper.find('button[aria-label="Remove Row 2"]').trigger("click");
     await flushPromises();
 
-    expect(wrapper.emitted("update:modelValue")).toEqual([
-      [[expect.objectContaining({ id: "r40" })]],
-    ]);
+    expect(wrapper.emitted("update:modelValue")).toEqual([[[{ id: "r40" }]]]);
   });
 
   it("Clear empties a single select to null and a multiple select to []", async () => {
@@ -305,5 +303,106 @@ describe("Ref, select above the limit", () => {
 
     expect(single.emitted("update:modelValue")).toEqual([[null]]);
     expect(multiple.emitted("update:modelValue")).toEqual([[[]]]);
+  });
+});
+
+describe("Ref, rows that share a label", () => {
+  const TWINS = [
+    { id: "d1", name: "Twin" },
+    { id: "d2", name: "Twin" },
+  ];
+  const OTHER = { id: "x", name: "Other" };
+  const checked = (wrapper: Wrapper) =>
+    wrapper
+      .findAll('input[type="checkbox"]')
+      .filter((box) => (box.element as HTMLInputElement).checked);
+  async function pickInGroup(wrapper: Wrapper, index: number) {
+    const input = wrapper.findAll("input[type=radio], input[type=checkbox]")[
+      index
+    ]!;
+    (input.element as HTMLInputElement).checked = true;
+    await input.trigger("input");
+    await input.trigger("change");
+    await flushPromises();
+  }
+  const picks = [
+    ["radio group", { isArray: false, limit: 20 }],
+    ["checkbox group", { isArray: true, limit: 20 }],
+    ["single listbox", { isArray: false, limit: 1 }],
+    ["multiple listbox", { isArray: true, limit: 1 }],
+  ] as const;
+
+  beforeEach(() => {
+    tableRows = [...TWINS];
+  });
+
+  it.each(picks)("shows both rows as options in the %s", async (_t, props) => {
+    const wrapper = await mountRef(props);
+
+    expect(
+      props.limit === 1
+        ? optionTexts(wrapper)
+        : wrapper.findAll('input[type="radio"], input[type="checkbox"]')
+    ).toHaveLength(2);
+  });
+
+  it.each(picks)(
+    "emits the key of the row picked in the %s",
+    async (_t, props) => {
+      for (const [index, id] of ["d1", "d2"].entries()) {
+        const wrapper = await mountRef(props);
+        if (props.limit === 1) {
+          await toggle(wrapper).trigger("click");
+          await wrapper.findAll('li[role="option"]')[index]!.trigger("click");
+          await flushPromises();
+        } else {
+          await pickInGroup(wrapper, index);
+        }
+
+        expect(wrapper.emitted("update:modelValue")).toEqual([
+          [props.isArray ? [{ id }] : { id }],
+        ]);
+      }
+    }
+  );
+
+  it("a deselect in the checkbox group emits the keys of the remaining rows", async () => {
+    tableRows = [...TWINS, OTHER];
+    const wrapper = await mountRef({
+      isArray: true,
+      modelValue: [{ id: "d1" }, { id: "d2" }, { id: "x" }],
+    });
+    const first = wrapper.findAll('input[type="checkbox"]')[0]!;
+    (first.element as HTMLInputElement).checked = false;
+    await first.trigger("change");
+    await flushPromises();
+
+    expect(wrapper.emitted("update:modelValue")).toEqual([
+      [[{ id: "d2" }, { id: "x" }]],
+    ]);
+  });
+
+  it("reopens a record with three rows and removes the third", async () => {
+    tableRows = [...TWINS, OTHER];
+    const model = [{ id: "d1" }, { id: "d2" }, { id: "x" }];
+    const listbox = await mountRef({
+      isArray: true,
+      limit: 1,
+      modelValue: model,
+    });
+    const group = await mountRef({ isArray: true, modelValue: model });
+
+    expect(chipTexts(listbox)).toEqual(["Twin", "Twin", "Other"]);
+    expect(checked(group)).toHaveLength(3);
+
+    await listbox.find('button[aria-label="Remove Other"]').trigger("click");
+    const third = group.findAll('input[type="checkbox"]')[2]!;
+    (third.element as HTMLInputElement).checked = false;
+    await third.trigger("change");
+    await flushPromises();
+
+    const remaining = [[[{ id: "d1" }, { id: "d2" }]]];
+    expect(listbox.emitted("update:modelValue")).toEqual(remaining);
+    expect(group.emitted("update:modelValue")).toEqual(remaining);
   });
 });

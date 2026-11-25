@@ -15,6 +15,6 @@ public class PatientRegistryTest extends TestLoaders {
 
   @Test
   void testPatientRegistryLoader() {
-    assertEquals(59, patientRegistry.getTableNames().size());
+    assertEquals(60, patientRegistry.getTableNames().size());
   }
 }

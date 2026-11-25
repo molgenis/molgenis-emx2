@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.jetty.http.HttpCookie;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -62,10 +63,11 @@ public class MolgenisWebservice {
                   new JavalinJackson()
                       .updateMapper(mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
               config.jetty.modifyServletContextHandler(
-                  context ->
-                      context.setMaxFormContentSize(
-                          Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
-                  );
+                  context -> {
+                    context.setMaxFormContentSize(Math.toIntExact(MAX_REQUEST_SIZE)); // Jetty limit
+                    // keep the session cookie off cross-site posts (CSRF)
+                    context.getSessionHandler().setSameSite(HttpCookie.SameSite.LAX);
+                  });
             });
 
     hostUrlFromEnvironment = setServiceUrl();
@@ -90,6 +92,8 @@ public class MolgenisWebservice {
       MetricsController metricsController = new MetricsController();
       app.get("/" + MetricsController.METRICS_PATH, metricsController::handleRequest);
     }
+
+    app.before(CsrfFilter::check);
 
     MessageApi.create(app);
 
@@ -134,6 +138,7 @@ public class MolgenisWebservice {
     JsonApi.create(app);
     FileApi.create(app);
     JsonYamlApi.create(app);
+    JsonRowsApi.create(app);
     TaskApi.create(app);
     GraphqlApi.createGraphqlService(app);
     RDFApi.create(app);
@@ -293,16 +298,18 @@ public class MolgenisWebservice {
     return result.toString();
   }
 
-  private static String openApiYaml(Context ctx) throws IOException {
+  private static void openApiYaml(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null) {
       throw new MolgenisException("Schema is null");
     }
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     ctx.status(200);
-    return Yaml.mapper()
-        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
-        .writeValueAsString(api);
+    ctx.contentType(ACCEPT_YAML);
+    ctx.result(
+        Yaml.mapper()
+            .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+            .writeValueAsString(api));
   }
 
   /**

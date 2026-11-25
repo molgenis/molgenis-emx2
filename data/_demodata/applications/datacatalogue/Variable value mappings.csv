@@ -1,0 +1,4 @@
+resource,id,source.resource,source.table,source.variable,source.value,target.resource,target.table,target.variable,target.value,mapping status,mapping method,reviewed by,mapping date,mg_draft
+testCohort1,51166174,testCohort1,test table for testCohort1,var1,2,testNetwork1,cdm_1,testVarCategorical_,1,Required review,Manual,,,false
+testCohort1,85697346,testCohort1,test table for testCohort1,var1,1,testNetwork1,cdm_1,testVarCategorical_,2,Completed,Manual,R. Boss,2026-11-09,false
+testCohort1,57734065,testCohort1,test table for testCohort1,var1,0,testNetwork1,cdm_1,testVarCategorical_,0,Required review,Automated,,2026-11-09,false

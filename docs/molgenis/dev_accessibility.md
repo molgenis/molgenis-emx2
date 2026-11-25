@@ -118,7 +118,7 @@ Even though following semantic HTML practices will help make a page accessible, 
 
 These aspects and many others are described in the [Web Content Accessibility Guidelines (WCAG)](https://www.w3.org/WAI/standards-guidelines/wcag/). The WCAG is a set of international standards that provide guidance making web-based content accessible. These standards have been adopted by many organizations world wide including governments, universities, and international organizations.
 
-We (MOLGENIS) are aiming to comply with [WCAG 2.2 Level AA](https://www.w3.org/WAI/WCAG22/Understanding/intro). For more information, please view our [Accessibility statement](....).
+We (MOLGENIS) are aiming to comply with [WCAG 2.2 Level AA](https://www.w3.org/WAI/WCAG22/Understanding/intro).
 
 ## How to review a PR for compliance
 
@@ -150,7 +150,6 @@ To ensure all frontend code follows good semantic HTML practices and meetings WC
 
 For further information and examples, please consult the following websites.
 
-- [MOLGENIS EMX2 Accessibility Statement](....)
 - [WAVE Browser Extension](https://wave.webaim.org)
 - [Web Accessibility Initiative](https://www.w3.org/WAI/standards-guidelines/wcag/)
 - [The ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/)
