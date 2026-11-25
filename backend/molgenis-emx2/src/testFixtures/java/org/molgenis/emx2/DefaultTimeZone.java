@@ -33,7 +33,7 @@ public @interface DefaultTimeZone {
 
     @Override
     public void beforeAll(ExtensionContext context) {
-      String zoneId = context.getRequiredTestClass().getAnnotation(DefaultTimeZone.class).value();
+      String zoneId = findAnnotation(context.getRequiredTestClass()).value();
       TimeZone timeZone = TimeZone.getTimeZone(zoneId);
       if (!timeZone.getID().equals(zoneId)) {
         // TimeZone.getTimeZone() silently falls back to GMT for unknown IDs.
@@ -41,6 +41,20 @@ public @interface DefaultTimeZone {
       }
       context.getStore(NAMESPACE).put(ORIGINAL, TimeZone.getDefault());
       TimeZone.setDefault(timeZone);
+    }
+
+    /**
+     * {@code @Nested} classes are not subclasses, so {@code @Inherited} does not cover them: also
+     * search the enclosing classes.
+     */
+    private static DefaultTimeZone findAnnotation(Class<?> testClass) {
+      for (Class<?> c = testClass; c != null; c = c.getEnclosingClass()) {
+        DefaultTimeZone annotation = c.getAnnotation(DefaultTimeZone.class);
+        if (annotation != null) {
+          return annotation;
+        }
+      }
+      throw new IllegalStateException("No @DefaultTimeZone found for " + testClass.getName());
     }
 
     @Override
