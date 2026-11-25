@@ -9,7 +9,6 @@ import io.javalin.http.Context;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.sql.SqlDatabase;
 

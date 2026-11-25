@@ -9,7 +9,6 @@ import static org.pac4j.core.util.Pac4jConstants.USERNAME;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class MolgenisSessionHandlerTest {
 
