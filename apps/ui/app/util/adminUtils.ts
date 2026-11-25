@@ -115,10 +115,13 @@ export async function getUsers(): Promise<{
     .then((response) => {
       const loadedUsers = response?.data._admin.users || [];
       const newUsers = mapBackendUserToUser(loadedUsers);
-      const newRolesByUser = loadedUsers.reduce((acc, user) => {
-        acc[user.email] = user.roles || [];
-        return acc;
-      }, {} as Record<string, Role[]>);
+      const newRolesByUser = loadedUsers.reduce(
+        (acc: Record<string, Role[]>, user) => {
+          acc[user.email] = user.roles || [];
+          return acc;
+        },
+        {}
+      );
 
       return { newUsers, newRolesByUser };
     })
@@ -128,7 +131,7 @@ export async function getUsers(): Promise<{
     });
 }
 
-function mapBackendUserToUser(dataUsers: BackendUser[]): User[] {
+export function mapBackendUserToUser(dataUsers: BackendUser[]): User[] {
   return dataUsers.map((user) => {
     return {
       email: user.email,
@@ -280,7 +283,7 @@ function schemaGraphqlUrl(schemaId: string) {
   return `/${encodeURIComponent(schemaId)}${GRAPHQL}`;
 }
 
-function mapBackendCustomRolesToFrontEnd(
+export function mapBackendCustomRolesToFrontEnd(
   backEndCustomRoles: BackendCustomRole[]
 ): {
   customRoles: CustomRole[];
