@@ -262,6 +262,11 @@ public final class GraphqlAdminFieldFactory {
     }
 
     Username userName = new Username(email);
+    if (updatedUser.get(PASSWORD) != null && userName.equals(database.getActiveUsername())) {
+      return new GraphqlApiMutationResult(
+          FAILED,
+          "User not updated: use changePassword with your current password to change your own password");
+    }
     database.tx(
         db -> {
           String password = (String) updatedUser.get(PASSWORD);
