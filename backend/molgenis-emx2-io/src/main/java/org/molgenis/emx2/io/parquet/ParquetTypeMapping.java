@@ -12,7 +12,6 @@ import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 import org.apache.parquet.schema.Type;
 import org.apache.parquet.schema.Types;
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
 
 final class ParquetTypeMapping {
 
@@ -46,34 +45,33 @@ final class ParquetTypeMapping {
     for (Map.Entry<String, ColumnType> column : columnTypes.entrySet()) {
       String columnName = column.getKey();
       ColumnType columnType = column.getValue();
-      Class<?> valueType = valueType(columnType);
-
       Type.Repetition repetition =
           isRepeated(columnType) ? Type.Repetition.REPEATED : Type.Repetition.OPTIONAL;
 
-      switch (valueType.getSimpleName()) {
-        case "Boolean" -> schema.primitive(PrimitiveTypeName.BOOLEAN, repetition).named(columnName);
-        case "Integer" -> schema.primitive(PrimitiveTypeName.INT32, repetition).named(columnName);
-        case "Long" -> schema.primitive(PrimitiveTypeName.INT64, repetition).named(columnName);
-        case "Double" -> schema.primitive(PrimitiveTypeName.DOUBLE, repetition).named(columnName);
-        case "LocalDate" ->
+      switch (columnType.getBaseType()) {
+        case BOOL, BOOL_ARRAY ->
+            schema.primitive(PrimitiveTypeName.BOOLEAN, repetition).named(columnName);
+        case INT, INT_ARRAY ->
+            schema.primitive(PrimitiveTypeName.INT32, repetition).named(columnName);
+        case LONG, LONG_ARRAY ->
+            schema.primitive(PrimitiveTypeName.INT64, repetition).named(columnName);
+        case DECIMAL, DECIMAL_ARRAY ->
+            schema.primitive(PrimitiveTypeName.DOUBLE, repetition).named(columnName);
+        case DATE, DATE_ARRAY ->
             schema
                 .primitive(PrimitiveTypeName.INT32, repetition)
                 .as(LogicalTypeAnnotation.dateType())
                 .named(columnName);
-        case "LocalDateTime" ->
+        case DATETIME, DATETIME_ARRAY ->
             schema
                 .primitive(PrimitiveTypeName.INT64, repetition)
                 .as(LogicalTypeAnnotation.timestampType(false, TimeUnit.MILLIS))
                 .named(columnName);
-        case "String" ->
+        default ->
             schema
                 .primitive(PrimitiveTypeName.BINARY, repetition)
                 .as(LogicalTypeAnnotation.stringType())
                 .named(columnName);
-        default ->
-            throw new MolgenisException(
-                "Cannot map Java type " + valueType.getName() + " to a Parquet type");
       }
     }
     return schema.named("Row");
