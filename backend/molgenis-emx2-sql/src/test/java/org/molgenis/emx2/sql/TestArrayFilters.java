@@ -20,7 +20,7 @@ import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 
-public class TestArrayFilters {
+class TestArrayFilters {
 
   private static final String INTS = "ints";
   private static final String DATES = "dates";
@@ -28,7 +28,7 @@ public class TestArrayFilters {
   private static Table table;
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
     table =
         database
@@ -59,7 +59,7 @@ public class TestArrayFilters {
   }
 
   @Test
-  public void betweenOnArrayMatchesWhenAnyElementInAnyRange() {
+  void betweenOnArrayMatchesWhenAnyElementInAnyRange() {
     assertEquals(List.of("a", "c"), ids(INTS, BETWEEN, 2, 10));
     assertEquals(List.of("a", "b"), ids(INTS, BETWEEN, 0, 1, 25, 30));
     assertEquals(List.of("b", "c"), ids(INTS, BETWEEN, 25, null));
@@ -76,7 +76,7 @@ public class TestArrayFilters {
   }
 
   @Test
-  public void likeOnStringArrayMatchesAnyElementAnyTerm() {
+  void likeOnStringArrayMatchesAnyElementAnyTerm() {
     assertEquals(List.of("a"), ids(TAGS, LIKE, "BANAN"));
     assertEquals(List.of("a", "b"), ids(TAGS, LIKE, "apple"));
     assertEquals(List.of("b", "c"), ids(TAGS, LIKE, "cherry", "fig"));
