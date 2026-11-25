@@ -12,6 +12,7 @@ import static org.molgenis.emx2.ColumnType.ONTOLOGY;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.Constants.ADMIN_USER;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,18 +34,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.molgenis.emx2.BinaryFileWrapper;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.TablePermission;
-import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.*;
 
 class JsonRowsApiReadTest extends ApiTestBase {
 
   private static final String ANIMALS = JsonRowsApiReadTest.class.getSimpleName();
   private static final String PAGES = ANIMALS + "Pages";
   private static final String ROUND_TRIP = ANIMALS + "RoundTrip";
-  private static final String ITEM_READER = "jsonrowsread_item";
+  private static final Username ITEM_READER = new Username("jsonrowsread_item");
   private static final String NAME = "name";
   private static final String PET = "Pet";
   private static final String BIG = "Big";
@@ -67,8 +64,8 @@ class JsonRowsApiReadTest extends ApiTestBase {
   @BeforeAll
   static void setupSchemas() {
     database.becomeAdmin();
-    database.setUserPassword(ITEM_READER, ITEM_READER);
-    login("admin", "admin");
+    database.setUserPassword(ITEM_READER, ITEM_READER.value());
+    login(ADMIN_USER, ADMIN_USER.value());
     createAnimals(ANIMALS);
     createAnimals(ROUND_TRIP);
     createPages();
@@ -179,7 +176,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
 
   @BeforeEach
   void asAdmin() {
-    login("admin", "admin");
+    login(ADMIN_USER, ADMIN_USER.value());
   }
 
   static Stream<Arguments> parameters() {
@@ -264,7 +261,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
   }
 
   @Test
-  void getThenPutOfTheBodyStoresNoChange() throws JsonProcessingException {
+  void getThenPutOfTheBodyStoresNoChange() {
     String before = graphql(ROUND_TRIP, ANIMAL_STATE, null);
     assertTrue(before.contains("\"filename\""), before);
     assertTrue(before.contains("\"breed\""), before);
@@ -365,7 +362,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
 
   @Test
   void dataReadWithoutQueryReturnsOnlyTheTablesTheCallerMayView() {
-    login(ITEM_READER, ITEM_READER);
+    login(ITEM_READER, ITEM_READER.value());
     Response response = get(PAGES, "_data", Map.of());
     assertEquals(200, response.statusCode(), response.asString());
     Set<String> keys = new HashSet<>();
@@ -399,7 +396,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
   }
 
   @Test
-  void queryParameterOnTheTableRouteIsNotTheSelection() throws JsonProcessingException {
+  void queryParameterOnTheTableRouteIsNotTheSelection() {
     Response response = get(ANIMALS, PET, Map.of(QUERY, "{name}"));
     assertEquals(200, response.statusCode(), response.asString());
     assertEquals(body(get(ANIMALS, PET, Map.of())), body(response));
@@ -416,7 +413,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
 
   @Test
   void readOfATableTheCallerMayNotViewAnswers400() {
-    login(ITEM_READER, ITEM_READER);
+    login(ITEM_READER, ITEM_READER.value());
     Response response = get(PAGES, BIG, Map.of());
     assertEquals(400, response.statusCode(), response.asString());
     String message = response.jsonPath().getString("errors[0].message");
@@ -425,8 +422,7 @@ class JsonRowsApiReadTest extends ApiTestBase {
 
   @ParameterizedTest
   @MethodSource("mutationsInQuery")
-  void mutationInQueryAnswers400AndStoresNothing(String path, String query)
-      throws JsonProcessingException {
+  void mutationInQueryAnswers400AndStoresNothing(String path, String query) {
     String before = graphql(ANIMALS, ANIMAL_STATE, null);
     Response response = get(ANIMALS, path, Map.of("_data".equals(path) ? QUERY : SELECT, query));
     assertEquals(400, response.statusCode(), response.asString());

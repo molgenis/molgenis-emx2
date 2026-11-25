@@ -9,6 +9,7 @@ import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.Constants.ADMIN_USER;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,17 +24,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.molgenis.emx2.BinaryFileWrapper;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 
 class JsonRowsApiWriteTest extends ApiTestBase {
 
   private static final String REST = JsonRowsApiWriteTest.class.getSimpleName() + "Rest";
   private static final String GQL = JsonRowsApiWriteTest.class.getSimpleName() + "Gql";
   private static final String OTHER = JsonRowsApiWriteTest.class.getSimpleName() + "Other";
-  private static final String VIEWER = "jsonrowsapi_viewer";
+  private static final Username VIEWER = new Username("jsonrowsapi_viewer");
   private static final String APPLICATION_JSON = "application/json";
   private static final String PET = "Pet";
   private static final String PET_OWNER = "Pet Owner";
@@ -51,7 +49,7 @@ class JsonRowsApiWriteTest extends ApiTestBase {
   @BeforeAll
   static void setupSchemas() {
     database.becomeAdmin();
-    database.setUserPassword(VIEWER, VIEWER);
+    database.setUserPassword(VIEWER, VIEWER.value());
     for (String name : List.of(REST, GQL, OTHER)) {
       database.dropSchemaIfExists(name);
       Schema schema = database.createSchema(name);
@@ -93,7 +91,7 @@ class JsonRowsApiWriteTest extends ApiTestBase {
 
   @BeforeEach
   void asAdmin() {
-    login("admin", "admin");
+    login(ADMIN_USER, ADMIN_USER.value());
   }
 
   @Test
@@ -262,7 +260,7 @@ class JsonRowsApiWriteTest extends ApiTestBase {
 
   @Test
   void writeByViewerStoresNothing() throws Exception {
-    login(VIEWER, VIEWER);
+    login(VIEWER, VIEWER.value());
     assertFailureLikeGraphql(
         "POST",
         """
