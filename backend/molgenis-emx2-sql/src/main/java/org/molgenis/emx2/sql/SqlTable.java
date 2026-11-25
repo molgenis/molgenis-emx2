@@ -125,7 +125,7 @@ public class SqlTable implements Table {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
       database.getJooqWithExtendedTimeout().deleteFrom(t.getJooqTable()).execute();
     }
-    logger.info(database.getActiveUsername() + " truncated table " + tableName);
+    logger.info("{} truncated table {}", database.getActiveUsername(), tableName);
   }
 
   private static String getMgTableClass(TableMetadata table) {
