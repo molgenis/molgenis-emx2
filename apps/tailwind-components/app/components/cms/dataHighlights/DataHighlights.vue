@@ -15,10 +15,12 @@ defineProps<IDataHighlights>();
       :value="highlightValue"
       class="block py-2.5 px-5 text-title font-display items-center border border-theme rounded-base"
     >
-      <span class="block text-heading-lg">{{ highlightLabel }}</span>
-      <span class="block text-heading-6xl text-center leading-none">{{
-        highlightValue
-      }}</span>
+      <span class="block text-heading-lg truncate">{{ highlightLabel }}</span>
+      <span
+        class="block text-heading-6xl text-center leading-none py-1 truncate"
+      >
+        {{ highlightValue }}
+      </span>
     </data>
   </DynamicComponentWidth>
 </template>
