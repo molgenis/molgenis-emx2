@@ -39,10 +39,14 @@
 import { ref, watch } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 
-const props = defineProps<{
-  collapsed: boolean;
-  activeFilterCount: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    collapsed: boolean;
+    activeFilterCount: number;
+    animated?: boolean;
+  }>(),
+  { animated: true }
+);
 
 const emit = defineEmits<{
   "update:collapsed": [value: boolean];
@@ -69,10 +73,8 @@ watch(
   (isCollapsed) => {
     if (!isCollapsed) {
       contentVisible.value = true;
-    } else {
-      if (prefersReducedMotion()) {
-        contentVisible.value = false;
-      }
+    } else if (!props.animated || prefersReducedMotion()) {
+      contentVisible.value = false;
     }
   }
 );

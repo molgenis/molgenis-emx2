@@ -201,6 +201,24 @@ describe("Sidebar contentVisible gating", () => {
     wrapper.unmount();
   });
 
+  it("hides content synchronously on collapse when not animated (drawer)", async () => {
+    const wrapper = mount(Sidebar, {
+      props: { collapsed: false, activeFilterCount: 0, animated: false },
+      slots: { default: '<div class="slot-content">content</div>' },
+      attachTo: document.body,
+    });
+    const content = wrapper.find("#filter-sidebar-content");
+    expect(content.isVisible()).toBe(true);
+
+    await wrapper.setProps({ collapsed: true });
+    expect(content.isVisible()).toBe(false);
+
+    // switching back to the animated (pushing) layout keeps the rail empty
+    await wrapper.setProps({ animated: true });
+    expect(content.isVisible()).toBe(false);
+    wrapper.unmount();
+  });
+
   it("ignores transitionend events for other CSS properties", async () => {
     const wrapper = mountSidebar(false, 0);
     const content = wrapper.find("#filter-sidebar-content");

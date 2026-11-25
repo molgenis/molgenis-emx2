@@ -29,9 +29,6 @@ import ActionMenuItem from "./control/ActionMenuItem.vue";
 import RowControls from "./control/RowControls.vue";
 
 const STICKY_SELECT_COLUMN_WIDTH = 48;
-// Toolbar width (px) below which it switches to the compact single-row layout.
-// Keep in sync with the `@5xl/toolbar` (64rem) container variant used in the template.
-const COMPACT_TOOLBAR_WIDTH = 64 * 16;
 // Toolbar indent before it can be measured (SSR, first paint): the expanded
 // sidebar width (w-80 / xl:w-96) plus gap-6, minus the lg:-ml-[30px] offset.
 const SIDEBAR_INSET_ESTIMATE =
@@ -84,10 +81,14 @@ const numberOfSelectedRows = computed(() => props.selectedRows?.size || 0);
 // container that cannot use its container queries: the teleported "more" menu
 // and the filter sidebar (a drawer over the table while the toolbar shows a
 // filters button, hidden when collapsed).
+// It is read from a probe element that the same `@5xl/toolbar` container
+// variant shows, so it always agrees with the CSS (whatever the root font size).
 const toolbar = ref<HTMLElement | null>(null);
+const wideToolbarProbe = ref<HTMLElement | null>(null);
 const { width: toolbarWidth } = useElementSize(toolbar);
+const { width: wideToolbarProbeWidth } = useElementSize(wideToolbarProbe);
 const isCompact = computed(
-  () => toolbarWidth.value > 0 && toolbarWidth.value < COMPACT_TOOLBAR_WIDTH
+  () => toolbarWidth.value > 0 && wideToolbarProbeWidth.value === 0
 );
 
 // Indent of the toolbar content so it lines up with the table's left edge
@@ -243,6 +244,11 @@ interface Permissions {
       with responsiveLabel also show their label
   -->
   <div ref="toolbar" class="@container/toolbar mb-[30px]">
+    <span
+      ref="wideToolbarProbe"
+      aria-hidden="true"
+      class="hidden @5xl/toolbar:block h-0"
+    />
     <div
       class="@container"
       :class="{ [SIDEBAR_INSET_ESTIMATE]: tableInset === null }"
@@ -259,6 +265,8 @@ interface Permissions {
           icon="filter-alt"
           :icon-only="true"
           :label="sidebarCollapsed ? 'Show filters' : 'Hide filters'"
+          aria-controls="filter-sidebar-content"
+          :aria-expanded="!sidebarCollapsed"
           @click="sidebarCollapsed = !sidebarCollapsed"
         />
 
@@ -411,6 +419,7 @@ interface Permissions {
       <Sidebar
         class="max-w-full"
         :collapsed="sidebarCollapsed"
+        :animated="!isCompact"
         :activeFilterCount="filters.activeFilters.value.length"
         @update:collapsed="sidebarCollapsed = $event"
       >
