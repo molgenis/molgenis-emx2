@@ -32,7 +32,7 @@ Resources,,start year,int,,,,,,,,dcat:startDate,"The year when the resource star
 Resources,,end year,int,,,,,,,,dcat:endDate,"The year the resource ceased, e.g. when data or sample collection was stopped","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,NetworksStaging,INTEGRATE,BiobanksStaging",,,
 Collections,,time span description,text,,,,,,,,,Description of time span,"DataCatalogueFlat,RWEStaging",,,
 Collections,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging",,,
-Tools,,rtl level,ontology,,,CatalogueOntologies,Technology readiness levels,,,,,Technology readiness level: a 9-point scale used by the European Commission to assess how close a technology is to commercial deployment,"DataCatalogueFlat,NetworksStaging",,,
+Tools,,trl level,ontology,,,CatalogueOntologies,Technology readiness levels,,,,,Technology readiness level: a 9-point scale used by the European Commission to assess how close a technology is to commercial deployment,"DataCatalogueFlat,NetworksStaging",,,
 Resources,,withdrawn,bool,,,,,,,,,Whether this resource has been withdrawn,"DataCatalogueFlat,BiobanksStaging",,,
 Collections,,linked resources,refback,,,,Linkages,,resource,,,List of resources that are or can be linked to this main resource,"DataCatalogueFlat,EMA,RWEStaging",,,
 Collections,,internal identifiers,refback,,,,Internal identifiers,,resource,,,Internal identifier(s) for this resource (e.g. UMCG register number),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCGCohortsStaging,BiobanksStaging",,,
