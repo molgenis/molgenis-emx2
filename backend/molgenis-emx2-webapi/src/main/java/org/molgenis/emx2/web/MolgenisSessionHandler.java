@@ -93,7 +93,7 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
       return ANONYMOUS_USER;
     }
     String attribute = (String) session.getAttribute(USERNAME);
-    if (attribute == null) {
+    if (attribute == null || attribute.isBlank()) {
       return ANONYMOUS_USER;
     }
     return new Username(attribute);

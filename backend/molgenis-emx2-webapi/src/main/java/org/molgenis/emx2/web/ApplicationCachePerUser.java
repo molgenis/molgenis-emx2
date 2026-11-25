@@ -197,7 +197,7 @@ public final class ApplicationCachePerUser {
     if (session != null) {
       String username = (String) session.getAttribute(USERNAME);
       logger.info("found a session for user {}", username);
-      if (username != null) {
+      if (username != null && !username.isBlank()) {
         return new UserKey(new Username(username));
       }
     }
