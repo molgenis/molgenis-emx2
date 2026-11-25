@@ -2,6 +2,7 @@
 import { ref } from "vue";
 
 import DataHighlights from "./DataHighlights.vue";
+import ComponentActions from "../ComponentActions.vue";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
