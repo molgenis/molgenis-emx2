@@ -20,6 +20,7 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.io.ColumnIOFactory;
 import org.apache.parquet.io.LocalInputFile;
 import org.apache.parquet.io.LocalOutputFile;
+import org.apache.parquet.io.MessageColumnIO;
 import org.apache.parquet.io.RecordReader;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
@@ -246,15 +247,17 @@ class RowWriteSupportTest {
   private static List<Group> readRows(Path file) throws IOException {
     try (ParquetFileReader reader = openReader(file)) {
       MessageType schema = reader.getFooter().getFileMetaData().getSchema();
+      MessageColumnIO columnIO = new ColumnIOFactory().getColumnIO(schema);
+      GroupRecordConverter converter = new GroupRecordConverter(schema);
+      int rowGroupCount = reader.getRowGroups().size();
+
       List<Group> rows = new ArrayList<>();
-      PageReadStore rowGroup;
-      while ((rowGroup = reader.readNextRowGroup()) != null) {
-        RecordReader<Group> records =
-            new ColumnIOFactory()
-                .getColumnIO(schema)
-                .getRecordReader(rowGroup, new GroupRecordConverter(schema));
-        for (long i = 0; i < rowGroup.getRowCount(); i++) {
-          rows.add(records.read());
+      for (int rowGroupIndex = 0; rowGroupIndex < rowGroupCount; rowGroupIndex++) {
+        try (PageReadStore rowGroup = reader.readNextRowGroup()) {
+          RecordReader<Group> records = columnIO.getRecordReader(rowGroup, converter);
+          for (long rowIndex = 0; rowIndex < rowGroup.getRowCount(); rowIndex++) {
+            rows.add(records.read());
+          }
         }
       }
       return rows;
