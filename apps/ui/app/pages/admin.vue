@@ -5,13 +5,32 @@ import { computed } from "vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import ButtonBar from "../../../tailwind-components/app/components/ButtonBar.vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
+import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Users from "./admin/users.vue";
 
 const ADMIN_SECTIONS = [
-  { id: "users", label: "Users", to: "/admin/users" },
-  { id: "roles", label: "Roles", to: "/admin/roles" },
-  { id: "settings", label: "Settings", to: "/admin/settings" },
+  {
+    id: "users",
+    label: "Users",
+    to: "/admin/users",
+    title: "User management",
+    description: "",
+  },
+  {
+    id: "roles",
+    label: "Roles",
+    to: "/admin/roles",
+    title: "Role management",
+    description: "",
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    to: "/admin/settings",
+    title: "Settings management",
+    description: "",
+  },
 ] as const;
 
 definePageMeta({
@@ -22,8 +41,8 @@ const route = useRoute();
 
 const activeSection = computed(
   () =>
-    ADMIN_SECTIONS.find((section) => route.path.includes(section.id))?.id ??
-    "users"
+    ADMIN_SECTIONS.find((section) => route.path.includes(section.id)) ??
+    ADMIN_SECTIONS[0]
 );
 </script>
 
@@ -42,9 +61,9 @@ const activeSection = computed(
           <Button
             :id="`admin-section-${section.id}`"
             :href="href ?? undefined"
-            :type="activeSection === section.id ? 'primary' : 'outline'"
+            :type="activeSection.id === section.id ? 'primary' : 'outline'"
             size="small"
-            :aria-current="activeSection === section.id ? 'page' : undefined"
+            :aria-current="activeSection.id === section.id ? 'page' : undefined"
             @click="navigate"
           >
             {{ section.label }}
@@ -52,7 +71,13 @@ const activeSection = computed(
         </NuxtLink>
       </ButtonBar>
     </nav>
-    <Users v-if="activeSection === 'users'" />
-    <NuxtPage v-else />
+    <ContentBlock
+      class="w-full"
+      :title="activeSection.title"
+      :description="activeSection.description"
+    >
+      <Users v-if="activeSection.id === 'users'" />
+      <NuxtPage v-else />
+    </ContentBlock>
   </Container>
 </template>
