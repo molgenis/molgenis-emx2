@@ -114,12 +114,15 @@ const roleNameError = computed(() => {
 });
 
 const customRoleByUser = computed(() =>
-  otherCustomRolesInSchema.value.reduce((rolesByUser, customRole) => {
-    customRole.users.forEach((email) => {
-      rolesByUser[email] = customRole.role;
-    });
-    return rolesByUser;
-  }, {} as Record<string, string>)
+  otherCustomRolesInSchema.value.reduce(
+    (rolesByUser: Record<string, string>, customRole: CustomRole) => {
+      customRole.users.forEach((email: string) => {
+        rolesByUser[email] = customRole.role;
+      });
+      return rolesByUser;
+    },
+    {}
+  )
 );
 
 const matchingUserEmails = computed(() => {
