@@ -74,7 +74,7 @@ const originalPermissions = ref<Record<string, TablePermission>>({});
 const permissions = ref<Record<string, TablePermission>>({});
 const loadingTables = ref(false);
 const userSearch = ref("");
-const selectedUsers = ref<Set<string>>(new Set(originalUsers));
+const selectedUsers = ref<string[]>(Array.from(originalUsers));
 const errorMessage = ref("");
 const saving = ref(false);
 
@@ -167,7 +167,9 @@ const addedUsers = computed(() =>
 );
 
 const removedUsers = computed(() =>
-  Array.from(originalUsers).filter((email) => !selectedUsers.value.has(email))
+  Array.from(originalUsers).filter(
+    (email) => !selectedUsers.value.includes(email)
+  )
 );
 
 const hasChanges = computed(
@@ -301,30 +303,22 @@ function setRightsForAllTables(value: boolean) {
   tablePermissions.value.forEach((permission) => setRights(permission, value));
 }
 
-function userNote(email: string): string {
-  const otherRole = customRoleByUser.value[email];
-  const selected = selectedUsers.value.has(email);
+// function userNote(email: string): string {
+//   const otherRole = customRoleByUser.value[email];
+//   const selected = selectedUsers.value.includes(email);
 
-  if (isEditing.value && originalUsers.has(email) && !selected) {
-    return "will be removed from this role";
-  }
+//   if (isEditing.value && originalUsers.has(email) && !selected) {
+//     return "will be removed from this role";
+//   }
 
-  if (otherRole) {
-    return selected && !originalUsers.has(email)
-      ? `will be removed from role '${otherRole}'`
-      : `member of role '${otherRole}'`;
-  } else {
-    return "";
-  }
-}
-
-function setUserSelected(email: string, selected: boolean) {
-  if (selected) {
-    selectedUsers.value.add(email);
-  } else {
-    selectedUsers.value.delete(email);
-  }
-}
+//   if (otherRole) {
+//     return selected && !originalUsers.has(email)
+//       ? `will be removed from role '${otherRole}'`
+//       : `member of role '${otherRole}'`;
+//   } else {
+//     return "";
+//   }
+// }
 
 async function save() {
   if (!canSave.value || !schemaId.value) {
@@ -486,10 +480,16 @@ type Right = (typeof RIGHTS)[number];
       </div>
 
       <div class="flex flex-col gap-2">
-        <span class="text-title-contrast font-bold">
-          Users ({{ selectedUsers.size }} selected)
-        </span>
-        <InputSearch
+        <label class="text-title-contrast font-bold">
+          Users ({{ selectedUsers.length }} selected)
+        </label>
+        <InputEnum
+          id="role-modal-schema"
+          v-model="selectedUsers"
+          :allowedValues="matchingUserEmails"
+          :isArray="true"
+        />
+        <!-- <InputSearch
           id="role-modal-user-search"
           v-model="userSearch"
           placeholder="Search users"
@@ -519,7 +519,7 @@ type Right = (typeof RIGHTS)[number];
           <li v-if="!matchingUserEmails.length" class="text-title-contrast">
             No users found
           </li>
-        </ul>
+        </ul> -->
       </div>
     </div>
 
