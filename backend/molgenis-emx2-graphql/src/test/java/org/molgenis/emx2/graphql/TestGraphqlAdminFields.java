@@ -72,6 +72,8 @@ class TestGraphqlAdminFields {
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
             assertTrue(result.at("/_admin/userCount").intValue() > 0);
+            assertEquals(
+                result.at("/_admin/userCount").intValue(), result.at("/_admin/users").size());
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
@@ -284,6 +286,38 @@ class TestGraphqlAdminFields {
             // clean up
             testDatabase.removeUser(TEST_PERSOON);
           } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  @Test
+  void testUpdateUserCannotChangeOwnPassword() {
+    database.tx(
+        testDatabase -> {
+          testDatabase.becomeAdmin();
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+          String activeUser = testDatabase.getActiveUser();
+          String newPassword = "bypassAttempt123";
+
+          try {
+            String query =
+                "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
+            Map<String, Object> updateUser = new HashMap<>();
+            updateUser.put("email", activeUser);
+            updateUser.put("password", newPassword);
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("updateUser", updateUser);
+
+            JsonNode node =
+                new ObjectMapper()
+                    .readTree(
+                        convertExecutionResultToJson(
+                            graphql.executeWithoutSession(query, variables)));
+            assertEquals("FAILED", node.at("/data/updateUser/status").asText());
+            assertTrue(node.at("/data/updateUser/message").asText().contains("changePassword"));
+            assertFalse(testDatabase.checkUserPassword(activeUser, newPassword));
+          } catch (IOException e) {
             throw new RuntimeException(e);
           }
         });

@@ -152,7 +152,7 @@ public final class GraphqlAdminFieldFactory {
 
   private static Object getUsers(SelectedField selectedField, Database db) {
     Map<String, Object> args = selectedField.getArguments();
-    int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 100;
+    int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 0;
     int offset = args.containsKey(OFFSET) ? (int) args.get(OFFSET) : 0;
     String email = args.containsKey(EMAIL) ? (String) args.get(EMAIL) : null;
     List<Member> members = db.loadUserRoles();
@@ -247,6 +247,12 @@ public final class GraphqlAdminFieldFactory {
     String userName = (String) updatedUser.get(EMAIL);
     if (userName == null) {
       return new GraphqlApiMutationResult(FAILED, "No user provided");
+    }
+
+    if (updatedUser.get(PASSWORD) != null && userName.equals(database.getActiveUser())) {
+      return new GraphqlApiMutationResult(
+          FAILED,
+          "User not updated: use changePassword with your current password to change your own password");
     }
     database.tx(
         db -> {

@@ -1,6 +1,18 @@
 package org.molgenis.emx2.rdf;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 
 class InMemoryRDFHandlerTest {
@@ -108,5 +120,43 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
     RdfParser.parseString(handlerWithFix, RDF_BNODE);
 
     CustomAssertions.assertRdfEquals(handlerFixedString, handlerWithFix);
+  }
+
+  @Test
+  void testResourcesUnmodifiable() throws IOException {
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    RdfParser.parseString(handler, RDF_FIXED);
+
+    Resource subject = Values.iri("http://localhost:8080/pet%20store/api/rdf/User/username=bofke");
+    Map<Resource, Map<IRI, Set<Value>>> resources = handler.getResources();
+    Map<IRI, Set<Value>> predicatesMap = resources.get(subject);
+    Set<Value> objects = predicatesMap.get(RDFS.LABEL);
+
+    IRI testSubject = Values.iri("http://example.com/new");
+    Value testObject = Values.literal("new");
+    Set<Value> testObjects = Set.of(testObject);
+
+    assertAll(
+        () ->
+            assertThrows(
+                UnsupportedOperationException.class,
+                () -> resources.put(testSubject, new HashMap<>())),
+        () ->
+            assertThrows(
+                UnsupportedOperationException.class,
+                () -> predicatesMap.put(RDFS.COMMENT, testObjects)),
+        () -> assertThrows(UnsupportedOperationException.class, () -> objects.add(testObject)));
+  }
+
+  @Test
+  void testNamespacesUnmodifiable() throws IOException {
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    RdfParser.parseString(handler, RDF_FIXED);
+
+    Set<Namespace> namespaces = handler.getNamespaces();
+
+    Namespace testNamespace = Values.namespace("ex", "http://example.com/");
+
+    assertThrows(UnsupportedOperationException.class, () -> namespaces.add(testNamespace));
   }
 }
