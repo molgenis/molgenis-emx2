@@ -55,7 +55,7 @@ class DatabaseSettingTest {
     void testZoneIdIfNotDefined() {
       assertEquals(
           ZoneId.of("Europe/Amsterdam"),
-          DatabaseSetting.TIMEZONE.<ZoneId>getValue(databaseWithTimeZone(null)));
+          DatabaseSetting.TIMEZONE.getValue(databaseWithTimeZone(null)));
     }
 
     @ParameterizedTest
@@ -63,22 +63,20 @@ class DatabaseSettingTest {
     void testZoneIdWithInvalidSetting(String value) {
       Database database = databaseWithTimeZone(value);
       assertThrows(
-          IllegalArgumentException.class,
-          () -> DatabaseSetting.TIMEZONE.<ZoneId>getValue(database));
+          IllegalArgumentException.class, () -> DatabaseSetting.TIMEZONE.getValue(database));
     }
 
     @Test
     void testZoneIdOverridesServerDefault() {
       assertEquals(
           ZoneId.of("Pacific/Auckland"),
-          DatabaseSetting.TIMEZONE.<ZoneId>getValue(databaseWithTimeZone(" Pacific/Auckland ")));
+          DatabaseSetting.TIMEZONE.getValue(databaseWithTimeZone(" Pacific/Auckland ")));
     }
 
     @Test
     void testOffsetOverridesServerDefault() {
       assertEquals(
-          ZoneId.of("+05:30"),
-          DatabaseSetting.TIMEZONE.<ZoneId>getValue(databaseWithTimeZone("+05:30")));
+          ZoneId.of("+05:30"), DatabaseSetting.TIMEZONE.getValue(databaseWithTimeZone("+05:30")));
     }
 
     private static Database databaseWithTimeZone(String value) {

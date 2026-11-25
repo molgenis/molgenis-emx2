@@ -134,14 +134,17 @@ public class TestSettings {
 
   @Test
   public void testInvalidTimeZoneSettingIsNotSaved() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            database.tx(
-                db -> {
-                  db.setActiveUser("admin");
-                  db.setSetting(DatabaseSetting.TIMEZONE.getKey(), "Europe/Amsterdm");
-                }));
+    // tx() wraps any exception into a SqlMolgenisException (only keeping its message)
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                database.tx(
+                    db -> {
+                      db.setActiveUser("admin");
+                      db.setSetting(DatabaseSetting.TIMEZONE.getKey(), "Europe/Amsterdm");
+                    }));
+    assertTrue(exception.getMessage().contains("Invalid value for setting 'timezone'"));
 
     database = TestDatabaseFactory.getTestDatabase();
     assertNotEquals("Europe/Amsterdm", database.getSetting(DatabaseSetting.TIMEZONE.getKey()));
