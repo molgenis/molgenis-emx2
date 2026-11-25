@@ -80,7 +80,8 @@ export async function useLayoutMenu(
     },
     {
       label: "Pages",
-      location: `cms/pages`,
+      location: `apps/ui/cms/pages`,
+      linkType: "internalPageLink",
       role: "Manager",
     },
     {
