@@ -13,7 +13,6 @@ import org.eclipse.rdf4j.model.vocabulary.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
-import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public class SemanticRdfGenerator extends RdfRowsGenerator {
@@ -24,7 +23,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   @Override
   public void generate(Schema schema) {
     List<Table> tables = schema.getTablesSorted();
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    RdfMapData rdfMapData = getMapData(schema.getDatabase(), tables);
 
     generatePrefixes(schema);
     generateCustomRdf(schema);
@@ -40,7 +39,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   @Override
   public void generate(Table table, @Nullable PrimaryKey primaryKey) {
     Set<Table> tables = descendantsAndSelf(table);
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    RdfMapData rdfMapData = getMapData(table.getSchema().getDatabase(), tables);
 
     generatePrefixes(table.getSchema());
     generateCustomRdf(table.getSchema());

@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Value;
@@ -173,7 +174,7 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.DATETIME.name(),
                 "3000-01-01T12:30:00",
                 ColumnType.DATETIME_ARRAY.name(),
-                "3001-01-01T12:30:00,3002-01-01T12:30:00",
+                "3001-01-01T12:30:00,3002-07-01T12:30:00",
                 ColumnType.PERIOD.name(),
                 "P1D",
                 ColumnType.PERIOD_ARRAY.name(),
@@ -229,9 +230,11 @@ class ColumnTypeRdfMapperTest {
     // exclude mg columns because they might be not empty for the empty test
     testRows = allColumnTypes.getTable(TEST_TABLE).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
 
-    // Prepares RdfMapData
     rdfMapData =
-        new RdfMapData(BASE_URL, new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)));
+        new RdfMapData(
+            BASE_URL,
+            new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)),
+            ZoneId.of("Europe/Amsterdam"));
   }
 
   @AfterAll
@@ -497,13 +500,14 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.DATE_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.literal("3000-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
+                Set.of(Values.literal("3000-01-01T12:30:00+01:00", CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.literal("3001-01-01T12:30:00", CoreDatatype.XSD.DATETIME),
-                    Values.literal("3002-01-01T12:30:00", CoreDatatype.XSD.DATETIME)),
+                    Values.literal("3001-01-01T12:30:00+01:00", CoreDatatype.XSD.DATETIME),
+                    Values.literal(
+                        "3002-07-01T12:30:00+02:00" /* summertime */, CoreDatatype.XSD.DATETIME)),
                 retrieveValues(ColumnType.DATETIME_ARRAY.name())),
         () ->
             assertEquals(

@@ -22,6 +22,7 @@ import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
@@ -41,6 +42,11 @@ public abstract class RdfGenerator {
 
   protected String getBaseURL() {
     return baseURL;
+  }
+
+  RdfMapData getMapData(Database database, Collection<Table> tables) {
+    return new RdfMapData(
+        getBaseURL(), new OntologyIriMapper(tables), DatabaseSetting.TIMEZONE.getValue(database));
   }
 
   protected void processRows(
