@@ -70,6 +70,9 @@ export async function createComponentType(
     case "ColumnCharts":
       await AddColumnChart(schema, id);
       break;
+    case "DataHighlights":
+      await AddDataHighlight(schema, id);
+      break;
     case "File":
       await AddFile(schema, id);
       break;
@@ -126,6 +129,27 @@ export async function AddColumnChart(schema: string, id: string) {
         id: id,
         chartType: { name: "Column chart" },
         chartTitle: "My column chart",
+      },
+    ],
+  };
+
+  await cmsFetch(schema, query, variables);
+}
+
+export async function AddDataHighlight(schema: string, id: string) {
+  const query = `mutation insert($element: [DataHighlightsInput]) {
+    insert(DataHighlights: $element) {
+      status
+      message
+    }
+  }`;
+
+  const variables = {
+    element: [
+      {
+        id: id,
+        highlightLabel: "Label",
+        highlightValue: "0",
       },
     ],
   };
