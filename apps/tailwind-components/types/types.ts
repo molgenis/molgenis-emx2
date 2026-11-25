@@ -103,6 +103,8 @@ export type ButtonSize = "tiny" | "small" | "medium" | "large";
 
 export type ButtonIconPosition = "left" | "right";
 
+export type ThemeMode = "light" | "dark";
+
 export type INotificationType =
   | "light"
   | "dark"

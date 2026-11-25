@@ -127,7 +127,7 @@ const bgClass = computed(() => {
                 'pb-12': !['success', 'error'].includes(type),
               }"
             >
-              <slot></slot>
+              <slot :hide="hide"></slot>
             </div>
           </div>
 

@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
-  >
+  <div class="overflow-x-clip min-h-screen bg-base-gradient relative">
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
     >
@@ -16,8 +14,9 @@
           <Navigation :navigation="userMenuItems" />
         </template>
 
-        <template #account>
+        <template #account="{ iconOnly }">
           <AccountMenu
+            :iconOnly="iconOnly"
             :has-custom-content="hasAccountDropdownSlot"
             :isSignedIn="isSignedIn"
             :email="session?.email"
@@ -30,7 +29,13 @@
           <LogoMobile link="/" :image="logoUrl" />
         </template>
         <template #nav-mobile>
-          <Navigation :navigation="menuItems" />
+          <Navigation :navigation="userMenuItems" />
+        </template>
+        <template #nav-hamburger>
+          <HeaderHamburgerMenu :navigation="userMenuItems" />
+        </template>
+        <template v-if="mobileMenuItems.length > 0" #nav-mobile-row>
+          <Navigation :navigation="mobileMenuItems" :showMoreButton="false" />
         </template>
       </Header>
 
@@ -53,6 +58,7 @@ import Header from "../components/Header.vue";
 import Logo from "../components/Logo.vue";
 import LogoMobile from "../components/LogoMobile.vue";
 import Navigation from "../components/Navigation.vue";
+import HeaderHamburgerMenu from "../components/HeaderHamburgerMenu.vue";
 import FooterComponent from "../components/FooterComponent.vue";
 import FooterVersion from "../components/FooterVersion.vue";
 import AccountMenu from "../components/AccountMenu.vue";
@@ -60,8 +66,14 @@ import { useLayoutState } from "../composables/useLayoutState.js";
 import { useBanner } from "../composables/useBanner.js";
 import Banner from "../components/Banner.vue";
 
-const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
-  await useLayoutState();
+const {
+  isSignedIn,
+  logoUrl,
+  mobileMenuItems,
+  session,
+  signOut,
+  userMenuItems,
+} = await useLayoutState();
 const slots = useSlots();
 const hasAccountDropdownSlot = computed(() => !!slots["account-dropdown"]);
 const banner = await useBanner();
