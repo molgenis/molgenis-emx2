@@ -105,17 +105,17 @@ const handleDragEvent = (event: DragEvent) => {
         <ul class="py-2.5">
           <li>
             <DraggableComponent
-              icon="Scoreboard"
-              componentName="DataHighlights"
-              componentLabel="Data highlight"
+              icon="AddChart"
+              componentName="ColumnCharts"
+              componentLabel="Column chart"
               @dragging="handleDragEvent"
             />
           </li>
           <li>
             <DraggableComponent
-              icon="AddChart"
-              componentName="ColumnCharts"
-              componentLabel="Column chart"
+              icon="Scoreboard"
+              componentName="DataHighlights"
+              componentLabel="Data highlight"
               @dragging="handleDragEvent"
             />
           </li>
