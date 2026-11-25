@@ -6,7 +6,6 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RdfUtils.*;
-import static org.molgenis.emx2.utils.TimeZoneUtils.getZoneId;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -46,7 +45,8 @@ public abstract class RdfGenerator {
   }
 
   RdfMapData getMapData(Database database, Collection<Table> tables) {
-    return new RdfMapData(getBaseURL(), new OntologyIriMapper(tables), getZoneId(database));
+    return new RdfMapData(
+        getBaseURL(), new OntologyIriMapper(tables), DatabaseSetting.TIMEZONE.getValue(database));
   }
 
   protected void processRows(

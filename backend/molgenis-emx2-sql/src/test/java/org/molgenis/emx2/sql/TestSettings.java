@@ -133,6 +133,21 @@ public class TestSettings {
   }
 
   @Test
+  public void testInvalidTimeZoneSettingIsNotSaved() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            database.tx(
+                db -> {
+                  db.setActiveUser("admin");
+                  db.setSetting(DatabaseSetting.TIMEZONE.getKey(), "Europe/Amsterdm");
+                }));
+
+    database = TestDatabaseFactory.getTestDatabase();
+    assertNotEquals("Europe/Amsterdm", database.getSetting(DatabaseSetting.TIMEZONE.getKey()));
+  }
+
+  @Test
   public void testDeleteDatabaseSetting() {
     // setup
     database.tx(

@@ -26,7 +26,7 @@ import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SqlDatabase extends HasSettings<Database> implements Database {
+public class SqlDatabase extends AbstractDatabase {
   public static final String ADMIN_USER = "admin";
   public static final String ADMIN_PW_DEFAULT = "admin";
 
@@ -462,16 +462,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return null;
   }
 
-  @Override
-  public Database setSettings(Map<String, String> settings) {
-    if (!isAdmin()) {
-      throw new MolgenisException("Insufficient rights to create database level setting");
-    }
-    super.setSettings(settings);
+  protected void saveSettings(Map<String, String> settings) {
     saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
     this.listener.onSchemaChange();
-    return this;
   }
 
   @Override
