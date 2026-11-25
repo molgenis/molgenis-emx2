@@ -55,6 +55,14 @@ export type CellValueType =
   | "ENUM_ARRAY";
 
 export type ColumnType = CellValueType | HeadingType;
+export type ColumnRole =
+  | "TITLE"
+  | "SUBTITLE"
+  | "DESCRIPTION"
+  | "LOGO"
+  | "DETAIL"
+  | "INTERNAL";
+export type ColumnDisplay = "TABLE" | "CARDS" | "LIST" | "LINKS" | "BULLETS";
 export interface IColumn {
   columnType: ColumnType;
   id: columnId;
@@ -79,6 +87,8 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
+  role?: ColumnRole;
+  display?: ColumnDisplay;
   table?: string;
   name?: string;
   inherited?: boolean;

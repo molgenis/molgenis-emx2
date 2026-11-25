@@ -5,7 +5,8 @@ import type {
   ISchemaMetaData,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
-import type { RecordConfig } from "../../../types/recordConfig";
+import type { TableConfig } from "../../../types/recordConfig";
+import { enhanceMetadata } from "../../../app/utils/enhanceMetadata";
 import {
   deriveRecordQuery,
   NESTED_LIST_LIMIT,
@@ -80,8 +81,11 @@ const schema: ISchemaMetaData = {
   ],
 };
 
-function query(config: RecordConfig = {}) {
-  return deriveRecordQuery(schema, "Pet", config).replace(/\s+/g, " ");
+function query(configs: Record<string, TableConfig> = {}) {
+  return deriveRecordQuery(enhanceMetadata(schema, configs), "Pet").replace(
+    /\s+/g,
+    " "
+  );
 }
 
 describe("deriveRecordQuery", () => {
@@ -118,26 +122,25 @@ describe("deriveRecordQuery", () => {
   });
 
   test("selects limit and a sibling _agg count for a configured refback", () => {
-    const text = query({ columns: { toys: { display: { layout: "LIST" } } } });
+    const text = query({ Pet: { columns: { toys: { display: "LIST" } } } });
     expect(text).toContain(
       `toys(limit: ${NESTED_LIST_LIMIT}) { name pet { name } color notes } toys_agg { count }`
     );
   });
 
-  test("selects the columns a configured list names, besides the keys", () => {
+  test("selects the columns the roles of a listed table make visible, besides the keys", () => {
     const text = query({
-      columns: {
-        friends: {
-          display: {
-            layout: "LINKS",
-            titleColumnId: "name",
-            detailColumnIds: [],
-          },
+      Pet: { columns: { toys: { display: "LIST" } } },
+      Toy: {
+        columns: {
+          pet: { role: "TITLE" },
+          color: { role: "DETAIL" },
+          notes: { role: "INTERNAL" },
         },
       },
     });
     expect(text).toContain(
-      `friends(limit: ${NESTED_LIST_LIMIT}) { name } friends_agg { count }`
+      `toys(limit: ${NESTED_LIST_LIMIT}) { name pet { name } color } toys_agg { count }`
     );
   });
 

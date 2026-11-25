@@ -27,7 +27,6 @@ import { groupRecordSections } from "../../utils/groupRecordSections";
 import { NESTED_LIST_LIMIT } from "../../utils/deriveRecordQuery";
 import { recordTitle } from "../../utils/recordTitle";
 import { equalsFilter, nestedRecordLink } from "../../utils/recordPath";
-import { listDisplay } from "../../utils/tableConfig";
 import Legend from "../Legend.vue";
 import SidebarLayout from "./SidebarLayout.vue";
 import DisplayRecordSection from "./RecordSection.vue";
@@ -54,10 +53,7 @@ defineEmits<{
 }>();
 
 const visibleColumns = computed(() =>
-  props.columns.filter(
-    (column) =>
-      !(listDisplay(props.config, column.id) && listCount(column) === 0)
-  )
+  props.columns.filter((column) => !(column.display && listCount(column) === 0))
 );
 
 function listCount(column: IColumn): number | undefined {
@@ -90,10 +86,9 @@ const sections = computed(() =>
 const lists = computed(() => {
   const resolved: Record<string, RecordList> = {};
   for (const column of visibleColumns.value) {
-    const display = listDisplay(props.config, column.id);
-    if (display && column.refTableId && column.refSchemaId) {
+    if (column.display && column.refTableId && column.refSchemaId) {
       resolved[column.id] = {
-        displayConfig: display,
+        layout: column.display,
         schemaId: column.refSchemaId,
         tableId: column.refTableId,
         filter: nestedFilter(column),

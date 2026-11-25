@@ -105,7 +105,7 @@ useIntersectionObserver(
           :schemaId="block.list.schemaId"
           :tableId="block.list.tableId"
           :filter="block.list.filter"
-          :displayConfig="block.list.displayConfig"
+          :layout="block.list.layout"
           :pageSize="block.list.pageSize"
           :seed="block.list.seed"
           :linkTo="block.list.linkTo"

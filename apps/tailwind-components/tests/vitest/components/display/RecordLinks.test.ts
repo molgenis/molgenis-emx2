@@ -11,7 +11,7 @@ enableAutoUnmount(afterEach);
 const visitColumns: IColumn[] = [
   { id: "pet", label: "Pet", columnType: "REF", refTableId: "Pet", key: 1 },
   { id: "date", label: "Date", columnType: "DATE", key: 1 },
-  { id: "ward", label: "Ward", columnType: "STRING", key: 1 },
+  { id: "ward", label: "Ward", columnType: "STRING", key: 1, role: "TITLE" },
 ];
 
 const petColumns: IColumn[] = [
@@ -23,6 +23,7 @@ const petColumns: IColumn[] = [
     refTableId: "Visit",
     refSchemaId: "demo",
     refBackId: "pet",
+    display: "LIST",
   },
 ];
 
@@ -62,10 +63,7 @@ describe("a row in a nested list", () => {
         showTableOfContents: false,
         config: {
           columns: {
-            visits: {
-              route: "visits",
-              display: { layout: "LIST", titleColumnId: "ward" },
-            },
+            visits: { route: "visits" },
           },
         },
       },

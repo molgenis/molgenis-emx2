@@ -23,7 +23,6 @@ describe("resolveDisplay", () => {
 
     const result = resolveDisplay(columns);
 
-    expect(result.layout).toEqual("TABLE");
     expect(result.titleColumn).toBeUndefined();
     expect(result.subtitleColumn).toBeUndefined();
     expect(result.descriptionColumn?.id).toEqual("bio");
@@ -43,56 +42,74 @@ describe("resolveDisplay", () => {
     expect(result.descriptionColumn).toEqual(bioColumn);
   });
 
-  test("a config that sets one slot keeps the defaults for the rest", () => {
+  test("roles place each column in its slot, and DETAIL columns keep column order", () => {
     const columns: IColumn[] = [
       column({ id: "acronym", key: 1, position: 1 }),
-      column({ id: "name", position: 2 }),
-      column({ id: "description", columnType: "TEXT", position: 3 }),
+      column({ id: "name", role: "TITLE", position: 2 }),
+      column({ id: "tagline", role: "SUBTITLE", position: 3 }),
+      column({
+        id: "about",
+        columnType: "TEXT",
+        role: "DESCRIPTION",
+        position: 4,
+      }),
+      column({ id: "logo", columnType: "FILE", role: "LOGO", position: 5 }),
+      column({ id: "b", role: "DETAIL", position: 6 }),
+      column({ id: "a", role: "DETAIL", position: 7 }),
+      column({ id: "unroled", position: 8 }),
     ];
 
-    const result = resolveDisplay(columns, {
-      layout: "CARDS",
-      logoColumnId: "name",
-    });
-
-    expect(result.layout).toEqual("CARDS");
-    expect(result.titleColumn?.id).toEqual("acronym");
-    expect(result.descriptionColumn?.id).toEqual("description");
-    expect(result.logoColumn?.id).toEqual("name");
-  });
-
-  test("an explicit titleColumnId, subtitleColumnId and descriptionColumn override the defaults", () => {
-    const columns: IColumn[] = [
-      column({ id: "acronym", key: 1, position: 1 }),
-      column({ id: "name", position: 2 }),
-      column({ id: "description", columnType: "TEXT", position: 3 }),
-    ];
-
-    const result = resolveDisplay(columns, {
-      layout: "CARDS",
-      titleColumnId: "name",
-      subtitleColumnId: "acronym",
-      descriptionColumnId: "name",
-    });
+    const result = resolveDisplay(columns);
 
     expect(result.titleColumn?.id).toEqual("name");
-    expect(result.subtitleColumn?.id).toEqual("acronym");
-    expect(result.descriptionColumn?.id).toEqual("name");
+    expect(result.subtitleColumn?.id).toEqual("tagline");
+    expect(result.descriptionColumn?.id).toEqual("about");
+    expect(result.logoColumn?.id).toEqual("logo");
+    expect(result.detailColumns.map((c) => c.id)).toEqual(["b", "a"]);
   });
 
-  test("an explicit detailColumns list is resolved to columns, in the given order", () => {
+  test("a SUBTITLE role fills the subtitle slot, and a TITLE does not", () => {
+    const titleOnly = resolveDisplay([column({ id: "name", role: "TITLE" })]);
+    const subtitleOnly = resolveDisplay([
+      column({ id: "tagline", role: "SUBTITLE" }),
+    ]);
+
+    expect(titleOnly.subtitleColumn).toBeUndefined();
+    expect(subtitleOnly.subtitleColumn?.id).toEqual("tagline");
+    expect(subtitleOnly.titleColumn).toBeUndefined();
+  });
+
+  test("once any column has a role, the structural defaults no longer apply", () => {
     const columns: IColumn[] = [
       column({ id: "id", key: 1, position: 1 }),
-      column({ id: "a", position: 2 }),
-      column({ id: "b", position: 3 }),
+      column({ id: "name", role: "TITLE", position: 2 }),
+      column({ id: "bio", columnType: "TEXT", position: 3 }),
+      column({ id: "email", position: 4 }),
     ];
 
-    const result = resolveDisplay(columns, {
-      layout: "TABLE",
-      detailColumnIds: ["b", "a"],
-    });
+    const result = resolveDisplay(columns);
 
-    expect(result.detailColumns.map((c) => c.id)).toEqual(["b", "a"]);
+    expect(result.titleColumn?.id).toEqual("name");
+    expect(result.descriptionColumn).toBeUndefined();
+    expect(result.detailColumns).toEqual([]);
+  });
+
+  test("an INTERNAL column is in no slot, with roles or without", () => {
+    const withoutRoles = resolveDisplay([
+      column({ id: "id", key: 1, role: "INTERNAL", position: 1 }),
+      column({ id: "bio", columnType: "TEXT", role: "INTERNAL", position: 2 }),
+      column({ id: "email", role: "INTERNAL", position: 3 }),
+      column({ id: "phone", position: 4 }),
+    ]);
+    const withRoles = resolveDisplay([
+      column({ id: "name", role: "TITLE", position: 1 }),
+      column({ id: "secret", role: "INTERNAL", position: 2 }),
+    ]);
+
+    expect(withoutRoles.titleColumn).toBeUndefined();
+    expect(withoutRoles.descriptionColumn).toBeUndefined();
+    expect(withoutRoles.detailColumns.map((c) => c.id)).toEqual(["phone"]);
+    expect(withRoles.detailColumns).toEqual([]);
   });
 
   test("an empty columns array still resolves, with no title and no other slots", () => {
@@ -167,29 +184,5 @@ describe("resolveDisplay", () => {
     ]);
 
     expect(result.titleColumn).toBeUndefined();
-  });
-
-  test("an explicit titleColumnId or subtitleColumnId naming no column resolves to no title, without throwing", () => {
-    const result = resolveDisplay([column({ id: "id", key: 1, position: 1 })], {
-      layout: "TABLE",
-      titleColumnId: "nope",
-      subtitleColumnId: "nope",
-    });
-
-    expect(result.titleColumn).toBeUndefined();
-    expect(result.subtitleColumn).toBeUndefined();
-  });
-
-  test("the title and subtitle columns are not default detail columns", () => {
-    const result = resolveDisplay(
-      [
-        column({ id: "id", key: 1, position: 1 }),
-        column({ id: "name", position: 2 }),
-        column({ id: "email", position: 3 }),
-      ],
-      { layout: "TABLE", subtitleColumnId: "name" }
-    );
-
-    expect(result.detailColumns.map((c) => c.id)).toEqual(["email"]);
   });
 });

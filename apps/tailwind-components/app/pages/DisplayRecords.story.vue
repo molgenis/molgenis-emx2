@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import type { IColumn, IRow } from "../../../metadata-utils/src/types";
-import { LAYOUTS, type DisplayConfig, type Layout } from "../types/display";
+import type {
+  ColumnRole,
+  IColumn,
+  IRow,
+} from "../../../metadata-utils/src/types";
+import { LAYOUTS, type Layout } from "../types/display";
 import { resolveDisplay } from "../utils/displayUtils";
 import fetchMetadata from "../composables/fetchMetadata";
 import fetchTableMetadata from "../composables/fetchTableMetadata";
@@ -403,26 +407,28 @@ const parsedFilter = computed<{
 const filter = computed(() => parsedFilter.value.value);
 const filterError = computed(() => parsedFilter.value.error);
 
-function displayFor(layout: Layout): DisplayConfig {
-  return {
-    layout,
-    titleColumnId: titleColumn.value || undefined,
-    subtitleColumnId: subtitleColumn.value || undefined,
-    descriptionColumnId: descriptionColumnId.value || undefined,
-    detailColumnIds: detailColumnIds.value.length
-      ? detailColumnIds.value
-      : undefined,
-    logoColumnId: logoColumnId.value || undefined,
-  };
+const roledFixtureColumns = computed<IColumn[]>(() =>
+  fixtureColumns.map((column) => {
+    const role = roleOf(column.id);
+    return role ? { ...column, role } : column;
+  })
+);
+
+function roleOf(columnId: string): ColumnRole | undefined {
+  if (columnId === titleColumn.value) return "TITLE";
+  if (columnId === subtitleColumn.value) return "SUBTITLE";
+  if (columnId === descriptionColumnId.value) return "DESCRIPTION";
+  if (columnId === logoColumnId.value) return "LOGO";
+  return detailColumnIds.value.includes(columnId) ? "DETAIL" : undefined;
 }
 
 function linkTo(row: IRow): string {
   return `#${encodeURIComponent(String(Object.values(row)[0] ?? ""))}`;
 }
 
-function resolvedFixtureDisplay(layout: Layout) {
-  return resolveDisplay(fixtureColumns, displayFor(layout));
-}
+const resolvedFixtureDisplay = computed(() =>
+  resolveDisplay(roledFixtureColumns.value)
+);
 
 function panelTestId(
   layout: Layout,
@@ -474,9 +480,9 @@ const SURFACES: SurfaceDemo[] = [
         />
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div v-if="!isLiveMode" class="flex flex-col gap-1">
         <label class="text-title-contrast" for="ddl-title-column">
-          titleColumnId
+          TITLE role
         </label>
         <InputListbox
           id="ddl-title-column"
@@ -490,9 +496,9 @@ const SURFACES: SurfaceDemo[] = [
         />
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div v-if="!isLiveMode" class="flex flex-col gap-1">
         <label class="text-title-contrast" for="ddl-subtitle-column">
-          subtitleColumnId
+          SUBTITLE role
         </label>
         <InputListbox
           id="ddl-subtitle-column"
@@ -506,7 +512,7 @@ const SURFACES: SurfaceDemo[] = [
         />
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div v-if="!isLiveMode" class="flex flex-col gap-1">
         <label class="text-title-contrast" for="ddl-summary-column">
           summary column
         </label>
@@ -523,10 +529,8 @@ const SURFACES: SurfaceDemo[] = [
         />
       </div>
 
-      <fieldset class="flex flex-col gap-1 border-0 p-0 m-0">
-        <legend class="text-title-contrast p-0">
-          detailColumns (order = pick order)
-        </legend>
+      <fieldset v-if="!isLiveMode" class="flex flex-col gap-1 border-0 p-0 m-0">
+        <legend class="text-title-contrast p-0">DETAIL role</legend>
         <div class="w-56 max-h-24 overflow-y-auto border border-theme p-1">
           <InputCheckboxGroup
             id="ddl-detail-columns"
@@ -536,7 +540,7 @@ const SURFACES: SurfaceDemo[] = [
         </div>
       </fieldset>
 
-      <div class="flex flex-col gap-1">
+      <div v-if="!isLiveMode" class="flex flex-col gap-1">
         <label class="text-title-contrast" for="ddl-logo-column">
           logoColumn (FILE columns only)
         </label>
@@ -651,7 +655,7 @@ const SURFACES: SurfaceDemo[] = [
             v-if="isLiveMode"
             :schemaId="schemaId"
             :tableId="tableId"
-            :displayConfig="displayFor(layoutOption)"
+            :layout="layoutOption"
             :filter="filter"
             :pageSize="pageSize"
             :linkTo="linkTo"
@@ -660,52 +664,40 @@ const SURFACES: SurfaceDemo[] = [
             <DisplayRecordsTable
               v-if="layoutOption === 'TABLE'"
               :rows="fixtureRows"
-              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
-              :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
+              :titleColumn="resolvedFixtureDisplay.titleColumn"
+              :columns="resolvedFixtureDisplay.detailColumns"
               :linkTo="linkTo"
             />
             <DisplayRecordsCards
               v-else-if="layoutOption === 'CARDS'"
               :rows="fixtureRows"
-              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
-              :subtitleColumn="
-                resolvedFixtureDisplay(layoutOption).subtitleColumn
-              "
-              :descriptionColumn="
-                resolvedFixtureDisplay(layoutOption).descriptionColumn
-              "
-              :detailColumns="
-                resolvedFixtureDisplay(layoutOption).detailColumns
-              "
-              :logoColumn="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :titleColumn="resolvedFixtureDisplay.titleColumn"
+              :subtitleColumn="resolvedFixtureDisplay.subtitleColumn"
+              :descriptionColumn="resolvedFixtureDisplay.descriptionColumn"
+              :detailColumns="resolvedFixtureDisplay.detailColumns"
+              :logoColumn="resolvedFixtureDisplay.logoColumn"
               :linkTo="linkTo"
             />
             <DisplayRecordsList
               v-else-if="layoutOption === 'LIST'"
               :rows="fixtureRows"
-              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
-              :subtitleColumn="
-                resolvedFixtureDisplay(layoutOption).subtitleColumn
-              "
-              :descriptionColumn="
-                resolvedFixtureDisplay(layoutOption).descriptionColumn
-              "
-              :detailColumns="
-                resolvedFixtureDisplay(layoutOption).detailColumns
-              "
-              :logoColumn="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :titleColumn="resolvedFixtureDisplay.titleColumn"
+              :subtitleColumn="resolvedFixtureDisplay.subtitleColumn"
+              :descriptionColumn="resolvedFixtureDisplay.descriptionColumn"
+              :detailColumns="resolvedFixtureDisplay.detailColumns"
+              :logoColumn="resolvedFixtureDisplay.logoColumn"
               :linkTo="linkTo"
             />
             <DisplayRecordsLinks
               v-else-if="layoutOption === 'LINKS'"
               :rows="fixtureRows"
-              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
+              :titleColumn="resolvedFixtureDisplay.titleColumn"
               :linkTo="linkTo"
             />
             <DisplayRecordsBullets
               v-else-if="layoutOption === 'BULLETS'"
               :rows="fixtureRows"
-              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
+              :titleColumn="resolvedFixtureDisplay.titleColumn"
               :linkTo="linkTo"
             />
           </template>

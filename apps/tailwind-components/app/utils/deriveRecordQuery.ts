@@ -3,9 +3,7 @@ import type {
   ISchemaMetaData,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
-import type { TableConfig } from "../../types/recordConfig";
 import { resolveDisplay } from "./displayUtils";
-import { listDisplay } from "./tableConfig";
 
 export const NESTED_LIST_LIMIT = 10;
 
@@ -14,11 +12,10 @@ const PAGED_TYPES = ["REF_ARRAY", "REFBACK"];
 
 export function deriveRecordQuery(
   schema: ISchemaMetaData,
-  tableId: string,
-  config: TableConfig = {}
+  tableId: string
 ): string {
   const fields = selectableColumns(findTable(schema, tableId).columns)
-    .map((column) => rootSelection(schema, column, config))
+    .map((column) => rootSelection(schema, column))
     .join(" ");
   return `query ($filter: ${tableId}Filter) { ${tableId}(filter: $filter, limit: 1) { ${fields} } }`;
 }
@@ -40,17 +37,12 @@ function selectableColumns(columns: IColumn[]): IColumn[] {
   );
 }
 
-function rootSelection(
-  schema: ISchemaMetaData,
-  column: IColumn,
-  config: TableConfig
-): string {
-  const entry = listDisplay(config, column.id);
-  if (!entry || !column.refTableId) {
+function rootSelection(schema: ISchemaMetaData, column: IColumn): string {
+  if (!column.display || !column.refTableId) {
     return columnSelection(schema, column);
   }
   const target = findTable(schema, column.refTableId);
-  const shown = resolveDisplay(selectableColumns(target.columns), entry);
+  const shown = resolveDisplay(selectableColumns(target.columns));
   const shownIds = new Set(
     [
       shown.titleColumn,

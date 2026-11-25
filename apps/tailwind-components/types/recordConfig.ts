@@ -1,13 +1,18 @@
-import type { IColumn, IRow } from "../../metadata-utils/src/types";
-import type { DisplayConfig } from "../app/types/display";
+import type {
+  ColumnDisplay,
+  ColumnRole,
+  IColumn,
+  IRow,
+} from "../../metadata-utils/src/types";
+import type { Layout } from "../app/types/display";
 
 export interface ColumnConfig {
-  display?: Partial<DisplayConfig>;
+  role?: ColumnRole;
+  display?: ColumnDisplay;
   route?: string;
 }
 
 export interface TableConfig {
-  display?: DisplayConfig;
   columns?: Record<string, ColumnConfig>;
 }
 
@@ -18,7 +23,7 @@ export interface ListSeed {
 }
 
 export interface RecordList {
-  displayConfig: DisplayConfig;
+  layout: Layout;
   schemaId: string;
   tableId: string;
   filter: Record<string, unknown>;

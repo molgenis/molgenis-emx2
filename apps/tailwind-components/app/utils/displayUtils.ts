@@ -1,47 +1,39 @@
-import type { IColumn, IRow } from "../../../metadata-utils/src/types";
-import type { DisplayConfig, Layout, ResolvedDisplay } from "../types/display";
+import type {
+  ColumnRole,
+  IColumn,
+  IRow,
+} from "../../../metadata-utils/src/types";
+import type { ResolvedDisplay } from "../types/display";
 
-const DEFAULT_LAYOUT: Layout = "TABLE";
 const MAX_DETAIL_COLUMNS = 5;
 
-export function resolveLayout(settings?: DisplayConfig): Layout {
-  return settings?.layout ?? DEFAULT_LAYOUT;
-}
-
-export function resolveDisplay(
-  columns: IColumn[],
-  settings?: DisplayConfig
-): ResolvedDisplay {
-  const titleColumn = settings?.titleColumnId
-    ? findColumn(columns, settings.titleColumnId)
-    : defaultTitleColumn(columns);
-  const subtitleColumn = findColumn(columns, settings?.subtitleColumnId);
-  const descriptionColumn = settings?.descriptionColumnId
-    ? columns.find((column) => column.id === settings.descriptionColumnId)
-    : defaultDescriptionColumn(columns);
-
-  const usedColumnIds = new Set([
-    ...(titleColumn ? [titleColumn.id] : []),
-    ...(subtitleColumn ? [subtitleColumn.id] : []),
-    ...(descriptionColumn ? [descriptionColumn.id] : []),
-  ]);
-
+export function resolveDisplay(allColumns: IColumn[]): ResolvedDisplay {
+  const columns = allColumns.filter((column) => column.role !== "INTERNAL");
+  if (columns.some((column) => column.role)) {
+    const withRole = (role: ColumnRole) =>
+      columns.find((column) => column.role === role);
+    return {
+      titleColumn: withRole("TITLE"),
+      subtitleColumn: withRole("SUBTITLE"),
+      descriptionColumn: withRole("DESCRIPTION"),
+      logoColumn: withRole("LOGO"),
+      detailColumns: columns.filter((column) => column.role === "DETAIL"),
+    };
+  }
+  const titleColumn = defaultTitleColumn(columns);
+  const descriptionColumn = defaultDescriptionColumn(columns);
   return {
-    layout: resolveLayout(settings),
     titleColumn,
-    subtitleColumn,
     descriptionColumn,
-    detailColumns: settings?.detailColumnIds
-      ? findColumnsByIds(columns, settings.detailColumnIds)
-      : defaultDetailColumns(columns, usedColumnIds),
-    logoColumn: settings?.logoColumnId
-      ? columns.find((column) => column.id === settings.logoColumnId)
-      : undefined,
+    detailColumns: defaultDetailColumns(
+      columns,
+      new Set(
+        [titleColumn, descriptionColumn].flatMap((column) =>
+          column ? [column.id] : []
+        )
+      )
+    ),
   };
-}
-
-function findColumn(columns: IColumn[], id?: string): IColumn | undefined {
-  return id ? columns.find((column) => column.id === id) : undefined;
 }
 
 function defaultTitleColumn(columns: IColumn[]): IColumn | undefined {
@@ -67,12 +59,6 @@ function defaultDetailColumns(
         !usedColumnIds.has(column.id)
     )
     .slice(0, MAX_DETAIL_COLUMNS);
-}
-
-function findColumnsByIds(columns: IColumn[], ids: string[]): IColumn[] {
-  return ids
-    .map((id) => columns.find((column) => column.id === id))
-    .filter((column): column is IColumn => column !== undefined);
 }
 
 export function plainValue(row: IRow, column?: IColumn): string {

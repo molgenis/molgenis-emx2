@@ -11,7 +11,7 @@ import RecordsLinks from "../../../../app/components/display/records/Links.vue";
 import RecordsBullets from "../../../../app/components/display/records/Bullets.vue";
 import Pagination from "../../../../app/components/Pagination.vue";
 import { NESTED_LIST_LIMIT } from "../../../../app/utils/deriveRecordQuery";
-import type { DisplayConfig, Layout } from "../../../../app/types/display";
+import type { Layout } from "../../../../app/types/display";
 
 enableAutoUnmount(afterEach);
 
@@ -68,17 +68,15 @@ const layouts = {
 function mountRecord(
   columns: IColumn[],
   recordRow: IRow,
-  layout: Layout | null = "LIST",
-  displayConfig?: DisplayConfig
+  layout: Layout | null = "LIST"
 ) {
   return mount(DisplayRecord, {
     props: {
-      columns,
+      columns: columns.map((column) =>
+        column.id === "pets" && layout ? { ...column, display: layout } : column
+      ),
       row: recordRow,
       showTableOfContents: false,
-      config: layout
-        ? { columns: { pets: { display: displayConfig ?? { layout } } } }
-        : undefined,
     },
   });
 }
@@ -149,7 +147,7 @@ describe("DisplayRecord nested lists", () => {
   it("seeds the list from the record's own rows and count, and pages past them by the query's limit", async () => {
     const wrapper = mount(DisplayRecord, {
       props: {
-        columns: [nameColumn, petsColumn],
+        columns: [nameColumn, { ...petsColumn, display: "LIST" }],
         row: {
           name: "Alice",
           pets: Array.from({ length: NESTED_LIST_LIMIT }, (_, index) => ({
@@ -172,7 +170,6 @@ describe("DisplayRecord nested lists", () => {
           ],
         },
         showTableOfContents: false,
-        config: { columns: { pets: { display: { layout: "LIST" } } } },
       },
     });
     await flushPromises();
@@ -216,6 +213,7 @@ describe("DisplayRecord nested lists", () => {
       columnType: "REF_ARRAY",
       refTableId: "Pet",
       refSchemaId: "test-schema",
+      display: "LIST",
     };
     mount(DisplayRecord, {
       props: {
@@ -226,7 +224,6 @@ describe("DisplayRecord nested lists", () => {
           friends_agg: { count: 2 },
         },
         showTableOfContents: false,
-        config: { columns: { friends: { display: { layout: "LIST" } } } },
       },
     });
     await flushPromises();
@@ -242,21 +239,17 @@ describe("DisplayRecord nested lists", () => {
     );
   });
 
-  it("passes the whole config entry to the list, not only its layout", async () => {
+  it("passes the ref column's display to the list as its layout", async () => {
     const wrapper = mountRecord(
       [nameColumn, speciesColumn, petsColumn],
       row,
-      "LIST",
-      { layout: "LIST", titleColumnId: "name" }
+      "CARDS"
     );
     await flushPromises();
 
-    expect(
-      wrapper.findComponent(DisplayRecords).props("displayConfig")
-    ).toEqual({
-      layout: "LIST",
-      titleColumnId: "name",
-    });
+    expect(wrapper.findComponent(DisplayRecords).props("layout")).toEqual(
+      "CARDS"
+    );
   });
 
   it("renders a section whose only field is a list without the list label", async () => {

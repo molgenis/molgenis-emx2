@@ -10,7 +10,7 @@ import Button from "../../../../components/Button.vue";
 import Message from "../../../../components/Message.vue";
 import { deriveRecordQuery } from "../../../../utils/deriveRecordQuery";
 import { resolveRecordPath } from "../../../../utils/recordPath";
-import { resolveTableConfig } from "../../../../utils/tableConfig";
+import { enhanceMetadata } from "../../../../utils/enhanceMetadata";
 import { tableConfigs } from "../../../../demoTableConfigs";
 
 const route = useRoute();
@@ -21,7 +21,7 @@ const segments = [route.params.path ?? []].flat();
 const { data, error } = await useAsyncData(
   `record-${schemaId}-${segments.join("/")}`,
   async () => {
-    const schema = await fetchMetadata(schemaId);
+    const schema = enhanceMetadata(await fetchMetadata(schemaId), tableConfigs);
     const path = resolveRecordPath(schema, tableConfigs, basePath, segments);
     const table = schema.tables.find(
       (candidate) => candidate.id === path.tableId
@@ -29,10 +29,9 @@ const { data, error } = await useAsyncData(
     if (!table) {
       throw new Error(`Table ${path.tableId} not in schema ${schemaId}`);
     }
-    const config = resolveTableConfig(tableConfigs, table);
     const response = await fetchGraphql(
       schemaId,
-      deriveRecordQuery(schema, path.tableId, config),
+      deriveRecordQuery(schema, path.tableId),
       { filter: path.filter }
     );
     return {
@@ -40,7 +39,6 @@ const { data, error } = await useAsyncData(
       schema,
       columns: table.columns,
       row: response[path.tableId][0] ?? null,
-      config,
       crumbs: path.crumbs,
     };
   }
@@ -70,7 +68,7 @@ const intro = computed(() => {
     v-else
     :columns="data.columns"
     :row="data.row"
-    :config="data.config"
+    :config="tableConfigs[data.tableId]"
     :schema="data.schema"
     :recordPath="data.crumbs[data.crumbs.length - 1]?.url"
   >

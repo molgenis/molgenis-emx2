@@ -3,8 +3,8 @@ import { computed, ref, useId, watch } from "vue";
 import { useAsyncData } from "#app";
 import type { IRow } from "../../../../metadata-utils/src/types";
 import type { ListSeed } from "../../../types/recordConfig";
-import type { DisplayConfig } from "../../types/display";
-import { resolveDisplay, resolveLayout } from "../../utils/displayUtils";
+import type { Layout } from "../../types/display";
+import { resolveDisplay } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import Button from "../Button.vue";
@@ -20,7 +20,7 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
-    displayConfig?: DisplayConfig;
+    layout?: Layout;
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;
@@ -28,20 +28,19 @@ const props = withDefaults(
     seed?: ListSeed;
   }>(),
   {
+    layout: "TABLE",
     pageSize: 10,
   }
 );
 
 const currentPage = ref(1);
 
-const layout = computed(() => resolveLayout(props.displayConfig));
-
 function assertNever(value: never): never {
   throw new Error(`Records: unhandled layout "${value}"`);
 }
 
 const layoutMeta = computed(() => {
-  switch (layout.value) {
+  switch (props.layout) {
     case "TABLE":
       return { paginated: true, batchSize: undefined };
     case "CARDS":
@@ -53,7 +52,7 @@ const layoutMeta = computed(() => {
     case "BULLETS":
       return { paginated: false, batchSize: 20 };
     default:
-      return assertNever(layout.value);
+      return assertNever(props.layout);
   }
 });
 
@@ -65,7 +64,7 @@ watch(
     props.tableId,
     filterKey.value,
     props.pageSize,
-    layout.value,
+    props.layout,
   ],
   () => {
     currentPage.value = 1;
@@ -80,7 +79,7 @@ let latestRequestId = 0;
 const instanceId = useId();
 const asyncDataKey = computed(
   () =>
-    `records-${instanceId}-${props.schemaId}-${props.tableId}-${filterKey.value}-${layout.value}-${currentPage.value}`
+    `records-${instanceId}-${props.schemaId}-${props.tableId}-${filterKey.value}-${props.layout}-${currentPage.value}`
 );
 
 const { data, error } = useAsyncData(
@@ -114,7 +113,7 @@ const { data, error } = useAsyncData(
       () => props.tableId,
       filterKey,
       () => props.pageSize,
-      layout,
+      () => props.layout,
       currentPage,
     ],
   }
@@ -122,9 +121,7 @@ const { data, error } = useAsyncData(
 
 const fetchedColumns = computed(() => data.value?.columns ?? []);
 
-const resolvedDisplay = computed(() =>
-  resolveDisplay(fetchedColumns.value, props.displayConfig)
-);
+const resolvedDisplay = computed(() => resolveDisplay(fetchedColumns.value));
 
 const appendedRows = ref<IRow[]>([]);
 const appendedCount = ref<number>();
@@ -192,14 +189,14 @@ function onPageUpdate(page: number) {
   </Message>
   <div v-else>
     <RecordsTable
-      v-if="resolvedDisplay.layout === 'TABLE'"
+      v-if="layout === 'TABLE'"
       :rows="fetchedRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :columns="resolvedDisplay.detailColumns"
       :linkTo="linkTo"
     />
     <RecordsCards
-      v-else-if="resolvedDisplay.layout === 'CARDS'"
+      v-else-if="layout === 'CARDS'"
       :rows="fetchedRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :subtitleColumn="resolvedDisplay.subtitleColumn"
@@ -209,7 +206,7 @@ function onPageUpdate(page: number) {
       :linkTo="linkTo"
     />
     <RecordsList
-      v-else-if="resolvedDisplay.layout === 'LIST'"
+      v-else-if="layout === 'LIST'"
       :rows="fetchedRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :subtitleColumn="resolvedDisplay.subtitleColumn"
@@ -220,14 +217,14 @@ function onPageUpdate(page: number) {
       :showEmpty="showEmpty"
     />
     <RecordsLinks
-      v-else-if="resolvedDisplay.layout === 'LINKS'"
+      v-else-if="layout === 'LINKS'"
       :rows="fetchedRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"
       :navLabel="tableId"
     />
     <RecordsBullets
-      v-else-if="resolvedDisplay.layout === 'BULLETS'"
+      v-else-if="layout === 'BULLETS'"
       :rows="fetchedRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"

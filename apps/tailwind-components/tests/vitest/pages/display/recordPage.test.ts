@@ -9,7 +9,7 @@ import type {
 import RecordPage from "../../../../app/pages/display/record/[schemaId]/[...path].vue";
 import { tableConfigs } from "../../../../app/demoTableConfigs";
 import { deriveRecordQuery } from "../../../../app/utils/deriveRecordQuery";
-import { resolveTableConfig } from "../../../../app/utils/tableConfig";
+import { enhanceMetadata } from "../../../../app/utils/enhanceMetadata";
 
 const fetchGraphqlMock = vi.fn();
 const fetchMetadataMock = vi.fn();
@@ -104,11 +104,7 @@ describe("record page", () => {
 
     expect(fetchGraphqlMock).toHaveBeenCalledWith(
       "demo",
-      deriveRecordQuery(
-        schema,
-        "Collections",
-        resolveTableConfig(tableConfigs, collections)
-      ),
+      deriveRecordQuery(enhanceMetadata(schema, tableConfigs), "Collections"),
       { filter: { id: { equals: "c1" } } }
     );
     expect(wrapper.text()).toContain("Cohort one");

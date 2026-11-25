@@ -13,7 +13,6 @@ import RecordsList from "../../../../app/components/display/records/List.vue";
 import RecordsLinks from "../../../../app/components/display/records/Links.vue";
 import RecordsBullets from "../../../../app/components/display/records/Bullets.vue";
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
-import type { DisplayConfig } from "../../../../app/types/display";
 
 const fetchTableDataMock = vi.fn();
 const fetchTableMetadataMock = vi.fn();
@@ -82,20 +81,20 @@ describe("Records.vue", () => {
       expect(wrapper.findAll("tbody tr").length).toBe(3);
     });
 
-    it("renders CARDS layout via displayConfig.layout", async () => {
-      const displayConfig: DisplayConfig = { layout: "CARDS" };
+    it("renders CARDS layout via the layout prop", async () => {
+      const layout = "CARDS";
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet", layout },
       });
       await flushPromises();
 
       expect(wrapper.findComponent(RecordsCards).exists()).toBe(true);
     });
 
-    it("renders LIST layout via displayConfig.layout, not RecordsCards", async () => {
-      const displayConfig: DisplayConfig = { layout: "LIST" };
+    it("renders LIST layout via the layout prop, not RecordsCards", async () => {
+      const layout = "LIST";
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet", layout },
       });
       await flushPromises();
 
@@ -103,20 +102,20 @@ describe("Records.vue", () => {
       expect(wrapper.findComponent(RecordsCards).exists()).toBe(false);
     });
 
-    it("renders LINKS layout via displayConfig.layout", async () => {
-      const displayConfig: DisplayConfig = { layout: "LINKS" };
+    it("renders LINKS layout via the layout prop", async () => {
+      const layout = "LINKS";
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet", layout },
       });
       await flushPromises();
 
       expect(wrapper.findComponent(RecordsLinks).exists()).toBe(true);
     });
 
-    it("renders BULLETS layout via displayConfig.layout, not RecordsLinks", async () => {
-      const displayConfig: DisplayConfig = { layout: "BULLETS" };
+    it("renders BULLETS layout via the layout prop, not RecordsLinks", async () => {
+      const layout = "BULLETS";
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet", layout },
       });
       await flushPromises();
 
@@ -124,13 +123,22 @@ describe("Records.vue", () => {
       expect(wrapper.findComponent(RecordsLinks).exists()).toBe(false);
     });
 
-    it("resolves displayConfig once and passes detailColumns down to the layout", async () => {
-      const displayConfig: DisplayConfig = {
-        layout: "TABLE",
-        detailColumnIds: ["age"],
-      };
+    it("takes title and detail columns from the roles of the fetched columns", async () => {
+      fetchTableMetadataMock.mockResolvedValue({
+        id: "pet",
+        columns: [
+          { ...nameColumn, role: "TITLE" },
+          { ...ageColumn, role: "DETAIL" },
+          {
+            id: "secret",
+            label: "Secret",
+            columnType: "STRING",
+            role: "INTERNAL",
+          },
+        ],
+      });
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet" },
       });
       await flushPromises();
 
@@ -150,7 +158,7 @@ describe("Records.vue", () => {
         props: {
           schemaId: "test-schema",
           tableId: "pet",
-          displayConfig: { layout: "LIST" },
+          layout: "LIST",
         },
       });
       await flushPromises();
@@ -159,12 +167,11 @@ describe("Records.vue", () => {
     });
 
     it("forwards showEmpty to the layout it renders", async () => {
-      const listDisplayConfig: DisplayConfig = { layout: "LIST" };
       const wrapper = mount(Records, {
         props: {
           schemaId: "test-schema",
           tableId: "pet",
-          displayConfig: listDisplayConfig,
+          layout: "LIST",
           showEmpty: true,
         },
       });
@@ -177,7 +184,10 @@ describe("Records.vue", () => {
     it("shows a ref cell as its label, not an object", async () => {
       fetchTableMetadataMock.mockResolvedValue({
         id: "pet",
-        columns: [nameColumn, refColumn],
+        columns: [
+          { ...nameColumn, role: "TITLE" },
+          { ...refColumn, role: "DETAIL" },
+        ],
       });
       fetchTableDataMock.mockResolvedValue({
         rows: [{ name: "Tweety", owner: { label: "Morris" } }],
@@ -188,7 +198,6 @@ describe("Records.vue", () => {
         props: {
           schemaId: "test-schema",
           tableId: "pet",
-          displayConfig: { layout: "TABLE", detailColumnIds: ["owner"] },
         },
       });
       await flushPromises();
@@ -422,10 +431,9 @@ describe("Records.vue", () => {
     ] as const)(
       "renders Pagination for %s only when the layout pages (paginated: %s)",
       async (layout, paginated) => {
-        const displayConfig: DisplayConfig = { layout };
         fetchTableDataMock.mockResolvedValue({ rows: makeRows(10), count: 25 });
         const wrapper = mount(Records, {
-          props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+          props: { schemaId: "test-schema", tableId: "pet", layout },
         });
         await flushPromises();
 
@@ -441,13 +449,12 @@ describe("Records.vue", () => {
     ] as const)(
       "requests %s's own batch size on the first fetch, not pageSize",
       async (layout, batchSize) => {
-        const displayConfig: DisplayConfig = { layout };
         mount(Records, {
           props: {
             schemaId: "test-schema",
             tableId: "pet",
             pageSize: 3,
-            displayConfig,
+            layout,
           },
         });
         await flushPromises();
@@ -461,14 +468,14 @@ describe("Records.vue", () => {
     );
 
     it("shows remaining in the load-more control, advances offset on click, and drops the control at zero", async () => {
-      const displayConfig: DisplayConfig = { layout: "LINKS" };
+      const layout = "LINKS";
       fetchTableDataMock
         .mockResolvedValueOnce({ rows: makeRows(50), count: 130 })
         .mockResolvedValueOnce({ rows: makeRows(50), count: 130 })
         .mockResolvedValueOnce({ rows: makeRows(30), count: 130 });
 
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet", layout },
       });
       await flushPromises();
 
@@ -508,9 +515,9 @@ describe("Records.vue", () => {
         .mockReturnValueOnce(loadMoreResponse)
         .mockResolvedValueOnce({ rows: makeRows(1), count: 1 });
 
-      const displayConfig: DisplayConfig = { layout: "LINKS" };
+      const layout = "LINKS";
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet", layout },
       });
       await flushPromises();
 
@@ -526,29 +533,29 @@ describe("Records.vue", () => {
 
     it("renders no load-more control and no range line for LINKS while the fetch is still pending", () => {
       fetchTableDataMock.mockReturnValue(new Promise(() => {}));
-      const displayConfig: DisplayConfig = { layout: "LINKS" };
+      const layout = "LINKS";
       const wrapper = mount(Records, {
-        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
+        props: { schemaId: "test-schema", tableId: "pet", layout },
       });
 
       expect(wrapper.find("button").exists()).toBe(false);
       expect(wrapper.find("p.text-pagination").exists()).toBe(false);
     });
 
-    it("refetches with the new layout's own batch size when displayConfig.layout changes, and with pageSize again when it changes back", async () => {
+    it("refetches with the new layout's own batch size when the layout prop changes, and with pageSize again when it changes back", async () => {
       fetchTableDataMock.mockResolvedValue({ rows: makeRows(3), count: 3 });
       const wrapper = mount(Records, {
         props: {
           schemaId: "test-schema",
           tableId: "pet",
           pageSize: 3,
-          displayConfig: { layout: "CARDS" },
+          layout: "CARDS",
         },
       });
       await flushPromises();
       fetchTableDataMock.mockClear();
 
-      await wrapper.setProps({ displayConfig: { layout: "LINKS" } });
+      await wrapper.setProps({ layout: "LINKS" });
       await flushPromises();
 
       expect(fetchTableDataMock).toHaveBeenCalledWith(
@@ -558,7 +565,7 @@ describe("Records.vue", () => {
       );
       fetchTableDataMock.mockClear();
 
-      await wrapper.setProps({ displayConfig: { layout: "TABLE" } });
+      await wrapper.setProps({ layout: "TABLE" });
       await flushPromises();
 
       expect(fetchTableDataMock).toHaveBeenCalledWith(
