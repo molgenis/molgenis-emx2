@@ -1,5 +1,7 @@
 package org.molgenis.emx2.io.parquet;
 
+import static org.molgenis.emx2.ColumnType.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -15,20 +17,16 @@ import org.molgenis.emx2.ColumnType;
 
 final class ParquetTypeMapping {
 
-  /**
-   * Values that are supported by the Parquet format.
-   *
-   * @see <a href="https://parquet.apache.org/docs/file-format/types/">Parquet type docs</a>
-   */
-  private static final Set<Class<?>> PARQUET_VALUE_TYPES =
+  private static final Set<ColumnType> REPEATED_TYPES =
       Set.of(
-          Boolean.class,
-          Integer.class,
-          Long.class,
-          Double.class,
-          LocalDate.class,
-          LocalDateTime.class,
-          String.class);
+          BOOL_ARRAY,
+          INT_ARRAY,
+          LONG_ARRAY,
+          DECIMAL_ARRAY,
+          DATE_ARRAY,
+          DATETIME_ARRAY,
+          STRING_ARRAY,
+          TEXT_ARRAY);
 
   private ParquetTypeMapping() {
     // Hide public constructor
@@ -78,8 +76,7 @@ final class ParquetTypeMapping {
   }
 
   static boolean isRepeated(ColumnType columnType) {
-    Class<?> javaType = columnType.getType();
-    return javaType.isArray() && PARQUET_VALUE_TYPES.contains(javaType.getComponentType());
+    return REPEATED_TYPES.contains(columnType.getBaseType());
   }
 
   /**
@@ -87,14 +84,14 @@ final class ParquetTypeMapping {
    * column's own type for single values, and String for everything written as text.
    */
   static Class<?> valueType(ColumnType columnType) {
-    Class<?> javaType = columnType.getType();
-    if (isRepeated(columnType)) {
-      return javaType.getComponentType();
-    }
-
-    if (PARQUET_VALUE_TYPES.contains(javaType)) {
-      return javaType;
-    }
-    return String.class;
+    return switch (columnType.getBaseType()) {
+      case BOOL, BOOL_ARRAY -> Boolean.class;
+      case INT, INT_ARRAY -> Integer.class;
+      case LONG, LONG_ARRAY -> Long.class;
+      case DECIMAL, DECIMAL_ARRAY -> Double.class;
+      case DATE, DATE_ARRAY -> LocalDate.class;
+      case DATETIME, DATETIME_ARRAY -> LocalDateTime.class;
+      default -> String.class;
+    };
   }
 }
