@@ -32,7 +32,8 @@ public final class DatabaseSetting<T> {
     this(key, parser, null);
   }
 
-  private DatabaseSetting(String key, Function<String, T> parser, @Nullable Supplier<T> defaultValue) {
+  private DatabaseSetting(
+      String key, Function<String, T> parser, @Nullable Supplier<T> defaultValue) {
     this.key = requireNonNull(key);
     this.parser = requireNonNull(parser);
     this.defaultValue = defaultValue;
