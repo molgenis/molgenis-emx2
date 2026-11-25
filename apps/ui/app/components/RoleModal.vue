@@ -2,11 +2,10 @@
 import { computed, ref, watch } from "vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import Field from "../../../tailwind-components/app/components/Field.vue";
 import FormError from "../../../tailwind-components/app/components/form/Error.vue";
 import InputCheckbox from "../../../tailwind-components/app/components/input/Checkbox.vue";
-import InputEnum from "../../../tailwind-components/app/components/input/Enum.vue";
-import InputSearch from "../../../tailwind-components/app/components/input/Search.vue";
-import InputString from "../../../tailwind-components/app/components/input/String.vue";
+import Message from "../../../tailwind-components/app/components/Message.vue";
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
 import Table from "../../../tailwind-components/app/components/Table.vue";
 import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
@@ -170,6 +169,12 @@ const removedUsers = computed(() =>
   Array.from(originalUsers).filter(
     (email) => !selectedUsers.value.includes(email)
   )
+);
+
+const overwrittenRoles = computed(() =>
+  addedUsers.value
+    .filter((email) => customRoleByUser.value[email])
+    .map((email) => ({ email, role: customRoleByUser.value[email]! }))
 );
 
 const hasChanges = computed(
@@ -341,46 +346,61 @@ type Right = (typeof RIGHTS)[number];
 </script>
 
 <template>
-  <Modal v-model:visible="visible" :title="title" max-width="max-w-9/10">
-    <div class="overflow-y-auto p-5 flex flex-col gap-6">
+  <Modal v-model:visible="visible" max-width="max-w-9/10">
+    <template #header>
+      <header
+        class="py-5 px-8 min-h-[4.75rem] flex-none border-b border-divider flex justify-between"
+      >
+        <h2
+          id="modal-title"
+          class="uppercase text-heading-4xl font-display text-title-contrast"
+        >
+          {{ title }}
+        </h2>
+        <button
+          @click="visible = false"
+          aria-label="Close modal"
+          class="top-4 right-4 p-1 absolute"
+        >
+          <BaseIcon class="text-button-input-toggle" name="cross" />
+        </button>
+      </header>
+    </template>
+
+    <div class="overflow-y-auto p-12.5">
       <FormError
         v-if="errorMessage"
         id="role-modal-error"
+        class="mb-8"
         :message="errorMessage"
         :show-prev-next-buttons="false"
       />
 
-      <div class="flex flex-col gap-2">
-        <label for="role-modal-name" class="text-title-contrast font-bold">
-          Role name
-        </label>
-        <InputString
-          id="role-modal-name"
-          v-model="roleName"
-          placeholder="Enter a role name"
-          :disabled="isEditing"
-          :invalid="!!roleNameError"
-          :describedBy="roleNameError ? 'role-modal-name-error' : undefined"
-        />
-        <p v-if="roleNameError" id="role-modal-name-error" class="text-invalid">
-          {{ roleNameError }}
-        </p>
-      </div>
+      <Field
+        id="role-modal-name"
+        class="pb-8"
+        type="STRING"
+        label="Role name"
+        v-model="roleName"
+        placeholder="Enter a role name"
+        :disabled="isEditing"
+        :required="!isEditing"
+        :invalid="!!roleNameError"
+        :errorMessage="roleNameError"
+      />
 
-      <div class="flex flex-col gap-2">
-        <label for="role-modal-schema" class="text-title-contrast font-bold">
-          Schema
-        </label>
-        <InputEnum
-          id="role-modal-schema"
-          v-model="schemaId"
-          :allowedValues="schemaIds"
-          :disabled="isEditing"
-          required
-        />
-      </div>
+      <Field
+        id="role-modal-schema"
+        class="pb-8"
+        type="ENUM"
+        label="Schema"
+        v-model="schemaId"
+        :allowedValues="schemaIds"
+        :disabled="isEditing"
+        :required="!isEditing"
+      />
 
-      <div class="flex flex-col gap-2">
+      <div class="pb-8 flex flex-col gap-2">
         <span class="text-title-contrast font-bold">Permissions</span>
         <p v-if="!schemaId">No schema selected</p>
         <p v-else-if="loadingTables" class="text-title-contrast">
@@ -463,18 +483,37 @@ type Right = (typeof RIGHTS)[number];
         </template>
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label class="text-title-contrast font-bold">
-          Users ({{ selectedUsers.length }} selected)
-        </label>
-        <InputEnum
-          id="role-modal-schema"
-          v-model="selectedUsers"
-          :allowedValues="matchingUserEmails"
-          :isArray="true"
-        />
-      </div>
-      <div>warning of users that have their role overwritten todo</div>
+      <Field
+        id="role-modal-users"
+        class="pb-8"
+        type="ENUM_ARRAY"
+        :label="`Users (${selectedUsers.length} selected)`"
+        v-model="selectedUsers"
+        :allowedValues="matchingUserEmails"
+      />
+      <Message
+        v-if="overwrittenRoles.length"
+        id="role-modal-overwritten-roles"
+        class="gap-3"
+      >
+        <BaseIcon name="info" class="min-h-6 min-w-6 self-start" />
+        <div class="flex flex-col gap-2">
+          <p>
+            {{
+              overwrittenRoles.length === 1
+                ? "This user already has"
+                : "These users already have"
+            }}
+            a custom role in schema '{{ schemaId }}'. Saving replaces it with
+            this role.
+          </p>
+          <ul class="list-disc pl-5 font-normal">
+            <li v-for="{ email, role } in overwrittenRoles" :key="email">
+              {{ email }} (currently {{ role }})
+            </li>
+          </ul>
+        </div>
+      </Message>
     </div>
 
     <template #footer>
