@@ -420,6 +420,122 @@ class TestGraphqlDatabaseFields {
   }
 
   @Test
+  void testSignupWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              signup(password: "blaat123") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/signup/status").asText());
+    assertEquals("No email provided", missing.at("/data/signup/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              signup(email: " ", password: "blaat123") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/signup/status").asText());
+    assertEquals("No email provided", blank.at("/data/signup/message").asText());
+  }
+
+  @Test
+  void testCreateTokenWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              createToken(tokenName: "test") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/createToken/status").asText());
+    assertEquals("No email provided", missing.at("/data/createToken/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              createToken(email: " ", tokenName: "test") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/createToken/status").asText());
+    assertEquals("No email provided", blank.at("/data/createToken/message").asText());
+  }
+
+  @Test
+  void testSetEnabledUserWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              setEnabledUser(enabled: true) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/setEnabledUser/status").asText());
+    assertEquals("No email provided", missing.at("/data/setEnabledUser/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              setEnabledUser(email: " ", enabled: true) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/setEnabledUser/status").asText());
+    assertEquals("No email provided", blank.at("/data/setEnabledUser/message").asText());
+  }
+
+  @Test
+  void testUpdateUserWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              updateUser(updateUser: {enabled: true}) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/updateUser/status").asText());
+    assertEquals("No user provided", missing.at("/data/updateUser/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              updateUser(updateUser: {email: " ", enabled: true}) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/updateUser/status").asText());
+    assertEquals("No user provided", blank.at("/data/updateUser/message").asText());
+  }
+
+  @Test
   void testDatabaseVersion() throws IOException {
     String result =
         execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();

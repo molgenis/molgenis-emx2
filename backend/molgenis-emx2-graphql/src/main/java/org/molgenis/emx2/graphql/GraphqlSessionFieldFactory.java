@@ -82,7 +82,12 @@ public class GraphqlSessionFieldFactory {
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              if (email == null || email.isBlank()) {
+                return new GraphqlApiMutationResult(FAILED, "No email provided");
+              }
+
+              Username userName = new Username(email);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (passWord == null) {
                 return new GraphqlApiMutationResult(FAILED, "Password cannot be not null");
@@ -202,7 +207,12 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
-              Username userName = new Username(dataFetchingEnvironment.getArgument(EMAIL));
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              if (email == null || email.isBlank()) {
+                return new GraphqlApiMutationResult(FAILED, "No email provided");
+              }
+
+              Username userName = new Username(email);
               if (!database.isAdmin() && !userName.equals(database.getActiveUsername())) {
                 throw new MolgenisException(
                     "Create token failed: Only admins can create tokens for other users");

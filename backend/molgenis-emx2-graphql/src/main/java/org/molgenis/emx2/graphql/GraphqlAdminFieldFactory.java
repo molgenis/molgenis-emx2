@@ -198,11 +198,16 @@ public final class GraphqlAdminFieldFactory {
         .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              Username email = new Username(dataFetchingEnvironment.getArgument(EMAIL));
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              if (email == null || email.isBlank()) {
+                return new GraphqlApiMutationResult(FAILED, "No email provided");
+              }
+
+              Username username = new Username(email);
               boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
-              database.setEnabledUser(email, enabled);
+              database.setEnabledUser(username, enabled);
               return new GraphqlApiMutationResult(
-                  SUCCESS, "User %s %s ", email, enabled ? "Enabled" : "Disabled");
+                  SUCCESS, "User %s %s ", username, enabled ? "Enabled" : "Disabled");
             })
         .build();
   }
@@ -257,7 +262,7 @@ public final class GraphqlAdminFieldFactory {
       Database database, DataFetchingEnvironment dataFetchingEnvironment) {
     Map<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
     String email = (String) updatedUser.get(EMAIL);
-    if (email == null) {
+    if (email == null || email.isBlank()) {
       return new GraphqlApiMutationResult(FAILED, "No user provided");
     }
 
