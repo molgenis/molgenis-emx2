@@ -400,6 +400,26 @@ class TestGraphqlDatabaseFields {
   }
 
   @Test
+  void testDropUsersWithMissingEmailDropsNone() {
+    Username username = new Username("drop-users-missing-email");
+    database.addUser(username);
+    String mutation =
+        """
+        mutation {
+          drop(users: [{email: "%s"}, {}]) {
+            message
+          }
+        }
+        """
+            .formatted(username);
+
+    assertThrows(MolgenisException.class, () -> execute(mutation));
+
+    assertTrue(database.hasUser(username));
+    database.removeUser(username);
+  }
+
+  @Test
   void testDatabaseVersion() throws IOException {
     String result =
         execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();
