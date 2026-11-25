@@ -15,7 +15,7 @@ import org.molgenis.emx2.Username;
 
 public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
 
-  private Username activeUser;
+  private Username activeUsername;
   private boolean isAdmin = false;
 
   public SqlUserAwareConnectionProvider(DataSource source) {
@@ -27,7 +27,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     Connection connection = null;
     try {
       connection = super.acquire();
-      if (ADMIN_USER.equals(getActiveUser()) || this.isAdmin) {
+      if (ADMIN_USER.equals(getActiveUsername()) || this.isAdmin) {
         // as admin you are actually session user
         DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE; SET jit='off';");
       } else {
@@ -35,7 +35,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
                 "RESET ROLE; SET jit='off'; SET ROLE {0}",
-                name(MG_USER_PREFIX + getActiveUser().value()));
+                name(MG_USER_PREFIX + getActiveUsername().value()));
       }
       return connection;
     } catch (DataAccessException dae) {
@@ -57,13 +57,13 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     super.release(connection);
   }
 
-  public Username getActiveUser() {
+  public Username getActiveUsername() {
     // default user is ANONYMOUS, not admin! (never null)
-    return activeUser == null ? ANONYMOUS : activeUser;
+    return activeUsername == null ? ANONYMOUS : activeUsername;
   }
 
-  public void setActiveUser(Username activeUser) {
-    this.activeUser = activeUser;
+  public void setActiveUsername(Username activeUsername) {
+    this.activeUsername = activeUsername;
   }
 
   public boolean isAdmin() {
@@ -75,7 +75,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   }
 
   public void clearActiveUser() {
-    this.activeUser = null;
+    this.activeUsername = null;
     this.isAdmin = false;
   }
 }

@@ -81,7 +81,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   // copy constructor for transactions; only with its own jooq instance that contains tx
   private SqlDatabase(DSLContext jooq, SqlDatabase copy) {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
+    this.connectionProvider.setActiveUsername(copy.connectionProvider.getActiveUsername());
     this.connectionProvider.setAdmin(copy.connectionProvider.isAdmin());
     this.jooq = jooq;
     databaseVersion = getVersion(jooq);
@@ -110,7 +110,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (init) {
       try {
         // elevate privileges for init (prevent reload)
-        this.connectionProvider.setActiveUser(ADMIN_USER);
+        this.connectionProvider.setActiveUsername(ADMIN_USER);
         verifyVersion();
         this.init();
       } finally {
@@ -665,18 +665,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw new SqlMolgenisException("Set active user failed", dae);
       }
     } else {
-      if (!Objects.equals(username, connectionProvider.getActiveUser())) {
+      if (!Objects.equals(username, connectionProvider.getActiveUsername())) {
         listener.onUserChange();
       }
     }
-    this.connectionProvider.setActiveUser(username);
+    this.connectionProvider.setActiveUsername(username);
     this.connectionProvider.setAdmin(user != null && user.isAdmin());
     this.clearCache();
   }
 
   @Override
   public Username getActiveUsername() {
-    return connectionProvider.getActiveUser();
+    return connectionProvider.getActiveUsername();
   }
 
   @Override
@@ -733,7 +733,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   private synchronized void sync(SqlDatabase from) {
     if (from != this) {
-      this.connectionProvider.setActiveUser(from.connectionProvider.getActiveUser());
+      this.connectionProvider.setActiveUsername(from.connectionProvider.getActiveUsername());
       this.connectionProvider.setAdmin(from.connectionProvider.isAdmin());
       this.databaseVersion = from.databaseVersion;
 
@@ -803,17 +803,17 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // e.g. TestSettings will fail if we don't do this
       // because it does permission changes in same tx before calling the method
       // that uses getJooqAsAdmin.
-      Username user = connectionProvider.getActiveUser();
+      Username user = connectionProvider.getActiveUsername();
       try {
-        connectionProvider.setActiveUser(ADMIN_USER);
+        connectionProvider.setActiveUsername(ADMIN_USER);
         transaction.run(getJooq());
       } finally {
-        connectionProvider.setActiveUser(user);
+        connectionProvider.setActiveUsername(user);
       }
     } else {
       final Settings settings = new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
       SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
-      adminProvider.setActiveUser(ADMIN_USER);
+      adminProvider.setActiveUsername(ADMIN_USER);
       DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
       transaction.run(adminJooq);
     }
