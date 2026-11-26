@@ -21,7 +21,9 @@ const otherColumns = computed(() =>
 </script>
 
 <template>
-  <div class="overflow-x-auto sm:[&_:is(th,td):first-child]:pl-0 [&_th]:pt-0 [&_th]:align-top">
+  <div
+    class="overflow-x-auto sm:[&_:is(th,td):first-child]:pl-0 [&_th]:pt-0 [&_th]:align-top"
+  >
     <Table>
       <template #head>
         <TableHeadRow stacked>
