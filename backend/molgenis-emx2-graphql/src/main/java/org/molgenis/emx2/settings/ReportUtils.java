@@ -39,38 +39,42 @@ public final class ReportUtils {
   public static Object getReportById(String reportId, Schema schema, Map<String, ?> parameters)
       throws JsonProcessingException {
     Map<String, String> report = getReportById(reportId, schema);
-    return processRows(schema.retrieveSql(getSql(report), parameters));
+    return processRows(schema.retrieveSql(readSqlWithoutTrailingSemicolons(report), parameters));
   }
 
   public static String getReportAsJson(String id, Schema schema, Map<String, ?> parameters) {
     Map<String, String> report = getReportById(id, schema);
-    return convertToJson(schema.retrieveSql(getSql(report), parameters));
+    return convertToJson(schema.retrieveSql(readSqlWithoutTrailingSemicolons(report), parameters));
   }
 
   public static String getReportAsJson(
       String id, Schema schema, Map<String, ?> parameters, int limit, int offset) {
     Map<String, String> report = getReportById(id, schema);
-    String sql = getSql(report) + " LIMIT " + limit + " OFFSET " + offset;
+    String sql =
+        String.format(
+            "select * from (\n%s\n) as report LIMIT %d OFFSET %d",
+            readSqlWithoutTrailingSemicolons(report), limit, offset);
     return convertToJson(schema.retrieveSql(sql, parameters));
   }
 
   public static List<Row> getReportAsRows(String id, Schema schema, Map<String, ?> parameters) {
     Map<String, String> report = getReportById(id, schema);
-    return schema.retrieveSql(getSql(report), parameters);
+    return schema.retrieveSql(readSqlWithoutTrailingSemicolons(report), parameters);
   }
 
   public static Integer getReportCount(String id, Schema schema, Map<String, ?> parameters) {
     Map<String, String> report = getReportById(id, schema);
-    String countSql = String.format("select count(*) from (%s) as count", getSql(report));
+    String countSql =
+        String.format(
+            "select count(*) from (\n%s\n) as count", readSqlWithoutTrailingSemicolons(report));
     return schema.retrieveSql(countSql, parameters).get(0).get("count", Integer.class);
   }
 
-  /**
-   * Returns the report sql without trailing semicolons, so it can be extended with LIMIT/OFFSET or
-   * wrapped in a count query.
-   */
-  static String getSql(Map<String, String> report) {
+  static String readSqlWithoutTrailingSemicolons(Map<String, String> report) {
     String sql = report.get("sql");
+    if (sql == null || sql.isBlank()) {
+      throw new MolgenisException("Report id=" + report.get("id") + " has no sql");
+    }
     int end = sql.length();
     while (end > 0 && (sql.charAt(end - 1) == ';' || Character.isWhitespace(sql.charAt(end - 1)))) {
       end--;
