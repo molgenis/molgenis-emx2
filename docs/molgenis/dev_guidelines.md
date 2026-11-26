@@ -11,6 +11,17 @@ Use of in-line code comments should be used sparingly. For example, when citing 
 To ensure code reviewing stays clear and not too much work, we keep PRs small and split large code changes (whenever possible) over multiple PRs.
 One could for example use [stacked pull requests](https://docs.github.com/en/pull-requests/get-started/about-stacked-prs) to achieve this as well. 
 
+### We label review comments as blocking or non-blocking
+
+To make clear what must be resolved before a PR can be merged, we start each review comment with `blocking` or `non-blocking` label:
+
+```
+blocking: this query runs without checking the user's permissions.
+non-blocking: this method could be split up to make it easier to read.
+```
+
+This is inspired by [Conventional Comments](https://conventionalcomments.org/). Following the other rules is up to the reviewer, for example `suggestion (non-blocking): ...`.
+
 ## For frontend development
 
 To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.
@@ -144,6 +155,12 @@ When a plain string (for example from a route query or setting) must be narrowed
 Unit tests, run by Vitest use the `.test.ts` extension.
 End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
 
+### Which e2e suites run in CI
+
+CI runs the Playwright suites in the `test-e2e` job of [`.circleci/config.yml`](https://github.com/molgenis/molgenis-emx2/blob/master/.circleci/config.yml). To see what a suite runs against, check `webServer` and `baseURL` in its `playwright.config.ts`. Only the catalogue suite ([`apps/catalogue/playwright.config.ts`](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/playwright.config.ts)) starts the real SSR server, so use it for changes on the SSR path.
+
+For a test that simulates how visitors really arrive, see [page-renders-for-visitor-from-other-site.spec.ts](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/tests/page-renders-for-visitor-from-other-site.spec.ts).
+
 ### 9. A component pads only inside a border or background it draws
 
 A component adds padding only inside a border or background that it draws itself. It sets no margin on its root element, and no padding on an edge where it draws nothing. The parent sets the space between its children, with `gap`, `space-y` or a grid.
@@ -158,3 +175,137 @@ A component adds padding only inside a border or background that it draws itself
 ```
 
 A component that follows this rule lines up with its neighbours wherever it is placed. A table header with top padding, for example, sits lower than the field label beside it.
+
+## For java development
+
+### We don't use var
+
+Within our code base we decided to not use the java 'var' syntax but always use explicity typing.
+
+### Test schemas use the name of the test class they are part of
+When creating a schema for running tests, use the test class name as schema name. If a test requires multiple schemas, use it as the base and add a suffix:
+```java
+public class MyClassTest {
+  private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
+  private static final String SCHEMA_NAME_USECASE = SCHEMA_NAME + "_usecase";
+  static Database database;
+
+  @BeforeAll
+  public static void beforeAll() {
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(SCHEMA_NAME_USECASE);
+  }
+}
+```
+
+### We don't tear down testing schemas
+
+Any schemas created in tests through `TestDatabaseFactory` aren't removed after the tests are finished.
+This to make debugging more easily.
+Instead, during a `@BeforeAll`/`@BeforeEach`, the relevant test schema is dropped and created again.
+
+Example:
+
+```java
+class MyClassTest {
+  private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
+  private static final String SCHEMA_NAME_LINKED = SCHEMA_NAME + "_linkedSchemaThatMustBeRemovedFirst";
+  static Database database;
+
+  @BeforeAll
+  public static void beforeAll() {
+    database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchemaIfExists(SCHEMA_NAME_LINKED); // Add this if needed.
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(SCHEMA_NAME_LINKED);
+  }
+
+  // No `@AfterAll` that removes the schemas!
+
+  @Test
+  void testSomething() {
+    // Do stuff.
+  }
+}
+```
+
+### We test at the lowest layer that can hold the behaviour
+
+The floor is the `Schema` API.
+Below it, package-internal helpers and executors are implementation: a test there breaks on refactors while proving nothing a user can observe.
+
+Two things that look like exceptions and are not.
+Reading raw SQL to verify state is fine, the subject is still the Schema-level behaviour.
+And where the behaviour is a stored SQL function with no java surface, the SQL is the unit and gets tested directly.
+
+Above the floor, don't repeat yourself: CSV import and the GraphQL `change` mutation each get one test that the payload arrives, not a copy of the rule they share.
+
+### We don't mock
+
+Needing a mock usually means the test sits below the `Schema` API.
+Move it up to where a real schema exists rather than mocking the layer beneath.
+A few older tests do mock internals; they're the shape we're moving away from, not a precedent.
+
+### We use `requireNonNull` for contructor parameters.
+As parameters given to a constructor are usually vital for the functioning of that class, we validate that the parameters given through a constructor are **not** `null`:
+
+```java
+import static java.util.Objects.requireNonNull;
+
+public MyClass(MyDep myDep, MyOtherDep myOtherDep) {
+	this.myDep = requireNonNull(myDep);
+	this.myOtherDep = requireNonNull(myOtherDep);
+}
+```
+
+### We use templates for log messages
+When using a logger, we use templates (and no string concatenation) for variables:
+```java
+logger.debug("Value [{}] was inserted between [{}] and [{}].", val, below, above);
+```
+
+### We use `Objects` for equals/hash
+
+When creating an equals/hash method for a class, we use `Objects` to do so (the generate functionality in IntelliJ IDEA can generate these by selecting the option `java.utils.Objects.equals() and hash() (Java 7 and higher)`).
+
+Example:
+```java
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    MyClass that = (MyClass) o;
+    return Objects.equals(var1, that.var1) && Objects.equals(var2, that.var2);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(var1, var2);
+  }
+```
+
+### When an object is `Closeable`, we use try-with-resources where possible
+To reduce accidentally forgetting to close a closable object, we use try-with-resources where possible.
+
+```java
+try (FileOutputStream output = new FileOutputStream("filename.txt")) {
+  // do stuff
+}
+```
+
+### If a method can return `null`, it is encouraged to add `@Nullable` or use `Optional` instead
+Whenever a method can return `null`, adding `@Nullable` will make it extra clear this is expected behaviour.
+
+Alternatively, one could consider returning an `Optional` object instead of allowing `null` to be returned.
+
+### Exceptions should lead to a (subclass of a) `MolgenisException` or a Javalin exception
+
+Exceptions (such as an `IOException`) should usually at some point lead to a `MolgenisException` (or a subclass of it).
+Some exceptions exist, such as API code that should throw one of the Javalin `HttpResponseException` exceptions to ensure a server returns the correct HTTP code.
+
+### We use loggers that corresponds to the class
+For logging, we use the following snippet as part of an actual class (replace `MyClass` with the actual class name):
+```java
+public class MyClass {
+  private static final Logger logger = LoggerFactory.getLogger(MyClass.class);
+}
+```

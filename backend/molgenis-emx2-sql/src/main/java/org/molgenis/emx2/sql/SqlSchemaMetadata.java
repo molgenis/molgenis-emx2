@@ -76,7 +76,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public void reload() {
     if (logger.isInfoEnabled()) {
-      logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUser());
+      logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUsername());
     }
     long start = System.currentTimeMillis();
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
@@ -184,7 +184,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     } else {
       throw new MolgenisException(
           "Permission denied for user "
-              + getDatabase().getActiveUser()
+              + getDatabase().getActiveUsername()
               + " to change setting on schema "
               + getName()
               + ". You need at least MANAGER permission for schema settings");
@@ -214,9 +214,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static void toggleChangeLogIfNeeded(
       SqlDatabase db, SqlSchemaMetadata schema, String settingsValue) {
     boolean currentValue =
-        TRUE.equals(
-            TypeUtils.toBool(schema.getSettings().containsKey(Constants.IS_CHANGELOG_ENABLED)));
-    boolean newValue = Boolean.parseBoolean(settingsValue);
+        TRUE.equals(TypeUtils.toBool(schema.getSettings().get(Constants.IS_CHANGELOG_ENABLED)));
+    boolean newValue = TRUE.equals(TypeUtils.toBool(settingsValue));
     if (currentValue != newValue) {
       if (newValue) {
         ChangeLogExecutor.enableChangeLog(db, schema);
@@ -234,14 +233,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return (SqlDatabase) super.getSchemaMetadataProvider();
   }
 
-  public List<String> getInheritedRolesForUser(String username) {
+  public List<String> getInheritedRolesForUser(Username username) {
     return getDatabase().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
   }
 
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUsername());
     }
     return rolesCache;
   }
@@ -264,14 +263,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return List.copyOf(getPermissionsByTableForActiveUser().values());
   }
 
-  public String getRoleForUser(String user) {
+  public String getRoleForUser(Username username) {
     SqlRoleManager roleManager = getDatabase().getRoleManager();
-    if (user == null) {
-      user = ANONYMOUS;
+    if (username == null) {
+      username = ANONYMOUS;
     }
-    user = user.trim();
+
     for (Member m : roleManager.getMembers(getName())) {
-      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) {
+      if (roleManager.isSystemRole(m.getRole()) && m.getUsername().equals(username)) {
         return m.getRole();
       }
     }

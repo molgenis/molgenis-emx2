@@ -11,7 +11,13 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-const emit = defineEmits(["edit", "delete", "move"]);
+const emit = defineEmits([
+  "edit",
+  "delete",
+  "move",
+  "updateTitle",
+  "updateSubtitle",
+]);
 const showMenu = ref<boolean>(true);
 </script>
 
@@ -31,6 +37,10 @@ const showMenu = ref<boolean>(true);
       @move="$emit('move', $event)"
       class="right-2 top-2 !left-auto"
     />
-    <Header v-bind="props" />
+    <Header
+      v-bind="props"
+      @updateTitle="$emit('updateTitle', $event)"
+      @updateSubtitle="$emit('updateSubtitle', $event)"
+    />
   </div>
 </template>

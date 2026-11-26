@@ -19,20 +19,22 @@ const bannerHtml = computed(() => {
 </script>
 
 <template>
-  <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
-  <HeaderCatalogue
-    v-if="route.params.catalogue"
-    :catalogue="headerData.catalogue"
-    :variableCount="headerData.variableCount"
-    :collectionCount="headerData.collectionCount"
-    :networkCount="headerData.networkCount"
-    :logoSrc="headerData.logoSrc"
-    :logoTitle="headerData.logoTitle"
-  />
-  <HeaderGlobal v-else :logoSrc="headerData.logoSrc" />
-  <Container>
-    <slot></slot>
-  </Container>
+  <div class="grow">
+    <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
+    <HeaderCatalogue
+      v-if="route.params.catalogue"
+      :catalogue="headerData.catalogue"
+      :variableCount="headerData.variableCount"
+      :collectionCount="headerData.collectionCount"
+      :networkCount="headerData.networkCount"
+      :logoSrc="headerData.logoSrc"
+      :logoTitle="headerData.logoTitle"
+    />
+    <HeaderGlobal v-else :logoSrc="headerData.logoSrc" />
+    <Container>
+      <slot></slot>
+    </Container>
+  </div>
   <FooterComponent class="mt-[7.8125rem]">
     <ClientOnly>
       <FooterVersion />

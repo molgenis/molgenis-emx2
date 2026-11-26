@@ -1,3 +1,5 @@
+import type { IChartData } from "./cms";
+
 export interface Charts {
   id: string;
   title: string;
@@ -7,6 +9,7 @@ export interface Charts {
 }
 
 export type LegendPosition = "top" | "bottom";
+export type LegendMarkerType = "circle" | "square";
 
 export interface ChartTitle {
   id: string;
@@ -100,4 +103,11 @@ export interface ProgressMeter extends Charts, ChartOptions, ChartMargins {
   color?: string;
   colorPalette?: ColorPalette;
   showValuesAsPercentages?: boolean;
+}
+
+export interface SelectChartMouseOverProps {
+  svgChartArea: any; // receives d3.select
+  row: IChartData;
+  isGroupedChart?: boolean;
+  enableAnimations?: boolean;
 }

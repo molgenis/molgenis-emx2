@@ -5,27 +5,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
+import io.restassured.response.Response;
 import java.net.URI;
 import java.net.URL;
 import org.junit.jupiter.api.*;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 
 class MolgenisWebserviceTest extends ApiTestBase {
 
   @BeforeAll
   static void setup() {
-    database.setUserPassword("foo", "testtest");
+    database.setUserPassword(new Username("foo"), "testtest");
   }
 
   @BeforeEach
   void login() {
-    login("foo", "testtest");
+    login(new Username("foo"), "testtest");
   }
 
   @Test
@@ -45,10 +44,11 @@ class MolgenisWebserviceTest extends ApiTestBase {
   @Test
   void givenSchema_whenNoMenuForRole_thenRedirectToRoot() {
     Schema schema = setupSchema(getClass().getSimpleName() + "no-match");
-    database.addUser("testAnonymous");
-    database.setUserPassword("testAnonymous", "testtest");
+    Username testAnonymous = new Username("testAnonymous");
+    database.addUser(testAnonymous);
+    database.setUserPassword(testAnonymous, "testtest");
     schema.getMetadata().setSetting("menu", menuForRole(Privileges.VIEWER.toString()));
-    login("testAnonymous", "testtest");
+    login(testAnonymous, "testtest");
     given()
         .redirects()
         .follow(false)
@@ -89,6 +89,22 @@ class MolgenisWebserviceTest extends ApiTestBase {
         .then()
         .header("Location", "/" + schema.getName() + "/tables");
     database.dropSchema(schema.getName());
+  }
+
+  @Test
+  void openApiRoutesSendTheirBody() {
+    Schema schema = setupSchema(getClass().getSimpleName() + "openapi");
+    schema.create(TableMetadata.table("Pet", Column.column("name").setPkey()));
+    Response yaml =
+        given().sessionId(sessionId).when().get("/" + schema.getName() + "/api/openapi.yaml");
+    Response ui = given().sessionId(sessionId).when().get("/" + schema.getName() + "/api/openapi");
+
+    assertEquals(200, yaml.statusCode());
+    assertTrue(yaml.contentType().contains("yaml"), yaml.contentType());
+    assertTrue(yaml.asString().contains("/api/json/Pet"), yaml.asString());
+    assertEquals(200, ui.statusCode());
+    assertTrue(ui.contentType().startsWith("text/html"), ui.contentType());
+    assertTrue(ui.asString().contains("openapi.yaml"), ui.asString());
   }
 
   @Test
@@ -142,22 +158,22 @@ class MolgenisWebserviceTest extends ApiTestBase {
   private static Schema setupSchema(String schemaName) {
     database.dropCreateSchema(schemaName);
     Schema schema = database.getSchema(schemaName);
-    schema.addMember("foo", Privileges.VIEWER.toString());
+    schema.addMember(new Username("foo"), Privileges.VIEWER.toString());
     return schema;
   }
 
   private String menuForRole(String role) {
     return """
-          [
-            {
-              "label": "Tables",
-              "href": "from-menu",
-              "role": "%s",
-              "key": "y0768",
-              "submenu": []
-            }
-          ]
-          """
+    [
+      {
+        "label": "Tables",
+        "href": "from-menu",
+        "role": "%s",
+        "key": "y0768",
+        "submenu": []
+      }
+    ]
+    """
         .formatted(role);
   }
 }

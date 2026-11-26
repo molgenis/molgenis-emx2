@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.Operator.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public final class Constants {
@@ -94,7 +95,6 @@ public final class Constants {
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
-  public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
   public static final String MOLGENIS_SERVICE_URL = "MOLGENIS_SERVICE_URL";
@@ -106,6 +106,9 @@ public final class Constants {
   public static final String MOLGENIS_APP_GQL_DB_CACHE_SIZE = "MOLGENIS_APP_GQL_DB_CACHE_SIZE";
   public static final String MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE =
       "MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE";
+
+  public static final Username ADMIN_USER = new Username("admin");
+  public static final Username ANONYMOUS_USER = new Username("anonymous");
 
   static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 
@@ -164,6 +167,13 @@ public final class Constants {
   public static final String API_TTL = "/api/ttl";
   public static final String API_JSONLD = "/api/jsonld";
   public static final String API_FILE = "/api/file";
+  public static final String FILE_FILENAME = "_filename";
+  public static final String FILE_EXTENSION = "_extension";
+  public static final String FILE_MIMETYPE = "_mimetype";
+  public static final String FILE_SIZE = "_size";
+  public static final String FILE_CONTENTS = "_contents";
+  public static final List<String> FILE_COLUMN_SUFFIXES =
+      List.of("", FILE_FILENAME, FILE_EXTENSION, FILE_MIMETYPE, FILE_SIZE, FILE_CONTENTS);
   public static final String MG_TOP_OF_FORM = "mg_top_of_form";
 
   public static final String MATOMO_URL_ENV = "MATOMO_URL";

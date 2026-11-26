@@ -490,6 +490,23 @@ jobs:
 
     - post_steps
 
+  # Only local links and anchors: external sites fail too often for reasons outside this repo.
+  test-docs:
+    docker:
+    - image: molgenis/ci-build:1.6.4
+    working_directory: ~/repo
+    resource_class: small
+
+    steps:
+    - checkout
+    - run:
+        name: <docs> check links
+        command: |
+          curl -sSfL --retry 3 -o lychee.tgz https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-musl.tar.gz
+          echo "73657a111819a30c47c08352896796f23d64e4eb2b3ed39b6d32149241566fc5  lychee.tgz" | sha256sum -c
+          tar -xzf lychee.tgz --strip-components=1 lychee-x86_64-unknown-linux-musl/lychee
+          ./lychee --config docs/lychee.toml --root-dir "$PWD/docs" 'docs/**/*.md'
+
   test-data:
     <<: *test_config
 
@@ -803,6 +820,7 @@ workflows:
     - test-backend
     - test-e2e
     - test-apps
+    - test-docs
     - pr-preview:
         requires:
           - build-preview-images
@@ -818,6 +836,7 @@ workflows:
          - test-apps
          - test-backend
          - test-data
+         - test-docs
          - test-e2e
          - submit_to_sonar
        filters:
