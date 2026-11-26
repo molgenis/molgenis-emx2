@@ -4,7 +4,7 @@ import {
   type IColumn,
   type IRow,
 } from "../../../../../metadata-utils/src/types";
-import { resolveTitleAndSubtitle } from "../../../utils/displayUtils";
+import { plainValue, titleSlots } from "../../../utils/displayUtils";
 import Pairs from "./Pairs.vue";
 import CardList from "../../CardList.vue";
 import CardListItem from "../../CardListItem.vue";
@@ -12,8 +12,8 @@ import ValueEMX2 from "../../value/EMX2.vue";
 
 const props = defineProps<{
   rows: IRow[];
-  titleTemplate: string;
-  subtitleTemplate?: string;
+  titleColumn?: IColumn;
+  subtitleColumn?: IColumn;
   descriptionColumn?: IColumn;
   detailColumns?: IColumn[];
   logoColumn?: IColumn;
@@ -21,20 +21,8 @@ const props = defineProps<{
   showEmpty?: boolean;
 }>();
 
-function title(row: IRow): string {
-  return resolveTitleAndSubtitle(
-    row,
-    props.titleTemplate,
-    props.subtitleTemplate
-  ).title;
-}
-
-function subtitle(row: IRow): string | undefined {
-  return resolveTitleAndSubtitle(
-    row,
-    props.titleTemplate,
-    props.subtitleTemplate
-  ).subtitle;
+function slots(row: IRow) {
+  return titleSlots(row, props.titleColumn, props.subtitleColumn);
 }
 
 function logoUrl(row: IRow): string | undefined {
@@ -53,7 +41,7 @@ function logoUrl(row: IRow): string | undefined {
         <img
           v-if="logoUrl(row)"
           :src="logoUrl(row)"
-          :alt="title(row)"
+          :alt="plainValue(row, slots(row).title)"
           class="float-right ml-4 mb-2 max-h-16 max-w-[40%] object-contain"
         />
         <h2 class="font-extrabold text-record-heading">
@@ -62,15 +50,26 @@ function logoUrl(row: IRow): string | undefined {
             :to="linkTo(row)"
             class="text-link hover:underline hover:bg-link-hover"
           >
-            {{ title(row) }}
+            <ValueEMX2
+              v-if="slots(row).title"
+              :metadata="slots(row).title!"
+              :data="row[slots(row).title!.id]"
+            />
           </NuxtLink>
-          <span v-else>{{ title(row) }}</span>
+          <ValueEMX2
+            v-else-if="slots(row).title"
+            :metadata="slots(row).title!"
+            :data="row[slots(row).title!.id]"
+          />
         </h2>
         <span
-          v-if="subtitle(row)"
+          v-if="slots(row).subtitle"
           class="mt-1.5 block md:inline text-record-value"
         >
-          {{ subtitle(row) }}
+          <ValueEMX2
+            :metadata="slots(row).subtitle!"
+            :data="row[slots(row).subtitle!.id]"
+          />
         </span>
         <div v-if="descriptionColumn" class="mt-1 text-record-value">
           <ValueEMX2

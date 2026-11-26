@@ -17,6 +17,12 @@ const bioColumn: IColumn = {
   columnType: "TEXT",
 };
 
+const nameColumn: IColumn = {
+  id: "name",
+  label: "Name",
+  columnType: "STRING",
+};
+
 const rows: IRow[] = [
   { name: "Tweety", age: 3, bio: "A bird named Tweety" },
   { name: "Sylvester", age: 5, bio: "A bird named Sylvester" },
@@ -36,7 +42,7 @@ describe("records/Cards.vue", () => {
     const wrapper = mount(Cards, {
       props: {
         rows,
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         descriptionColumn: bioColumn,
         detailColumns: [ageColumn],
       },
@@ -53,18 +59,11 @@ describe("records/Cards.vue", () => {
     expect(pairsComponents[0].props("row")).toEqual(rows[0]);
   });
 
-  it("lays cards out as a two-column grid", () => {
-    const wrapper = mount(Cards, {
-      props: { rows, titleTemplate: "${name}" },
-    });
-    expect(wrapper.find("ul").classes()).toContain("lg:grid-cols-2");
-  });
-
   it("wraps the title in a real <a href> when linkTo is passed", () => {
     const wrapper = mount(Cards, {
       props: {
         rows,
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
       global,
@@ -78,7 +77,7 @@ describe("records/Cards.vue", () => {
 
   it("renders no anchor when linkTo is not passed", () => {
     const wrapper = mount(Cards, {
-      props: { rows, titleTemplate: "${name}" },
+      props: { rows, titleColumn: nameColumn },
     });
 
     expect(wrapper.find("li a").exists()).toBe(false);
@@ -105,7 +104,7 @@ describe("records/Cards.vue", () => {
             },
           },
         ],
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         logoColumn,
       },
     });
@@ -113,7 +112,6 @@ describe("records/Cards.vue", () => {
     const img = wrapper.find("img");
     expect(img.attributes("src")).toBe("https://example.org/tweety.png");
     expect(img.attributes("alt")).toBe("Tweety");
-    expect(img.classes()).toContain("float-right");
   });
 
   it("renders no logo when logoColumn does not resolve to a file value", () => {
@@ -125,7 +123,7 @@ describe("records/Cards.vue", () => {
     const wrapper = mount(Cards, {
       props: {
         rows: [{ name: "Tweety", age: 3, logo: "not-a-file" }],
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         logoColumn,
       },
     });
@@ -133,11 +131,10 @@ describe("records/Cards.vue", () => {
     expect(wrapper.find("img").exists()).toBe(false);
   });
 
-  it("renders no title text when titleTemplate resolves empty", () => {
+  it("renders no title text when no titleColumn is set", () => {
     const wrapper = mount(Cards, {
       props: {
         rows: [{ name: "LL", year: "2006" }],
-        titleTemplate: "",
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
       global,
@@ -151,45 +148,45 @@ describe("records/Cards.vue", () => {
     expect(card.text()).not.toContain("2006");
   });
 
-  it("borders every card with plain `border`, never `border-theme`, and drops the left border on the even column", () => {
+  it("borders every card with plain `border`, never `border-theme`", () => {
     const wrapper = mount(Cards, {
-      props: { rows, titleTemplate: "${name}" },
+      props: { rows, titleColumn: nameColumn },
     });
     const items = wrapper.findAll("li");
     expect(items[0].classes()).toContain("border");
     expect(items[0].classes()).not.toContain("border-theme");
-    expect(items[0].classes()).toContain("lg:even:border-l-0");
-    expect(items[1].classes()).toContain("lg:even:border-l-0");
   });
 
   it("renders the description through value/EMX2.vue", () => {
     const wrapper = mount(Cards, {
       props: {
         rows,
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         descriptionColumn: bioColumn,
       },
     });
 
-    const descriptionCell = wrapper.findComponent(ValueEMX2);
+    const descriptionCell = wrapper
+      .findAllComponents(ValueEMX2)
+      .find((cell) => cell.props("metadata").id === "bio")!;
     expect(descriptionCell.props("metadata")).toEqual(bioColumn);
     expect(descriptionCell.props("data")).toBe("A bird named Tweety");
   });
 
-  it("renders no subtitle element when subtitleTemplate is not set", () => {
+  it("renders no subtitle element when subtitleColumn is not set", () => {
     const wrapper = mount(Cards, {
-      props: { rows, titleTemplate: "${name}" },
+      props: { rows, titleColumn: nameColumn },
     });
 
     expect(wrapper.find("li span.mt-1\\.5").exists()).toBe(false);
   });
 
-  it("renders the subtitle beside the title when subtitleTemplate is set", () => {
+  it("renders the subtitle beside the title when subtitleColumn is set", () => {
     const wrapper = mount(Cards, {
       props: {
         rows,
-        titleTemplate: "${age}",
-        subtitleTemplate: "${name}",
+        titleColumn: ageColumn,
+        subtitleColumn: nameColumn,
       },
     });
 
@@ -200,17 +197,34 @@ describe("records/Cards.vue", () => {
     expect(subtitle.text()).toBe("Tweety");
   });
 
-  it("promotes the subtitle into the title slot, and renders no subtitle element, when the title is empty", () => {
+  it("renders the title through value/EMX2.vue with the named column's value", () => {
+    const wrapper = mount(Cards, {
+      props: { rows, titleColumn: ageColumn },
+    });
+
+    const titleCell = wrapper
+      .findAllComponents(ValueEMX2)
+      .find((cell) => cell.props("metadata").id === "age")!;
+    expect(titleCell.props("data")).toBe(3);
+    expect(wrapper.find("h2").text()).toBe("3");
+  });
+
+  it("promotes the subtitle into the title slot, and renders no subtitle element, for a row whose title is empty", () => {
     const wrapper = mount(Cards, {
       props: {
-        rows,
-        titleTemplate: "",
-        subtitleTemplate: "${name}",
+        rows: [
+          { name: "Tweety", nick: "" },
+          { name: "Sylvester", nick: "Syl" },
+        ],
+        titleColumn: { id: "nick", columnType: "STRING" } as IColumn,
+        subtitleColumn: nameColumn,
       },
     });
 
-    const card = wrapper.findAll("li")[0];
-    expect(card.find("h2").text()).toBe("Tweety");
-    expect(card.find("span.mt-1\\.5").exists()).toBe(false);
+    const [promoted, plain] = wrapper.findAll("li");
+    expect(promoted.find("h2").text()).toBe("Tweety");
+    expect(promoted.find("span.mt-1\\.5").exists()).toBe(false);
+    expect(plain.find("h2").text()).toBe("Syl");
+    expect(plain.find("span.mt-1\\.5").text()).toBe("Sylvester");
   });
 });

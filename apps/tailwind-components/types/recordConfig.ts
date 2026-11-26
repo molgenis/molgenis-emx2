@@ -1,0 +1,34 @@
+import type { RowLabel } from "../app/utils/displayUtils";
+import type {
+  ColumnDisplay,
+  ColumnRole,
+  IColumn,
+  IRow,
+} from "../../metadata-utils/src/types";
+
+export interface ColumnConfig {
+  role?: ColumnRole;
+  display?: ColumnDisplay;
+  route?: string;
+}
+
+export interface TableConfig {
+  columns?: Record<string, ColumnConfig>;
+}
+
+export interface ListSeed {
+  columns: IColumn[];
+  rows: IRow[];
+  count: number;
+}
+
+export interface RecordList {
+  layout: ColumnDisplay;
+  schemaId: string;
+  tableId: string;
+  filter: Record<string, unknown>;
+  pageSize: number;
+  seed?: ListSeed;
+  rowLabel?: RowLabel;
+  linkTo?: (row: IRow) => string;
+}

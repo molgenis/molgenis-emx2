@@ -1,47 +1,66 @@
-import type { IColumn, IRow } from "../../../metadata-utils/src/types";
-import type { DisplayConfig, Layout, ResolvedDisplay } from "../types/display";
+import type {
+  ColumnRole,
+  IColumn,
+  IRow,
+} from "../../../metadata-utils/src/types";
 
-import { columnValueToString } from "./columnValueToString";
-
-const DEFAULT_LAYOUT: Layout = "TABLE";
-const MAX_DETAIL_COLUMNS = 5;
-
-export function resolveLayout(settings?: DisplayConfig): Layout {
-  return settings?.layout ?? DEFAULT_LAYOUT;
+export interface ResolvedDisplay {
+  titleColumn?: IColumn;
+  subtitleColumn?: IColumn;
+  descriptionColumn?: IColumn;
+  detailColumns: IColumn[];
+  logoColumn?: IColumn;
 }
 
+export const LABEL_COLUMN_ID = "__label";
+
+export interface RowLabel {
+  template: string;
+  label: string;
+}
+
+const MAX_DETAIL_COLUMNS = 5;
+
 export function resolveDisplay(
-  columns: IColumn[],
-  settings?: DisplayConfig
+  allColumns: IColumn[],
+  rowLabel?: RowLabel
 ): ResolvedDisplay {
-  const titleColumns = defaultTitleColumns(columns);
-  const descriptionColumn = settings?.descriptionColumnId
-    ? columns.find((column) => column.id === settings.descriptionColumnId)
-    : defaultDescriptionColumn(columns);
-
-  const usedColumnIds = new Set([
-    ...titleColumns.map((column) => column.id),
-    ...(descriptionColumn ? [descriptionColumn.id] : []),
-  ]);
-
+  const labelColumn: IColumn | undefined = rowLabel && {
+    id: LABEL_COLUMN_ID,
+    label: rowLabel.label,
+    columnType: "STRING",
+  };
+  const columns = allColumns.filter((column) => column.role !== "INTERNAL");
+  if (columns.some((column) => column.role)) {
+    const withRole = (role: ColumnRole) =>
+      columns.find((column) => column.role === role);
+    return {
+      titleColumn: withRole("TITLE") ?? labelColumn,
+      subtitleColumn: withRole("SUBTITLE"),
+      descriptionColumn: withRole("DESCRIPTION"),
+      logoColumn: withRole("LOGO"),
+      detailColumns: columns.filter((column) => column.role === "DETAIL"),
+    };
+  }
+  const titleColumn = labelColumn ?? defaultTitleColumn(columns);
+  const descriptionColumn = defaultDescriptionColumn(columns);
   return {
-    layout: resolveLayout(settings),
-    titleTemplate: settings?.titleTemplate ?? asTemplate(titleColumns),
-    subtitleTemplate: settings?.subtitleTemplate,
+    titleColumn,
     descriptionColumn,
-    detailColumns: settings?.detailColumnIds
-      ? findColumnsByIds(columns, settings.detailColumnIds)
-      : defaultDetailColumns(columns, usedColumnIds),
-    logoColumn: settings?.logoColumnId
-      ? columns.find((column) => column.id === settings.logoColumnId)
-      : undefined,
+    detailColumns: defaultDetailColumns(
+      columns,
+      new Set(
+        [titleColumn, descriptionColumn].flatMap((column) =>
+          column ? [column.id] : []
+        )
+      )
+    ),
   };
 }
 
-function defaultTitleColumns(columns: IColumn[]): IColumn[] {
-  return columns
-    .filter((column) => column.key === 1)
-    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+function defaultTitleColumn(columns: IColumn[]): IColumn | undefined {
+  const keyColumns = columns.filter((column) => column.key === 1);
+  return keyColumns.length === 1 ? keyColumns[0] : undefined;
 }
 
 function defaultDescriptionColumn(columns: IColumn[]): IColumn | undefined {
@@ -64,30 +83,29 @@ function defaultDetailColumns(
     .slice(0, MAX_DETAIL_COLUMNS);
 }
 
-function findColumnsByIds(columns: IColumn[], ids: string[]): IColumn[] {
-  return ids
-    .map((id) => columns.find((column) => column.id === id))
-    .filter((column): column is IColumn => column !== undefined);
+export function plainValue(row: IRow, column?: IColumn): string {
+  const value = column ? row[column.id] : undefined;
+  return typeof value === "object" || value == null ? "" : String(value);
 }
 
-function asTemplate(columns: IColumn[]): string {
-  return columns.map((column) => `\${${column.id}}`).join(" ");
+function isEmptyValue(value: unknown): boolean {
+  return (
+    value == null || value === "" || (Array.isArray(value) && !value.length)
+  );
 }
 
-export function resolveTitleAndSubtitle(
+export function titleSlots(
   row: IRow,
-  titleTemplate: string,
-  subtitleTemplate?: string
-): { title: string; subtitle?: string } {
-  const title = titleTemplate
-    ? columnValueToString(row, titleTemplate) ?? ""
-    : "";
-  const subtitle = subtitleTemplate
-    ? columnValueToString(row, subtitleTemplate) || undefined
-    : undefined;
-
-  if (!title && subtitle) {
-    return { title: subtitle };
+  titleColumn?: IColumn,
+  subtitleColumn?: IColumn
+): { title?: IColumn; subtitle?: IColumn } {
+  const hasTitle = titleColumn && !isEmptyValue(row[titleColumn.id]);
+  const hasSubtitle = subtitleColumn && !isEmptyValue(row[subtitleColumn.id]);
+  if (hasTitle) {
+    return {
+      title: titleColumn,
+      subtitle: hasSubtitle ? subtitleColumn : undefined,
+    };
   }
-  return { title, subtitle };
+  return { title: hasSubtitle ? subtitleColumn : titleColumn };
 }

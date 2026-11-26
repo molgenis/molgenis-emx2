@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { IRow } from "../../../../../metadata-utils/src/types";
-import { columnValueToString } from "../../../utils/columnValueToString";
+import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
+import ValueEMX2 from "../../value/EMX2.vue";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     rows: IRow[];
-    titleTemplate: string;
+    titleColumn?: IColumn;
     linkTo?: (row: IRow) => string;
     navLabel?: string;
     inline?: boolean;
@@ -15,13 +15,6 @@ const props = withDefaults(
     inline: false,
   }
 );
-
-function titleText(row: IRow): string {
-  if (!props.titleTemplate) {
-    return "";
-  }
-  return columnValueToString(row, props.titleTemplate) ?? "";
-}
 </script>
 
 <template>
@@ -38,9 +31,17 @@ function titleText(row: IRow): string {
         :class="inline ? 'inline' : undefined"
       >
         <NuxtLink v-if="linkTo" :to="linkTo(row)" class="text-link underline">
-          {{ titleText(row) }}
+          <ValueEMX2
+            v-if="titleColumn"
+            :metadata="titleColumn"
+            :data="row[titleColumn.id]"
+          />
         </NuxtLink>
-        <span v-else>{{ titleText(row) }}</span>
+        <ValueEMX2
+          v-else-if="titleColumn"
+          :metadata="titleColumn"
+          :data="row[titleColumn.id]"
+        />
         <span v-if="inline && rowIndex < rows.length - 1">, </span>
       </li>
     </ul>

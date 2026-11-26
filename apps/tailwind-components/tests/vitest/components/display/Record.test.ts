@@ -262,9 +262,8 @@ describe("DisplayRecord", () => {
     ).toContain("about");
   });
 
-  test("renders each field label and value", () => {
+  test("renders each field value", () => {
     const text = wrapper.get("#about").text();
-    expect(text).toContain("Name");
     expect(text).toContain("spike");
     expect(wrapper.get("#care").text()).toContain("insects");
   });
@@ -540,6 +539,55 @@ describe("DisplayRecord", () => {
     });
 
     expect(withHeader.get("header").text()).toBe("Home / Pets");
+  });
+
+  test("renders the intro slot's content above the first section", () => {
+    const withIntro = mount(DisplayRecord, {
+      props: { columns: twoSections, row: twoSectionsRow },
+      slots: { intro: '<p id="intro">Welcome</p>' },
+    });
+
+    const main = withIntro.get("main");
+    const intro = main.get("#intro").element;
+    const firstSection = main.get("#about").element;
+    expect(
+      intro.compareDocumentPosition(firstSection) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  test("renders the value of a section's only field without a label", () => {
+    const single = mount(DisplayRecord, {
+      props: {
+        columns: [
+          column("about", "SECTION", "About"),
+          column("name", "STRING", "Name"),
+        ],
+        row: { name: "spike" },
+      },
+    });
+
+    expect(single.get("#about").text()).toContain("spike");
+    expect(single.find("dt").exists()).toBe(false);
+    expect(single.get("#about").text()).not.toContain("Name");
+  });
+
+  test("keeps the labels when a section has two fields", () => {
+    const two = mount(DisplayRecord, {
+      props: {
+        columns: [
+          column("about", "SECTION", "About"),
+          column("name", "STRING", "Name"),
+          column("diet", "STRING", "Diet"),
+        ],
+        row: { name: "spike", diet: "insects" },
+      },
+    });
+
+    expect(two.findAll("dt").map((term) => term.text())).toEqual([
+      "Name",
+      "Diet",
+    ]);
   });
 
   test("renders no header element when the caller gives no header slot", () => {

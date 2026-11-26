@@ -161,6 +161,21 @@ CI runs the Playwright suites in the `test-e2e` job of [`.circleci/config.yml`](
 
 For a test that simulates how visitors really arrive, see [page-renders-for-visitor-from-other-site.spec.ts](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/tests/page-renders-for-visitor-from-other-site.spec.ts).
 
+### 9. A component pads only inside a border or background it draws
+
+A component adds padding only inside a border or background that it draws itself. It sets no margin on its root element, and no padding on an edge where it draws nothing. The parent sets the space between its children, with `gap`, `space-y` or a grid.
+
+```diff
+  <!-- the card: padding inside its own border, no margin -->
+- <div class="mt-5 p-12">...</div>
++ <div class="p-5 border rounded-base">...</div>
+
+  <!-- the parent: the space between the cards -->
++ <ul class="grid gap-5">...</ul>
+```
+
+A component that follows this rule lines up with its neighbours wherever it is placed. A table header with top padding, for example, sits lower than the field label beside it.
+
 ## For java development
 
 ### We don't use var

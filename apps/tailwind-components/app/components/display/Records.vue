@@ -2,8 +2,14 @@
 import { computed, ref, useId, watch } from "vue";
 import { useAsyncData } from "#app";
 import type { IRow } from "../../../../metadata-utils/src/types";
-import type { DisplayConfig } from "../../types/display";
-import { resolveDisplay, resolveLayout } from "../../utils/displayUtils";
+import type { ListSeed } from "../../../types/recordConfig";
+import type { ColumnDisplay } from "../../../../metadata-utils/src/types";
+import {
+  LABEL_COLUMN_ID,
+  resolveDisplay,
+  type RowLabel,
+} from "../../utils/displayUtils";
+import { columnValueToString } from "../../utils/columnValueToString";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import Button from "../Button.vue";
@@ -19,27 +25,28 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
-    displayConfig?: DisplayConfig;
+    layout?: ColumnDisplay;
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;
     showEmpty?: boolean;
+    seed?: ListSeed;
+    rowLabel?: RowLabel;
   }>(),
   {
+    layout: "TABLE",
     pageSize: 10,
   }
 );
 
 const currentPage = ref(1);
 
-const layout = computed(() => resolveLayout(props.displayConfig));
-
 function assertNever(value: never): never {
   throw new Error(`Records: unhandled layout "${value}"`);
 }
 
 const layoutMeta = computed(() => {
-  switch (layout.value) {
+  switch (props.layout) {
     case "TABLE":
       return { paginated: true, batchSize: undefined };
     case "CARDS":
@@ -51,7 +58,7 @@ const layoutMeta = computed(() => {
     case "BULLETS":
       return { paginated: false, batchSize: 20 };
     default:
-      return assertNever(layout.value);
+      return assertNever(props.layout);
   }
 });
 
@@ -63,7 +70,7 @@ watch(
     props.tableId,
     filterKey.value,
     props.pageSize,
-    layout.value,
+    props.layout,
   ],
   () => {
     currentPage.value = 1;
@@ -78,14 +85,19 @@ let latestRequestId = 0;
 const instanceId = useId();
 const asyncDataKey = computed(
   () =>
-    `records-${instanceId}-${props.schemaId}-${props.tableId}-${filterKey.value}-${layout.value}-${currentPage.value}`
+    `records-${instanceId}-${props.schemaId}-${props.tableId}-${filterKey.value}-${props.layout}-${currentPage.value}`
 );
 
 const { data, error } = useAsyncData(
   asyncDataKey,
   async () => {
     latestRequestId++;
-    const metadata = await fetchTableMetadata(props.schemaId, props.tableId);
+    if (props.seed && currentPage.value === 1) {
+      return props.seed;
+    }
+    const columns =
+      props.seed?.columns ??
+      (await fetchTableMetadata(props.schemaId, props.tableId)).columns;
     const paginated = layoutMeta.value.paginated;
     const limit = paginated ? props.pageSize : layoutMeta.value.batchSize;
     const offset = paginated ? (currentPage.value - 1) * props.pageSize : 0;
@@ -96,7 +108,7 @@ const { data, error } = useAsyncData(
       expandLevel: 1,
     });
     return {
-      columns: metadata.columns,
+      columns,
       rows: response.rows,
       count: response.count,
     };
@@ -107,7 +119,7 @@ const { data, error } = useAsyncData(
       () => props.tableId,
       filterKey,
       () => props.pageSize,
-      layout,
+      () => props.layout,
       currentPage,
     ],
   }
@@ -116,19 +128,35 @@ const { data, error } = useAsyncData(
 const fetchedColumns = computed(() => data.value?.columns ?? []);
 
 const resolvedDisplay = computed(() =>
-  resolveDisplay(fetchedColumns.value, props.displayConfig)
+  resolveDisplay(fetchedColumns.value, props.rowLabel)
 );
 
-const accumulatedRows = ref<IRow[]>(data.value?.rows ?? []);
-const accumulatedCount = ref(data.value?.count ?? 0);
+const appendedRows = ref<IRow[]>([]);
+const appendedCount = ref<number>();
 
-watch(data, (value) => {
-  accumulatedRows.value = value?.rows ?? [];
-  accumulatedCount.value = value?.count ?? 0;
+watch(data, () => {
+  appendedRows.value = [];
+  appendedCount.value = undefined;
 });
 
-const fetchedRows = computed(() => accumulatedRows.value);
-const fetchedCount = computed(() => accumulatedCount.value);
+// Derived from data, not copied: the server renders after the fetch but runs no watchers.
+const fetchedRows = computed(() => [
+  ...(data.value?.rows ?? []),
+  ...appendedRows.value,
+]);
+const fetchedCount = computed(
+  () => appendedCount.value ?? data.value?.count ?? 0
+);
+
+const shownRows = computed(() => {
+  const label = props.rowLabel;
+  return label && resolvedDisplay.value.titleColumn?.id === LABEL_COLUMN_ID
+    ? fetchedRows.value.map((row) => ({
+        ...row,
+        [LABEL_COLUMN_ID]: columnValueToString(row, label.template),
+      }))
+    : fetchedRows.value;
+});
 
 const remaining = computed(() =>
   Math.max(fetchedCount.value - fetchedRows.value.length, 0)
@@ -151,8 +179,8 @@ async function loadMore() {
   if (requestId !== latestRequestId) {
     return;
   }
-  accumulatedRows.value = [...accumulatedRows.value, ...response.rows];
-  accumulatedCount.value = response.count;
+  appendedRows.value = [...appendedRows.value, ...response.rows];
+  appendedCount.value = response.count;
 }
 
 const totalPages = computed(() =>
@@ -179,27 +207,27 @@ function onPageUpdate(page: number) {
   </Message>
   <div v-else>
     <RecordsTable
-      v-if="resolvedDisplay.layout === 'TABLE'"
-      :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
+      v-if="layout === 'TABLE'"
+      :rows="shownRows"
+      :titleColumn="resolvedDisplay.titleColumn"
       :columns="resolvedDisplay.detailColumns"
       :linkTo="linkTo"
     />
     <RecordsCards
-      v-else-if="resolvedDisplay.layout === 'CARDS'"
-      :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
-      :subtitleTemplate="resolvedDisplay.subtitleTemplate"
+      v-else-if="layout === 'CARDS'"
+      :rows="shownRows"
+      :titleColumn="resolvedDisplay.titleColumn"
+      :subtitleColumn="resolvedDisplay.subtitleColumn"
       :descriptionColumn="resolvedDisplay.descriptionColumn"
       :detailColumns="resolvedDisplay.detailColumns"
       :logoColumn="resolvedDisplay.logoColumn"
       :linkTo="linkTo"
     />
     <RecordsList
-      v-else-if="resolvedDisplay.layout === 'LIST'"
-      :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
-      :subtitleTemplate="resolvedDisplay.subtitleTemplate"
+      v-else-if="layout === 'LIST'"
+      :rows="shownRows"
+      :titleColumn="resolvedDisplay.titleColumn"
+      :subtitleColumn="resolvedDisplay.subtitleColumn"
       :descriptionColumn="resolvedDisplay.descriptionColumn"
       :detailColumns="resolvedDisplay.detailColumns"
       :logoColumn="resolvedDisplay.logoColumn"
@@ -207,22 +235,22 @@ function onPageUpdate(page: number) {
       :showEmpty="showEmpty"
     />
     <RecordsLinks
-      v-else-if="resolvedDisplay.layout === 'LINKS'"
-      :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
+      v-else-if="layout === 'LINKS'"
+      :rows="shownRows"
+      :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"
       :navLabel="tableId"
     />
     <RecordsBullets
-      v-else-if="resolvedDisplay.layout === 'BULLETS'"
-      :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
+      v-else-if="layout === 'BULLETS'"
+      :rows="shownRows"
+      :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"
       :navLabel="tableId"
     />
 
     <Pagination
-      v-if="layoutMeta.paginated"
+      v-if="layoutMeta.paginated && totalPages > 1"
       :currentPage="currentPage"
       :totalPages="totalPages"
       class="pt-5 pb-[30px]"
@@ -232,7 +260,10 @@ function onPageUpdate(page: number) {
       Load more ({{ remaining }})
     </Button>
 
-    <p v-if="layoutMeta.paginated" class="text-center text-pagination">
+    <p
+      v-if="layoutMeta.paginated && totalPages > 1"
+      class="text-center text-pagination"
+    >
       {{ rangeText }} of {{ fetchedCount }}
     </p>
   </div>

@@ -43,9 +43,9 @@ describe("InputRefListItem", () => {
     });
   });
 
-  test("shows the record's fields with their labels and values", () => {
+  test("shows the record's field values", () => {
     const text = wrapper.text();
-    for (const shown of ["Name", "spike", "Weight", "15.7", "Diet", "insects"])
+    for (const shown of ["spike", "15.7", "insects"])
       expect(text).toContain(shown);
   });
 

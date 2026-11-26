@@ -27,7 +27,7 @@ const hasSidebar = computed(() => props.showSidebar && !!slots.sidebar);
     <div class="lg:flex lg:items-start">
       <aside
         v-if="hasSidebar"
-        class="lg:w-82.5 lg:sticky lg:top-7.5 flex-shrink-0"
+        class="lg:w-82.5 lg:sticky lg:top-7.5 lg:max-h-[calc(100vh-theme(spacing.7.5)*2)] lg:overflow-y-auto flex-shrink-0"
       >
         <slot name="sidebar"></slot>
       </aside>
