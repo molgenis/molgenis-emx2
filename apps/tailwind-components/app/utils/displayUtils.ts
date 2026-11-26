@@ -3,7 +3,14 @@ import type {
   IColumn,
   IRow,
 } from "../../../metadata-utils/src/types";
-import type { ResolvedDisplay } from "../types/display";
+
+export interface ResolvedDisplay {
+  titleColumn?: IColumn;
+  subtitleColumn?: IColumn;
+  descriptionColumn?: IColumn;
+  detailColumns: IColumn[];
+  logoColumn?: IColumn;
+}
 
 const MAX_DETAIL_COLUMNS = 5;
 
