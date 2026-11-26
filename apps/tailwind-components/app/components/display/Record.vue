@@ -127,7 +127,26 @@ function nestedFilter(column: IColumn): Record<string, unknown> {
     : value == null
     ? []
     : [value];
-  return { _or: values.map(equalsFilter) };
+  return { _or: values.map((item) => equalsFilter(refKey(column, item))) };
+}
+
+function refKey(column: IColumn, value: columnValue): columnValue {
+  const target = props.schema?.tables.find(
+    (candidate) => candidate.id === column.refTableId
+  );
+  if (
+    !target ||
+    column.refSchemaId !== props.schema?.id ||
+    !isColumnValueObject(value)
+  ) {
+    return value;
+  }
+  const keyIds = target.columns
+    .filter((candidate) => candidate.key === 1)
+    .map((candidate) => candidate.id);
+  return Object.fromEntries(
+    Object.entries(value).filter(([id]) => keyIds.includes(id))
+  );
 }
 
 const recordSections = computed<RecordSection[]>(() =>

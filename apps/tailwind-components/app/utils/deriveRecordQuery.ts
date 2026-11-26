@@ -38,7 +38,7 @@ function selectableColumns(columns: IColumn[]): IColumn[] {
 }
 
 function rootSelection(schema: ISchemaMetaData, column: IColumn): string {
-  if (!column.display || !column.refTableId) {
+  if (!column.display || !column.refTableId || isForeign(schema, column)) {
     return columnSelection(schema, column);
   }
   const target = findTable(schema, column.refTableId);
@@ -84,12 +84,10 @@ function columnSelection(schema: ISchemaMetaData, column: IColumn): string {
   } }`;
 }
 
-// _schema lists no ontology tables, so their fields cannot be looked up.
 function isOntology(column: IColumn): boolean {
   return column.columnType.startsWith("ONTOLOGY");
 }
 
-// A foreign schema's tables are not in the metadata, so only the label paths can be selected.
 function isForeign(schema: ISchemaMetaData, column: IColumn): boolean {
   return column.refSchemaId !== undefined && column.refSchemaId !== schema.id;
 }

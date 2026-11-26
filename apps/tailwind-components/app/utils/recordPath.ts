@@ -15,7 +15,6 @@ export interface ResolvedRecordPath {
   crumbs: Crumb[];
 }
 
-// Segments are route params: already decoded once by the router.
 export function resolveRecordPath(
   schema: ISchemaMetaData,
   configs: Record<string, TableConfig>,
@@ -91,7 +90,6 @@ function findTable(schema: ISchemaMetaData, tableId: string): ITableMetaData {
   return table;
 }
 
-// A REFBACK parent fills the column that points back at it.
 function keyColumns(table: ITableMetaData, via?: IColumn): IColumn[] {
   const filled = via?.columnType === "REFBACK" ? via.refBackId : undefined;
   const columns = table.columns.filter(
@@ -133,7 +131,6 @@ function decodeValue(value: string): string {
   return value.replace(/!(.)/g, (_, char) => (char === "c" ? "," : char));
 }
 
-// Commas separate key values, so they stay raw; the rest is encoded for the router.
 function urlSegment(segment: string): string {
   return segment.split(",").map(encodeURIComponent).join(",");
 }

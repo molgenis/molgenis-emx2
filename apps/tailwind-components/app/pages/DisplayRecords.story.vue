@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type {
+  ColumnDisplay,
   ColumnRole,
   IColumn,
   IRow,
 } from "../../../metadata-utils/src/types";
-import { LAYOUTS, type Layout } from "../types/display";
 import { resolveDisplay } from "../utils/displayUtils";
 import fetchMetadata from "../composables/fetchMetadata";
 import fetchTableMetadata from "../composables/fetchTableMetadata";
@@ -367,10 +367,13 @@ const logoColumnSelectOptions = computed<IValueLabel[]>(() =>
   }))
 );
 
+const LAYOUTS: ColumnDisplay[] = ["TABLE", "CARDS", "LIST", "LINKS", "BULLETS"];
 const LAYOUT_FILTER_OPTIONS: string[] = ["All", ...LAYOUTS];
 const layoutFilter = ref<string>("All");
-const visibleLayouts = computed<Layout[]>(() =>
-  layoutFilter.value === "All" ? [...LAYOUTS] : [layoutFilter.value as Layout]
+const visibleLayouts = computed<ColumnDisplay[]>(() =>
+  layoutFilter.value === "All"
+    ? [...LAYOUTS]
+    : [layoutFilter.value as ColumnDisplay]
 );
 
 const titleColumn = ref("");
@@ -431,7 +434,7 @@ const resolvedFixtureDisplay = computed(() =>
 );
 
 function panelTestId(
-  layout: Layout,
+  layout: ColumnDisplay,
   surface: "content" | "footer" | "transparent"
 ): string {
   return `panel-${layout.toLowerCase()}-${surface}`;

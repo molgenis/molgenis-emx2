@@ -4,7 +4,6 @@ import type {
   IColumn,
   IRow,
 } from "../../metadata-utils/src/types";
-import type { Layout } from "../app/types/display";
 
 export interface ColumnConfig {
   role?: ColumnRole;
@@ -23,7 +22,7 @@ export interface ListSeed {
 }
 
 export interface RecordList {
-  layout: Layout;
+  layout: ColumnDisplay;
   schemaId: string;
   tableId: string;
   filter: Record<string, unknown>;

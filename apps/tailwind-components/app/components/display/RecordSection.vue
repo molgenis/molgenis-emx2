@@ -97,7 +97,7 @@ useIntersectionObserver(
       <div v-if="block.kind === 'list'" class="mt-5 first:mt-0">
         <h4
           v-if="!isSingleFieldSection"
-          class="mb-2.5 font-bold text-body-base first-letter:uppercase"
+          class="mb-2.5 font-bold text-body-base"
         >
           {{ block.field.label }}
         </h4>
@@ -126,7 +126,7 @@ useIntersectionObserver(
           </template>
           <template v-else>
             <DefinitionListTerm>
-              <span class="first-letter:uppercase">{{ field.label }}</span>
+              <span>{{ field.label }}</span>
             </DefinitionListTerm>
             <DefinitionListDefinition>
               <slot name="value" :field="field">

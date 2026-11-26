@@ -144,6 +144,12 @@ describe("deriveRecordQuery", () => {
     );
   });
 
+  test("selects a displayed ref into another schema from its refLabel paths alone, without needing its table", () => {
+    expect(
+      query({ Pet: { columns: { sponsor: { display: "LIST" } } } })
+    ).toContain("sponsor { name country { code } }");
+  });
+
   test("asks no limit and no count of an unconfigured refback", () => {
     const text = query();
     expect(text).toContain("toys { name }");

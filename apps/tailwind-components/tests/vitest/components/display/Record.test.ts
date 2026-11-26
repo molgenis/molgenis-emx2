@@ -590,20 +590,6 @@ describe("DisplayRecord", () => {
     ]);
   });
 
-  test("renders a field label with its first letter uppercase", () => {
-    const labels = mount(DisplayRecord, {
-      props: {
-        columns: [
-          column("name", "STRING", "local name"),
-          column("diet", "STRING", "diet"),
-        ],
-        row: { name: "spike", diet: "insects" },
-      },
-    });
-
-    expect(labels.get("dt span").classes()).toContain("first-letter:uppercase");
-  });
-
   test("renders no header element when the caller gives no header slot", () => {
     expect(wrapper.find("header").exists()).toBe(false);
   });

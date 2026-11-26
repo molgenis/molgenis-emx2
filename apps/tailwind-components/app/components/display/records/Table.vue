@@ -25,14 +25,10 @@ const otherColumns = computed(() =>
     <Table>
       <template #head>
         <TableHeadRow stacked>
-          <TableHead v-if="titleColumn" class="first-letter:uppercase">
+          <TableHead v-if="titleColumn">
             {{ titleColumn.label || titleColumn.id }}
           </TableHead>
-          <TableHead
-            v-for="column in otherColumns"
-            :key="column.id"
-            class="first-letter:uppercase"
-          >
+          <TableHead v-for="column in otherColumns" :key="column.id">
             {{ column.label || column.id }}
           </TableHead>
         </TableHeadRow>

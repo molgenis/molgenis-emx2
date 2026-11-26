@@ -3,7 +3,7 @@ import { computed, ref, useId, watch } from "vue";
 import { useAsyncData } from "#app";
 import type { IRow } from "../../../../metadata-utils/src/types";
 import type { ListSeed } from "../../../types/recordConfig";
-import type { Layout } from "../../types/display";
+import type { ColumnDisplay } from "../../../../metadata-utils/src/types";
 import { resolveDisplay } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
@@ -20,7 +20,7 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
-    layout?: Layout;
+    layout?: ColumnDisplay;
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;

@@ -11,7 +11,7 @@ import RecordsLinks from "../../../../app/components/display/records/Links.vue";
 import RecordsBullets from "../../../../app/components/display/records/Bullets.vue";
 import Pagination from "../../../../app/components/Pagination.vue";
 import { NESTED_LIST_LIMIT } from "../../../../app/utils/deriveRecordQuery";
-import type { Layout } from "../../../../app/types/display";
+import type { ColumnDisplay } from "../../../../../metadata-utils/src/types";
 
 enableAutoUnmount(afterEach);
 
@@ -68,7 +68,7 @@ const layouts = {
 function mountRecord(
   columns: IColumn[],
   recordRow: IRow,
-  layout: Layout | null = "LIST"
+  layout: ColumnDisplay | null = "LIST"
 ) {
   return mount(DisplayRecord, {
     props: {
@@ -102,7 +102,7 @@ describe("DisplayRecord nested lists", () => {
       const wrapper = mountRecord(
         [nameColumn, speciesColumn, petsColumn],
         row,
-        layout as Layout
+        layout as ColumnDisplay
       );
       await flushPromises();
 
@@ -202,6 +202,56 @@ describe("DisplayRecord nested lists", () => {
       "Pet",
       expect.objectContaining({
         filter: { owner: { equals: [{ name: "Alice" }] } },
+      })
+    );
+  });
+
+  it("filters a REF_ARRAY list by the key columns of its ref values, not by file or null role columns beside them", async () => {
+    const friendsColumn: IColumn = {
+      id: "friends",
+      label: "Friends",
+      columnType: "REF_ARRAY",
+      refTableId: "Pet",
+      refSchemaId: "test-schema",
+      display: "LIST",
+    };
+    mount(DisplayRecord, {
+      props: {
+        columns: [nameColumn, friendsColumn],
+        row: {
+          name: "Alice",
+          friends: [
+            {
+              name: "Bird 0",
+              photo: { id: "f1", filename: "a.png" },
+              nick: null,
+            },
+          ],
+        },
+        schema: {
+          id: "test-schema",
+          label: "test",
+          tables: [
+            {
+              id: "Pet",
+              name: "Pet",
+              label: "Pet",
+              schemaId: "test-schema",
+              tableType: "DATA",
+              columns: petColumns,
+            },
+          ],
+        },
+        showTableOfContents: false,
+      },
+    });
+    await flushPromises();
+
+    expect(fetchTableDataMock).toHaveBeenCalledWith(
+      "test-schema",
+      "Pet",
+      expect.objectContaining({
+        filter: { _or: [{ name: { equals: "Bird 0" } }] },
       })
     );
   });

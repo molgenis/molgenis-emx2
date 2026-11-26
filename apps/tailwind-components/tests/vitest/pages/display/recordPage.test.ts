@@ -13,6 +13,7 @@ import { enhanceMetadata } from "../../../../app/utils/enhanceMetadata";
 
 const fetchGraphqlMock = vi.fn();
 const fetchMetadataMock = vi.fn();
+const fetchTableDataMock = vi.fn();
 
 vi.mock("../../../../app/composables/fetchGraphql", () => ({
   default: (...args: unknown[]) => fetchGraphqlMock(...args),
@@ -21,7 +22,7 @@ vi.mock("../../../../app/composables/fetchMetadata", () => ({
   default: (...args: unknown[]) => fetchMetadataMock(...args),
 }));
 vi.mock("../../../../app/composables/fetchTableData", () => ({
-  default: () => Promise.resolve({ rows: [], count: 0 }),
+  default: (...args: unknown[]) => fetchTableDataMock(...args),
 }));
 vi.mock("../../../../app/composables/fetchTableMetadata", () => ({
   default: () => Promise.resolve({ id: "Subpopulations", columns: [] }),
@@ -94,6 +95,8 @@ describe("record page", () => {
     fetchGraphqlMock.mockReset();
     fetchMetadataMock.mockReset();
     fetchMetadataMock.mockResolvedValue(schema);
+    fetchTableDataMock.mockReset();
+    fetchTableDataMock.mockResolvedValue({ rows: [], count: 0 });
   });
 
   it("asks the derived query for the record with the path's key, and shows breadcrumbs where only the record links", async () => {
@@ -164,5 +167,72 @@ describe("record page", () => {
         href: "/display/record/demo/Collections/c1/subpopulations/pop1",
       },
     ]);
+  });
+
+  it("links a row in a nested list to the parent path, the column's route and the row key", async () => {
+    fetchGraphqlMock.mockResolvedValue({
+      Collections: [
+        {
+          id: "c1",
+          subpopulations: [{ resource: { id: "c1" }, name: "pop1" }],
+          subpopulations_agg: { count: 1 },
+        },
+      ],
+    });
+    const wrapper = await mountAt("Collections/c1");
+
+    expect(
+      wrapper
+        .find(
+          "a[href='/display/record/demo/Collections/c1/subpopulations/pop1']"
+        )
+        .exists()
+    ).toBe(true);
+  });
+
+  it("shows a displayed list into another schema, fetched from that schema and not seeded from the record", async () => {
+    const withForeignList: ITableMetaData = {
+      ...collections,
+      columns: [
+        ...collections.columns,
+        {
+          id: "organisationsInvolved",
+          label: "Organisations",
+          columnType: "REF_ARRAY",
+          refTableId: "Organisations",
+          refSchemaId: "other",
+          refLabelDefault: "${name}",
+        },
+      ],
+    };
+    const organisations: ITableMetaData = {
+      id: "Organisations",
+      name: "Organisations",
+      label: "Organisations",
+      schemaId: "demo",
+      tableType: "DATA",
+      columns: [{ id: "name", label: "Name", columnType: "STRING", key: 1 }],
+    };
+    fetchMetadataMock.mockResolvedValue({
+      ...schema,
+      tables: [withForeignList, subpopulations, organisations],
+    });
+    fetchGraphqlMock.mockResolvedValue({
+      Collections: [
+        {
+          id: "c1",
+          organisationsInvolved: [{ name: "UMCG" }],
+          organisationsInvolved_agg: { count: 1 },
+        },
+      ],
+    });
+    const wrapper = await mountAt("Collections/c1");
+
+    expect(wrapper.find("#record-error").exists()).toBe(false);
+    expect(fetchTableDataMock).toHaveBeenCalledWith(
+      "other",
+      "Organisations",
+      expect.anything()
+    );
   });
 });
