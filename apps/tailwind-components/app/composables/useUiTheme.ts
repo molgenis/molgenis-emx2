@@ -34,7 +34,7 @@ async function fetchSchemaTheme(
   route: RouteLocationNormalizedGeneric
 ): Promise<string> {
   const cache = useUiThemeCache();
-  if (!(schema in cache.value)) {
+  if (!Object.prototype.hasOwnProperty.call(cache.value, schema)) {
     try {
       const settings = await useSchemaSettings(
         new Set([SCHEMA_UI_THEME]),
@@ -44,13 +44,16 @@ async function fetchSchemaTheme(
         (settings?.value?.[SCHEMA_UI_THEME] as string) || "";
     } catch (error) {
       console.error("Error fetching SCHEMA_UI_THEME setting", error);
-      cache.value[schema] = "";
+      return "";
     }
   }
   return cache.value[schema] as string;
 }
 
 export async function resolveUiTheme(route: RouteLocationNormalizedGeneric) {
+  const activeTheme = useActiveUiTheme();
+  const resolution = useState<number>("uiThemeResolution", () => 0);
+  const resolutionId = ++resolution.value;
   const schema = Array.isArray(route.params.schema)
     ? route.params.schema[0]
     : route.params.schema;
@@ -61,7 +64,9 @@ export async function resolveUiTheme(route: RouteLocationNormalizedGeneric) {
   ]);
 
   const theme = schemaTheme || systemTheme;
-  const activeTheme = useActiveUiTheme();
+  if (resolutionId !== resolution.value) {
+    return theme;
+  }
   activeTheme.value = theme;
 
   // apply directly so the theme is in place before the page renders,

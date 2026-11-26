@@ -139,6 +139,7 @@ module.exports = {
         title: "10rem",
       },
       minHeight: {
+        input: "var(--height-input)",
         title: "10rem",
       },
       maxWidth: {

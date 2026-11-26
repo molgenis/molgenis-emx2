@@ -53,7 +53,7 @@ class ResolveMissingPkPostProcessorTest {
       store("Suppliers", new Row("_subject_", "urn:supplier:1", "id", "supplier-1"));
       store("Orders", new Row("id", "order-1"));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertNull(order().getString("supplier"));
@@ -64,7 +64,7 @@ class ResolveMissingPkPostProcessorTest {
       store("Suppliers", new Row("_subject_", "urn:supplier:1", "id", "supplier-1"));
       store("Orders", new Row("id", "order-1", "_subject_supplier", "urn:supplier:unknown"));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       MolgenisException exception =
           assertThrows(MolgenisException.class, () -> resolver.process(tableStore));
       assertEquals(
@@ -82,7 +82,7 @@ class ResolveMissingPkPostProcessorTest {
       store("Suppliers", new Row("_subject_", "urn:supplier:1", "id", "supplier-1"));
       store("Orders", new Row("id", "order-1", "_subject_supplier", "urn:supplier:1"));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertEquals("supplier-1", order().getString("supplier"));
@@ -95,7 +95,7 @@ class ResolveMissingPkPostProcessorTest {
           "Orders",
           new Row("id", "order-1", "_subject_supplier", "urn:supplier:1", "supplier", null));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertEquals("supplier-1", order().getString("supplier"));
@@ -106,7 +106,7 @@ class ResolveMissingPkPostProcessorTest {
       store("Suppliers", new Row("_subject_", "urn:supplier:1", "id", "supplier-1"));
       store("Orders", new Row("id", "order-1", "_subject_supplier", null));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertNull(order().getString("supplier"));
@@ -132,7 +132,7 @@ class ResolveMissingPkPostProcessorTest {
               "alternateSuppliers.id",
               new String[0]));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertEquals("supplier-1,supplier-2", order().getString("alternateSuppliers"));
@@ -152,7 +152,7 @@ class ResolveMissingPkPostProcessorTest {
               "_subject_alternateSuppliers",
               new Object[] {"urn:supplier:1", "urn:supplier:2"}));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertArrayEquals(
@@ -175,7 +175,7 @@ class ResolveMissingPkPostProcessorTest {
               "alternateSuppliers",
               new String[] {"manually-set-1", "manually-set-2"}));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertArrayEquals(
@@ -221,7 +221,7 @@ class ResolveMissingPkPostProcessorTest {
           "Orders",
           new Row("id", "order-1", "_subject_supplier", "urn:supplier:1", "supplier.name", null));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertEquals("supplier-1", order().getString("supplier.id"));
@@ -244,7 +244,7 @@ class ResolveMissingPkPostProcessorTest {
               "alternateSuppliers.name",
               new String[0]));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertArrayEquals(
@@ -267,7 +267,7 @@ class ResolveMissingPkPostProcessorTest {
             "_subject_supplier", "urn:supplier:1",
             "_subject_customer", "urn:customer:1"));
 
-    ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+    ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
     resolver.process(tableStore);
 
     Row result = order();
@@ -313,7 +313,7 @@ class ResolveMissingPkPostProcessorTest {
         new Row("_subject_", "urn:p:1", "id", "product-1", "_subject_supplier", "urn:s:1"));
     store("Orders", new Row("id", "order-1", "_subject_product", "urn:p:1"));
 
-    ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+    ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
     resolver.process(tableStore);
 
     Iterator<Row> iterator = tableStore.readTable("Products").iterator();
@@ -394,7 +394,7 @@ class ResolveMissingPkPostProcessorTest {
             "products.supplier",
             new String[0]));
 
-    ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+    ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
     resolver.process(tableStore);
 
     // Products only resolves its own "supplier" reference during its own pass, which runs
@@ -435,7 +435,7 @@ class ResolveMissingPkPostProcessorTest {
         new Row(
             "_subject_", "urn:order:2", "id", "order-2", "_subject_supplier", "urn:supplier:1"));
 
-    ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+    ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
     resolver.process(tableStore);
     Row supplier = supplier();
     CompareTools.assertEquals(
@@ -464,6 +464,88 @@ class ResolveMissingPkPostProcessorTest {
             "supplier-1",
             "supplier.order",
             "order-2"));
+  }
+
+  @Nested
+  class TableNotPresentTest {
+
+    @BeforeEach
+    void setUp() {
+      schema =
+          new SchemaMetadata(SCHEMA_NAME)
+              .create(
+                  new TableMetadata("Customers")
+                      .add(Column.column("id").setType(ColumnType.STRING).setPkey()),
+                  new TableMetadata("Products")
+                      .add(Column.column("id").setType(ColumnType.STRING).setPkey()),
+                  new TableMetadata("Orders")
+                      .add(Column.column("id").setType(ColumnType.STRING).setPkey())
+                      .add(
+                          Column.column("customer")
+                              .setType(ColumnType.REF)
+                              .setRefTable("Customers"))
+                      .add(
+                          Column.column("products")
+                              .setType(ColumnType.REF_ARRAY)
+                              .setRefTable("Products")));
+
+      tableStore = new InMemoryTableStore();
+      store(
+          "Orders",
+          new Row(
+              "_subject_",
+              "urn:order:1",
+              "id",
+              "order-1",
+              "_subject_customer",
+              "urn:customer:1",
+              "_subject_products",
+              "urn:product:1|urn:product:2"));
+    }
+
+    @Test
+    void givenReference_whenTableNotPresentAndStrict_thenThrow() {
+      store(
+          "Orders",
+          new Row(
+              "_subject_", "urn:order:1", "id", "order-1", "_subject_customer", "urn:customer:1"));
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.strictMode(schema);
+      assertThrows(MolgenisException.class, () -> resolver.process(tableStore));
+    }
+
+    @Test
+    void givenReferenceArray_whenTableNotPresentAndStrict_thenThrow() {
+      store(
+          "Orders",
+          new Row(
+              "_subject_",
+              "urn:order:1",
+              "id",
+              "order-1",
+              "_subject_products",
+              "urn:product:1|urn:product:2"));
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.strictMode(schema);
+      assertThrows(MolgenisException.class, () -> resolver.process(tableStore));
+    }
+
+    @Test
+    void givenReference_whenTableNotPresentAndLenient_thenDrop() {
+      Row inputRow =
+          new Row(
+              "_subject_",
+              "urn:order:1",
+              "id",
+              "order-1",
+              "_subject_customer",
+              "urn:customer:1",
+              "_subject_products",
+              "urn:product:1|urn:product:2");
+      store("Orders", inputRow);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
+      resolver.process(tableStore);
+      Row order = order();
+      CompareTools.assertEquals(order, inputRow);
+    }
   }
 
   @Nested
@@ -519,7 +601,7 @@ class ResolveMissingPkPostProcessorTest {
               "supplier.order",
               null));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertEquals("order-1", supplier().getString("order"));
@@ -550,7 +632,7 @@ class ResolveMissingPkPostProcessorTest {
           new Row(
               "_subject_", "urn:customer:1", "id", "customer-1", "_subject_order", "urn:order:1"));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       assertArrayEquals(new String[] {"customer-1"}, order().getStringArray("customers.id"));
@@ -625,7 +707,7 @@ class ResolveMissingPkPostProcessorTest {
               "members.order",
               new String[0]));
 
-      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      ResolveMissingPkPostProcessor resolver = ResolveMissingPkPostProcessor.lenientMode(schema);
       resolver.process(tableStore);
 
       Row order = tableStore.readTable("Order").iterator().next();

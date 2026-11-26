@@ -793,3 +793,20 @@ describe("string filter round-trip (type → URL → parse → buildFilter)", ()
     });
   });
 });
+
+describe("parseFilterValue for enum columns", () => {
+  it.each(["ENUM", "ENUM_ARRAY"] as const)(
+    "reads a pipe separated %s value back as an equals filter",
+    (columnType) => {
+      const column: IColumn = { id: "status", label: "Status", columnType };
+      expect(parseFilterValue("open|closed", column)).toEqual({
+        operator: "equals",
+        value: ["open", "closed"],
+      });
+      expect(parseFilterValue("open", column)).toEqual({
+        operator: "equals",
+        value: ["open"],
+      });
+    }
+  );
+});

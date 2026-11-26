@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { hideAllPoppers } from "floating-vue";
+import { useDebounceFn } from "@vueuse/core";
 
 import Paragraph from "./paragraph/Paragraph.vue";
-import Heading from "./heading/Heading.vue";
 
 import EditableHeader from "./header/EditableHeader.vue";
 import EditableSection from "./section/EditableSection.vue";
@@ -20,14 +20,15 @@ import EditableButton from "./button/EditableButton.vue";
 
 import EditModal from "../form/EditModal.vue";
 
+import { updateCMSfield } from "../../utils/cms";
+import { deleteBlock, deleteComponent } from "../../utils/cms/delete";
 import {
-  deleteBlock,
-  deleteComponent,
   moveComponentUp,
   moveBlockUp,
   moveComponentDown,
   moveBlockDown,
-} from "../../utils/cms";
+} from "../../utils/cms/move";
+
 import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
@@ -58,6 +59,10 @@ const componentDisplayName = computed<string>(() => {
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
+const sourceItems =
+  props.component?.orderedItems || props.component?.unorderedItems || [];
+const cachedListItems = ref<string[]>([...sourceItems]);
+
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });
@@ -130,7 +135,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     emit("dragging", {
       dragging: action === "grab",
       componentType: props.componentType,
-      componentName: props.mg_tableclass.split(".")[1],
+      componentName: schemaTableName.value,
       action: "move",
       moveOrderId: props.orderId,
       parentId: props.parent,
@@ -195,6 +200,35 @@ function asSingularName(value: string | undefined): string | undefined {
   }
   return value;
 }
+
+const debouncedUpdateText = useDebounceFn(
+  (text: string | string[], field: string) => {
+    // regular expression used to capitalize first letter of each word and remove the spaces
+    updateCMSfield(
+      componentMetadata.value?.schemaId || "",
+      schemaTableName.value?.replace(/\s+(.)/g, (_, char) =>
+        char.toUpperCase()
+      ),
+      props.component.id,
+      text,
+      field
+    );
+  },
+  1000
+);
+
+function updateText(text: string | string[], field: string = "text") {
+  debouncedUpdateText(text, field);
+}
+
+function updateListItems(item: { key: number; text: string }, field: string) {
+  cachedListItems.value[item.key] = item.text;
+  updateText(cachedListItems.value, field);
+}
+
+function inlineSave() {
+  debouncedUpdateText.flush();
+}
 </script>
 
 <template>
@@ -206,6 +240,8 @@ function asSingularName(value: string | undefined): string | undefined {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateTitle="updateText($event, 'title')"
+    @updateSubtitle="updateText($event, 'subtitle')"
   />
   <EditableSection
     v-else-if="mg_tableclass.endsWith('.Sections')"
@@ -224,6 +260,7 @@ function asSingularName(value: string | undefined): string | undefined {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateText="updateText"
   />
   <EditableParagraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
@@ -232,6 +269,7 @@ function asSingularName(value: string | undefined): string | undefined {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateText="updateText"
   />
   <EditableImage
     v-else-if="mg_tableclass.endsWith('.Images')"
@@ -274,6 +312,8 @@ function asSingularName(value: string | undefined): string | undefined {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateOrderedItems="updateListItems($event, 'orderedItems')"
+    @inlineSave="inlineSave"
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
@@ -282,11 +322,15 @@ function asSingularName(value: string | undefined): string | undefined {
     @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @updateUnorderedItems="updateListItems($event, 'unorderedItems')"
+    @inlineSave="inlineSave"
   />
   <EditableColumnChart
     v-else-if="
       mg_tableclass.endsWith('.Statistical charts') &&
-      component.chartType?.name === 'Column chart'
+      ['Column chart', 'Grouped column chart'].includes(
+        component.chartType?.name
+      )
     "
     v-bind="component"
     :isEditable="editingIsEnabled"
@@ -316,18 +360,10 @@ function asSingularName(value: string | undefined): string | undefined {
     :metadata="componentMetadata"
     :formValues="(formComponentData as Record<string,any>)"
     :isInsert="false"
+    :title="`Edit ${componentDisplayName}`"
     @update:updated="onEdited"
     v-model:visible="showEditModal"
-  >
-    <template #header>
-      <Heading
-        id="component-form-edit-heading"
-        :level="2"
-        class="font-display mb-5"
-        :text="`Edit ${componentDisplayName}`"
-      />
-    </template>
-  </EditModal>
+  />
   <Modal
     v-model:visible="showDeleteModal"
     :title="`Delete ${componentDisplayName}?`"

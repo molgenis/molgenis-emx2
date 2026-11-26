@@ -14,7 +14,7 @@
       </div>
       <div v-else class="pb-3">
         <h4>Upload</h4>
-        <MessageWarning v-if="!session?.roles?.includes('Editor')">
+        <MessageWarning v-if="!canUpload">
           You don't have permission to upload data. Might you need to login?
         </MessageWarning>
         <div v-else>
@@ -85,13 +85,20 @@
               </ul>
             </div>
 
+            <p>
+              Export the first 1000 rows of every table as
+              <a :href="`/${schema}/api/json/_data`">json</a>.
+            </p>
+
             <div v-if="visibleTables?.length" :key="tablesHash">
-              Export specific tables:
+              Export specific tables (json gives the first 1000 rows, csv and
+              excel give all rows):
               <ul>
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
                   <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
-                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a> /
+                  <a :href="`/${schema}/api/json/` + table.id">json</a>
                 </li>
               </ul>
             </div>
@@ -147,11 +154,27 @@ export default {
     };
   },
   computed: {
+    canUpload() {
+      return (
+        this.session?.roles?.includes("Editor") ||
+        this.session?.tablePermissions?.some(
+          (permission) =>
+            permission.canInsert || permission.canUpdate || permission.canDelete
+        ) ||
+        false
+      );
+    },
     visibleTables() {
       if (this.session?.roles?.includes("Viewer")) {
         return this.tables;
       } else {
-        return this.tables.filter((t) => t.tableType === "ONTOLOGIES");
+        return this.tables.filter(
+          (table) =>
+            table.tableType === "ONTOLOGIES" ||
+            this.session?.tablePermissions?.some(
+              (permission) => permission.id === table.id && permission.canView
+            )
+        );
       }
     },
     isManagerOrOwner() {

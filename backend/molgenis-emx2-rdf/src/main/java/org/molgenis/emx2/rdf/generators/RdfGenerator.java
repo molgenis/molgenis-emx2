@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.generators;
 
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -158,7 +160,7 @@ public abstract class RdfGenerator {
    */
   protected void generateFileTriples(IRI fileIri, Row row, Column column) {
     getWriter().processTriple(fileIri, RDF.TYPE, BasicIRI.SIO_FILE);
-    Literal fileName = Values.literal(row.getString(column.getName() + "_filename"));
+    Literal fileName = Values.literal(row.getString(column.getName() + FILE_FILENAME));
     getWriter().processTriple(fileIri, RDFS.LABEL, fileName);
     getWriter().processTriple(fileIri, DCTERMS.TITLE, fileName);
     getWriter()
@@ -167,7 +169,7 @@ public abstract class RdfGenerator {
             DCTERMS.FORMAT,
             Values.iri(
                 "http://www.iana.org/assignments/media-types/"
-                    + row.getString(column.getName() + "_mimetype")));
+                    + row.getString(column.getName() + FILE_MIMETYPE)));
   }
 
   protected void describeRoot() {

@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.ColumnType.REFBACK;
+import static org.molgenis.emx2.Constants.FILE_COLUMN_SUFFIXES;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
@@ -13,6 +14,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,7 +23,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
 
-public class SqlColumnExecutor {
+public final class SqlColumnExecutor {
   private SqlColumnExecutor() {
     // hide
   }
@@ -73,8 +75,7 @@ public class SqlColumnExecutor {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
       if (newColumn.isFile()) {
-        for (String suffix :
-            new String[] {"", "_filename", "_extension", "_size", "_contents", "_mimetype"}) {
+        for (String suffix : FILE_COLUMN_SUFFIXES) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),
@@ -375,6 +376,32 @@ public class SqlColumnExecutor {
             table.getRootTable().getTableName()));
   }
 
+  private static void validateAllowedValues(Column c) {
+    String[] values = c.getAllowedValues();
+    boolean hasValues = values != null && values.length > 0;
+    if (!c.getColumnType().isEnum()) {
+      if (hasValues) {
+        throw new MolgenisException(
+            "allowedValues can only be set on ENUM or ENUM_ARRAY, not on " + c.getColumnType());
+      }
+      c.setAllowedValues((String[]) null);
+      return;
+    }
+    if (!hasValues) {
+      throw new MolgenisException(
+          c.getColumnType() + " requires at least one value in 'allowedValues'");
+    }
+    if (Arrays.stream(values).anyMatch(v -> v == null || v.isBlank())) {
+      throw new MolgenisException("'allowedValues' cannot contain a blank value");
+    }
+    String[] trimmed = Arrays.stream(values).map(String::trim).toArray(String[]::new);
+    if (Arrays.stream(trimmed).distinct().count() != trimmed.length) {
+      throw new MolgenisException(
+          "'allowedValues' cannot contain duplicates: '" + String.join("', '", trimmed) + "'");
+    }
+    c.setAllowedValues(trimmed);
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -462,6 +489,7 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
+      validateAllowedValues(c);
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
         c.setRequired(true);
@@ -479,13 +507,10 @@ public class SqlColumnExecutor {
   }
 
   static void executeCreateRefConstraints(DSLContext jooq, Column column) {
-    // set constraints
     if (column.isRef()) {
       createRefConstraints(jooq, column);
     } else if (column.isRefArray()) {
       createRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 
@@ -500,7 +525,7 @@ public class SqlColumnExecutor {
     } else if (column.isRef() || column.isRefArray()) {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
-        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
+        executeRemoveColumn(jooq, column.getReferenceRefback());
         ((SqlSchemaMetadata) column.getTable().getSchema())
             .getDatabase()
             .getListener()
@@ -518,7 +543,7 @@ public class SqlColumnExecutor {
           .dropColumnIfExists(field(name(column.getName())))
           .execute();
     }
-    MetadataUtils.deleteColumn(jooq, column);
+    deleteColumn(jooq, column);
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {

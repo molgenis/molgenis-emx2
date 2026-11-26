@@ -58,7 +58,7 @@ async def test_publish(async_publisher, async_session):
         report=MagicMock(),
         diseases=MagicMock(),
         catalog_id=MagicMock(),
-        publisher_id=MagicMock()
+        publisher_id=MagicMock(),
     )
 
     await async_publisher.publish(state)
@@ -68,9 +68,7 @@ async def test_publish(async_publisher, async_session):
     )
     assert async_publisher._delete_rows.mock_calls == [
         mock.call(state.data_to_publish.facts, state.existing_data.facts, state),
-        mock.call(
-            state.data_to_publish.collections, state.existing_data.collections, state
-        ),
+        mock.call(state.data_to_publish.collections, state.existing_data.collections, state),
         mock.call(state.data_to_publish.studies, state.existing_data.studies, state),
         mock.call(state.data_to_publish.services, state.existing_data.services, state),
         mock.call(state.data_to_publish.biobanks, state.existing_data.biobanks, state),
@@ -84,7 +82,7 @@ async def test_publish(async_publisher, async_session):
     ]
 
 
-def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
+def test_delete_rows(publisher, node_data: NodeData, session):
     biobank_meta = MagicMock()
     biobank_meta.id_attribute = "id"
     existing_biobanks_table = Table.of(
@@ -96,11 +94,23 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
                 "pid": "pid1",
                 "national_node": "NL",
             },
-            {"id": "delete_this_row", "pid": "pid2", "national_node": "NL"},
             {"id": "undeletable_id", "pid": "pid3", "national_node": "NL"},
         ],
     )
-
+    persons_meta = MagicMock()
+    persons_meta.id_attribute = "id"
+    existing_persons_table = Table.of(
+        table_type=TableType.PERSONS,
+        meta=persons_meta,
+        rows=[
+            {
+                "id": "delete_this_row",
+                "first_name": "Jan",
+                "last_name": "Janssen",
+                "national_node": "NL",
+            },
+        ],
+    )
     state: PublishingState = MagicMock()
     state.quality_info = QualityInfo(
         biobanks={"undeletable_id": ["quality"]},
@@ -109,7 +119,9 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
         collection_levels={},
         services={},
     )
-
+    state.deleted_ids = {table_type: set() for table_type in TableType}
+    state.deleted_ids[TableType.PERSONS] = {"delete_this_row"}
+    state.deleted_ids[TableType.BIOBANKS] = {"undeletable_id"}
     state.report = ErrorReport([node_data.node])
 
     warning1 = DirectoryWarning("ID delete_this_row is deleted")
@@ -119,11 +131,33 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
         "the quality info: biobanks undeletable_id."
     )
 
+    publisher._delete_rows(node_data.persons, existing_persons_table, state)
+
+    session.delete_records.assert_called_with(table="Persons", data=[{"id": "delete_this_row"}])
+
     publisher._delete_rows(node_data.biobanks, existing_biobanks_table, state)
 
-    publisher.pid_manager.terminate_biobanks.assert_called_with(["pid2"])
-    session.delete_records.assert_called_with(
-        table="Biobanks", data=[{"id": "delete_this_row"}]
-    )
-
     assert state.report.node_warnings[node_data.node] == [warning1, warning2]
+
+
+@pytest.mark.asyncio
+async def test_withdraw_rows(publisher, node_data: NodeData):
+
+    state: PublishingState = MagicMock()
+    state.deleted_ids = {table_type: set() for table_type in TableType}
+    state.deleted_ids[TableType.BIOBANKS] = {"delete_this_row"}
+
+    warning = DirectoryWarning(" Deleted Biobank delete_this_row has been 'withdrawn'.")
+
+    publisher.session.get.return_value = [{"id": "delete_this_row"}]
+    await publisher._withdraw_rows(node_data.biobanks, state)
+
+    publisher.session.save_table.assert_called_with(
+        schema=publisher.session.directory_schema,
+        table="Biobanks",
+        data=[{"id": "delete_this_row", "withdrawn": True}],
+    )
+    publisher.printer.print_warning.assert_called_with(warning)
+    publisher.pid_manager.withdraw_biobanks.assert_called_with(
+        state.deleted_ids[TableType.BIOBANKS]
+    )

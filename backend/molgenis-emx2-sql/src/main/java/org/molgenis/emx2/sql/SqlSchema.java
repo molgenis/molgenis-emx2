@@ -20,10 +20,14 @@ public class SqlSchema implements Schema {
   @Override
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
-    if (tableMetadata == null) return getTableById(name);
+    if (tableMetadata == null) {
+      return getTableById(name);
+    }
     if (tableMetadata.exists()) {
       return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
-    } else return null;
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -88,7 +92,7 @@ public class SqlSchema implements Schema {
   public List<String> getInheritedRolesForUser(String user) {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
-    if (user == null || user.equals(ADMIN_USER)) {
+    if (user == null || ADMIN_USER.equals(user)) {
       return getRoles();
     } else {
       return getMetadata().getInheritedRolesForUser(user);
@@ -347,6 +351,7 @@ public class SqlSchema implements Schema {
     }
   }
 
+  @Override
   public String getName() {
     return getMetadata().getName();
   }
@@ -370,6 +375,7 @@ public class SqlSchema implements Schema {
     return setting;
   }
 
+  @Override
   public boolean hasSetting(String key) {
     return metadata.getSetting(key) != null;
   }

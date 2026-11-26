@@ -86,11 +86,11 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     ColumnSparqlQueryGenerator mapper =
         LiteralColumnSparqlQueryGenerator.forRequiredObject(variable, rootColumn, columnVariable);
     patterns.addAll(mapper.getPatterns());
-    addSubjectColumnvariable(subjectVariable, columnVariable);
+    addSubjectColumnVariable(subjectVariable, columnVariable);
     mapPrimaryKeys();
   }
 
-  private void addSubjectColumnvariable(Variable subjectVariable, Variable columnVariable) {
+  private void addSubjectColumnVariable(Variable subjectVariable, Variable columnVariable) {
     if (rootColumn.isArray()) {
       selectors.add(SparqlVariableUtil.concatAs(encodedColumnPath(), subjectVariable));
     } else {
@@ -107,7 +107,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
         continue;
       }
 
-      ArrayList<String> columnPath = columnPath();
+      List<String> columnPath = columnPath();
       Variable subject = encodedColumnPath();
       ColumnSparqlQueryGenerator mapper = getMapperForColumn(column, subject, columnPath);
 
@@ -118,7 +118,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
   }
 
   private ColumnSparqlQueryGenerator getMapperForColumn(
-      Column column, Variable subject, ArrayList<String> columnPath) {
+      Column column, Variable subject, List<String> columnPath) {
     if (column.isReference()) {
       return new ReferenceColumnSparqlQueryGenerator(subject, column, columnPath);
     }
@@ -141,8 +141,8 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     return ColumnNameSparqlEncoder.encodeSparqlVariablePath(columnPath());
   }
 
-  private ArrayList<String> columnPath() {
-    ArrayList<String> newPath = new ArrayList<>(path);
+  private List<String> columnPath() {
+    List<String> newPath = new ArrayList<>(path);
     newPath.add(rootColumn.getName());
     return newPath;
   }

@@ -147,11 +147,32 @@ test("it should be able to fill out all input types", async ({ page }) => {
     )
     .fill("1337");
 
+  // Enum
+  await page.getByRole("combobox", { name: "enum type", exact: true }).click();
+  await page.getByRole("option", { name: "no", exact: true }).click();
+
+  // Enum array
+  await page
+    .getByRole("combobox", { name: "enum array type", exact: true })
+    .click();
+  for (const name of ["red", "blue"]) {
+    await page.getByRole("option", { name, exact: true }).click();
+  }
+  await page.keyboard.press("Escape");
+
   // Boolean
-  await page.locator("circle").nth(1).click();
+  await page
+    .locator('[id="type test-Types-boolType-form-field-input-radio-group"]')
+    .getByText("Yes", { exact: true })
+    .click();
 
   // Boolean array
-  await page.locator("circle").nth(5).click();
+  await page
+    .locator(
+      '[id="type test-Types-boolArrayType-form-field-input_0-radio-group"]'
+    )
+    .getByText("Yes", { exact: true })
+    .click();
   await page
     .locator('[id="type test-Types-boolArrayType-form-field"]')
     .getByRole("button", { name: "Add an additional item" })
@@ -247,31 +268,21 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Select
   await page
-    .locator('[id="search-for-type test-Types-selectType-form-field-input"]')
+    .getByRole("combobox", { name: "select type", exact: true })
     .click();
-  await page
-    .locator('[id="type test-Types-selectType-form-field-input-radio-group"]')
-    .getByText("FR")
-    .click();
+  await page.getByRole("option", { name: "FR", exact: true }).click();
 
-  // Select Label
+  // Radio
   await page
     .locator('[id="type test-Types-radioType-form-field-input-radio-group"]')
     .getByText("HU")
     .click();
-  await page
-    .locator(
-      '[id="search-for-type test-Types-selectTypeLabel-form-field-input"]'
-    )
-    .click();
 
-  // Radio
+  // Select Label
   await page
-    .locator(
-      '[id="type test-Types-selectTypeLabel-form-field-input-radio-group"]'
-    )
-    .getByText("Belgium")
+    .getByRole("combobox", { name: "select type Label", exact: true })
     .click();
+  await page.getByRole("option", { name: "Belgium", exact: true }).click();
 
   // Radio label
   await page
@@ -337,27 +348,12 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Multiselect
   await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-ref"] > .flex.items-center.justify-between'
-    )
+    .getByRole("combobox", { name: "multiselect type", exact: true })
     .click();
-  await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-checkbox-group"] span'
-    )
-    .filter({ hasText: "CY" })
-    .click();
-  await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-checkbox-group"] > div:nth-child(5) > .text-body-base > .w-\\[20px\\] > .fill-input'
-    )
-    .click();
-  await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-checkbox-group"]'
-    )
-    .getByText("LT", { exact: true })
-    .click();
+  for (const name of ["CY", "ES", "LT"]) {
+    await page.getByRole("option", { name, exact: true }).click();
+  }
+  await page.keyboard.press("Escape");
 
   // Multiselect label
   // await page

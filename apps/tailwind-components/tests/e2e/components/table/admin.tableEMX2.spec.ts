@@ -22,7 +22,9 @@ const SCHEMA = `tableEMX2 test ${RUN_ID}`;
 const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 
 test.beforeAll(async () => {
-  api = await apiRequest.newContext();
+  api = await apiRequest.newContext({
+    storageState: { cookies: [], origins: [] },
+  });
   await signinAdmin(api, route);
   await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
 });
@@ -60,9 +62,11 @@ test("the row should be removed from the table after deletion", async ({
   await page
     .getByRole("searchbox", { name: "Search Category" })
     .fill("deltest");
-
-  await page.getByRole("cell", { name: "deltest" }).hover();
-  await page.getByRole("button", { name: 'delete {"name":"deltest"}' }).click();
+  await page
+    .locator(".w-5.h-5.hover\\:cursor-pointer.accent-theme.block")
+    .first()
+    .click();
+  await page.getByRole("button", { name: "Delete selection" }).click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(
     page.getByRole("cell", { name: "view row details deltest" })

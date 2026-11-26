@@ -7,6 +7,7 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.sql.row.resolvers.ResolveDefaultValue;
+import org.molgenis.emx2.sql.row.validators.ValidateAllowedValues;
 import org.molgenis.emx2.sql.row.validators.ValidateExpression;
 import org.molgenis.emx2.sql.row.validators.ValidateRequired;
 import org.molgenis.emx2.utils.JavaScriptUtils;
@@ -47,6 +48,7 @@ public class SqlRowProcessor {
       }
 
       JavascriptContextBuilder.updateContext(context, row, column);
+      ValidateAllowedValues.apply(context, column);
     }
   }
 

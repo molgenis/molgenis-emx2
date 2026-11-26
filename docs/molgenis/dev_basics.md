@@ -37,10 +37,14 @@ Make sure the name of the branch is short and concise. Branches must start with 
 |:---------|:----------------------------------------------------------------------|
 | `feat/`  | New features                                                          |
 | `fix/`   | bug fixes or minor changes                                            |
+| `ref/`   | refactoring of existing code                                          |
+| `spike/` | experimental code                                                     |
 | `docs/`  | for anything related to documentation                                 |
 | `chore/` | non-production code changes (e.g., updating dependencies, jobs, etc.) |
 
 For example, if you are adding a new component to the library. Name the branch like so:
+
+In case multiple branches are created that are part of an overarching change, one should create branches with the structure `feat/<big project>/name` to indicate multiple branches belong together. 
 
 ```bash
 git switch -c feat/my-new-component
@@ -57,6 +61,18 @@ We use [Semantic Release](https://github.com/semantic-release/semantic-release) 
 * `chore(component): message` => relates to other boring stuff.
 * Other non-release commands: perf, refactor, test, style, docs.
 
+### Checking links in the documentation
+
+CI checks the links in `docs/` with [lychee](https://github.com/lycheeverse/lychee). The check fails when a link points to a page or a heading that does not exist. It does not check links to external websites.
+
+To run the same check on your computer, install lychee and run it from the root of the repository:
+
+```bash
+brew install lychee
+lychee --config docs/lychee.toml --root-dir "$PWD/docs" 'docs/**/*.md'
+```
+
+For a link to a heading, write the file name with the heading id, for example `[naming](use_database.md#naming-requirements)`. The check cannot verify links in the Docsify form `use_database?id=naming-requirements`.
 
 ## Software we use
 

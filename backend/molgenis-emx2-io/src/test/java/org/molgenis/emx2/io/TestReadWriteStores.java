@@ -38,9 +38,10 @@ public class TestReadWriteStores {
     } finally {
       Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
-    if (Files.exists(tmp))
+    if (Files.exists(tmp)) {
       throw new RuntimeException(
           "TMP directory " + tmp + " not deleted. This should never happen.");
+    }
   }
 
   @Test
@@ -56,9 +57,10 @@ public class TestReadWriteStores {
     } finally {
       Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
-    if (Files.exists(tmp))
+    if (Files.exists(tmp)) {
       throw new RuntimeException(
           "TMP directory " + tmp + " not deleted. This should never happen.");
+    }
   }
 
   @Test
@@ -74,9 +76,10 @@ public class TestReadWriteStores {
     } finally {
       Files.walk(tmp).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
-    if (Files.exists(tmp))
+    if (Files.exists(tmp)) {
       throw new RuntimeException(
           "TMP directory " + tmp + " not deleted. This should never happen.");
+    }
   }
 
   @Test

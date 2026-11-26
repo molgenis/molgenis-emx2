@@ -23,25 +23,23 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 class TestTableQueriesWithInheritance {
   private static final String schemaName = TestTableQueriesWithInheritance.class.getSimpleName();
   private static GraphqlExecutor grapql;
-  private static Database database;
-  private static TaskService taskService;
-  private static Schema schema;
 
   @BeforeAll
   static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(schemaName);
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(schemaName);
     schema.create(table("Person", column("name").setPkey()));
     schema.create(
         table("Employee", column("salary").setType(ColumnType.INT)).setInheritName("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
+    schema.getTable("Employee").insert(row("name", "zed", "salary", 5));
 
     // table with a file column, with a row that has no file uploaded
     schema.create(
         table("Document", column("title").setPkey(), column("file").setType(ColumnType.FILE)));
     schema.getTable("Document").insert(row("title", "hello"));
 
-    taskService = new TaskServiceInMemory();
+    TaskService taskService = new TaskServiceInMemory();
     grapql = new GraphqlExecutor(schema, taskService);
   }
 
@@ -51,6 +49,17 @@ class TestTableQueriesWithInheritance {
         execute(
             "{Person{name,salary}}"); // note, Person.salary doesn't exist, but Employee.salary does
     assertEquals(1000, result.at("/Person/0/salary").asInt());
+  }
+
+  @Test
+  void saveOnTheParentKeepsTheSubclassColumnOfASubclassRow() throws IOException {
+    String zed = "{Person(filter:{name:{equals:\"zed\"}}){name salary mg_tableclass}}";
+    assertEquals(5, execute(zed).at("/Person/0/salary").asInt());
+
+    execute("mutation{save(Person:[{name:\"zed\",salary:6,mg_tableclass:\"Employee\"}]){message}}");
+
+    assertEquals(6, execute(zed).at("/Person/0/salary").asInt());
+    assertTrue(execute(zed).at("/Person/0/mg_tableclass").asText().endsWith("Employee"));
   }
 
   @Test

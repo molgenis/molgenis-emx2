@@ -66,6 +66,8 @@ class ColumnTypeRdfMapperTest {
     for (Column column : columnList) {
       switch (column.getColumnType()) {
         case STRING -> column.setPkey();
+        case ENUM -> column.setAllowedValues("one", "two");
+        case ENUM_ARRAY -> column.setAllowedValues("red", "green", "blue");
         case REF, REF_ARRAY, SELECT, CHECKBOX, RADIO, MULTISELECT -> column.setRefTable(REF_TABLE);
         case REFBACK -> column.setRefTable(REFBACK_TABLE).setRefBack("ref");
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
@@ -141,6 +143,10 @@ class ColumnTypeRdfMapperTest {
                 "lonelyString",
                 ColumnType.STRING_ARRAY.name(),
                 "string1,string2",
+                ColumnType.ENUM.name(),
+                "one",
+                ColumnType.ENUM_ARRAY.name(),
+                "red,blue",
                 ColumnType.TEXT.name(),
                 "lonelyText",
                 ColumnType.TEXT_ARRAY.name(),
@@ -289,8 +295,6 @@ class ColumnTypeRdfMapperTest {
    */
   @Test
   void validateValueTypes() {
-    Row row = allColumnTypes.getTable(TEST_TABLE).retrieveRows().get(0);
-
     assertAll(
         // SIMPLE
         () ->
@@ -394,7 +398,7 @@ class ColumnTypeRdfMapperTest {
   void validateValuesRetrieval() {
     // REFBACK is special usecase that returns multiple rows if multiple matches are found where
     // all columns are identical except the REFBACK.
-    HashSet<Value> actualRefback = new HashSet<>();
+    Set<Value> actualRefback = new HashSet<>();
     for (int i = 0; i < testRows.size() - 1; i++) { // Last row is empty row.
       actualRefback.addAll(retrieveValues(COLUMN_COMPOSITE_REFBACK, i));
     }
@@ -440,6 +444,16 @@ class ColumnTypeRdfMapperTest {
                     Values.literal("string1", CoreDatatype.XSD.STRING),
                     Values.literal("string2", CoreDatatype.XSD.STRING)),
                 retrieveValues(ColumnType.STRING_ARRAY.name())),
+        () ->
+            assertEquals(
+                Set.of(Values.literal("one", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.ENUM.name())),
+        () ->
+            assertEquals(
+                Set.of(
+                    Values.literal("red", CoreDatatype.XSD.STRING),
+                    Values.literal("blue", CoreDatatype.XSD.STRING)),
+                retrieveValues(ColumnType.ENUM_ARRAY.name())),
         () ->
             assertEquals(
                 Set.of(Values.literal("lonelyText", CoreDatatype.XSD.STRING)),
@@ -606,7 +620,7 @@ class ColumnTypeRdfMapperTest {
 
   @Test
   void validateEmptyValuesRetrieval() {
-    HashSet<Value> emptySet = new HashSet<>();
+    Set<Value> emptySet = new HashSet<>();
     Column[] columns =
         allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
             // Primary key and AUTO_ID are filled so skipped.

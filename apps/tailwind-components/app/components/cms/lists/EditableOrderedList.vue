@@ -6,7 +6,7 @@ import ComponentActions from "../ComponentActions.vue";
 import {
   actionsToolbarShowDelay,
   actionsToolbarHideDelay,
-} from "../../../utils/cms";
+} from "../../../utils/cms/constants.ts";
 
 const props = withDefaults(
   defineProps<IOrderedLists & { isEditable?: boolean }>(),
@@ -15,7 +15,13 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["edit", "delete", "move"]);
+const emit = defineEmits([
+  "edit",
+  "delete",
+  "move",
+  "updateOrderedItems",
+  "inlineSave",
+]);
 const showMenu = ref<boolean>(false);
 </script>
 
@@ -38,7 +44,15 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <OrderedList :id="id" :orderedItems="orderedItems" />
+    <OrderedList
+      :id="id"
+      :orderedItems="orderedItems"
+      :isEditable="isEditable"
+      @updateOrderedItems="
+        $emit('updateOrderedItems', { key: $event.key, text: $event.text })
+      "
+      @inlineSave="$emit('inlineSave')"
+    />
   </VMenu>
   <OrderedList v-else :id="id" :orderedItems="orderedItems" />
 </template>

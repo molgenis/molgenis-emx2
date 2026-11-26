@@ -29,7 +29,8 @@ const fieldId = computed(
 <template>
   <Field
     class="pb-8 last:pb-64"
-    v-model="form.values.value[column.id]"
+    :modelValue="form.getValue(column.id)"
+    @update:modelValue="form.values.value[column.id] = $event"
     :id="fieldId"
     :type="column.columnType"
     :label="column.formLabel ?? column.label"
@@ -42,6 +43,7 @@ const fieldId = computed(
     :ref-table-id="column.refTableId"
     :ref-label="column.refLabel || column.refLabelDefault"
     :ref-back-id="column.refBackId"
+    :allowedValues="column.allowedValues"
     :invalid="(form.visibleColumnErrors.value[column.id] || '').length > 0"
     @input="form.onUpdateColumn(props.column)"
     @blur="form.onBlurColumn(props.column)"

@@ -119,7 +119,7 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection;
   };
-  orderedColumnsIds: string[];
+  orderedVisibleColumnsIds?: string[];
   search?: string;
 }
 
@@ -213,9 +213,21 @@ export interface Crumb {
   url: string;
   label: string;
 }
+/**
+ * - spaLink: route inside the ui app, navigated client-side
+ * - internalPageLink: page on this server outside the ui app, prefixed with the app base path
+ * - externalLink: absolute URL, used as is
+ */
+export const LINK_TYPES = [
+  "spaLink",
+  "internalPageLink",
+  "externalLink",
+] as const;
+export type LinkType = (typeof LINK_TYPES)[number];
+
 export interface Link {
-  link: string;
-  isSpaLink?: boolean;
+  location: string;
+  linkType?: LinkType;
 }
 export interface MenuItem extends Link {
   label: string;

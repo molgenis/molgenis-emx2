@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.FilterBean.f;
@@ -110,6 +111,30 @@ class SqlQueryWithRefTests {
         MolgenisException.class,
         query::retrieveRows,
         "Expected an exception when querying by field resource instead of resource.id");
+    database.dropSchema(schema.getName());
+  }
+
+  @Test
+  void testQueryByRefWithIntKey() {
+    Schema schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
+    Table resources =
+        schema.create(table("Resources", column("id", INT).setPkey(), column("name", STRING)));
+    Table datasets =
+        schema.create(
+            table(
+                "Datasets",
+                column("id", STRING).setPkey(),
+                column("resource", REF).setRefTable("Resources")));
+    resources.insert(row("id", 1, "name", "resource1"), row("id", 2, "name", "resource2"));
+    datasets.insert(row("id", "1", "resource", 1), row("id", "2", "resource", 2));
+
+    List<Row> rows = datasets.query().where(f("resource", EQUALS, "2")).retrieveRows();
+    assertEquals(1, rows.size(), "Expected one row");
+    assertEquals(2, rows.get(0).getInteger("resource"));
+
+    rows = datasets.query().where(f("resource", f("name", EQUALS, "resource1"))).retrieveRows();
+    assertEquals(1, rows.size(), "Expected one row");
+    assertEquals("1", rows.get(0).getString("id"));
     database.dropSchema(schema.getName());
   }
 }

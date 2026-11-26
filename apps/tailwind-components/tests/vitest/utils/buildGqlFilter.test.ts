@@ -932,3 +932,18 @@ describe("buildGraphQLFilter", () => {
     });
   });
 });
+
+describe("buildGraphQLFilter for enum columns", () => {
+  it.each(["ENUM", "ENUM_ARRAY"] as const)(
+    "sends the picked %s values as equals, which the backend reads as any of",
+    (columnType) => {
+      const column = makeColumn({ id: "status", columnType, label: "Status" });
+      const filters = new Map<string, IFilterValue>([
+        ["status", { operator: "equals", value: ["open", "closed"] }],
+      ]);
+      expect(buildGraphQLFilter(filters, [column])).toEqual({
+        status: { equals: ["open", "closed"] },
+      });
+    }
+  );
+});

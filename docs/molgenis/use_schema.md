@@ -111,11 +111,53 @@ NOTE: when using any of the above relationship types, the "refTable" must also b
 - email_array
 - hyperlink_array
 
+#### Enumerations (fixed list of allowed values)
+
+- enum : one value from a fixed list that you declare in the column's `allowedValues`
+- enum_array : several values from that same list
+
+An enumeration needs no ontology or reference table. The list belongs to the column. See [allowedValues](#allowedvalues).
+
 #### Layout (static content, not an input)
 
 - heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
 - section: same as 'heading' except that each section will be shown on separate page in the form. Particularly useful for very big forms. When used, columns of 
   type=heading will be treated as subheaders.
+
+### allowedValues
+
+The allowed values of an `enum` or `enum_array` column. Write them in one cell, separated by commas. MOLGENIS keeps them in the order you write them, in the forms, the filters and the API.
+
+| tableName | columnName      | columnType | allowedValues  |
+|-----------|-----------------|------------|----------------|
+| Types     | enum type       | enum       | yes,no,unknown |
+| Types     | enum array type | enum_array | red,green,blue |
+
+In a CSV file, put the cell in double quotes: `"yes,no,unknown"`. A spreadsheet program does this for you. To use a comma inside one value, put that value in double quotes as well, and double every quote, as CSV requires: `"""small, medium"",large"` gives the two values `small, medium` and `large`. MOLGENIS removes spaces around each value.
+
+MOLGENIS checks the list when you save the model. It rejects the model, names the column, and saves nothing if:
+
+- an enum column has no allowed values
+- a value is blank
+- a value appears twice
+- a column of another type has `allowedValues`
+
+A list can lose values, as long as one value remains.
+
+MOLGENIS checks every row you write, whether it comes from a form, a CSV upload, or the GraphQL and REST APIs. It also checks a value that comes from a [defaultValue](#defaultvalue) or a [computed](#computed) expression. It rejects a value outside the list and names the column and the value. The match is exact and case sensitive, but spaces around a value are ignored. An empty value passes. Use `required` to forbid it. For an `enum_array`, MOLGENIS checks each element.
+
+MOLGENIS does not re-check existing rows when you change `allowedValues`. A row that holds a removed value fails on its next write, even when you change another field of that row. The form shows that field empty, and the filter cannot find the row by the removed value. So before you remove or rename a value, update the rows that hold it, for example with a CSV upload. A direct SQL write is not checked.
+
+In the forms:
+
+- an `enum` shows a radio group, whatever its length. You can clear an `enum` that is not required.
+- an `enum_array` shows a checkbox group, whatever its length.
+
+Write the `defaultValue` of an `enum_array` as a comma-separated list, for example `red,blue`. Put a value that holds a comma in double quotes: `"other, please explain",red`.
+
+The table filters show enum columns by default.
+
+For a long list, or a list that needs labels or a hierarchy, use an [ontology](#ontologies).
 
 ### key
 
