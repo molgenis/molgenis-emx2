@@ -2,11 +2,13 @@
 import { ref, computed } from "vue";
 import { useSession } from "../../../composables/useSession";
 import { setCmsEditorUrl, setCmsViewUrl } from "../../../utils/cms";
+import SaveState from "../SaveState.vue";
 
 const props = defineProps<{
   pageType: string;
   route: Record<string, any>;
   schema: string;
+  saving: boolean;
 }>();
 
 const { isAdmin, session } = await useSession(props.schema);
@@ -49,6 +51,9 @@ const showToolbar = ref<boolean>(true);
 
 <template>
   <div class="fixed bottom-7.5 right-0">
+    <div class="flex flex-row justify-end pointer-events-none m-6 text-title">
+      <SaveState :saving="saving" />
+    </div>
     <div
       v-if="enableEditing"
       class="flex flex-row items-center gap-2.5 p-2 overflow-x-hidden rounded-tl-base rounded-bl-base transition-[transform] origin-center duration-default motion-reduce:transition-none border-theme border-color-theme box-border bg-navigation shadow-lg"
