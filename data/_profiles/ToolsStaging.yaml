@@ -1,0 +1,17 @@
+---
+name: ToolsStaging
+description: "This schema is used for entry of metadata on tools and technology."
+
+profileTags: ToolsStaging
+
+demoData: _demodata/applications/catalogue_toolsstaging
+
+settings: _settings/catalogue_toolsstaging
+
+# special options
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: true
