@@ -107,7 +107,7 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 
 ### set_token
 ```python
-def set_token(self, token: str):
+def set_token(self, token: str | None):
     ...
 ```
 Sets the client's token in case no token was supplied in the initialization.
@@ -117,6 +117,16 @@ Raises the `TokenSigninException` when the client is already signed in with a us
 |-----------|------|-------------|----------|---------|
 | `token`   | str  | the token   | True     |         |
 
+### set_job
+```python
+def set_job(self, job: str | None):
+    ...
+```
+Sets the job ID of the job running a script with a Client object.
+
+| parameter | type | description        | required | default |
+|-----------|------|--------------------|----------|---------|
+| `job`     | str  | the job identifier | True     |         |
 
 ### get
 ```python

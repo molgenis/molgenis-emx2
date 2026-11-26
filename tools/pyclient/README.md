@@ -18,10 +18,13 @@ Releases of the Molgenis EMX2 Pyclient follow the release number of the accompan
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ
 from the latest version of Molgenis EMX2.
 
+### 13.232.4
+
+- Added `set_job` method.
+
 ### 13.204.1
 
 - Improved preparing CSV data for reading as DataFrame
-
 
 ### 13.196.1
 
