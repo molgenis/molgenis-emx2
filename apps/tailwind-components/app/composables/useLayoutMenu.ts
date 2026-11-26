@@ -41,7 +41,8 @@ export async function useLayoutMenu(
     },
     {
       label: "SHACL",
-      location: `shacl`,
+      location: `/${schema.value}/shacl`,
+      linkType: "internalPageLink",
       role: "Viewer",
     },
     {
