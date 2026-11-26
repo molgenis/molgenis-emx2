@@ -94,7 +94,7 @@ useIntersectionObserver(
       v-for="block in blocks"
       :key="block.kind === 'list' ? block.field.id : block.fields[0]?.id"
     >
-      <div v-if="block.kind === 'list'" class="mt-5 first:mt-0">
+      <div v-if="block.kind === 'list'" class="my-5 first:mt-0 last:mb-0">
         <h4
           v-if="!isSingleFieldSection"
           class="mb-2.5 font-bold text-body-base"
