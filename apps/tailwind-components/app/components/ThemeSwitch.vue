@@ -1,12 +1,23 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useHead, useCookie } from "#app";
 import BaseIcon from "./BaseIcon.vue";
 import { TOGGLEABLE_THEMES, useActiveUiTheme } from "../composables/useUiTheme";
 
 const uiTheme = useActiveUiTheme();
-const activeTheme = useCookie("theme", {
-  default: () => {
-    if (TOGGLEABLE_THEMES.includes(uiTheme.value)) {
+// the cookie only holds an explicit user choice, without one we fall back to
+// the (per schema) ui theme, computed so it follows route changes
+const themeCookie = useCookie<string | null>("theme", {
+  maxAge: 60 * 60 * 24 * 365, // 1 year
+  sameSite: "lax",
+  path: "/",
+});
+
+const activeTheme = computed<string>({
+  get: () => {
+    if (themeCookie.value) {
+      return themeCookie.value;
+    } else if (TOGGLEABLE_THEMES.includes(uiTheme.value)) {
       return uiTheme.value;
     } else if (import.meta.client) {
       return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -16,9 +27,9 @@ const activeTheme = useCookie("theme", {
       return "light";
     }
   },
-  maxAge: 60 * 60 * 24 * 365, // 1 year
-  sameSite: "lax",
-  path: "/",
+  set: (value) => {
+    themeCookie.value = value;
+  },
 });
 
 useHead({
