@@ -95,7 +95,6 @@ public final class Constants {
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
-  public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
   public static final String MOLGENIS_SERVICE_URL = "MOLGENIS_SERVICE_URL";
@@ -107,6 +106,9 @@ public final class Constants {
   public static final String MOLGENIS_APP_GQL_DB_CACHE_SIZE = "MOLGENIS_APP_GQL_DB_CACHE_SIZE";
   public static final String MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE =
       "MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE";
+
+  public static final Username ADMIN_USER = new Username("admin");
+  public static final Username ANONYMOUS_USER = new Username("anonymous");
 
   static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 

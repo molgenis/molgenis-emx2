@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
@@ -28,7 +29,7 @@ class TestGraphqlAdminFields {
   private static Database database;
   private static GraphqlSessionHandlerInterface sessionManager;
   private static final String SCHEMA_NAME = TestGraphqlAdminFields.class.getSimpleName();
-  private static final String TEST_PERSOON = "testPersoon";
+  private static final Username TEST_PERSOON = new Username("testPersoon");
   private static final String ANOTHER_SCHEMA_NAME =
       TestGraphqlAdminFields.class.getSimpleName() + "2";
 
@@ -42,10 +43,10 @@ class TestGraphqlAdminFields {
 
     sessionManager =
         new GraphqlSessionHandlerInterface() {
-          private String user;
+          private Username user;
 
           @Override
-          public void createSession(String username) {
+          public void createSession(Username username) {
             this.user = username;
           }
 
@@ -55,7 +56,7 @@ class TestGraphqlAdminFields {
           }
 
           @Override
-          public String getCurrentUser() {
+          public Username getCurrentUser() {
             return user;
           }
         };
@@ -63,7 +64,6 @@ class TestGraphqlAdminFields {
 
   @Test
   void testUsers() {
-    // put in transaction so user count is not affected by other operations
     database.tx(
         tdb -> {
           tdb.becomeAdmin();
@@ -87,6 +87,23 @@ class TestGraphqlAdminFields {
             assertTrue(e.getMessage().contains("FieldUndefined"));
           }
           tdb.becomeAdmin();
+        });
+  }
+
+  @Test
+  void testGetUsersWithNullEmail() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.addMember(new Username("testUser"), VIEWER.toString());
+
+          try {
+            JsonNode result = execute("{_admin{users(email: null){email} userCount}}");
+            assertTrue(result.at("/_admin/userCount").intValue() > 0);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
         });
   }
 
@@ -130,7 +147,7 @@ class TestGraphqlAdminFields {
             assertFalse(permission.path("insert").asBoolean());
             assertFalse(permission.path("isRowLevel").asBoolean());
             String user = customRole.at("/users/0").asText();
-            assertEquals(TEST_PERSOON, user);
+            assertEquals(TEST_PERSOON.value(), user);
 
           } catch (IOException e) {
             throw new RuntimeException(e);
@@ -202,7 +219,7 @@ class TestGraphqlAdminFields {
 
     executeDb("mutation{signout{message}}");
     executeDb("mutation{signin(email:\"testAdmin\",password:\"test123456\"){message}}");
-    database.setActiveUser("testAdmin");
+    database.setActiveUser(new Username("testAdmin"));
 
     // Do an admin only query
     String lastUpdateResult =
@@ -272,7 +289,7 @@ class TestGraphqlAdminFields {
 
             // assert results
             User user = testDatabase.getUser(TEST_PERSOON);
-            assertEquals("testPersoon", user.getUsername());
+            assertEquals(new Username("testPersoon"), user.getUsername());
             assertFalse(user.getEnabled());
 
             List<Member> members = testDatabase.getSchema(SCHEMA_NAME).getMembers();
@@ -281,7 +298,7 @@ class TestGraphqlAdminFields {
             Member anotherSchemaMember =
                 testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
             assertEquals("Owner", anotherSchemaMember.getRole());
-            assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
+            assertEquals(TEST_PERSOON, anotherSchemaMember.getUsername());
 
             // clean up
             testDatabase.removeUser(TEST_PERSOON);
@@ -291,11 +308,82 @@ class TestGraphqlAdminFields {
         });
   }
 
+  @Test
+  void shouldRemoveUser() {
+    database.tx(
+        testDatabase -> {
+          testDatabase.becomeAdmin();
+          testDatabase.addUser(TEST_PERSOON);
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+
+          try {
+            String message =
+                execute("mutation{removeUser(email:\"  testPersoon  \"){message}}")
+                    .at("/removeUser/message")
+                    .asText();
+            assertEquals("User testPersoon removed", message);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          assertFalse(testDatabase.hasUser(TEST_PERSOON));
+        });
+  }
+
+  @Test
+  void givenNoEmail_whenRemoveUser_thenFail() {
+    database.tx(
+        testDatabase -> {
+          testDatabase.becomeAdmin();
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+
+          try {
+            JsonNode result = execute("mutation{removeUser{status message}}").at("/removeUser");
+            assertEquals("FAILED", result.get("status").asText());
+            assertEquals("No email provided", result.get("message").asText());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  @Test
+  void testUpdateUserCannotChangeOwnPassword() {
+    database.tx(
+        testDatabase -> {
+          testDatabase.becomeAdmin();
+          graphql = new GraphqlExecutor(testDatabase, new TaskServiceInMemory());
+          Username activeUsername = testDatabase.getActiveUsername();
+          String newPassword = "bypassAttempt123";
+
+          try {
+            String query =
+                "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
+            Map<String, Object> updateUser = new HashMap<>();
+            updateUser.put("email", activeUsername.value());
+            updateUser.put("password", newPassword);
+            Map<String, Object> variables = new HashMap<>();
+            variables.put("updateUser", updateUser);
+
+            JsonNode node =
+                new ObjectMapper()
+                    .readTree(
+                        convertExecutionResultToJson(
+                            graphql.executeWithoutSession(query, variables)));
+            assertEquals("FAILED", node.at("/data/updateUser/status").asText());
+            assertTrue(node.at("/data/updateUser/message").asText().contains("changePassword"));
+            assertFalse(testDatabase.checkUserPassword(activeUsername, newPassword));
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
   @NotNull
   private static Map<String, Object> createUpdateUserVar() {
     Map<String, Object> variables = new HashMap<>();
     Map<String, Object> updateUser = new HashMap<>();
-    updateUser.put("email", TEST_PERSOON);
+    updateUser.put("email", TEST_PERSOON.value());
     updateUser.put("password", "12345678");
     updateUser.put("enabled", "false");
 

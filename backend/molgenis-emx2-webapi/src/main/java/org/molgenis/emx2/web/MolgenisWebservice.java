@@ -235,7 +235,7 @@ public class MolgenisWebservice {
       if (schema == null) {
         throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
       }
-      String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+      Username currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
       String role = schema.getRoleForActiveUser();
 
       SchemaMenu schemaMenu = SchemaMenu.fromSchema(schema);
@@ -245,7 +245,7 @@ public class MolgenisWebservice {
       }
 
       SchemaMenu menuForRole;
-      if (ANONYMOUS.equals(currentUser)) {
+      if (ANONYMOUS_USER.equals(currentUser)) {
         menuForRole = schemaMenu.menuForAnonymousAndRole(role);
       } else {
         menuForRole = schemaMenu.menuForRole(role);
@@ -254,7 +254,7 @@ public class MolgenisWebservice {
       if (menuForRole.isEmpty()) {
         logger.warn("No menu available for current user");
         boolean userHasAnyRole =
-            schema.getMembers().stream().anyMatch(m -> m.getUser().equals(currentUser));
+            schema.getMembers().stream().anyMatch(m -> m.getUsername().equals(currentUser));
         if (userHasAnyRole) {
           ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
         } else {

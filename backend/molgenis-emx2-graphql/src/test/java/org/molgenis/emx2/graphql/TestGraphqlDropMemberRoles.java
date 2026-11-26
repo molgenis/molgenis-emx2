@@ -57,8 +57,8 @@ class TestGraphqlDropMemberRoles {
 
   @BeforeEach
   void assignSystemAndCustomRole() {
-    schema.addMember(DOCTOR_USER, SYSTEM_ROLE);
-    schema.addMember(DOCTOR_USER, PATIENT_VIEWER);
+    schema.addMember(new Username(DOCTOR_USER), SYSTEM_ROLE);
+    schema.addMember(new Username(DOCTOR_USER), PATIENT_VIEWER);
     assertEquals(List.of(PATIENT_VIEWER, SYSTEM_ROLE), rolesOfDoctorUser());
   }
 
@@ -95,7 +95,7 @@ class TestGraphqlDropMemberRoles {
 
   private static List<String> rolesOfDoctorUser() {
     return schema.getMembers().stream()
-        .filter(member -> DOCTOR_USER.equals(member.getUser()))
+        .filter(member -> DOCTOR_USER.equals(member.getUsername().value()))
         .map(Member::getRole)
         .sorted()
         .toList();
