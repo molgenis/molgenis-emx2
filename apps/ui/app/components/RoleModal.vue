@@ -18,8 +18,8 @@ import useAdminSettings from "../composables/useAdminSettings.ts";
 import type { CustomRole, RoleModalMode } from "../interfaces/interfaces.ts";
 import { getRootTableNames } from "../util/adminUtils";
 
-const RIGHTS = ["select", "insert", "update", "delete"] as const;
-const RIGHT_LABELS: Record<Right, string> = {
+const PERMISSIONS = ["select", "insert", "update", "delete"] as const;
+const PERMISSION_LABELS: Record<Right, string> = {
   select: "Select",
   insert: "Insert",
   update: "Update",
@@ -35,7 +35,7 @@ const SYSTEM_ROLE_NAMES = [
   "Manager",
   "Owner",
   "Member",
-];
+] as const;
 const RLS_ROLE_PREFIX = "RLS_";
 
 const props = withDefaults(
@@ -96,7 +96,7 @@ const roleNameError = computed(() => {
   if (!name) {
     return "";
   }
-  if (SYSTEM_ROLE_NAMES.includes(name)) {
+  if (SYSTEM_ROLE_NAMES.some((role) => role === name)) {
     return `'${name}' is a system role name`;
   }
   if (name.startsWith(RLS_ROLE_PREFIX)) {
@@ -274,7 +274,7 @@ function effectivePermission(permission: TablePermission): TablePermission {
 
 function isSamePermission(a: TablePermission, b: TablePermission): boolean {
   return (
-    RIGHTS.every((right) => a[right] === b[right]) &&
+    PERMISSIONS.every((right) => a[right] === b[right]) &&
     a.isRowLevel === b.isRowLevel
   );
 }
@@ -291,15 +291,15 @@ function noPermissions(tableName: string): TablePermission {
 }
 
 function hasAllRights(permission: TablePermission): boolean {
-  return RIGHTS.every((right) => permission[right]);
+  return PERMISSIONS.every((right) => permission[right]);
 }
 
 function hasSomeRights(permission: TablePermission): boolean {
-  return RIGHTS.some((right) => permission[right]);
+  return PERMISSIONS.some((right) => permission[right]);
 }
 
 function setRights(permission: TablePermission, value: boolean) {
-  RIGHTS.forEach((right) => {
+  PERMISSIONS.forEach((right) => {
     permission[right] = value;
   });
 }
@@ -342,7 +342,7 @@ async function save() {
   }
 }
 
-type Right = (typeof RIGHTS)[number];
+type Right = (typeof PERMISSIONS)[number];
 </script>
 
 <template>
@@ -429,11 +429,11 @@ type Right = (typeof RIGHTS)[number];
                 </TableHead>
                 <TableHead class="text-table-column-header">Table</TableHead>
                 <TableHead
-                  v-for="right in RIGHTS"
+                  v-for="right in PERMISSIONS"
                   :key="right"
                   class="text-table-column-header"
                 >
-                  {{ RIGHT_LABELS[right] }}
+                  {{ PERMISSION_LABELS[right] }}
                 </TableHead>
                 <TableHead class="text-table-column-header">
                   Row level
@@ -458,10 +458,10 @@ type Right = (typeof RIGHTS)[number];
                   />
                 </TableCell>
                 <TableCell>{{ tableName }}</TableCell>
-                <TableCell v-for="right in RIGHTS" :key="right">
+                <TableCell v-for="right in PERMISSIONS" :key="right">
                   <InputCheckbox
                     :id="`role-modal-${tableName}-${right}`"
-                    :aria-label="`${RIGHT_LABELS[right]} ${tableName}`"
+                    :aria-label="`${PERMISSION_LABELS[right]} ${tableName}`"
                     v-model="permissions[tableName]![right]"
                   />
                 </TableCell>

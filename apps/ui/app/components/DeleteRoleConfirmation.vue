@@ -1,3 +1,25 @@
+<script setup lang="ts">
+import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
+import Button from "../../../tailwind-components/app/components/Button.vue";
+import FormError from "../../../tailwind-components/app/components/form/Error.vue";
+import Modal from "../../../tailwind-components/app/components/Modal.vue";
+import type { CustomRole } from "../interfaces/interfaces.ts";
+
+const props = defineProps<{
+  roles: CustomRole[];
+  errorMessage?: string;
+  deletingInProgress?: boolean;
+}>();
+
+const visible = defineModel<boolean>("visible", {
+  required: true,
+});
+
+const emit = defineEmits<{
+  deleteRoles: [roles: CustomRole[]];
+}>();
+</script>
+
 <template>
   <Modal v-model:visible="visible" :title="`Delete role(s)`">
     <div class="overflow-y-auto">
@@ -30,7 +52,7 @@
           <div class="flex gap-4">
             <Button
               type="secondary"
-              :disabled="props.deleting"
+              :disabled="props.deletingInProgress"
               @click="visible = false"
             >
               Cancel
@@ -38,12 +60,12 @@
             <Button
               id="confirm-delete-roles"
               type="primary"
-              :disabled="!props.roles.length || props.deleting"
+              :disabled="!props.roles.length || props.deletingInProgress"
               @click="emit('deleteRoles', props.roles)"
             >
               Delete
               <BaseIcon
-                v-if="props.deleting"
+                v-if="props.deletingInProgress"
                 class="inline animate-spin"
                 name="ProgressActivity"
               />
@@ -54,25 +76,3 @@
     </template>
   </Modal>
 </template>
-
-<script setup lang="ts">
-import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
-import Button from "../../../tailwind-components/app/components/Button.vue";
-import FormError from "../../../tailwind-components/app/components/form/Error.vue";
-import Modal from "../../../tailwind-components/app/components/Modal.vue";
-import type { CustomRole } from "../interfaces/interfaces.ts";
-
-const props = defineProps<{
-  roles: CustomRole[];
-  errorMessage?: string;
-  deleting?: boolean;
-}>();
-
-const visible = defineModel<boolean>("visible", {
-  required: true,
-});
-
-const emit = defineEmits<{
-  deleteRoles: [roles: CustomRole[]];
-}>();
-</script>

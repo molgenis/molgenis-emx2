@@ -32,7 +32,7 @@ const DEFAULT_TABLE_SETTINGS: ITableSettings = {
     column: "schemaId",
     direction: "ASC",
   },
-};
+} as const;
 
 const tableFeatures = {
   showSearch: true,
@@ -265,7 +265,7 @@ function roleDisplayName(row: TableRow): string {
     v-model:visible="showDeleteRoleModal"
     :roles="rolesForDeletion"
     :errorMessage="deleteRolesErrorMessage"
-    :deleting="deletingRoles"
+    :deletingInProgress="deletingRoles"
     @deleteRoles="handleDeleteRoles"
   />
 </template>
