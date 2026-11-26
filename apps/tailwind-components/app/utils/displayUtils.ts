@@ -12,22 +12,37 @@ export interface ResolvedDisplay {
   logoColumn?: IColumn;
 }
 
+export const LABEL_COLUMN_ID = "__label";
+
+export interface RowLabel {
+  template: string;
+  label: string;
+}
+
 const MAX_DETAIL_COLUMNS = 5;
 
-export function resolveDisplay(allColumns: IColumn[]): ResolvedDisplay {
+export function resolveDisplay(
+  allColumns: IColumn[],
+  rowLabel?: RowLabel
+): ResolvedDisplay {
+  const labelColumn: IColumn | undefined = rowLabel && {
+    id: LABEL_COLUMN_ID,
+    label: rowLabel.label,
+    columnType: "STRING",
+  };
   const columns = allColumns.filter((column) => column.role !== "INTERNAL");
   if (columns.some((column) => column.role)) {
     const withRole = (role: ColumnRole) =>
       columns.find((column) => column.role === role);
     return {
-      titleColumn: withRole("TITLE"),
+      titleColumn: withRole("TITLE") ?? labelColumn,
       subtitleColumn: withRole("SUBTITLE"),
       descriptionColumn: withRole("DESCRIPTION"),
       logoColumn: withRole("LOGO"),
       detailColumns: columns.filter((column) => column.role === "DETAIL"),
     };
   }
-  const titleColumn = defaultTitleColumn(columns);
+  const titleColumn = labelColumn ?? defaultTitleColumn(columns);
   const descriptionColumn = defaultDescriptionColumn(columns);
   return {
     titleColumn,

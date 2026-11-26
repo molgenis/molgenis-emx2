@@ -150,6 +150,34 @@ describe("deriveRecordQuery", () => {
     ).toContain("sponsor { name country { code } }");
   });
 
+  test("selects the fields the refLabel of a displayed list reads, besides the keys", () => {
+    const labelled: ISchemaMetaData = {
+      ...schema,
+      tables: schema.tables.map((candidate) =>
+        candidate.id === "Pet"
+          ? {
+              ...candidate,
+              columns: candidate.columns.map((petColumn) =>
+                petColumn.id === "toys"
+                  ? {
+                      ...petColumn,
+                      display: "LIST" as const,
+                      refLabelDefault: "${name} ${color}",
+                    }
+                  : petColumn
+              ),
+            }
+          : candidate
+      ),
+    };
+    const enhanced = enhanceMetadata(labelled, {
+      Toy: { columns: { notes: { role: "TITLE" } } },
+    });
+    expect(deriveRecordQuery(enhanced, "Pet")).toMatch(
+      new RegExp(`toys\\(limit: ${NESTED_LIST_LIMIT}\\) \\{[^}]*\\bcolor\\b`)
+    );
+  });
+
   test("asks no limit and no count of an unconfigured refback", () => {
     const text = query();
     expect(text).toContain("toys { name }");

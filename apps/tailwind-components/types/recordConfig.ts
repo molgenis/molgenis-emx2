@@ -1,3 +1,4 @@
+import type { RowLabel } from "../app/utils/displayUtils";
 import type {
   ColumnDisplay,
   ColumnRole,
@@ -28,5 +29,6 @@ export interface RecordList {
   filter: Record<string, unknown>;
   pageSize: number;
   seed?: ListSeed;
+  rowLabel?: RowLabel;
   linkTo?: (row: IRow) => string;
 }

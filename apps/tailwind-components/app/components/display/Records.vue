@@ -4,7 +4,12 @@ import { useAsyncData } from "#app";
 import type { IRow } from "../../../../metadata-utils/src/types";
 import type { ListSeed } from "../../../types/recordConfig";
 import type { ColumnDisplay } from "../../../../metadata-utils/src/types";
-import { resolveDisplay } from "../../utils/displayUtils";
+import {
+  LABEL_COLUMN_ID,
+  resolveDisplay,
+  type RowLabel,
+} from "../../utils/displayUtils";
+import { columnValueToString } from "../../utils/columnValueToString";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import Button from "../Button.vue";
@@ -26,6 +31,7 @@ const props = withDefaults(
     linkTo?: (row: IRow) => string;
     showEmpty?: boolean;
     seed?: ListSeed;
+    rowLabel?: RowLabel;
   }>(),
   {
     layout: "TABLE",
@@ -121,7 +127,9 @@ const { data, error } = useAsyncData(
 
 const fetchedColumns = computed(() => data.value?.columns ?? []);
 
-const resolvedDisplay = computed(() => resolveDisplay(fetchedColumns.value));
+const resolvedDisplay = computed(() =>
+  resolveDisplay(fetchedColumns.value, props.rowLabel)
+);
 
 const appendedRows = ref<IRow[]>([]);
 const appendedCount = ref<number>();
@@ -139,6 +147,16 @@ const fetchedRows = computed(() => [
 const fetchedCount = computed(
   () => appendedCount.value ?? data.value?.count ?? 0
 );
+
+const shownRows = computed(() => {
+  const label = props.rowLabel;
+  return label && resolvedDisplay.value.titleColumn?.id === LABEL_COLUMN_ID
+    ? fetchedRows.value.map((row) => ({
+        ...row,
+        [LABEL_COLUMN_ID]: columnValueToString(row, label.template),
+      }))
+    : fetchedRows.value;
+});
 
 const remaining = computed(() =>
   Math.max(fetchedCount.value - fetchedRows.value.length, 0)
@@ -190,14 +208,14 @@ function onPageUpdate(page: number) {
   <div v-else>
     <RecordsTable
       v-if="layout === 'TABLE'"
-      :rows="fetchedRows"
+      :rows="shownRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :columns="resolvedDisplay.detailColumns"
       :linkTo="linkTo"
     />
     <RecordsCards
       v-else-if="layout === 'CARDS'"
-      :rows="fetchedRows"
+      :rows="shownRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :subtitleColumn="resolvedDisplay.subtitleColumn"
       :descriptionColumn="resolvedDisplay.descriptionColumn"
@@ -207,7 +225,7 @@ function onPageUpdate(page: number) {
     />
     <RecordsList
       v-else-if="layout === 'LIST'"
-      :rows="fetchedRows"
+      :rows="shownRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :subtitleColumn="resolvedDisplay.subtitleColumn"
       :descriptionColumn="resolvedDisplay.descriptionColumn"
@@ -218,14 +236,14 @@ function onPageUpdate(page: number) {
     />
     <RecordsLinks
       v-else-if="layout === 'LINKS'"
-      :rows="fetchedRows"
+      :rows="shownRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"
       :navLabel="tableId"
     />
     <RecordsBullets
       v-else-if="layout === 'BULLETS'"
-      :rows="fetchedRows"
+      :rows="shownRows"
       :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"
       :navLabel="tableId"

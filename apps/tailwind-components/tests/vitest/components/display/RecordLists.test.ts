@@ -289,6 +289,74 @@ describe("DisplayRecord nested lists", () => {
     );
   });
 
+  describe("a row's title in a nested list", () => {
+    const visitColumns: IColumn[] = [
+      { id: "ward", label: "Ward", columnType: "STRING", key: 1 },
+      { id: "bed", label: "Bed", columnType: "STRING", key: 1 },
+      { id: "nick", label: "Nick", columnType: "STRING" },
+    ];
+
+    function mountVisits(columns: IColumn[]) {
+      return mount(DisplayRecord, {
+        props: {
+          columns: [
+            nameColumn,
+            {
+              id: "visits",
+              label: "Visits",
+              columnType: "REFBACK",
+              refTableId: "Visit",
+              refSchemaId: "test-schema",
+              refBackId: "owner",
+              refLabelDefault: "${ward}/${bed}",
+              display: "LIST",
+            },
+          ],
+          row: {
+            name: "Alice",
+            visits: [{ ward: "A", bed: "1", nick: "Tweety" }],
+            visits_agg: { count: 1 },
+          },
+          schema: {
+            id: "test-schema",
+            label: "test",
+            tables: [
+              {
+                id: "Visit",
+                name: "Visit",
+                label: "Visit",
+                schemaId: "test-schema",
+                tableType: "DATA",
+                columns,
+              },
+            ],
+          },
+          showTableOfContents: false,
+        },
+      });
+    }
+
+    it("is the column's refLabel when the table has no TITLE role, composite key included", async () => {
+      const wrapper = mountVisits(visitColumns);
+      await flushPromises();
+
+      expect(wrapper.findComponent(RecordsList).find("h2").text()).toBe("A/1");
+    });
+
+    it("is the TITLE role column when the table has one, not the refLabel", async () => {
+      const wrapper = mountVisits(
+        visitColumns.map((column) =>
+          column.id === "nick" ? { ...column, role: "TITLE" } : column
+        )
+      );
+      await flushPromises();
+
+      expect(wrapper.findComponent(RecordsList).find("h2").text()).toBe(
+        "Tweety"
+      );
+    });
+  });
+
   it("renders a section whose only field is a list without the list label", async () => {
     const wrapper = mountRecord([petsColumn], {
       pets: row.pets,

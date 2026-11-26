@@ -60,10 +60,14 @@ function rootSelection(schema: ISchemaMetaData, column: IColumn): string {
     )
     .map((candidate) => columnSelection(schema, candidate))
     .join(" ");
+  const paths = labelPaths(column);
+  const labelFields = paths.length
+    ? pathSelection(schema, target.id, paths)
+    : "";
   const paged = PAGED_TYPES.includes(column.columnType);
   return `${column.id}${
     paged ? `(limit: ${NESTED_LIST_LIMIT})` : ""
-  } { ${fields} }${paged ? ` ${column.id}_agg { count }` : ""}`;
+  } { ${fields} ${labelFields} }${paged ? ` ${column.id}_agg { count }` : ""}`;
 }
 
 function columnSelection(schema: ISchemaMetaData, column: IColumn): string {

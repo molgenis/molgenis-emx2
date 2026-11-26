@@ -26,6 +26,7 @@ import type {
 import { groupRecordSections } from "../../utils/groupRecordSections";
 import { NESTED_LIST_LIMIT } from "../../utils/deriveRecordQuery";
 import { recordTitle } from "../../utils/recordTitle";
+import type { RowLabel } from "../../utils/displayUtils";
 import { equalsFilter, nestedRecordLink } from "../../utils/recordPath";
 import Legend from "../Legend.vue";
 import SidebarLayout from "./SidebarLayout.vue";
@@ -94,12 +95,18 @@ const lists = computed(() => {
         filter: nestedFilter(column),
         pageSize: NESTED_LIST_LIMIT,
         seed: listSeed(column),
+        rowLabel: rowLabel(column),
         linkTo: listLink(column),
       };
     }
   }
   return resolved;
 });
+
+function rowLabel(column: IColumn): RowLabel | undefined {
+  const template = column.refLabel ?? column.refLabelDefault;
+  return template ? { template, label: column.label } : undefined;
+}
 
 function listLink(column: IColumn): ((row: IRow) => string) | undefined {
   const route = props.config?.columns?.[column.id]?.route;
