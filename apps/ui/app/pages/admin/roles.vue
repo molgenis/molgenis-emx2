@@ -34,25 +34,25 @@ const DEFAULT_TABLE_SETTINGS: ITableSettings = {
   },
 } as const;
 
-const tableFeatures = {
+const ROLES_TABLE_FEATURES = {
   showSearch: true,
   showStickyHeader: true,
-};
+} as const;
 
-const tablePermissions = {
+const ROLES_TABLE_PERMISSIONS = {
   canInsert: true,
   canUpdate: true,
   canDelete: true,
   canModifySelection: true,
   isRowLevel: false,
-};
+} as const;
 
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
   { label: "Role Name", id: "role", columnType: "STRING" },
   { label: "Tables", id: "tables", columnType: "STRING_ARRAY" },
   { label: "Users", id: "users", columnType: "STRING_ARRAY" },
-];
+] as const;
 
 const tableMetadata: ITableMetaData = {
   id: ROLES_SCHEMA_ID,
@@ -61,7 +61,7 @@ const tableMetadata: ITableMetaData = {
   label: "Roles",
   tableType: "DATA",
   columns: COLUMNS,
-};
+} as const;
 
 const adminSettings = await useAdminSettings();
 
@@ -100,12 +100,13 @@ const rolesShown = computed<CustomRole[]>(() =>
 function filterRoles(search: string, roles: CustomRole[]): CustomRole[] {
   if (!search) {
     return roles;
+  } else {
+    return roles.filter((role) =>
+      [role.schemaId, role.role, ...role.tables, ...role.users].some((value) =>
+        value?.toLowerCase().includes(search)
+      )
+    );
   }
-  return roles.filter((role) =>
-    [role.schemaId, role.role, ...role.tables, ...role.users].some((value) =>
-      value?.toLowerCase().includes(search)
-    )
-  );
 }
 
 function openRoleModal(mode: RoleModalMode, role?: CustomRole) {
@@ -119,6 +120,7 @@ function showDeleteRoleConfirmation(role?: CustomRole) {
   if (!candidates.length) {
     return;
   }
+
   rolesForDeletion.value = candidates;
   deleteRolesErrorMessage.value = "";
   showDeleteRoleModal.value = true;
@@ -193,8 +195,8 @@ function roleDisplayName(row: TableRow): string {
 
 <template>
   <TableInteractive
-    :features="tableFeatures"
-    :permissions="tablePermissions"
+    :features="ROLES_TABLE_FEATURES"
+    :permissions="ROLES_TABLE_PERMISSIONS"
     :rows="rolesShown"
     :rowCount="matchingRoles.length"
     :selectedRows="selectedRows"
