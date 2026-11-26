@@ -141,6 +141,14 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         highlightWidth {
                             name
                         }
+                        retrieveValueFromTable
+                        highlightValueSchema
+                        highlightValueTable
+                        highlightValueColumn
+                        highlightValueFilter
+                        highlightValueAggregationType {
+                            name
+                        }
                         
                         # statistical charts
                         chartType {

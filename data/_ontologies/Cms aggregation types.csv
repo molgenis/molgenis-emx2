@@ -1,0 +1,6 @@
+order,name,parent,codesystem,code,ontologyTermURI,definition
+0,count,,,,,
+1,sum,,,,,
+2,average,,,,,
+3,min,,,,,
+4,max,,,,,

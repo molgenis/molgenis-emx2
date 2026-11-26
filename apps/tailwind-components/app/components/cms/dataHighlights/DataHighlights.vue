@@ -1,12 +1,37 @@
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import DynamicComponentWidth from "../DynamicComponentWidth.vue";
 import type { IDataHighlights } from "../../../../types/cms";
 import type { ICmsComponentWidths } from "../../../../types/CmsComponents";
 
-defineProps<IDataHighlights>();
+const props = defineProps<IDataHighlights>();
+
+const value = ref<number>(0);
+  
+const query = computed<string|undefined>(() => {
+  if (props.retrieveValueFromTable) {
+    const table = props.highlightValueTable;
+    let body = ""
+    
+    if (props.highlightValueColumn) {
+      body += props.highlightValueColumn;
+      body += "\n" 
+    }
+    
+    body += props.highlightValueAggregationType?.name;
+    
+    return `query getAggregation($filter: ${table}Filter) {
+      ${table}_agg(filter: $filter) {
+        ${body}
+      }
+    }`
+  };
+})
+
 </script>
 
 <template>
+  {{ query }}
   <DynamicComponentWidth
     :id="id"
     :width="(highlightWidth?.name as ICmsComponentWidths)"
