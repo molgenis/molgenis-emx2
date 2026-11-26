@@ -97,7 +97,7 @@ describe("DisplayRecord nested lists", () => {
   });
 
   it.each(Object.entries(layouts))(
-    "renders a %s list under a small label, after the field that precedes it",
+    "renders a %s list among fields as a field: its label a dt, the list in the matching dd",
     async (layout, component) => {
       const wrapper = mountRecord(
         [nameColumn, speciesColumn, petsColumn],
@@ -107,41 +107,28 @@ describe("DisplayRecord nested lists", () => {
       await flushPromises();
 
       const section = wrapper.get("section");
-      const list = section.findComponent(component);
-      expect(list.exists()).toBe(true);
-      expect(list.text()).toContain("Bird 0");
-
-      const definitionList = section.get("dl");
-      const heading = section.get("h4");
-      expect(heading.text()).toBe("Pets");
-      expect(definitionList.text()).not.toContain("Pets");
-      expect(definitionList.text()).toContain("human");
-      const following = Node.DOCUMENT_POSITION_FOLLOWING;
-      expect(
-        definitionList.element.compareDocumentPosition(heading.element) &
-          following
-      ).toBeTruthy();
-      expect(
-        heading.element.compareDocumentPosition(list.element) & following
-      ).toBeTruthy();
+      const terms = section.findAll("dt").map((term) => term.text());
+      expect(terms).toEqual(["Name", "Species", "Pets"]);
+      const definition = section.findAll("dd")[2];
+      const list = definition?.findComponent(component);
+      expect(list?.exists()).toBe(true);
+      expect(list?.text()).toContain("Bird 0");
+      expect(section.find("h4").exists()).toBe(false);
     }
   );
 
-  it("renders a list at its field's position: fields before it, the list, then fields after it", async () => {
+  it("renders a list at its field's position among the fields, in one definition list", async () => {
     const wrapper = mountRecord([nameColumn, petsColumn, speciesColumn], row);
     await flushPromises();
 
-    const parts = Array.from(wrapper.get("section").element.children).map(
-      (child) => child.tagName.toLowerCase()
-    );
-    expect(parts).toEqual(["dl", "div", "dl"]);
-    const [before, listBlock, after] = Array.from(
-      wrapper.get("section").element.children
-    );
-    expect(before?.textContent).toContain("Alice");
-    expect(listBlock?.querySelector("h4")?.textContent?.trim()).toBe("Pets");
-    expect(listBlock?.textContent).toContain("Bird 0");
-    expect(after?.textContent).toContain("human");
+    const section = wrapper.get("section");
+    expect(section.findAll("dl")).toHaveLength(1);
+    const terms = section.findAll("dt").map((term) => term.text());
+    const definitions = section.findAll("dd");
+    expect(terms).toEqual(["Name", "Pets", "Species"]);
+    expect(definitions[0]?.text()).toContain("Alice");
+    expect(definitions[1]?.text()).toContain("Bird 0");
+    expect(definitions[2]?.text()).toContain("human");
   });
 
   it("seeds the list from the record's own rows and count, and pages past them by the query's limit", async () => {

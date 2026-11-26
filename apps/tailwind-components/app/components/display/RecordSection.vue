@@ -2,11 +2,7 @@
 import { useIntersectionObserver } from "@vueuse/core";
 import { computed, ref, type ComponentPublicInstance } from "vue";
 import type { cellPayload } from "../../../types/types";
-import type {
-  RecordField,
-  RecordLayout,
-  RecordSection,
-} from "../../../types/record";
+import type { RecordLayout, RecordSection } from "../../../types/record";
 import type { RecordList } from "../../../types/recordConfig";
 import ContentBlock from "../content/ContentBlock.vue";
 import DefinitionList from "../DefinitionList.vue";
@@ -29,25 +25,15 @@ const props = withDefaults(
   }
 );
 
-type Block =
-  | { kind: "fields"; fields: RecordField[] }
-  | { kind: "list"; field: RecordField; list: RecordList };
-
-const blocks = computed(() =>
-  props.section.fields.reduce<Block[]>((result, field) => {
-    const list = props.lists[field.id];
-    const last = result[result.length - 1];
-    if (list) {
-      result.push({ kind: "list", field, list });
-    } else if (last?.kind === "fields") {
-      last.fields.push(field);
-    } else {
-      result.push({ kind: "fields", fields: [field] });
-    }
-    return result;
-  }, [])
-);
 const isSingleFieldSection = computed(() => props.section.fields.length === 1);
+const fieldLists = computed(() =>
+  props.section.fields.map((field) => ({ field, list: props.lists[field.id] }))
+);
+const singleList = computed(() =>
+  isSingleFieldSection.value
+    ? props.lists[props.section.fields[0]?.id ?? ""]
+    : undefined
+);
 
 const wrapper = computed(() =>
   props.layout === "CARDS" ? ContentBlock : "div"
@@ -90,56 +76,34 @@ useIntersectionObserver(
       {{ section.label }}
     </h3>
 
-    <template
-      v-for="block in blocks"
-      :key="block.kind === 'list' ? block.field.id : block.fields[0]?.id"
-    >
-      <div v-if="block.kind === 'list'" class="my-5 first:mt-0 last:mb-0">
-        <h4
-          v-if="!isSingleFieldSection"
-          class="mb-2.5 font-bold text-body-base"
-        >
-          {{ block.field.label }}
-        </h4>
-        <DisplayRecords
-          :schemaId="block.list.schemaId"
-          :tableId="block.list.tableId"
-          :filter="block.list.filter"
-          :layout="block.list.layout"
-          :pageSize="block.list.pageSize"
-          :seed="block.list.seed"
-          :linkTo="block.list.linkTo"
-        />
-      </div>
-      <DefinitionList v-else :compact="false">
-        <template v-for="field in block.fields" :key="field.id">
-          <template v-if="isSingleFieldSection">
-            <div class="md:col-span-3">
-              <slot name="value" :field="field">
-                <ValueEMX2
-                  :metadata="field.metadata"
-                  :data="field.value"
-                  @valueClick="$emit('valueClick', $event)"
-                />
-              </slot>
-            </div>
-          </template>
-          <template v-else>
-            <DefinitionListTerm>
-              <span>{{ field.label }}</span>
-            </DefinitionListTerm>
-            <DefinitionListDefinition>
-              <slot name="value" :field="field">
-                <ValueEMX2
-                  :metadata="field.metadata"
-                  :data="field.value"
-                  @valueClick="$emit('valueClick', $event)"
-                />
-              </slot>
-            </DefinitionListDefinition>
-          </template>
+    <DisplayRecords v-if="singleList" v-bind="singleList" />
+    <DefinitionList v-else :compact="false">
+      <template v-for="{ field, list } in fieldLists" :key="field.id">
+        <div v-if="isSingleFieldSection" class="md:col-span-3">
+          <slot name="value" :field="field">
+            <ValueEMX2
+              :metadata="field.metadata"
+              :data="field.value"
+              @valueClick="$emit('valueClick', $event)"
+            />
+          </slot>
+        </div>
+        <template v-else>
+          <DefinitionListTerm>
+            <span>{{ field.label }}</span>
+          </DefinitionListTerm>
+          <DefinitionListDefinition>
+            <DisplayRecords v-if="list" v-bind="list" />
+            <slot v-else name="value" :field="field">
+              <ValueEMX2
+                :metadata="field.metadata"
+                :data="field.value"
+                @valueClick="$emit('valueClick', $event)"
+              />
+            </slot>
+          </DefinitionListDefinition>
         </template>
-      </DefinitionList>
-    </template>
+      </template>
+    </DefinitionList>
   </component>
 </template>
