@@ -70,7 +70,12 @@ public final class ReportUtils {
    * wrapped in a count query.
    */
   static String getSql(Map<String, String> report) {
-    return report.get("sql").replaceAll("[\\s;]+$", "");
+    String sql = report.get("sql");
+    int end = sql.length();
+    while (end > 0 && (sql.charAt(end - 1) == ';' || Character.isWhitespace(sql.charAt(end - 1)))) {
+      end--;
+    }
+    return sql.substring(0, end);
   }
 
   private static Object processRows(List<Row> rows) throws JsonProcessingException {
