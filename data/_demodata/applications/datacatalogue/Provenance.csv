@@ -1,0 +1,2 @@
+resource,id,lineage,source pid,changes made
+testCohort1,,"TestCohort1 was made as a test cohort with demo data by the Genomics Coordination Center in 2023",https://example-pid.org,"testCohort1 was harvested from the UMC catalogue. No changes were made upon harvesting."
