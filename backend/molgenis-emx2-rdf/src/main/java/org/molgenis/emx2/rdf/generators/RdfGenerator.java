@@ -9,6 +9,7 @@ import static org.molgenis.emx2.rdf.RdfUtils.*;
 
 import java.util.*;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -43,7 +44,7 @@ public abstract class RdfGenerator {
   }
 
   protected void processRows(
-      final Consumer<Row> consumer, final Table table, final PrimaryKey primaryKey) {
+      final Consumer<Row> consumer, final Table table, @Nullable final PrimaryKey primaryKey) {
     Query query = table.query();
 
     if (primaryKey != null) {
@@ -58,15 +59,20 @@ public abstract class RdfGenerator {
     query.streamRows(consumer);
   }
 
-  /**
-   * Retrieve selected {@link Table} from {@link Schema} including any recursively inherited tables
-   * up to the root table (as long as these tables are still part of the same scheme as the {@code
-   * tableFilter}).
-   */
-  protected Set<Table> tablesToDescribe(Schema schema, Table tableFilter) {
+  protected Set<Table> ancestors(Table table) {
+    Set<Table> result = new HashSet<>();
+    Table parent = table.getInheritedTable();
+    while (parent != null) {
+      result.add(parent);
+      parent = parent.getInheritedTable();
+    }
+    return result;
+  }
+
+  protected Set<Table> descendantsAndSelf(Table table) {
     Set<Table> tablesToDescribe = new HashSet<>();
-    for (Table currentTable : schema.getTablesSorted()) {
-      processInheritedTable(tableFilter, tablesToDescribe, currentTable);
+    for (Table currentTable : table.getSchema().getTablesSorted()) {
+      processInheritedTable(table, tablesToDescribe, currentTable);
     }
     return tablesToDescribe;
   }

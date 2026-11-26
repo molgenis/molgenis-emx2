@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS_USER;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
@@ -14,6 +16,7 @@ import graphql.parser.ParserOptions;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -117,7 +120,7 @@ public class GraphqlExecutor {
 
     // we don't log password calls
     if (logger.isInfoEnabled()) {
-      if (query.contains("password")) {
+      if (query.toLowerCase(Locale.ROOT).contains("password")) {
         logger.info("query: obfuscated because contains parameter with name 'password'");
       } else {
         logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
@@ -167,7 +170,7 @@ public class GraphqlExecutor {
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
     @Override
-    public void createSession(String username) {
+    public void createSession(Username username) {
       // no-op
     }
 
@@ -177,8 +180,8 @@ public class GraphqlExecutor {
     }
 
     @Override
-    public String getCurrentUser() {
-      return "";
+    public Username getCurrentUser() {
+      return ANONYMOUS_USER;
     }
   }
 }

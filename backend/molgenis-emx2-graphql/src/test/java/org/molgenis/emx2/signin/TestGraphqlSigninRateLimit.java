@@ -14,6 +14,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.signin.RateLimit.AttemptResults;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -21,9 +22,10 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 class TestGraphqlSigninRateLimit {
 
-  private static final String WRONG_PASSWORD_USER = "rateLimitWrongPassword";
-  private static final String UNKNOWN_USER = "rateLimitUnknownUser";
-  private static final String BLOCKED_COUNT_USER = "rateLimitBlockedCountUser";
+  private static final Username WRONG_PASSWORD_USER = new Username("rateLimitWrongPassword");
+  private static final Username UNKNOWN_USER = new Username("rateLimitUnknownUser");
+  private static final Username BLOCKED_COUNT_USER = new Username("rateLimitBlockedCountUser");
+
   private static final String PASSWORD = "rateLimit123";
 
   public static final ObjectMapper MAPPER = new ObjectMapper();
@@ -100,12 +102,12 @@ class TestGraphqlSigninRateLimit {
         .getValue();
   }
 
-  private boolean isRateLimited(String email) {
+  private boolean isRateLimited(Username email) {
     return RateLimit.getInstance().getRateLimit(email).isPresent();
   }
 
-  private String signin(String email, String password) throws IOException {
-    String query = SIGNIN_QUERY.formatted(email, password);
+  private String signin(Username email, String password) throws IOException {
+    String query = SIGNIN_QUERY.formatted(email.value(), password);
     ExecutionResult result =
         graphql.execute(query, Map.of(), new GraphqlExecutor.DummySessionHandler());
 

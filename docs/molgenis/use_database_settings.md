@@ -36,6 +36,16 @@ example with a page inside the 'ui' app
 {"location": "/pet%20store/Pet", "linkType": "spaLink"}
 ```
 
+#### Theme
+Set the theme of the ui app for pages of this database with the optional SCHEMA_UI_THEME setting
+
+- key: ```SCHEMA_UI_THEME```
+- value: the name of the theme, for example ```molgenis```, ```umcg```, ```aumc```, ```hdsu```, ```uncan-connect```, ```light``` or ```dark```
+
+If not set or an empty string, the ```UI_THEME``` admin setting is used.
+If set to a theme other than ```light``` or ```dark```, the light/dark theme switch is hidden.
+See the ```UI_THEME``` admin setting for more details.
+
 
 #### Main menu logo
 Set a custom logo in the main menu with the optional logoURL setting

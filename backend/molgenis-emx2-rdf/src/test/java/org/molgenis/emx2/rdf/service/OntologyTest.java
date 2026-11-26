@@ -6,12 +6,18 @@ import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
@@ -131,7 +137,7 @@ class OntologyTest extends RdfServiceTestRunner {
             getApi(SCHEMA_NAME)
                 + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx");
 
-    Set<Value> parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
+    Set<Value> parents = handler.getResources().get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
         2, parents.size(), "This disease should only be a subclass of Diseases and C00-C75");
   }
@@ -155,12 +161,12 @@ class OntologyTest extends RdfServiceTestRunner {
 
     Set<Value> actualSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(SCHEMA_NAME) + "Patients/name=bob"))
             .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
     Set<Value> actualNonSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(SCHEMA_NAME) + "Patients/name=bob"))
             .get(Values.iri(getApi(SCHEMA_NAME) + "Patients/column/diseases"));
 
@@ -187,16 +193,60 @@ class OntologyTest extends RdfServiceTestRunner {
 
     Set<Value> actualSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(CROSS_SCHEMA_NAME) + "Patients/name=pim"))
             .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
     Set<Value> actualNonSemantic =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(CROSS_SCHEMA_NAME) + "Patients/name=pim"))
             .get(Values.iri(getApi(CROSS_SCHEMA_NAME) + "Patients/column/diseases"));
 
     assertEquals(expectedSemantic, actualSemantic);
     assertEquals(expectedNonSemantic, actualNonSemantic);
+  }
+
+  @Nested
+  class Emx2OntologyTest {
+    @Test
+    void testThatOntologyTermsUseRDFSchema() throws IOException {
+      InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
+
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
+        if (subject.stringValue().endsWith("/Diseases/U07.1")) {
+          Map<IRI, Set<Value>> data = handler.getResources().get(subject);
+          assertTrue(data.containsKey(RDFS.LABEL), "The class should have a label");
+          assertTrue(
+              data.containsKey(RDFS.SUBCLASSOF),
+              "Children should be defined as a subClass of a parent Class");
+          assertTrue(
+              data.containsKey(OWL.SAMEAS),
+              "URLs to the canonical version should be defined a owl:sameAs");
+          assertTrue(
+              data.containsKey(RDFS.ISDEFINEDBY), "Definition should be given as rdsf:isDefinedBy");
+          assertTrue(data.containsKey(SKOS.NOTATION), "Code should be defined as a skos:Notation");
+        }
+      }
+    }
+
+    /**
+     * Ontology tables are describing classes.
+     *
+     * @see <a href="https://github.com/molgenis/molgenis-emx2/issues/2984">Issue #2997</a>
+     * @throws IOException
+     */
+    @Test
+    void testThatOntologyTermsAreClasses() throws IOException {
+      InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
+
+      assertFalse(handler.getResources().keySet().isEmpty());
+      for (Resource subject : handler.getResources().keySet()) {
+        if (subject.stringValue().endsWith("/Diseases/U07.1")) {
+          Set<Value> types = handler.getResources().get(subject).get(RDF.TYPE);
+          assertTrue(types.contains(OWL.CLASS), "Ontology tables define classes");
+        }
+      }
+    }
   }
 }

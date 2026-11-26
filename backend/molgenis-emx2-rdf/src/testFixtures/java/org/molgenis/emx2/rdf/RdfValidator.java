@@ -53,7 +53,7 @@ public class RdfValidator {
     for (Map.Entry<Resource, Map<IRI, Map<Value, Boolean>>> validationSubject :
         validations.entrySet()) {
       Map<IRI, Set<Value>> foundPredicates =
-          handler.resources.getOrDefault(validationSubject.getKey(), null);
+          handler.getResources().getOrDefault(validationSubject.getKey(), null);
 
       for (Map.Entry<IRI, Map<Value, Boolean>> validationPredicate :
           validationSubject.getValue().entrySet()) {
