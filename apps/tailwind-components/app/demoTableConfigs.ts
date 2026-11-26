@@ -19,6 +19,7 @@ export const tableConfigs: Record<string, TableConfig> = {
       description: { role: "DETAIL" },
       numberOfParticipants: { role: "DETAIL" },
       subpopulations: { display: "TABLE" },
+      creator: { display: "CARDS" },
     },
   },
   Subpopulations: {
