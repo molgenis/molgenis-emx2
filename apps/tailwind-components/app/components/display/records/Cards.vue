@@ -35,8 +35,15 @@ function logoUrl(row: IRow): string | undefined {
 
 <template>
   <div class="@container">
-    <ul class="grid grid-cols-1 gap-5 @2xl:grid-cols-2" role="list">
-      <li v-for="(row, rowIndex) in rows" :key="rowIndex" class="border p-5">
+    <ul
+      class="grid grid-cols-1 pt-px @2xl:grid-cols-2 @2xl:pl-px [&>li]:-mt-px @2xl:[&>li]:-ml-px"
+      role="list"
+    >
+      <li
+        v-for="(row, rowIndex) in rows"
+        :key="rowIndex"
+        class="border p-5 @2xl:p-11"
+      >
         <img
           v-if="logoUrl(row)"
           :src="logoUrl(row)"
