@@ -37,6 +37,8 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
+const MAX_TITLE_FROM_TEMPLATE_LENGTH = 20;
+
 const sections = computed(() => groupRecordSections(props.columns, props.row));
 
 const recordSections = computed<RecordSection[]>(() =>
@@ -136,9 +138,20 @@ function goToSection(id: string): void {
   document.getElementById(targetId)?.scrollIntoView();
 }
 
-const title = computed(() =>
-  recordTitle(props.columns, props.row, props.titleTemplate)
-);
+const title = computed(() => {
+  const keyTitle = recordTitle(props.columns, props.row);
+  if (!props.titleTemplate) {
+    return keyTitle;
+  }
+  const fromTemplate = recordTitle(
+    props.columns,
+    props.row,
+    props.titleTemplate
+  );
+  return fromTemplate && fromTemplate.length < MAX_TITLE_FROM_TEMPLATE_LENGTH
+    ? fromTemplate
+    : keyTitle;
+});
 </script>
 
 <template>
