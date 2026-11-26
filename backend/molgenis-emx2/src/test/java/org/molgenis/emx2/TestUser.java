@@ -9,12 +9,13 @@ public class TestUser {
   @Test
   public void testUser() {
     // silly test to get sonar green
-    User u = new User("donald");
-    User u2 = new User("donald");
+    Username donald = new Username("donald");
+    User u = new User(donald);
+    User u2 = new User(donald);
 
     assertEquals(u, u2);
 
-    u2.setUsername("mickey");
+    u2.setUsername(new Username("mickey"));
 
     assertNotEquals(u, u2);
   }
