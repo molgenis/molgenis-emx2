@@ -38,7 +38,7 @@ class CustomRdfTest extends RdfServiceTestRunner {
     // Test default behaviour.
     assertFalse(schema.hasSetting(SETTING_CUSTOM_RDF));
     InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
-    assertFalse(handlerBefore.resources.containsKey(Values.iri("https://molgenis.org/")));
+    assertFalse(handlerBefore.getResources().containsKey(Values.iri("https://molgenis.org/")));
 
     // Change setting
     schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
@@ -46,10 +46,10 @@ class CustomRdfTest extends RdfServiceTestRunner {
     // Test behaviour after changing setting.
     InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
     assertEquals(
-        defaultNamespaces, handlerAfter.namespaces); // example prefix should NOT be present
+        defaultNamespaces, handlerAfter.getNamespaces()); // example prefix should NOT be present
     assertTrue(
         handlerAfter
-            .resources
+            .getResources()
             .get(Values.iri("https://molgenis.org/"))
             .get(Values.iri("http://example.com/test"))
             .contains(Values.literal("Molgenis")));

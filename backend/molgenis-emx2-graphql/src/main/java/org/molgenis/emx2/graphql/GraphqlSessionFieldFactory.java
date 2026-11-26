@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS_USER;
 import static org.molgenis.emx2.Constants.SETTINGS;
 import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
@@ -14,10 +15,14 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.signin.RateLimit;
 import org.molgenis.emx2.signin.SigninDataFetcher;
 import org.molgenis.emx2.sql.JWTgenerator;
 
@@ -64,7 +69,7 @@ public class GraphqlSessionFieldFactory {
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS,
                   "User '%s' has signed out",
-                  database.getActiveUser());
+                  database.getActiveUsername());
             })
         .build();
   }
@@ -77,7 +82,12 @@ public class GraphqlSessionFieldFactory {
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String userName = dataFetchingEnvironment.getArgument(EMAIL);
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              if (email == null || email.isBlank()) {
+                return new GraphqlApiMutationResult(FAILED, "No email provided");
+              }
+
+              Username userName = new Username(email);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (passWord == null) {
                 return new GraphqlApiMutationResult(FAILED, "Password cannot be not null");
@@ -91,7 +101,7 @@ public class GraphqlSessionFieldFactory {
               database.tx(
                   db -> {
                     // uplift permissions
-                    String activeUser = db.getActiveUser();
+                    Username activeUser = db.getActiveUsername();
                     try {
                       db.becomeAdmin();
                       db.addUser(userName);
@@ -154,19 +164,18 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
-              result.put(
-                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
+              result.put(EMAIL, database.getActiveUsername().value());
               result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
                 result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
               }
               result.put(SCHEMAS, database.getSchemaNames());
-              User user = database.getUser(database.getActiveUser());
+              User user = database.getUser(database.getActiveUsername());
               result.put(
                   SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
               result.put(
-                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
+                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUsername()));
               return result;
             })
         .build();
@@ -198,8 +207,13 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
-              String userName = dataFetchingEnvironment.getArgument(EMAIL);
-              if (!database.isAdmin() && !userName.equals(database.getActiveUser())) {
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              if (email == null || email.isBlank()) {
+                return new GraphqlApiMutationResult(FAILED, "No email provided");
+              }
+
+              Username userName = new Username(email);
+              if (!database.isAdmin() && !userName.equals(database.getActiveUsername())) {
                 throw new MolgenisException(
                     "Create token failed: Only admins can create tokens for other users");
               }
@@ -222,21 +236,63 @@ public class GraphqlSessionFieldFactory {
       builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
     }
     return builder
+        .argument(GraphQLArgument.newArgument().name(OLD_PASSWORD).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(EMAIL);
-              if (username == null) {
-                username = database.getActiveUser();
+              String oldPassword = dataFetchingEnvironment.getArgument(OLD_PASSWORD);
+              Username activeUser = database.getActiveUsername();
+
+              String email = dataFetchingEnvironment.getArgument(EMAIL);
+              Username username = (email == null) ? activeUser : new Username(email);
+
+              if (username == null || ANONYMOUS_USER.equals(username)) {
+                return new GraphqlApiMutationResult(
+                    FAILED, "Password not changed: you must be signed in");
               }
-              if (password != null) {
-                database.setUserPassword(username, password);
-                return new GraphqlApiMutationResult(SUCCESS, "Password changed");
-              } else {
+
+              if (username.equals(activeUser)) {
+                GraphqlApiMutationResult failure =
+                    verifyOldPassword(database, username, oldPassword);
+
+                if (failure != null) {
+                  return failure;
+                }
+              }
+
+              if (password == null || password.isEmpty()) {
                 return new GraphqlApiMutationResult(FAILED, "Password not changed: empty");
               }
+
+              database.setUserPassword(username, password);
+              return new GraphqlApiMutationResult(SUCCESS, "Password changed");
             })
         .build();
+  }
+
+  private static GraphqlApiMutationResult verifyOldPassword(
+      Database database, Username username, String oldPassword) {
+    if (oldPassword == null || oldPassword.isEmpty()) {
+      return new GraphqlApiMutationResult(
+          FAILED, "Password not changed: current password is required");
+    }
+    // share the sign-in rate limit so a hijacked session cannot brute force the password here
+    RateLimit rateLimit = RateLimit.getInstance();
+    Optional<Instant> blockedUntil = rateLimit.getRateLimit(username);
+    if (blockedUntil.isPresent()) {
+      rateLimit.onBlocked();
+      return new GraphqlApiMutationResult(
+          FAILED,
+          "Password not changed: too many attempts, try again after %s",
+          blockedUntil.get().truncatedTo(ChronoUnit.SECONDS));
+    }
+    if (!database.checkUserPassword(username, oldPassword)) {
+      rateLimit.onFailure(username);
+      return new GraphqlApiMutationResult(
+          FAILED, "Password not changed: current password is incorrect");
+    }
+    rateLimit.onSuccess(username);
+    return null;
   }
 }

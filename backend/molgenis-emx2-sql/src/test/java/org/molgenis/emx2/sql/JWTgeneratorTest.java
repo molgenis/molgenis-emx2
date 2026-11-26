@@ -15,13 +15,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Username;
 
 class JWTgeneratorTest {
 
   private Database db;
-  private static final String TEST_USER = "testuser";
-  private static final String OTHER_USER = "otheruser";
-  private static final String ADMIN_USER = "admin";
+  private static final Username TEST_USER = new Username("testuser");
+  private static final Username OTHER_USER = new Username("otheruser");
+  private static final Username ADMIN_USER = new Username("admin");
 
   @BeforeEach
   void setUp() {
@@ -61,7 +62,7 @@ class JWTgeneratorTest {
     db.setActiveUser(TEST_USER);
     String token = JWTgenerator.createTemporaryToken(db);
     assertNotNull(token);
-    String user = JWTgenerator.getUserFromToken(db, token);
+    Username user = JWTgenerator.getUserFromToken(db, token);
     assertEquals(TEST_USER, user);
   }
 
@@ -77,14 +78,14 @@ class JWTgeneratorTest {
   @Test
   void testGetUserFromTemporaryToken() {
     String token = JWTgenerator.createTemporaryToken(db, TEST_USER);
-    String user = JWTgenerator.getUserFromToken(db, token);
+    Username user = JWTgenerator.getUserFromToken(db, token);
     assertEquals(TEST_USER, user);
   }
 
   @Test
   void testGetUserFromNamedToken() {
     String token = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "mytoken");
-    String user = JWTgenerator.getUserFromToken(db, token);
+    Username user = JWTgenerator.getUserFromToken(db, token);
     assertEquals(TEST_USER, user);
   }
 
@@ -93,8 +94,8 @@ class JWTgeneratorTest {
     String token1 = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "token1");
     String token2 = JWTgenerator.createNamedTokenForUser(db, OTHER_USER, "token2");
 
-    String user1 = JWTgenerator.getUserFromToken(db, token1);
-    String user2 = JWTgenerator.getUserFromToken(db, token2);
+    Username user1 = JWTgenerator.getUserFromToken(db, token1);
+    Username user2 = JWTgenerator.getUserFromToken(db, token2);
 
     assertEquals(TEST_USER, user1);
     assertEquals(OTHER_USER, user2);
@@ -128,7 +129,7 @@ class JWTgeneratorTest {
   void testAdminCanCreateTokenForOtherUser() {
     db.setActiveUser(ADMIN_USER);
     String token = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "admintoken");
-    String user = JWTgenerator.getUserFromToken(db, token);
+    Username user = JWTgenerator.getUserFromToken(db, token);
     assertEquals(TEST_USER, user);
   }
 
@@ -145,7 +146,7 @@ class JWTgeneratorTest {
     db.setActiveUser(TEST_USER);
     String token = JWTgenerator.createNamedTokenForUser(db, TEST_USER, "owntoken");
     assertNotNull(token);
-    String user = JWTgenerator.getUserFromToken(db, token);
+    Username user = JWTgenerator.getUserFromToken(db, token);
     assertEquals(TEST_USER, user);
   }
 
@@ -183,7 +184,7 @@ class JWTgeneratorTest {
     assertTrue(db.getUser(TEST_USER).hasToken(tokenId));
 
     // Verify we can extract the user from the token
-    String user = JWTgenerator.getUserFromToken(db, token);
+    Username user = JWTgenerator.getUserFromToken(db, token);
     assertEquals(TEST_USER, user);
   }
 
@@ -201,7 +202,7 @@ class JWTgeneratorTest {
   void testTemporaryTokenHasExpirationTime() {
     String token = JWTgenerator.createTemporaryToken(db, TEST_USER);
     // Should not throw an exception if the token is still valid
-    String user = JWTgenerator.getUserFromToken(db, token);
+    Username user = JWTgenerator.getUserFromToken(db, token);
     assertEquals(TEST_USER, user);
   }
 
@@ -240,7 +241,7 @@ class JWTgeneratorTest {
     // Signed token, known user, and not-expired token, but temporary token expiry is > 30 minutes.
     JWTClaimsSet claimsSet =
         new JWTClaimsSet.Builder()
-            .subject(TEST_USER)
+            .subject(TEST_USER.value())
             .jwtID("temporary")
             .issueTime(new Date())
             .expirationTime(Date.from(Instant.now().plus(31, ChronoUnit.MINUTES)))

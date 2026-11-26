@@ -97,7 +97,7 @@ function resetModal() {
         class="text-sm text-title-contrast"
         v-else-if="truncateStatus === 'COMPLETED'"
       >
-        Successfully truncated the table <strong>{{ metadata.label }}</strong>
+        Successfully truncated the table <strong>{{ metadata.label }}</strong
         >.
       </p>
       <div class="text-sm" v-else-if="truncateStatus === 'FAILED'">

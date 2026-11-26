@@ -60,6 +60,7 @@ import {
   MessageWarning,
   Spinner,
 } from "molgenis-components";
+import { reportsApiUrl } from "../reportsApi.js";
 
 export default {
   components: {
@@ -131,7 +132,7 @@ export default {
     },
     downloadSelected() {
       window.open(
-        `../api/reports/zip?id=${this.selection.join(",")}`,
+        reportsApiUrl("zip", `id=${this.selection.join(",")}`),
         "_blank"
       );
     },

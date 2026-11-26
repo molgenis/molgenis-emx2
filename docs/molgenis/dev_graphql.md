@@ -81,9 +81,25 @@ mutation {
 
 ### changePassword
 
+Change the password of the signed-in user. The current password must be provided as `oldPassword`.
+
 ```graphql
 mutation {
-  changePassword(password: "password")
+  changePassword(oldPassword: "current password", password: "new password") {
+    status
+    message
+  }
+}
+```
+
+Admins can reset the password of another user without providing the old password:
+
+```graphql
+mutation {
+  changePassword(email: "user@example.com", password: "new password") {
+    status
+    message
+  }
 }
 ```
 

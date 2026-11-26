@@ -98,7 +98,7 @@ useHead({
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
-      <main class="mb-auto">
+      <main class="grow flex flex-col">
         <BottomModal
           :show="showCookieWall"
           :full-screen="false"
