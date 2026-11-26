@@ -367,7 +367,7 @@ type Right = (typeof RIGHTS)[number];
       </header>
     </template>
 
-    <div class="overflow-y-auto p-12.5">
+    <div class="h-full overflow-y-auto p-12.5 bp-0">
       <FormError
         v-if="errorMessage"
         id="role-modal-error"
