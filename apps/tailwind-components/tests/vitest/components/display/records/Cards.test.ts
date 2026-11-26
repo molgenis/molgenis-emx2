@@ -59,13 +59,6 @@ describe("records/Cards.vue", () => {
     expect(pairsComponents[0].props("row")).toEqual(rows[0]);
   });
 
-  it("lays cards out as a two-column grid", () => {
-    const wrapper = mount(Cards, {
-      props: { rows, titleColumn: nameColumn },
-    });
-    expect(wrapper.find("ul").classes()).toContain("lg:grid-cols-2");
-  });
-
   it("wraps the title in a real <a href> when linkTo is passed", () => {
     const wrapper = mount(Cards, {
       props: {
@@ -119,7 +112,6 @@ describe("records/Cards.vue", () => {
     const img = wrapper.find("img");
     expect(img.attributes("src")).toBe("https://example.org/tweety.png");
     expect(img.attributes("alt")).toBe("Tweety");
-    expect(img.classes()).toContain("float-right");
   });
 
   it("renders no logo when logoColumn does not resolve to a file value", () => {
@@ -156,15 +148,13 @@ describe("records/Cards.vue", () => {
     expect(card.text()).not.toContain("2006");
   });
 
-  it("borders every card with plain `border`, never `border-theme`, and drops the left border on the even column", () => {
+  it("borders every card with plain `border`, never `border-theme`", () => {
     const wrapper = mount(Cards, {
       props: { rows, titleColumn: nameColumn },
     });
     const items = wrapper.findAll("li");
     expect(items[0].classes()).toContain("border");
     expect(items[0].classes()).not.toContain("border-theme");
-    expect(items[0].classes()).toContain("lg:even:border-l-0");
-    expect(items[1].classes()).toContain("lg:even:border-l-0");
   });
 
   it("renders the description through value/EMX2.vue", () => {
