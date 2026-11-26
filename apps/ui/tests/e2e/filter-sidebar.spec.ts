@@ -116,8 +116,8 @@ test.describe("filter sidebar", () => {
   }) => {
     // Test verifies that nested REF selection creates a dotted path filter
     // and displays the breadcrumb notation in the sidebar
-    // Parent: "internal identifiers" → Leaf: "identifier" (TEXT type)
-    // Expected filter ID: "internalIdentifiers.identifier"
+    // Parent: "publications" → Leaf: "title" (TEXT type)
+    // Expected filter ID: "publications.title"
 
     await page.goto(`${route}catalogue-demo/Resources`);
     await page.waitForTimeout(5000);
@@ -130,42 +130,42 @@ test.describe("filter sidebar", () => {
     const modal = page.locator('[role="dialog"]');
     await expect(modal).toBeVisible({ timeout: 30000 });
 
-    // Find "internal identifiers → InternalIdentifiers" expander
-    const internalIdRef = modal.locator(
-      '[data-column-id]:has-text("internal identifiers") button'
+    // Find "publications → Publications" expander
+    const publicationsRef = modal.locator(
+      '[data-column-id="publications"] button'
     );
-    await expect(internalIdRef).toBeVisible({ timeout: 10000 });
+    await expect(publicationsRef).toBeVisible({ timeout: 10000 });
 
     // Click to expand nested columns
-    await internalIdRef.click();
+    await publicationsRef.click();
     await page.waitForTimeout(1000);
 
     // Find nested leaf nodes (items with padding-left > 0)
-    // Specifically, find the "identifier" field nested under internal identifiers
-    // It will have padding-left: 1.5rem and contain "identifierInternal identifier"
+    // Specifically, find the "title" field nested under publications
+    // It will have padding-left: 1.5rem and contain "titlePublication title"
     const nestedItems = modal.locator(
       'li[style*="padding-left: 1.5rem"] label'
     );
     const itemCount = await nestedItems.count();
     expect(itemCount).toBeGreaterThan(0);
 
-    // Find the first occurrence of the nested "identifier" field
-    // It should contain the text pattern "identifierInternal identifier"
-    let identifierLeaf = null;
+    // Find the first occurrence of the nested "title" field
+    // It should contain the text pattern "titlePublication title"
+    let titleLeaf = null;
     for (let i = 0; i < itemCount; i++) {
       const item = nestedItems.nth(i);
       const text = await item.textContent();
-      // Match "identifier" at the start of label (not "type")
-      if (text && /^identifier[A-Z]/.test(text)) {
-        identifierLeaf = item;
+      // Match "title" at the start of label
+      if (text && /^title[A-Z]/.test(text)) {
+        titleLeaf = item;
         break;
       }
     }
 
-    expect(identifierLeaf).not.toBeNull();
+    expect(titleLeaf).not.toBeNull();
 
     // Verify it's not already checked
-    const checkbox = identifierLeaf!.locator('input[type="checkbox"]');
+    const checkbox = titleLeaf!.locator('input[type="checkbox"]');
     let wasChecked = await checkbox.isChecked();
     if (wasChecked) {
       // Toggle off so we can toggle it on to test the change
@@ -174,7 +174,7 @@ test.describe("filter sidebar", () => {
     }
 
     // Click the checkbox to select the nested leaf
-    await identifierLeaf!.click();
+    await titleLeaf!.click();
     await page.waitForTimeout(500);
 
     // Verify checkbox is now checked
@@ -193,19 +193,19 @@ test.describe("filter sidebar", () => {
     // Verify URL contains dotted path filter (NOT a top-level column)
     const url = page.url();
     expect(url).toContain("mg_filters=");
-    expect(url).toContain("internalIdentifiers.identifier");
+    expect(url).toContain("publications.title");
 
     // Verify sidebar shows breadcrumb notation with →
     const sidebarHeadings = page.locator("h3");
     const breadcrumbHeading = sidebarHeadings.filter({
-      hasText: /internal identifiers\s*→\s*identifier/i,
+      hasText: /publications\s*→\s*title/i,
     });
     await expect(breadcrumbHeading).toBeVisible();
 
     // Prove nested filter is functional: locate text input within the new section
     // and type a value to verify URL changes
     const sidebarSection = page.locator("h3", {
-      hasText: /internal identifiers\s*→\s*identifier/i,
+      hasText: /publications\s*→\s*title/i,
     });
     await expect(sidebarSection).toBeVisible();
 
@@ -218,12 +218,12 @@ test.describe("filter sidebar", () => {
     const lastInput = searchInputs.last();
     await lastInput.fill("test");
     // Wait for debounce to flush and URL to update (auto-retrying assertion)
-    // The filter value appears as internalIdentifiers.identifier.*=test in the URL
-    await page.waitForURL(/internalIdentifiers\.identifier.*=test/);
+    // The filter value appears as publications.title.*=test in the URL
+    await page.waitForURL(/publications\.title.*=test/);
 
     // Verify URL changed to include the nested filter value
     const updatedUrl = page.url();
-    expect(updatedUrl).toContain("internalIdentifiers.identifier");
+    expect(updatedUrl).toContain("publications.title");
     expect(updatedUrl).not.toBe(url);
   });
 

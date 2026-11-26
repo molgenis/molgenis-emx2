@@ -1,0 +1,3 @@
+resource,name,pid,description,subpopulations,keywords,start date,end date,age groups,number of participants,areas of information,data categories,sample categories,standardized tools,standardized tools other,core variables,issued,modified,theme,access rights,applicable legislation,mg_draft
+testSampleCollection,year 1,,sample collection at end of first year,,,,,,,,,,,,,,,Health,Non public,Data Governance Act,false
+testSampleCollection,baseline,,initial sample collection,,,,,,,,,,,,,,,Health,Non public,Data Governance Act,false

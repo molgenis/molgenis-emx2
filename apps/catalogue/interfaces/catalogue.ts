@@ -1,13 +1,14 @@
-// Generated (on: 2026-07-02T11:18:29.244578) from Generator.java for schema: catalogue-demo
+// Generated (on: 2026-11-17T14:17:03.909025) from Generator.java for schema: catalogue-demo
 
 export interface IMgTableClass {
-  mg_tableclass: string;
+  mg_tableclass?: string;
 }
 
 export interface IFile {
   id?: string;
   size?: number;
   extension?: string;
+  filename?: string;
   url?: string;
 }
 
@@ -60,42 +61,37 @@ export interface ICatalogueOntologies_AgeGroups_agg {
   count: number;
 }
 
-export interface ICatalogueOntologies_AgentTypes extends IMgTableClass {
+export interface ICatalogueOntologies_AgeUnits extends IMgTableClass {
   order?: number;
   name: string;
   label?: string;
   tags?: string[];
-  parent?: ICatalogueOntologies_AgentTypes;
+  parent?: ICatalogueOntologies_AgeUnits;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
   definition?: string;
-  children?: ICatalogueOntologies_AgentTypes[];
+  children?: ICatalogueOntologies_AgeUnits[];
 }
 
-export interface ICatalogueOntologies_AgentTypes_agg {
+export interface ICatalogueOntologies_AgeUnits_agg {
   count: number;
 }
 
-export interface IAgents extends IMgTableClass {
-  resource: IResources;
-  id: string;
-  type: IOntologyNode;
-  name?: string;
-  organisation?: ICatalogueOntologies_Organisations;
-  otherOrganisation?: string;
-  department?: string;
-  website?: string;
-  email?: string;
-  logo?: IFile;
-  role?: IOntologyNode[];
-  organisationName?: string;
-  organisationPid?: string;
-  organisationWebsite?: string;
-  isLeadOrganisation?: boolean;
+export interface ICatalogueOntologies_AnatomicalLocation extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_AnatomicalLocation;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_AnatomicalLocation[];
 }
 
-export interface IAgents_agg {
+export interface ICatalogueOntologies_AnatomicalLocation_agg {
   count: number;
 }
 
@@ -135,23 +131,6 @@ export interface ICatalogueOntologies_AreasOfInformationDs_agg {
   count: number;
 }
 
-export interface ICatalogueOntologies_Biospecimens extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ICatalogueOntologies_Biospecimens;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ICatalogueOntologies_Biospecimens[];
-}
-
-export interface ICatalogueOntologies_Biospecimens_agg {
-  count: number;
-}
-
 export interface ICatalogueOntologies_CatalogueTypes extends IMgTableClass {
   order?: number;
   name: string;
@@ -170,8 +149,6 @@ export interface ICatalogueOntologies_CatalogueTypes_agg {
 }
 
 export interface ICatalogues extends IMgTableClass {
-  fdpEndpoint?: IEndpoint;
-  ldpMembershipRelation?: string;
   hricore?: boolean;
   id: string;
   pid?: string;
@@ -181,43 +158,33 @@ export interface ICatalogues extends IMgTableClass {
   catalogueType?: IOntologyNode;
   mainCatalogue?: boolean;
   networkType?: IOntologyNode[];
-  website?: string;
+  commonCollaborationTopics?: IOntologyNode[];
   description?: string;
-  internalIdentifiers?: IInternalIdentifiers[];
-  externalIdentifiers?: IExternalIdentifiers[];
-  startYear?: number;
-  endYear?: number;
+  website?: string;
   contactEmail?: string;
   logo?: IFile;
-  conformsTo?: string;
-  hasMemberRelation?: string;
-  issued?: string;
-  modified?: string;
+  startYear?: number;
+  endYear?: number;
+  withdrawn?: boolean;
   dataResources?: ICollections[];
   countries?: IOntologyNode[];
-  continents?: IOntologyNode[];
-  counts?: IResourceCounts[];
-  organisationsInvolved?: IOrganisations[];
-  publisher?: IOrganisations;
-  creator?: IOrganisations[];
+  organisationsInvolved?: IOrganisationRoles[];
+  publisher?: IOrganisationRoles;
+  creator?: IOrganisationRoles[];
   peopleInvolved?: IContacts[];
   contactPoint?: IContacts;
   childNetworks?: INetworks[];
   parentNetworks?: INetworks[];
   tables?: ITables[];
-  samplesets?: ISamplesets[];
-  linkedResources?: ILinkages[];
-  mappingsToCommonDataModels?: ITableMappings[];
-  commonDataModelsOther?: string;
   publications?: IPublications[];
-  fundingSources?: IOntologyNode[];
-  fundingScheme?: IOntologyNode[];
   fundingStatement?: string;
-  citationRequirements?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
-  supplementaryInformation?: string;
   applicableLegislation?: IOntologyNode[];
+  fdpEndpoint?: IEndpoint;
+  ldpMembershipRelation?: string;
+  hasMemberRelation?: string;
+  conformsTo?: string;
 }
 
 export interface ICatalogues_agg {
@@ -293,6 +260,23 @@ export interface ICatalogueOntologies_CohortStudyTypes_agg {
   count: number;
 }
 
+export interface ICollectionCounts extends IMgTableClass {
+  id: string;
+  collection: ICollections;
+  sex?: IOntologyNode;
+  ageGroup?: IOntologyNode;
+  disease?: IOntologyNode;
+  sampleType?: IOntologyNode;
+  anatomy?: IOntologyNode;
+  numberOfSamples?: number;
+  numberOfDonors?: number;
+  lastUpdate?: string;
+}
+
+export interface ICollectionCounts_agg {
+  count: number;
+}
+
 export interface ICollectionEvents extends IMgTableClass {
   resource: IResources;
   name: string;
@@ -311,8 +295,8 @@ export interface ICollectionEvents extends IMgTableClass {
   standardizedToolsOther?: string;
   coreVariables?: string[];
   contactPoint?: IContacts;
-  publisher?: IOrganisations;
-  creator?: IOrganisations[];
+  publisher?: IOrganisationRoles;
+  creator?: IOrganisationRoles[];
   issued?: string;
   modified?: string;
   theme?: IOntologyNode[];
@@ -336,29 +320,29 @@ export interface ICollections extends IMgTableClass {
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
   registryOrHealthRecordType?: IOntologyNode[];
-  website?: string;
   description?: string;
   keywords?: string[];
-  internalIdentifiers?: IInternalIdentifiers[];
-  externalIdentifiers?: IExternalIdentifiers[];
+  website?: string;
+  contactEmail?: string;
+  logo?: IFile;
   startYear?: number;
   endYear?: number;
   timeSpanDescription?: string;
-  contactEmail?: string;
-  logo?: IFile;
   status?: IOntologyNode;
-  issued?: string;
-  modified?: string;
+  withdrawn?: boolean;
+  linkedResources?: ILinkages[];
+  internalIdentifiers?: IInternalIdentifiers[];
+  externalIdentifiers?: IExternalIdentifiers[];
   design?: IOntologyNode;
+  dataCollectionType?: IOntologyNode[];
   designDescription?: string;
   designSchematic?: IFile;
-  dataCollectionType?: IOntologyNode[];
+  subpopulations?: ISubpopulations[];
+  collectionEvents?: ICollectionEvents[];
   dataCollectionDescription?: string;
   reasonSustained?: string;
   recordTrigger?: string;
   unitOfObservation?: string;
-  subpopulations?: ISubpopulations[];
-  collectionEvents?: ICollectionEvents[];
   partOfNetworks?: INetworks[];
   numberOfParticipants?: number;
   numberOfParticipantsWithSamples?: number;
@@ -371,6 +355,8 @@ export interface ICollections extends IMgTableClass {
   populationAgeGroups?: IOntologyNode[];
   ageMin?: number;
   ageMax?: number;
+  ageUnit?: IOntologyNode;
+  sex?: IOntologyNode[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   exclusionCriteria?: IOntologyNode[];
@@ -384,14 +370,15 @@ export interface ICollections extends IMgTableClass {
   populationOncologyMorphology?: IOntologyNode[];
   populationCoverage?: string;
   populationNotCovered?: string;
-  counts?: IResourceCounts[];
-  organisationsInvolved?: IOrganisations[];
-  publisher?: IOrganisations;
-  creator?: IOrganisations[];
+  organisationsInvolved?: IOrganisationRoles[];
+  publisher?: IOrganisationRoles;
+  creator?: IOrganisationRoles[];
+  custodian?: IOrganisationalUnits[];
   peopleInvolved?: IContacts[];
   contactPoint?: IContacts;
   tables?: ITables[];
-  samplesets?: ISamplesets[];
+  counts?: ICollectionCounts[];
+  numberOfRecords?: number;
   areasOfInformation?: IOntologyNode[];
   areasOfInformationRwd?: IOntologyNode[];
   qualityOfLifeOther?: string;
@@ -406,7 +393,13 @@ export interface ICollections extends IMgTableClass {
   biomarkerDataVocabularyOther?: string;
   diagnosisMedicalEventVocabularyOther?: string;
   dataDictionaryAvailable?: boolean;
-  biospecimenCollected?: IOntologyNode[];
+  sampleType?: IOntologyNode[];
+  bodyPart?: IOntologyNode[];
+  imagingModality?: string[];
+  storageTemperatures?: IOntologyNode[];
+  sampleSource?: string;
+  sampleCollectionSetting?: string;
+  numberOfSamples?: number;
   languages?: IOntologyNode[];
   multipleEntries?: boolean;
   hasIdentifier?: boolean;
@@ -414,15 +407,14 @@ export interface ICollections extends IMgTableClass {
   prelinked?: boolean;
   linkageOptions?: string;
   linkagePossibility?: boolean;
-  linkedResources?: ILinkages[];
-  informedConsentType?: IOntologyNode;
-  informedConsentRequired?: IOntologyNode;
-  informedConsentOther?: string;
-  accessRights?: IOntologyNode;
   dataAccessConditions?: IOntologyNode[];
   dataUseConditions?: IOntologyNode[];
   dataAccessConditionsDescription?: string;
   dataAccessFee?: boolean;
+  informedConsentType?: IOntologyNode;
+  informedConsentRequired?: IOntologyNode;
+  informedConsentOther?: string;
+  accessRights?: IOntologyNode;
   accessIdentifiableData?: string;
   accessIdentifiableDataRoute?: string;
   accessSubjectDetails?: boolean;
@@ -437,7 +429,6 @@ export interface ICollections extends IMgTableClass {
   approvalForPublication?: boolean;
   releaseType?: IOntologyNode;
   releaseDescription?: string;
-  numberOfRecords?: number;
   releaseFrequency?: number;
   refreshTime?: number;
   lagTime?: number;
@@ -445,6 +436,7 @@ export interface ICollections extends IMgTableClass {
   dateLastRefresh?: string;
   preservation?: boolean;
   preservationDuration?: number;
+  quality?: IQualityInformation[];
   standardOperatingProcedures?: boolean;
   qualification?: boolean;
   qualificationsDescription?: string;
@@ -474,6 +466,8 @@ export interface ICollections extends IMgTableClass {
   supplementaryInformation?: string;
   theme?: IOntologyNode[];
   applicableLegislation?: IOntologyNode[];
+  issued?: string;
+  modified?: string;
   collectionStartPlanned?: string;
   collectionStartActual?: string;
   analysisStartPlanned?: string;
@@ -489,6 +483,24 @@ export interface ICollections_agg {
   count: number;
 }
 
+export interface ICatalogueOntologies_CommonCollaborationTopics
+  extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_CommonCollaborationTopics;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_CommonCollaborationTopics[];
+}
+
+export interface ICatalogueOntologies_CommonCollaborationTopics_agg {
+  count: number;
+}
+
 export interface IContacts extends IMgTableClass {
   resource: IResources;
   role?: IOntologyNode[];
@@ -499,8 +511,9 @@ export interface IContacts extends IMgTableClass {
   prefix?: string;
   initials?: string;
   title?: IOntologyNode;
-  organisation?: IOrganisations;
+  organisation?: IOrganisationRoles;
   email?: string;
+  phone?: string;
   orcid?: string;
   homepage?: string;
   photo?: IFile;
@@ -684,7 +697,7 @@ export interface IEndpoint extends IMgTableClass {
   name: string[];
   version?: string;
   description?: string;
-  publisher: IAgents[];
+  publisher: IOrganisationRoles[];
   language?: string[];
   license: string;
   conformsTo: string;
@@ -957,6 +970,8 @@ export interface ICatalogueOntologies_LinkageStrategies_agg {
 export interface ILinkages extends IMgTableClass {
   resource: IResources;
   linkedResource: IResources;
+  relationshipType?: string;
+  sourceSelection?: string;
   linkageStrategy?: IOntologyNode;
   linkageVariable?: string;
   linkageVariableUnique?: boolean;
@@ -965,6 +980,23 @@ export interface ILinkages extends IMgTableClass {
 }
 
 export interface ILinkages_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_MappingMethod extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_MappingMethod;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_MappingMethod[];
+}
+
+export interface ICatalogueOntologies_MappingMethod_agg {
   count: number;
 }
 
@@ -1010,47 +1042,35 @@ export interface INetworks extends IMgTableClass {
   localName?: string;
   acronym?: string;
   networkType?: IOntologyNode[];
-  website?: string;
+  commonCollaborationTopics?: IOntologyNode[];
   description?: string;
-  internalIdentifiers?: IInternalIdentifiers[];
-  externalIdentifiers?: IExternalIdentifiers[];
-  startYear?: number;
-  endYear?: number;
+  website?: string;
   contactEmail?: string;
   logo?: IFile;
-  issued?: string;
-  modified?: string;
+  startYear?: number;
+  endYear?: number;
+  withdrawn?: boolean;
   dataResources?: ICollections[];
   countries?: IOntologyNode[];
-  continents?: IOntologyNode[];
-  counts?: IResourceCounts[];
-  organisationsInvolved?: IOrganisations[];
-  publisher?: IOrganisations;
-  creator?: IOrganisations[];
+  organisationsInvolved?: IOrganisationRoles[];
+  publisher?: IOrganisationRoles;
+  creator?: IOrganisationRoles[];
   peopleInvolved?: IContacts[];
   contactPoint?: IContacts;
   childNetworks?: INetworks[];
   parentNetworks?: INetworks[];
   tables?: ITables[];
-  samplesets?: ISamplesets[];
-  linkedResources?: ILinkages[];
-  mappingsToCommonDataModels?: ITableMappings[];
-  commonDataModelsOther?: string;
   publications?: IPublications[];
-  fundingSources?: IOntologyNode[];
-  fundingScheme?: IOntologyNode[];
   fundingStatement?: string;
-  citationRequirements?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
-  supplementaryInformation?: string;
   applicableLegislation?: IOntologyNode[];
-  fdpEndpoint?: IEndpoint;
-  ldpMembershipRelation?: string;
   catalogueType?: IOntologyNode;
   mainCatalogue?: boolean;
-  conformsTo?: string;
+  fdpEndpoint?: IEndpoint;
+  ldpMembershipRelation?: string;
   hasMemberRelation?: string;
+  conformsTo?: string;
 }
 
 export interface INetworks_agg {
@@ -1074,6 +1094,24 @@ export interface ICatalogueOntologies_ObservationTargets_agg {
   count: number;
 }
 
+export interface IOrganisationRoles extends IMgTableClass {
+  id: string;
+  resource: IResources;
+  organisation?: ICatalogueOntologies_ROROrganisations;
+  organisationNotInROR?: string;
+  department?: string;
+  email?: string;
+  role?: IOntologyNode[];
+  isLeadOrganisation?: boolean;
+  organisationName?: string;
+  organisationPid?: string;
+  organisationWebsite?: string;
+}
+
+export interface IOrganisationRoles_agg {
+  count: number;
+}
+
 export interface ICatalogueOntologies_OrganisationRoles extends IMgTableClass {
   order?: number;
   name: string;
@@ -1091,49 +1129,57 @@ export interface ICatalogueOntologies_OrganisationRoles_agg {
   count: number;
 }
 
-export interface IOrganisations extends IMgTableClass {
-  resource: IResources;
-  id: string;
-  type: IOntologyNode;
-  name?: string;
-  organisation?: ICatalogueOntologies_Organisations;
-  otherOrganisation?: string;
-  department?: string;
-  website?: string;
-  email?: string;
-  logo?: IFile;
-  role?: IOntologyNode[];
-  organisationName?: string;
-  organisationPid?: string;
-  organisationWebsite?: string;
-  isLeadOrganisation?: boolean;
-}
-
-export interface IOrganisations_agg {
-  count: number;
-}
-
-export interface ICatalogueOntologies_Organisations extends IMgTableClass {
+export interface ICatalogueOntologies_OrganisationalUnitTypes
+  extends IMgTableClass {
+  order?: number;
   name: string;
   label?: string;
-  acronym?: string;
-  parent?: any;
+  tags?: string[];
+  parent?: ICatalogueOntologies_OrganisationalUnitTypes;
   codesystem?: string;
   code?: string;
   ontologyTermURI?: string;
-  semantics?: string;
-  type?: string[];
   definition?: string;
-  aliases?: string[];
-  website?: string;
-  country?: IOntologyNode;
-  city?: string;
-  latitude?: number;
-  longitude?: number;
-  children?: ICatalogueOntologies_Organisations[];
+  children?: ICatalogueOntologies_OrganisationalUnitTypes[];
 }
 
-export interface ICatalogueOntologies_Organisations_agg {
+export interface ICatalogueOntologies_OrganisationalUnitTypes_agg {
+  count: number;
+}
+
+export interface IOrganisationalUnits extends IMgTableClass {
+  hricore?: boolean;
+  id: string;
+  pid?: string;
+  name: string;
+  localName?: string;
+  acronym?: string;
+  organisationalUnitType?: IOntologyNode;
+  description?: string;
+  website?: string;
+  contactEmail?: string;
+  logo?: IFile;
+  startYear?: number;
+  endYear?: number;
+  withdrawn?: boolean;
+  collections?: ICollections[];
+  services?: IServices[];
+  countries?: IOntologyNode[];
+  organisationsInvolved?: IOrganisationRoles[];
+  parentOrganisation?: IOntologyNode;
+  publisher?: IOrganisationRoles;
+  creator?: IOrganisationRoles[];
+  peopleInvolved?: IContacts[];
+  contactPoint?: IContacts;
+  tables?: ITables[];
+  publications?: IPublications[];
+  fundingStatement?: string;
+  acknowledgements?: string;
+  documentation?: IDocumentation[];
+  applicableLegislation?: IOntologyNode[];
+}
+
+export interface IOrganisationalUnits_agg {
   count: number;
 }
 
@@ -1209,6 +1255,42 @@ export interface IPublications_agg {
   count: number;
 }
 
+export interface IQualityInformation extends IMgTableClass {
+  resource: IResources;
+  name: string;
+  standard?: string;
+  certificationNumber?: string;
+  hasCertification?: boolean;
+}
+
+export interface IQualityInformation_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_ROROrganisations extends IMgTableClass {
+  name: string;
+  label?: string;
+  acronym?: string;
+  parent?: any;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  semantics?: string;
+  type?: string[];
+  definition?: string;
+  aliases?: string[];
+  website?: string;
+  country?: IOntologyNode;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  children?: ICatalogueOntologies_ROROrganisations[];
+}
+
+export interface ICatalogueOntologies_ROROrganisations_agg {
+  count: number;
+}
+
 export interface ICatalogueOntologies_RefreshPeriods extends IMgTableClass {
   order?: number;
   name: string;
@@ -1260,22 +1342,6 @@ export interface ICatalogueOntologies_ReleaseTypes_agg {
   count: number;
 }
 
-export interface IResourceCounts extends IMgTableClass {
-  resource: IResources;
-  ageGroup: IOntologyNode;
-  populationSize?: number;
-  activeSize?: number;
-  noIndividualsWithSamples?: number;
-  meanObservationYears?: number;
-  meanYearsActive?: number;
-  medianAge?: number;
-  proportionFemale?: number;
-}
-
-export interface IResourceCounts_agg {
-  count: number;
-}
-
 export interface IResourceMappings extends IMgTableClass {
   source: IResources;
   sourceVersion?: string;
@@ -1316,37 +1382,24 @@ export interface IResources extends IMgTableClass {
   name: string;
   localName?: string;
   acronym?: string;
-  website?: string;
   description?: string;
-  internalIdentifiers?: IInternalIdentifiers[];
-  externalIdentifiers?: IExternalIdentifiers[];
-  startYear?: number;
-  endYear?: number;
+  website?: string;
   contactEmail?: string;
   logo?: IFile;
-  issued?: string;
-  modified?: string;
+  startYear?: number;
+  endYear?: number;
+  withdrawn?: boolean;
   countries?: IOntologyNode[];
-  continents?: IOntologyNode[];
-  counts?: IResourceCounts[];
-  organisationsInvolved?: IOrganisations[];
-  publisher?: IOrganisations;
-  creator?: IOrganisations[];
+  organisationsInvolved?: IOrganisationRoles[];
+  publisher?: IOrganisationRoles;
+  creator?: IOrganisationRoles[];
   peopleInvolved?: IContacts[];
   contactPoint?: IContacts;
   tables?: ITables[];
-  samplesets?: ISamplesets[];
-  linkedResources?: ILinkages[];
-  mappingsToCommonDataModels?: ITableMappings[];
-  commonDataModelsOther?: string;
   publications?: IPublications[];
-  fundingSources?: IOntologyNode[];
-  fundingScheme?: IOntologyNode[];
   fundingStatement?: string;
-  citationRequirements?: string;
   acknowledgements?: string;
   documentation?: IDocumentation[];
-  supplementaryInformation?: string;
   applicableLegislation?: IOntologyNode[];
   type: IOntologyNode[];
   cohortType?: IOntologyNode[];
@@ -1355,26 +1408,32 @@ export interface IResources extends IMgTableClass {
   keywords?: string[];
   timeSpanDescription?: string;
   status?: IOntologyNode;
+  linkedResources?: ILinkages[];
+  internalIdentifiers?: IInternalIdentifiers[];
+  externalIdentifiers?: IExternalIdentifiers[];
   design?: IOntologyNode;
+  dataCollectionType?: IOntologyNode[];
   designDescription?: string;
   designSchematic?: IFile;
-  dataCollectionType?: IOntologyNode[];
+  subpopulations?: ISubpopulations[];
+  collectionEvents?: ICollectionEvents[];
   dataCollectionDescription?: string;
   reasonSustained?: string;
   recordTrigger?: string;
   unitOfObservation?: string;
-  subpopulations?: ISubpopulations[];
-  collectionEvents?: ICollectionEvents[];
   partOfNetworks?: INetworks[];
   numberOfParticipants?: number;
   numberOfParticipantsWithSamples?: number;
   underlyingPopulation?: string;
   populationOfInterest?: IOntologyNode[];
   populationOfInterestOther?: string;
+  continents?: IOntologyNode[];
   regions?: IOntologyNode[];
   populationAgeGroups?: IOntologyNode[];
   ageMin?: number;
   ageMax?: number;
+  ageUnit?: IOntologyNode;
+  sex?: IOntologyNode[];
   inclusionCriteria?: IOntologyNode[];
   otherInclusionCriteria?: string;
   exclusionCriteria?: IOntologyNode[];
@@ -1388,6 +1447,9 @@ export interface IResources extends IMgTableClass {
   populationOncologyMorphology?: IOntologyNode[];
   populationCoverage?: string;
   populationNotCovered?: string;
+  custodian?: IOrganisationalUnits[];
+  counts?: ICollectionCounts[];
+  numberOfRecords?: number;
   areasOfInformation?: IOntologyNode[];
   areasOfInformationRwd?: IOntologyNode[];
   qualityOfLifeOther?: string;
@@ -1402,7 +1464,13 @@ export interface IResources extends IMgTableClass {
   biomarkerDataVocabularyOther?: string;
   diagnosisMedicalEventVocabularyOther?: string;
   dataDictionaryAvailable?: boolean;
-  biospecimenCollected?: IOntologyNode[];
+  sampleType?: IOntologyNode[];
+  bodyPart?: IOntologyNode[];
+  imagingModality?: string[];
+  storageTemperatures?: IOntologyNode[];
+  sampleSource?: string;
+  sampleCollectionSetting?: string;
+  numberOfSamples?: number;
   languages?: IOntologyNode[];
   multipleEntries?: boolean;
   hasIdentifier?: boolean;
@@ -1410,14 +1478,14 @@ export interface IResources extends IMgTableClass {
   prelinked?: boolean;
   linkageOptions?: string;
   linkagePossibility?: boolean;
-  informedConsentType?: IOntologyNode;
-  informedConsentRequired?: IOntologyNode;
-  informedConsentOther?: string;
-  accessRights?: IOntologyNode;
   dataAccessConditions?: IOntologyNode[];
   dataUseConditions?: IOntologyNode[];
   dataAccessConditionsDescription?: string;
   dataAccessFee?: boolean;
+  informedConsentType?: IOntologyNode;
+  informedConsentRequired?: IOntologyNode;
+  informedConsentOther?: string;
+  accessRights?: IOntologyNode;
   accessIdentifiableData?: string;
   accessIdentifiableDataRoute?: string;
   accessSubjectDetails?: boolean;
@@ -1432,7 +1500,6 @@ export interface IResources extends IMgTableClass {
   approvalForPublication?: boolean;
   releaseType?: IOntologyNode;
   releaseDescription?: string;
-  numberOfRecords?: number;
   releaseFrequency?: number;
   refreshTime?: number;
   lagTime?: number;
@@ -1440,6 +1507,7 @@ export interface IResources extends IMgTableClass {
   dateLastRefresh?: string;
   preservation?: boolean;
   preservationDuration?: number;
+  quality?: IQualityInformation[];
   standardOperatingProcedures?: boolean;
   qualification?: boolean;
   qualificationsDescription?: string;
@@ -1454,10 +1522,18 @@ export interface IResources extends IMgTableClass {
   qualityValidationMethods?: string;
   correctionMethods?: string;
   qualityValidationResults?: string;
+  mappingsToCommonDataModels?: ITableMappings[];
+  commonDataModelsOther?: string;
   eTLStandardVocabularies?: IOntologyNode[];
   eTLStandardVocabulariesOther?: string;
+  fundingSources?: IOntologyNode[];
+  fundingScheme?: IOntologyNode[];
+  citationRequirements?: string;
   provenanceStatement?: string;
+  supplementaryInformation?: string;
   theme?: IOntologyNode[];
+  issued?: string;
+  modified?: string;
   collectionStartPlanned?: string;
   collectionStartActual?: string;
   analysisStartPlanned?: string;
@@ -1468,15 +1544,20 @@ export interface IResources extends IMgTableClass {
   objectives?: string;
   results?: string;
   networkType?: IOntologyNode[];
+  commonCollaborationTopics?: IOntologyNode[];
   dataResources?: ICollections[];
   childNetworks?: INetworks[];
   parentNetworks?: INetworks[];
-  fdpEndpoint?: IEndpoint;
-  ldpMembershipRelation?: string;
   catalogueType?: IOntologyNode;
   mainCatalogue?: boolean;
-  conformsTo?: string;
+  fdpEndpoint?: IEndpoint;
+  ldpMembershipRelation?: string;
   hasMemberRelation?: string;
+  conformsTo?: string;
+  organisationalUnitType?: IOntologyNode;
+  collections?: ICollections[];
+  services?: IServices[];
+  parentOrganisation?: IOntologyNode;
 }
 
 export interface IResources_agg {
@@ -1509,6 +1590,23 @@ export interface ICatalogueOntologies_SampleCategories_agg {
   count: number;
 }
 
+export interface ICatalogueOntologies_SampleType extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_SampleType;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_SampleType[];
+}
+
+export interface ICatalogueOntologies_SampleType_agg {
+  count: number;
+}
+
 export interface ICatalogueOntologies_SampleTypes extends IMgTableClass {
   order?: number;
   name: string;
@@ -1536,6 +1634,59 @@ export interface ISamplesets_agg {
   count: number;
 }
 
+export interface ICatalogueOntologies_ServiceTypes extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_ServiceTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_ServiceTypes[];
+}
+
+export interface ICatalogueOntologies_ServiceTypes_agg {
+  count: number;
+}
+
+export interface IServices extends IMgTableClass {
+  name: string;
+  acronym?: string;
+  description?: string;
+  contactEmail: string;
+  website?: string;
+  provider: IOrganisationalUnits;
+  serviceType: IOntologyNode[];
+  keywords?: string[];
+  technology?: ITechnologies[];
+  accessDescription?: string;
+  accessDescriptionUrl?: string;
+  status?: IOntologyNode;
+}
+
+export interface IServices_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_Sex extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_Sex;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_Sex[];
+}
+
+export interface ICatalogueOntologies_Sex_agg {
+  count: number;
+}
+
 export interface ICatalogueOntologies_StandardizedTools extends IMgTableClass {
   order?: number;
   name: string;
@@ -1553,6 +1704,23 @@ export interface ICatalogueOntologies_StandardizedTools_agg {
   count: number;
 }
 
+export interface ICatalogueOntologies_Status extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_Status;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_Status[];
+}
+
+export interface ICatalogueOntologies_Status_agg {
+  count: number;
+}
+
 export interface ICatalogueOntologies_StatusDetails extends IMgTableClass {
   order?: number;
   name: string;
@@ -1567,6 +1735,23 @@ export interface ICatalogueOntologies_StatusDetails extends IMgTableClass {
 }
 
 export interface ICatalogueOntologies_StatusDetails_agg {
+  count: number;
+}
+
+export interface ICatalogueOntologies_StorageConditions extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueOntologies_StorageConditions;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueOntologies_StorageConditions[];
+}
+
+export interface ICatalogueOntologies_StorageConditions_agg {
   count: number;
 }
 
@@ -1639,8 +1824,8 @@ export interface ISubpopulations extends IMgTableClass {
   exclusionCriteria?: IOntologyNode[];
   otherExclusionCriteria?: string;
   contactPoint?: IContacts;
-  publisher?: IOrganisations;
-  creator?: IOrganisations[];
+  publisher?: IOrganisationRoles;
+  creator?: IOrganisationRoles[];
   issued?: string;
   modified?: string;
   theme?: IOntologyNode[];
@@ -1695,11 +1880,25 @@ export interface ITables extends IMgTableClass {
   numberOfRows?: number;
   mappedTo?: ITableMappings[];
   mappedFrom?: ITableMappings[];
+  variables?: IVariables[];
   sinceVersion?: string;
   untilVersion?: string;
 }
 
 export interface ITables_agg {
+  count: number;
+}
+
+export interface ITechnologies extends IMgTableClass {
+  name: string;
+  description?: string;
+  provider?: string;
+  device?: string;
+  softwareName?: string;
+  softwareVersion?: string;
+}
+
+export interface ITechnologies_agg {
   count: number;
 }
 
@@ -1791,6 +1990,21 @@ export interface ICatalogueOntologies_VariableRepeatUnits_agg {
   count: number;
 }
 
+export interface IVariableValueMappings extends IMgTableClass {
+  resource: IResources;
+  id: string;
+  source: IVariableValues;
+  target: IVariableValues;
+  mappingStatus?: IOntologyNode;
+  mappingMethod?: IOntologyNode;
+  reviewedBy?: string;
+  mappingDate?: string;
+}
+
+export interface IVariableValueMappings_agg {
+  count: number;
+}
+
 export interface IVariableValues extends IMgTableClass {
   resource: IResources;
   table: ITables;
@@ -1819,6 +2033,7 @@ export interface IVariables extends IMgTableClass {
   collectionEvent?: ICollectionEvents[];
   format?: IOntologyNode;
   unit?: IOntologyNode;
+  ontologyTermURI?: string;
   sinceVersion?: string;
   untilVersion?: string;
   reusedInResources?: IReusedVariables[];

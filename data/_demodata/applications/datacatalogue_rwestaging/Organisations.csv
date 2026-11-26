@@ -1,2 +1,2 @@
-﻿resource,id,type,name,organisation,other organisation,department,website,email,logo,logo_filename,role,is lead organisation,mg_draft
-testDatabank,UMCG,Organisation,,University Medical Center Groningen,,,,,,,Data holder,true,false
+id,pid,name
+UMCG,https://ror.org/03cv38k47,University Medical Center Groningen

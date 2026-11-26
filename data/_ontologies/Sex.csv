@@ -1,3 +1,5 @@
 ﻿﻿order,name,label,parent,codesystem,code,ontologyTermURI,definition
-,Male,,,,,,
-,Female,,,,,,
+,Male,,,,,http://purl.obolibrary.org/obo/PATO_0000384,A biological sex quality inhering in an individual or a population whose sex organs contain only male gametes.
+,Female,,,,,http://purl.obolibrary.org/obo/PATO_0000383,A biological sex quality inhering in an individual or a population that only produces gametes that can be fertilised by male gametes.
+,Unknown,,,,,,A proper value is applicable but not known
+,Undifferentiated,,,,,http://purl.obolibrary.org/obo/PATO_0001340,A biological sex quality inhering in an organism or a population with both male and female sexual organs in one individual.

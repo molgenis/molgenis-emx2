@@ -1,0 +1,4 @@
+resource,role,role description,first name,last name,prefix,initials,title,organisation,email,phone,orcid,homepage,expertise,mg_draft
+testSampleCollection,Primary contact,,HeadOf,TestSampleCollection,,,dr.,UMCG,head.of@umcg.example.org,,,,,false
+testBiobank,"Principal Investigator,Primary contact",Head of TBB,HeadOf,TestBioBank,,H.O.,prof. dr.,,h.o@testbiobank.example.org,,,,,false
+testService,Primary contact,Primary contact person for the testService,Contact,Person,,,,UMCG,contact.person@example.org,,,,,false
