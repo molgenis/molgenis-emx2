@@ -1107,4 +1107,25 @@ class TestGraphqlSchemaFields {
     assertTrue(result.at("/_reports/data").textValue().contains("spike"));
     assertEquals(1, result.at("/_reports/count").intValue());
   }
+
+  @Test
+  void testReportWithTrailingSemicolon() throws IOException {
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    schema = database.getSchema(schemaName);
+    schema
+        .getMetadata()
+        .setSetting(
+            "reports",
+            "[{\"id\":\"semicolon\",\"sql\":\"select * from \\\"Pet\\\" where name='pooky'; \\n\"}]");
+    graphqlExecutor = new GraphqlExecutor(schema, taskService);
+    JsonNode result = execute("{_reports(id:\"semicolon\"){data,count}}");
+    assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
+    assertEquals(1, result.at("/_reports/count").intValue());
+
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    schema = database.getSchema(schemaName);
+    graphqlExecutor = new GraphqlExecutor(schema, taskService);
+  }
 }

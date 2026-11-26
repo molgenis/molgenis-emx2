@@ -39,30 +39,38 @@ public final class ReportUtils {
   public static Object getReportById(String reportId, Schema schema, Map<String, ?> parameters)
       throws JsonProcessingException {
     Map<String, String> report = getReportById(reportId, schema);
-    return processRows(schema.retrieveSql(report.get("sql"), parameters));
+    return processRows(schema.retrieveSql(getSql(report), parameters));
   }
 
   public static String getReportAsJson(String id, Schema schema, Map<String, ?> parameters) {
     Map<String, String> report = getReportById(id, schema);
-    return convertToJson(schema.retrieveSql(report.get("sql"), parameters));
+    return convertToJson(schema.retrieveSql(getSql(report), parameters));
   }
 
   public static String getReportAsJson(
       String id, Schema schema, Map<String, ?> parameters, int limit, int offset) {
     Map<String, String> report = getReportById(id, schema);
-    String sql = report.get("sql") + " LIMIT " + limit + " OFFSET " + offset;
+    String sql = getSql(report) + " LIMIT " + limit + " OFFSET " + offset;
     return convertToJson(schema.retrieveSql(sql, parameters));
   }
 
   public static List<Row> getReportAsRows(String id, Schema schema, Map<String, ?> parameters) {
     Map<String, String> report = getReportById(id, schema);
-    return schema.retrieveSql(report.get("sql"), parameters);
+    return schema.retrieveSql(getSql(report), parameters);
   }
 
   public static Integer getReportCount(String id, Schema schema, Map<String, ?> parameters) {
     Map<String, String> report = getReportById(id, schema);
-    String countSql = String.format("select count(*) from (%s) as count", report.get("sql"));
+    String countSql = String.format("select count(*) from (%s) as count", getSql(report));
     return schema.retrieveSql(countSql, parameters).get(0).get("count", Integer.class);
+  }
+
+  /**
+   * Returns the report sql without trailing semicolons, so it can be extended with LIMIT/OFFSET or
+   * wrapped in a count query.
+   */
+  static String getSql(Map<String, String> report) {
+    return report.get("sql").replaceAll("[\\s;]+$", "");
   }
 
   private static Object processRows(List<Row> rows) throws JsonProcessingException {
