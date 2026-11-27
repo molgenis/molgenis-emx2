@@ -28,13 +28,13 @@ definitions:
 
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:1.7.0
     working_directory: ~/repo
     resource_class: large
     environment: *job_env
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:1.7.0
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -45,7 +45,7 @@ definitions:
     environment: *job_env
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.6.4
+      - image: molgenis/ci-build:1.7.0
     working_directory: ~/repo
     resource_class: large
     environment: *job_env
@@ -573,7 +573,14 @@ jobs:
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
-          ./gradlew --continue pmdMain pmdTest pmdTestFixtures
+          PMD_STATUS=0
+          ./gradlew --continue pmdMain pmdTest pmdTestFixtures || PMD_STATUS=$?
+          sarif html --no-autotrim --trim "file://$PWD/" -o backend/build/reports/pmd/index.html backend/*/build/reports/pmd/*.sarif.json
+          exit $PMD_STATUS
+    - store_artifacts:
+        path: backend/build/reports/pmd/index.html
+        destination: ~/pmd/index.html
+        when: always
     - run:
         name: run tests
         command: |
