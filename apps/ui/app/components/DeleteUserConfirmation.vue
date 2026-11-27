@@ -19,7 +19,7 @@ const emit = defineEmits(["deleteUser"]);
   <Modal v-model:visible="visible" :title="`Delete user(s)`">
     <div class="overflow-y-auto">
       <div class="p-5">
-        <div v-if="props.users.length" class="mb-4">
+        <div v-if="props.users.length" class="mb-4 text-sm text-title-contrast">
           <p>Are you sure you want to delete the user(s)</p>
           <div v-for="user in props.users" :key="user.email">
             <strong>
@@ -28,7 +28,11 @@ const emit = defineEmits(["deleteUser"]);
           </div>
           This action cannot be undone.
         </div>
-        <div v-if="props.systemUsers.length" id="delete-system-users-warning">
+        <div
+          v-if="props.systemUsers.length"
+          id="delete-system-users-warning"
+          class="text-sm text-title-contrast"
+        >
           <p>
             The following system users cannot be deleted and will be skipped:
           </p>

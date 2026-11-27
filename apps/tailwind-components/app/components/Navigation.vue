@@ -4,6 +4,10 @@ import BaseIcon from "./BaseIcon.vue";
 import NavigationMenuItems from "./NavigationMenuItems.vue";
 import NavigationMenuLink from "./NavigationMenuLink.vue";
 import type { MenuItem } from "../../types/types";
+import {
+  NAVIGATION_MENU_DELAY,
+  NAVIGATION_MENU_TRIGGERS,
+} from "../utils/constants";
 
 const props = withDefaults(
   defineProps<{
@@ -46,7 +50,12 @@ const moreButtonClass =
         />
       </template>
       <template v-else>
-        <VMenu placement="bottom-end" :distance="-1">
+        <VMenu
+          placement="bottom-end"
+          :distance="-1"
+          :triggers="NAVIGATION_MENU_TRIGGERS"
+          :delay="NAVIGATION_MENU_DELAY"
+        >
           <button
             :class="[linkClass, invert ? 'text-sub-menu' : 'text-menu']"
             :data-test="`main-submenu-${mainNavItem.label}`"
@@ -68,6 +77,8 @@ const moreButtonClass =
     <VMenu
       placement="bottom-end"
       :distance="-1"
+      :triggers="NAVIGATION_MENU_TRIGGERS"
+      :delay="NAVIGATION_MENU_DELAY"
       v-if="overflowItems.length > 0 && showMoreButton"
     >
       <button
