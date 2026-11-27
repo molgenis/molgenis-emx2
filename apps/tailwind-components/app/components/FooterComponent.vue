@@ -19,16 +19,6 @@ import BaseIcon from "./BaseIcon.vue";
               <span>About Molgenis</span>
             </a>
           </li>
-          <li>
-            <a
-              class="flex items-center hover:underline"
-              href="http://molgenis.org"
-            >
-              <BaseIcon name="CaretRight" :width="16" />
-              <span>MOLGENIS.org</span>
-              <BaseIcon name="ExternalLink" :width="16" />
-            </a>
-          </li>
           <li class="flex items-center">
             <BaseIcon name="CaretRight" :width="16" />
             <span>Need help?</span>
