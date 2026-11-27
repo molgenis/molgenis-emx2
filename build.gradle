@@ -13,7 +13,7 @@ def docker = System.getenv("DOCKER_PATH") ?: "docker"
 
 ext {
     javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
-    javaVersion = JavaVersion.VERSION_21
+    javaVersion = JavaVersion.VERSION_25
 }
 
 // A warm Gradle daemon does not pass -D to forked JVMs, so .env is read here and forwarded instead.

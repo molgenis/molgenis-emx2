@@ -16,6 +16,7 @@ parameters:
 
 orbs:
   slack: circleci/slack@6.1.3
+  node: circleci/node@7.2.1
 
 definitions:
   # A cache restores to the absolute path it was saved from, and `~` differs per image.
@@ -28,13 +29,13 @@ definitions:
 
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:dev
     working_directory: ~/repo
     resource_class: large
     environment: *job_env
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:dev
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -45,7 +46,7 @@ definitions:
     environment: *job_env
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.6.4
+      - image: molgenis/ci-build:dev
     working_directory: ~/repo
     resource_class: large
     environment: *job_env
@@ -266,7 +267,7 @@ jobs:
 
   test-e2e:
     docker:
-    - image: cimg/openjdk:21.0.12-browsers
+    - image: cimg/openjdk:25.0.5
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -277,10 +278,13 @@ jobs:
     environment: *job_env
 
     steps:
+      # Same Node as molgenis/ci-build; Node 25+ no longer ships corepack.
+      - node/install:
+          node-version: "24.22.3"
       # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
       - run:
           name: Enable pnpm
-          command: sudo corepack enable
+          command: corepack enable
 
       # This job restores its own gradle cache below, into the GRADLE_USER_HOME set above.
       - pre_steps
@@ -493,7 +497,7 @@ jobs:
   # Only local links and anchors: external sites fail too often for reasons outside this repo.
   test-docs:
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:dev
     working_directory: ~/repo
     resource_class: small
 
