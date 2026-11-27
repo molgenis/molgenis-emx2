@@ -1,6 +1,6 @@
-order,name,parent,codesystem,code,ontologyTermURI,definition
-0,count,,,,,
-1,sum,,,,,
-2,average,,,,,
-3,min,,,,,
-4,max,,,,,
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+0,count,count,,,,,
+1,_sum,sum,,,,,
+2,avg,average,,,,,
+3,min,min,,,,,
+4,max,max,,,,,
