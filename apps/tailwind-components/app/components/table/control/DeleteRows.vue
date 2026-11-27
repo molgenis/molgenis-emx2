@@ -85,7 +85,7 @@ async function onDeleteConfirm() {
     <section class="grid grid-cols-4 gap-1"></section>
 
     <div class="mx-8 my-auto py-4">
-      <p class="text-sm">
+      <p class="text-sm text-title-contrast">
         Are you sure you want to delete the {{ keys.size }} selected rows. This
         action cannot be undone.
       </p>
