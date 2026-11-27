@@ -451,6 +451,52 @@ describe("DisplayRecord", () => {
     ).toBe("spike, a good dog");
   });
 
+  describe("falls back to the key values when the titleTemplate cannot give a short title", () => {
+    const columns: IColumn[] = [
+      { ...column("name", "STRING", "Name"), key: 1 },
+      column("status", "STRING", "Status"),
+      column("details", "HEADING", "Details"),
+      column("weight", "DECIMAL", "Weight"),
+    ];
+    const row = { name: "spike", status: "available", weight: 15.7 };
+    const legendTitle = (titleTemplate: string) =>
+      mount(DisplayRecord, { props: { columns, row, titleTemplate } })
+        .get("nav")
+        .get("h2")
+        .text();
+
+    test("keeps a template title of 19 characters", () => {
+      expect(legendTitle("${name}, a good dog!!")).toBe("spike, a good dog!!");
+    });
+
+    test("uses the key values once the template title reaches 20 characters", () => {
+      expect(legendTitle("${name}, a good dog!!!")).toBe("spike");
+    });
+
+    test("uses the key values when the template renders to nothing", () => {
+      expect(legendTitle("${status_missing}")).toBe("spike");
+    });
+  });
+
+  test("never shortens a long key title when there is no titleTemplate", () => {
+    const longKey = "bbmri-eric:ID:DE_biobank1:collection:coll1";
+    expect(
+      mount(DisplayRecord, {
+        props: {
+          columns: [
+            { ...column("name", "STRING", "Name"), key: 1 },
+            column("details", "HEADING", "Details"),
+            column("weight", "DECIMAL", "Weight"),
+          ],
+          row: { name: longKey, weight: 15.7 },
+        },
+      })
+        .get("nav")
+        .get("h2")
+        .text()
+    ).toBe(longKey);
+  });
+
   test("wraps a legend title that has no spaces, so a long key stays inside the legend", () => {
     const row = { name: "bbmri-eric:ID:DE_biobank1:collection:coll1" };
 

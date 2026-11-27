@@ -2,6 +2,10 @@
 import BaseIcon from "./BaseIcon.vue";
 import NavigationMenuLink from "./NavigationMenuLink.vue";
 import type { MenuItem } from "../../types/types";
+import {
+  NAVIGATION_MENU_DELAY,
+  NAVIGATION_MENU_TRIGGERS,
+} from "../utils/constants";
 
 defineOptions({
   name: "NavigationMenuItems",
@@ -27,7 +31,12 @@ const submenuButtonClass =
         <NavigationMenuLink :item="item" :link-class="submenuLinkClass" />
       </template>
       <template v-else>
-        <VMenu placement="right-start" :distance="-1">
+        <VMenu
+          placement="right-start"
+          :distance="-1"
+          :triggers="NAVIGATION_MENU_TRIGGERS"
+          :delay="NAVIGATION_MENU_DELAY"
+        >
           <button
             :class="[
               submenuButtonClass,
