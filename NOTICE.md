@@ -9,7 +9,7 @@ IMPORTANT: No guarantees are given regarding the accuracy of this document. Plea
 ## General
 
 - A list of Java dependencies can be found in the different `build.gradle` files within (subfolders of) the `backend` directory.
-- The frontend dependencies can be found in the [lock file](./apps/package-lock.json).
+- The frontend dependencies can be found in the [lock file](./apps/pnpm-lock.yaml).
 - All ontologies can be found in the `data` directory
 
 ## Software

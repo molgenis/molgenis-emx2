@@ -49,14 +49,14 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void addMember(String user, String role) {
-    roleManager().addMember(getName(), new Member(user, role));
+  public void addMember(Username username, String role) {
+    roleManager().addMember(getName(), new Member(username, role));
   }
 
   @Override
   public List<Member> getMembers() {
     // only admin or other members can see
-    if (db.getActiveUser() == null || db.isAdmin() || getRoleForActiveUser() != null) {
+    if (db.getActiveUsername() == null || db.isAdmin() || getRoleForActiveUser() != null) {
       return roleManager().getMembers(getName());
     } else {
       return new ArrayList<>();
@@ -69,8 +69,8 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public void removeMember(String user) {
-    removeMembers(new Member(user, null));
+  public void removeMember(Username username) {
+    removeMembers(new Member(username, null));
   }
 
   @Override
@@ -84,24 +84,24 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public String getRoleForUser(String user) {
-    return getMetadata().getRoleForUser(user);
+  public String getRoleForUser(Username username) {
+    return getMetadata().getRoleForUser(username);
   }
 
   @Override
-  public List<String> getInheritedRolesForUser(String user) {
+  public List<String> getInheritedRolesForUser(Username username) {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
-    if (user == null || ADMIN_USER.equals(user)) {
+    if (username == null || ADMIN_USER.equals(username)) {
       return getRoles();
     } else {
-      return getMetadata().getInheritedRolesForUser(user);
+      return getMetadata().getInheritedRolesForUser(username);
     }
   }
 
   @Override
   public String getRoleForActiveUser() {
-    return getRoleForUser(db.getActiveUser());
+    return getRoleForUser(db.getActiveUsername());
   }
 
   @Override

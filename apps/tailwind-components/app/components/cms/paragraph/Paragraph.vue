@@ -3,7 +3,9 @@ import { computed } from "vue";
 import { sanitizeHtmlText } from "../../../utils/cms/sanitizeHtmlText.ts";
 import type { IParagraphs } from "../../../../types/cms";
 
-const props = defineProps<IParagraphs>();
+const props = withDefaults(defineProps<IParagraphs & { asText?: boolean }>(), {
+  asText: false,
+});
 
 const text = computed<string | undefined>(() => {
   if (props.text) {
@@ -20,6 +22,7 @@ const text = computed<string | undefined>(() => {
       'text-center': paragraphIsCentered,
       'text-left': !paragraphIsCentered,
     }"
-    v-html="text"
+    v-text="asText ? text : undefined"
+    v-html="!asText ? text : undefined"
   />
 </template>

@@ -18,35 +18,37 @@ const bannerHtml = computed(() => {
 </script>
 
 <template>
-  <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
+  <div class="grow">
+    <Banner v-if="bannerHtml.value" v-html="bannerHtml.value"> </Banner>
 
-  <HeaderCatalogue
-    v-if="route.params.catalogue"
-    :catalogue="headerData.catalogue"
-    :variableCount="headerData.variableCount"
-    :collectionCount="headerData.collectionCount"
-    :networkCount="headerData.networkCount"
-    :logoSrc="headerData.logoSrc"
-    :logoTitle="headerData.logoTitle"
-  />
+    <HeaderCatalogue
+      v-if="route.params.catalogue"
+      :catalogue="headerData.catalogue"
+      :variableCount="headerData.variableCount"
+      :collectionCount="headerData.collectionCount"
+      :networkCount="headerData.networkCount"
+      :logoSrc="headerData.logoSrc"
+      :logoTitle="headerData.logoTitle"
+    />
 
-  <HeaderGlobal
-    v-else
-    :logoSrc="headerData.logoSrc"
-    :isPaperExtractingEnabled="headerData.paperExtracting.enabled"
-  />
+    <HeaderGlobal
+      v-else
+      :logoSrc="headerData.logoSrc"
+      :isPaperExtractingEnabled="headerData.paperExtracting.enabled"
+    />
 
-  <Container>
-    <slot name="header"></slot>
-    <div class="xl:flex">
-      <aside class="xl:min-w-95 xl:w-95 hidden xl:block">
-        <slot name="side"></slot>
-      </aside>
-      <div class="xl:pl-7.5 xl:grow">
-        <slot name="main"></slot>
+    <Container>
+      <slot name="header"></slot>
+      <div class="xl:flex">
+        <aside class="xl:min-w-95 xl:w-95 hidden xl:block">
+          <slot name="side"></slot>
+        </aside>
+        <div class="xl:pl-7.5 xl:grow">
+          <slot name="main"></slot>
+        </div>
       </div>
-    </div>
-  </Container>
+    </Container>
+  </div>
   <FooterComponent class="mt-[7.8125rem]">
     <ClientOnly>
       <FooterVersion />

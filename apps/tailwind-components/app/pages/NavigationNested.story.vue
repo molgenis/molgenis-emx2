@@ -2,59 +2,59 @@
 import type { MenuItem } from "../../types/types";
 
 const nestedNavigation: MenuItem[] = [
-  { label: "Home", link: "#" },
+  { label: "Home", location: "#" },
   {
     label: "Data",
-    link: "#",
+    location: "#",
     submenu: [
-      { label: "Overview", link: "#overview" },
+      { label: "Overview", location: "#overview" },
       {
         label: "Catalog",
-        link: "#catalog",
+        location: "#catalog",
         submenu: [
-          { label: "Entities", link: "#entities" },
-          { label: "Attributes", link: "#attributes" },
-          { label: "Relations", link: "#relations" },
+          { label: "Entities", location: "#entities" },
+          { label: "Attributes", location: "#attributes" },
+          { label: "Relations", location: "#relations" },
         ],
       },
       {
         label: "Exports",
-        link: "#exports",
+        location: "#exports",
         submenu: [
-          { label: "CSV", link: "#csv" },
-          { label: "JSON", link: "#json", isSpaLink: true },
+          { label: "CSV", location: "#csv" },
+          { label: "JSON", location: "#json" },
         ],
       },
     ],
   },
   {
     label: "Admin",
-    link: "#",
+    location: "#",
     submenu: [
-      { label: "Users", link: "#users" },
+      { label: "Users", location: "#users" },
       {
         label: "Permissions",
-        link: "#permissions",
+        location: "#permissions",
         submenu: [
-          { label: "Roles", link: "#roles" },
-          { label: "Policies", link: "#policies" },
+          { label: "Roles", location: "#roles" },
+          { label: "Policies", location: "#policies" },
         ],
       },
     ],
   },
-  { label: "Docs", link: "#docs", isSpaLink: true },
-  { label: "Support", link: "#support" },
+  { label: "Docs", location: "#docs" },
+  { label: "Support", location: "#support" },
   {
     label: "More tools",
-    link: "#",
+    location: "#",
     submenu: [
-      { label: "Audit", link: "#audit" },
+      { label: "Audit", location: "#audit" },
       {
         label: "Integrations",
-        link: "#integrations",
+        location: "#integrations",
         submenu: [
-          { label: "SAML", link: "#saml" },
-          { label: "OIDC", link: "#oidc" },
+          { label: "SAML", location: "#saml" },
+          { label: "OIDC", location: "#oidc" },
         ],
       },
     ],

@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.generators;
 
+import static org.molgenis.emx2.Constants.FILE_FILENAME;
+import static org.molgenis.emx2.Constants.FILE_MIMETYPE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -7,6 +9,7 @@ import static org.molgenis.emx2.rdf.RdfUtils.*;
 
 import java.util.*;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -41,7 +44,7 @@ public abstract class RdfGenerator {
   }
 
   protected void processRows(
-      final Consumer<Row> consumer, final Table table, final PrimaryKey primaryKey) {
+      final Consumer<Row> consumer, final Table table, @Nullable final PrimaryKey primaryKey) {
     Query query = table.query();
 
     if (primaryKey != null) {
@@ -56,15 +59,20 @@ public abstract class RdfGenerator {
     query.streamRows(consumer);
   }
 
-  /**
-   * Retrieve selected {@link Table} from {@link Schema} including any recursively inherited tables
-   * up to the root table (as long as these tables are still part of the same scheme as the {@code
-   * tableFilter}).
-   */
-  protected Set<Table> tablesToDescribe(Schema schema, Table tableFilter) {
+  protected Set<Table> ancestors(Table table) {
+    Set<Table> result = new HashSet<>();
+    Table parent = table.getInheritedTable();
+    while (parent != null) {
+      result.add(parent);
+      parent = parent.getInheritedTable();
+    }
+    return result;
+  }
+
+  protected Set<Table> descendantsAndSelf(Table table) {
     Set<Table> tablesToDescribe = new HashSet<>();
-    for (Table currentTable : schema.getTablesSorted()) {
-      processInheritedTable(tableFilter, tablesToDescribe, currentTable);
+    for (Table currentTable : table.getSchema().getTablesSorted()) {
+      processInheritedTable(table, tablesToDescribe, currentTable);
     }
     return tablesToDescribe;
   }
@@ -158,7 +166,7 @@ public abstract class RdfGenerator {
    */
   protected void generateFileTriples(IRI fileIri, Row row, Column column) {
     getWriter().processTriple(fileIri, RDF.TYPE, BasicIRI.SIO_FILE);
-    Literal fileName = Values.literal(row.getString(column.getName() + "_filename"));
+    Literal fileName = Values.literal(row.getString(column.getName() + FILE_FILENAME));
     getWriter().processTriple(fileIri, RDFS.LABEL, fileName);
     getWriter().processTriple(fileIri, DCTERMS.TITLE, fileName);
     getWriter()
@@ -167,7 +175,7 @@ public abstract class RdfGenerator {
             DCTERMS.FORMAT,
             Values.iri(
                 "http://www.iana.org/assignments/media-types/"
-                    + row.getString(column.getName() + "_mimetype")));
+                    + row.getString(column.getName() + FILE_MIMETYPE)));
   }
 
   protected void describeRoot() {

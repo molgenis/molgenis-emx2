@@ -86,6 +86,15 @@ async function deletePage() {
         role="toolbar"
         :aria-controls="container.name"
       >
+        <PageGalleryCardAction v-tooltip.bottom="`View`">
+          <NuxtLink
+            :to="setCmsViewUrl(schema, container.name)"
+            class="hover:underline cursor-pointer h-10 w-10 p-2.5"
+          >
+            <BaseIcon name="Visible" :width="18" />
+            <span class="sr-only">view page</span>
+          </NuxtLink>
+        </PageGalleryCardAction>
         <PageGalleryCardAction v-tooltip.bottom="`Edit`">
           <NuxtLink
             :to="setCmsEditorUrl(schema, (container.mg_tableclass as string), container.name)"

@@ -8,7 +8,7 @@
         >&nbsp;
         <MolgenisAccount
           v-if="showChangePasswordForm"
-          :error="error"
+          :user="session.email"
           @cancel="showChangePasswordForm = false"
         />
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>

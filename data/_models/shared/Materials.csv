@@ -60,7 +60,7 @@ Sequencing samples,,concentration measurement type,ontology,,,,,CatalogueOntolog
 Samples,,volume,int,,,,,,,,,,,,obo:NCIT_C74720,The determination of the volume of a sample.,"Patient registry, Patient registry staging, FAIR Genomes",
 Samples,,volume unit,ontology,,,,,CatalogueOntologies,Units,,,,,,obo:NCIT_C44279,An indication of the type of unit of measure being used to express a volume.,"Patient registry, Patient registry staging, FAIR Genomes",
 Samples RNA,,RIN value,decimal,,,,,,,,,,,,obo:GENEPIO_0100661,A data field which describes quality control information,"Patient registry",
-Samples RNA,,RIN value,decimal,,,,TRUE,,,,,,"if(parseFloat(rINValue) < 6 || parseFloat(rINValue) > 10) ""Only values between 6 and 10 are allowed.""",,obo:GENEPIO_0100661,A data field which describes quality control information,"Patient registry staging",
+Samples RNA,,RIN value,decimal,,,,,,,,,,"if(parseFloat(rINValue) < 6 || parseFloat(rINValue) > 10) ""Only values between 6 and 10 are allowed.""",,obo:GENEPIO_0100661,A data field which describes quality control information,"Patient registry staging",
 Samples lrGS,,DIN QC value,decimal,,,,,,,,,,,,obo:GENEPIO_0100661,A data field which describes quality control information,"Patient registry",
 Samples lrGS,,DIN QC value,decimal,,,,TRUE,,,,,,"if(parseFloat(dINQCValue) < 6 || parseFloat(dINQCValue) > 10) ""Only values between 6 and 10 are allowed.""",,obo:GENEPIO_0100661,A data field which describes quality control information,Patient registry staging,
 Samples lrGS,,genomic fragment length,int,,,,,,,,,,,,obo:IAO_0000408,A scalar measurement datum that is the result of measurement of length of a genomic fragment,"Patient registry, Patient registry staging",
@@ -97,7 +97,7 @@ Files,,checksum,string,,,,,,,,,,,,obo:NCIT_C43522,A fixed-size datum calculated 
 Files,,checksum type,ontology,,,,,CatalogueOntologies,Checksum type,,,,,,obo:MS_1000561,"The type of checksum (e.g., MD5, SHA256)","Patient registry, Patient registry staging",
 Files,,format,ontology,,,,TRUE,CatalogueOntologies,File formats,,,,,,"dcterms:FileFormat,obo:NCIT_C171252","A digital resource format (e.g. BAM, FastQ, gVCF, phenopacket, BED)","Patient registry, Patient registry staging",
 Materials,,Additional Information,heading,,,,,,,,,,,,,,"Patient registry, Patient registry staging, FAIR Genomes",
-Materials,,included in resources,multiselect,,,,,,Resources,,,,,,obo:HSO_0000370,"A reference to one or more resources that organises materials for in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",Patient registry,false
+Materials,,included in resources,multiselect,,,,,,Resources,,,,,,obo:HSO_0000370,"A reference to one or more resources that organises materials for in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",Patient registry,
 Materials,,data source,select,,,,,,Resources,,,,,,obo:NCIT_C16493,"The source or origin of the record. For example, an organisation, database, system, etc.",Patient registry,false
 Materials,,date created at source,date,,,,,,,,,,,,"dcterms:created,obo:NCIT_C16493",The date the record was created at the source,"Patient registry, FAIR Genomes",false
 Materials,,created at source by,select,,,,,,Contacts,,,,,,"obo:NCIT_C51820,obo:NCIT_C16493",The person who created the record at the source,"Patient registry, FAIR Genomes",false
