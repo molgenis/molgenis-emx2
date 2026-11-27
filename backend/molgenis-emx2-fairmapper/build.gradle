@@ -12,6 +12,8 @@ shadowJar {
     zip64 = true
     archiveBaseName = 'fairmapper'
     archiveClassifier = 'cli'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    filesMatching("META-INF/services/**") { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
     mergeServiceFiles()
 
     // Multi-release is needed for graalvm lib
