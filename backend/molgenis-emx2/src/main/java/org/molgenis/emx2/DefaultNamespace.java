@@ -13,6 +13,7 @@ public enum DefaultNamespace {
   DCAT("dcat", "http://www.w3.org/ns/dcat#"),
   DCATAP("dcatap", "http://data.europa.eu/r5r/"),
   DCTERMS("dcterms", "http://purl.org/dc/terms/"),
+  DPVTECH("dpv-tech", "https://www.w3id.org/dpv/dpv-tech#"),
   EDAM("edam", "http://edamontology.org/"),
   EFO("efo", "http://www.ebi.ac.uk/efo/"),
   EJP("ejp", "https://w3id.org/ejp-rd/vocabulary#"),
