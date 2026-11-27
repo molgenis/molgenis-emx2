@@ -113,16 +113,6 @@ describe("Column dispatcher", () => {
       expect(wrapper.findComponent(FilterText).exists()).toBe(false);
     });
 
-    it("renders FilterTree for BOOL column type", () => {
-      const wrapper = mountColumn(boolColumn(), [
-        { name: "true", count: 3 },
-        { name: "false", count: 2 },
-      ]);
-      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
-      expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
-      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
-    });
-
     it("renders FilterTree for REF column type", () => {
       const col: IColumn = {
         id: "category",
@@ -213,20 +203,16 @@ describe("Column dispatcher", () => {
       });
     });
 
-    it("H3: STRING_ARRAY renders FilterTree (countable), not text search fallback", () => {
+    it("STRING_ARRAY renders the multi-row text filter, not the tree", () => {
       const col: IColumn = {
         id: "tags",
         label: "Tags",
         columnType: "STRING_ARRAY",
       } as IColumn;
-      const opts: CountedOption[] = [
-        { name: "a", count: 3 },
-        { name: "b", count: 1 },
-      ];
-      const wrapper = mountColumn(col, opts);
-      expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+      const wrapper = mountColumn(col, []);
+      expect(wrapper.findComponent(FilterText).exists()).toBe(true);
+      expect(wrapper.findComponent(FilterTree).exists()).toBe(false);
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
-      expect(wrapper.findComponent(FilterText).exists()).toBe(false);
     });
 
     it("renders FilterTree for SELECT column type", () => {
@@ -254,6 +240,23 @@ describe("Column dispatcher", () => {
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
       expect(wrapper.findComponent(FilterText).exists()).toBe(false);
     });
+  });
+
+  describe("BOOL and BOOL_ARRAY — counted tree", () => {
+    it.each(["BOOL", "BOOL_ARRAY"] as const)(
+      "%s renders FilterTree and no boolean component",
+      (columnType) => {
+        const wrapper = mountColumn({ ...boolColumn(), columnType }, [
+          { name: "true", label: "Yes", count: 4, overlap: 0 },
+          { name: "false", label: "No", count: 2, overlap: 0 },
+          { name: "_null_", label: "Not set", count: 7, overlap: 0 },
+        ]);
+        expect(wrapper.findComponent(FilterTree).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: "Bool" }).exists()).toBe(false);
+        expect(wrapper.findComponent(FilterText).exists()).toBe(false);
+        expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
+      }
+    );
   });
 
   describe("range types — renders FilterRange", () => {
@@ -292,16 +295,16 @@ describe("Column dispatcher", () => {
     it("passes range values from modelValue between operator", () => {
       const wrapper = mountColumn(intColumn(), [], {
         operator: "between",
-        value: [10, 50],
+        value: [[10, 50]],
       });
       const range = wrapper.findComponent(FilterRange);
-      expect(range.props("modelValue")).toEqual([10, 50]);
+      expect(range.props("modelValue")).toEqual([[10, 50]]);
     });
 
-    it("passes [null, null] to FilterRange when no modelValue", () => {
+    it("passes no ranges to FilterRange when no modelValue", () => {
       const wrapper = mountColumn(intColumn());
       const range = wrapper.findComponent(FilterRange);
-      expect(range.props("modelValue")).toEqual([null, null]);
+      expect(range.props("modelValue")).toEqual([]);
     });
 
     it("renders generic Input with DATE type for DATE column range", () => {
@@ -334,10 +337,10 @@ describe("Column dispatcher", () => {
     it("emits undefined when range min and max are both null", async () => {
       const wrapper = mountColumn(intColumn(), [], {
         operator: "between",
-        value: [10, 50],
+        value: [[10, 50]],
       });
       const range = wrapper.findComponent(FilterRange);
-      await range.vm.$emit("update:modelValue", [null, null]);
+      await range.vm.$emit("update:modelValue", [[null, null]]);
       const emitted = wrapper.emitted("update:modelValue");
       expect(emitted).toBeTruthy();
       expect(emitted![0][0]).toBeUndefined();
@@ -346,10 +349,61 @@ describe("Column dispatcher", () => {
     it("emits between filter when range value set", async () => {
       const wrapper = mountColumn(intColumn());
       const range = wrapper.findComponent(FilterRange);
-      await range.vm.$emit("update:modelValue", [5, 20]);
+      await range.vm.$emit("update:modelValue", [[5, 20]]);
       const emitted = wrapper.emitted("update:modelValue");
       expect(emitted).toBeTruthy();
-      expect(emitted![0][0]).toEqual({ operator: "between", value: [5, 20] });
+      expect(emitted![0][0]).toEqual({
+        operator: "between",
+        value: [[5, 20]],
+      });
+    });
+
+    it("emits only the ranges that have a side, dropping empty rows", async () => {
+      const wrapper = mountColumn(intColumn());
+      await wrapper.findComponent(FilterRange).vm.$emit("update:modelValue", [
+        [5, 20],
+        [null, null],
+        [null, 3],
+      ]);
+      expect(wrapper.emitted("update:modelValue")![0]![0]).toEqual({
+        operator: "between",
+        value: [
+          [5, 20],
+          [null, 3],
+        ],
+      });
+    });
+
+    it("shows one min and max pair per range, with add and remove from two rows", async () => {
+      const wrapper = mountColumn(intColumn(), [], {
+        operator: "between",
+        value: [[10, 20]],
+      });
+      const named = (name: string) =>
+        wrapper.findAll("button").filter((button) => button.text() === name);
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(2);
+      expect(named("Remove item")).toHaveLength(0);
+
+      await named("Add an additional item")[0]!.trigger("click");
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(4);
+      expect(named("Remove item")).toHaveLength(2);
+
+      await named("Remove item")[1]!.trigger("click");
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(2);
+      expect(named("Remove item")).toHaveLength(0);
+    });
+
+    it("empties the rows when the filter is removed from outside", async () => {
+      const wrapper = mountColumn(intColumn(), [], {
+        operator: "between",
+        value: [
+          [10, 20],
+          [30, 40],
+        ],
+      });
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(4);
+      await wrapper.setProps({ modelValue: undefined });
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(2);
     });
   });
 
@@ -367,10 +421,12 @@ describe("Column dispatcher", () => {
       expect(wrapper.findComponent(FilterRange).exists()).toBe(false);
     });
 
-    it("renders search input for STRING column type", () => {
+    it("renders a text row for STRING column type", () => {
       const wrapper = mountColumn(stringColumn());
-      const input = wrapper.find('input[type="search"]');
-      expect(input.exists()).toBe(true);
+      expect(wrapper.findAllComponents(GenericInput)).toHaveLength(1);
+      expect(wrapper.findAllComponents(GenericInput)[0]!.props("type")).toBe(
+        "STRING"
+      );
     });
   });
 
@@ -380,7 +436,7 @@ describe("Column dispatcher", () => {
       expect(rangeWrapper.findComponent(FilterRange).exists()).toBe(true);
 
       const stringWrapper = mountColumn(stringColumn(), [], undefined, false);
-      expect(stringWrapper.find('input[type="search"]').exists()).toBe(true);
+      expect(stringWrapper.findComponent(FilterText).exists()).toBe(true);
     });
   });
 });

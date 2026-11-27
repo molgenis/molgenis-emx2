@@ -294,9 +294,12 @@ function displayValue(value: unknown): string {
 function matchesFilter(row: TableRow, columnId: string, filter: IFilterValue) {
   const value = row[columnId];
   if (filter.operator === "between") {
-    const [min, max] = filter.value as [number | null, number | null];
     const numeric = Number(value);
-    return (min == null || numeric >= min) && (max == null || numeric <= max);
+    return filter.value.some(
+      ([min, max]) =>
+        (min == null || numeric >= Number(min)) &&
+        (max == null || numeric <= Number(max))
+    );
   }
   if (filter.operator === "isNull") {
     return value === null || value === undefined;

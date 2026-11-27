@@ -1,51 +1,80 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  columnValue,
+} from "../../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../../types/filters";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
+import { TEXT_FILTER_TYPES, trimmedTerms } from "../../utils/filterUtils";
+import InputArray from "../input/Array.vue";
 import InputSearch from "../input/Search.vue";
 
-const props = defineProps<{
-  column: IColumn;
-  modelValue: IFilterValue | undefined;
-}>();
+const props = defineProps<{ column: IColumn }>();
+const model = defineModel<IFilterValue | undefined>({ required: true });
 
-const emit = defineEmits<{
-  "update:modelValue": [value: IFilterValue | undefined];
-}>();
-
-function textValueFromModelValue(modelValue: IFilterValue | undefined): string {
-  if (!modelValue || modelValue.operator !== "like") return "";
-  return typeof modelValue.value === "string" ? modelValue.value : "";
-}
-
-const inputText = ref<string>(textValueFromModelValue(props.modelValue));
-
-watch(
-  () => props.modelValue,
-  (modelValue) => {
-    const next = textValueFromModelValue(modelValue);
-    if (inputText.value !== next) inputText.value = next;
-  }
+const label = computed(() => props.column.label || props.column.id);
+const isMultiValue = computed(() =>
+  TEXT_FILTER_TYPES.has(props.column.columnType)
 );
 
-const debouncedEmitText = useDebounceFn((val: string) => {
-  if (!val) {
-    emit("update:modelValue", undefined);
-  } else {
-    emit("update:modelValue", { operator: "like", value: val });
-  }
+function termsFromModelValue(modelValue: IFilterValue | undefined): string[] {
+  return modelValue?.operator === "like" ? modelValue.value : [];
+}
+
+function rowsFromTerms(terms: string[]): columnValue[] {
+  return terms.length > 0 ? [...terms] : [""];
+}
+
+const rows = ref<columnValue[]>(
+  rowsFromTerms(termsFromModelValue(model.value))
+);
+const rowsVersion = ref(0);
+const singleText = computed({
+  get: () => String(rows.value[0] ?? ""),
+  set: (text: string) => {
+    rows.value = [text];
+  },
+});
+
+watch(model, (modelValue) => {
+  const incoming = termsFromModelValue(modelValue);
+  if (termsFromRows(rows.value).join("\n") === incoming.join("\n")) return;
+  rows.value = rowsFromTerms(incoming);
+  rowsVersion.value++;
+});
+
+function termsFromRows(values: columnValue[]): string[] {
+  return trimmedTerms(values.map((value) => String(value ?? "")));
+}
+
+const debouncedEmit = useDebounceFn((values: columnValue[]) => {
+  const terms = termsFromRows(values);
+  model.value =
+    terms.length > 0 ? { operator: "like", value: terms } : undefined;
 }, FILTER_DEBOUNCE);
 
-watch(inputText, (val) => debouncedEmitText(val));
+watch(rows, (values) => debouncedEmit(values), { deep: true });
 </script>
 
 <template>
-  <InputSearch
-    :id="`filter-text-${column.id}`"
-    v-model="inputText"
-    :placeholder="`Search ${column.label || column.id}...`"
-    :aria-label="column.label || column.id"
-  />
+  <div role="group" :aria-label="label">
+    <InputArray
+      v-if="isMultiValue"
+      :key="rowsVersion"
+      :id="`filter-text-${column.id}`"
+      v-model="rows"
+      type="STRING_ARRAY"
+      :error-message="null"
+      :placeholder="`Search ${label}...`"
+    />
+    <InputSearch
+      v-else
+      :id="`filter-text-${column.id}`"
+      v-model="singleText"
+      :placeholder="`Search ${label}...`"
+      :aria-label="label"
+    />
+  </div>
 </template>
