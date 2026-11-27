@@ -17,6 +17,7 @@ import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 import EditableColumnChart from "./columnChart/EditableColumnChart.vue";
 import EditableButton from "./button/EditableButton.vue";
+import EditableDataHighlights from "./dataHighlights/EditableDataHighlights.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -345,6 +346,14 @@ function inlineSave() {
   />
   <EditableButton
     v-else-if="mg_tableclass.endsWith('.Buttons')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableDataHighlights
+    v-else-if="mg_tableclass.endsWith('.Data highlights')"
     v-bind="component"
     :isEditable="editingIsEnabled"
     @edit="onShowEdit"

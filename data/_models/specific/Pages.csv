@@ -57,7 +57,7 @@ Navigation cards,,description,string,,,,,,,,,,,sio:000136,An optional descriptio
 Navigation cards,,url,hyperlink,,TRUE,,,,,,,,,sio:000811,A link to an internal or external page,pages
 Navigation cards,,url label,string,,,,,,,,,,,sio:000179,A label to display instead of the URL,pages
 Navigation cards,,url is external,bool,,,,,,,,,,FALSE,ncit:C44280,"If true, the link will be rendered as an external link",pages
-Navigation cards,,navigation card width,ontology,,,,Cms component widths,,,,,,full,,"Change the width of the component. By default, the card will fill the space (width: 100%).",pages
+Navigation cards,,navigation card width,ontology,,,,Cms component widths,,,,,,"={name:""full""}",,"Change the width of the component. By default, the card will fill the space (width: 100%).",pages
 Buttons,Components,,,,,,,,,,,,,,Buttons,pages
 Buttons,,button link,string,,,,,,,,,,"mailto:support@molgenis.org",,link added to the button,pages
 Buttons,,button label,string,,,,,,,,,,"Email us",,Text as displayed on the button,pages
@@ -72,6 +72,16 @@ Files,,file,file,,,,,,,fileIsAnExternalLink===false,,,,,Select an file,pages
 Files,,link to external file,string,,,,,,,fileIsAnExternalLink===true,,,,,Link to an external file,pages
 Files,,alternate file name,string,,,,,,,,,,,,An optional name to display in place of the filename,pages
 Files,,file tag,string,,,,,,,,,,,,Set tag to group files,pages
+Data highlights,Components,,,,,,,,,,,,,,Data highlights,pages
+Data highlights,,highlight label,string,,TRUE,,,,,,,,,,A label that describes the value,pages
+Data highlights,,retrieve value from table,bool,,,,,,,,,,false,,"If true, the value will be retrieved from a column",pages
+Data highlights,,highlight value,int,,!retrieveValueFromTable,,,,,!retrieveValueFromTable,,,0,,The value to display,pages
+Data highlights,,highlight value aggregation type,ontology,,retrieveValueFromTable,,Cms aggregation types,,,retrieveValueFromTable,,,"={name:""count""}",,"Type of aggregation to compute",pages
+Data highlights,,highlight value schema,string,,retrieveValueFromTable,,,,,retrieveValueFromTable,,,,,Name of the schema,pages
+Data highlights,,highlight value table,string,,retrieveValueFromTable,,,,,retrieveValueFromTable,,,,,Name of the table that contains the data,pages
+Data highlights,,highlight value column,string,,"retrieveValueFromTable && highlightValueAggregationType?.name !== ""count""",,,,,retrieveValueFromTable,,,,,"Name of the column that contains the data. Applies to sum, avg, min, max",pages
+Data highlights,,highlight value filter,string,,,,,,,retrieveValueFromTable,,,,,"An optional filter used to limit results. Must be in graphql format: {""category"":{""name"": {""equals"":[""cat""]}}}",pages
+Data highlights,,highlight width,ontology,,,,Cms component widths,,,,,,"={name:""full""}",,"Change the width of the component. By default, it will fill the space (width: 100%). Using a smaller width is useful if you have added one instance of the data highlight component to a page.",pages
 Charts,Components,,,,,,,,,,,,sio:SIO_000904,,Visualisations and configurations to be displayed on a page,pages
 Charts,,chart type,ontology,,TRUE,,Data viz chart types,,,,,,,sio:SIO_000904,"The visualisation to be displayed e.g., column chart, map, etc.",pages
 Charts,,chart title,string,,TRUE,,,,,,,,,sio:SIO_000473,A title that summarises a visualisation,pages

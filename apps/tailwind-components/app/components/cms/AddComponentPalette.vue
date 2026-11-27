@@ -111,6 +111,14 @@ const handleDragEvent = (event: DragEvent) => {
               @dragging="handleDragEvent"
             />
           </li>
+          <li>
+            <DraggableComponent
+              icon="Scoreboard"
+              componentName="DataHighlights"
+              componentLabel="Data highlight"
+              @dragging="handleDragEvent"
+            />
+          </li>
         </ul>
       </Accordion>
     </div>

@@ -88,3 +88,25 @@ There are some situations you would like to display content as columns, such as 
 
 It isn't not possible to do this using the page builder. You will need to create a new MOLGENIS-tailwind theme and add it to the MOLGENIS EMX2 software. It would be best to get in touch with us at [support@molgenis.org](mailto:support@molgenis.org).
 
+
+### How do I add a filter to the data highlights component?
+
+In the data highlights component, there's an option to enter your own value or retrieve a value from the graphql API. Using the API, you can retrieve the counts, sum, mean, min, and max. Filters are also supported, but these can be tricky to write.
+
+In the query, make sure-
+
+- properties are quoted
+- `_and` statements are separated by a comma
+- Brackets are closed
+
+If there is an issue with the query, the `N/A` value will be shown.
+
+Here are some examples of queries:
+
+```graphql
+// number of cats
+{"category":{"name": {"equals":["cat"]}}}
+
+// number of cats that are available
+{"_and": [{"category":{"name": {"equals":["cat"]}}}, {"status": {"equals": ["available"]}}]}
+```

@@ -1,4 +1,4 @@
-// Generated (on: 2026-11-19T11:27:09.477915) from Generator.java for schema: cms
+// Generated (on: 2026-11-26T14:37:52.883995) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -158,6 +158,23 @@ export interface ICharts_agg {
   count: number;
 }
 
+export interface ICmsAggregationTypes extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICmsAggregationTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICmsAggregationTypes[];
+}
+
+export interface ICmsAggregationTypes_agg {
+  count: number;
+}
+
 export interface ICmsComponentWidths extends IMgTableClass {
   order?: number;
   name: string;
@@ -206,6 +223,15 @@ export interface IComponentOrders_agg {
 export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
+  highlightLabel: string;
+  retrieveValueFromTable?: boolean;
+  highlightValue?: number;
+  highlightWidth?: IOntologyNode;
+  highlightValueSchema?: string;
+  highlightValueTable?: string;
+  highlightValueColumn?: string;
+  highlightValueFilter?: string;
+  highlightValueAggregationType?: IOntologyNode;
   fileIsAnExternalLink?: boolean;
   file?: IFile;
   linkToExternalFile?: string;
@@ -305,6 +331,24 @@ export interface IContainers extends IMgTableClass {
 }
 
 export interface IContainers_agg {
+  count: number;
+}
+
+export interface IDataHighlights extends IMgTableClass {
+  highlightLabel: string;
+  retrieveValueFromTable?: boolean;
+  highlightValue?: number;
+  highlightWidth?: IOntologyNode;
+  highlightValueSchema?: string;
+  highlightValueTable?: string;
+  highlightValueColumn?: string;
+  highlightValueFilter?: string;
+  highlightValueAggregationType?: IOntologyNode;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IDataHighlights_agg {
   count: number;
 }
 
