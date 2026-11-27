@@ -1,49 +1,34 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useHead, useCookie } from "#app";
 import BaseIcon from "./BaseIcon.vue";
-import { TOGGLEABLE_THEMES, useActiveUiTheme } from "../composables/useUiTheme";
+import { useTheme } from "../composables/useTheme";
 
-const uiTheme = useActiveUiTheme();
-// the cookie only holds an explicit user choice, without one we fall back to
-// the (per schema) ui theme, computed so it follows route changes
-const themeCookie = useCookie<string | null>("theme", {
-  maxAge: 60 * 60 * 24 * 365, // 1 year
-  sameSite: "lax",
-  path: "/",
-});
+withDefaults(
+  defineProps<{
+    compact?: boolean;
+  }>(),
+  {
+    compact: false,
+  }
+);
 
-const activeTheme = computed<string>({
-  get: () => {
-    if (themeCookie.value) {
-      return themeCookie.value;
-    } else if (TOGGLEABLE_THEMES.includes(uiTheme.value)) {
-      return uiTheme.value;
-    } else if (import.meta.client) {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    } else {
-      return "light";
-    }
-  },
-  set: (value) => {
-    themeCookie.value = value;
-  },
-});
+const { activeTheme, toggleTheme } = useTheme();
 
-useHead({
-  htmlAttrs: {
-    "data-theme": activeTheme,
-  },
-});
-
-function toggleTheme() {
-  activeTheme.value = activeTheme.value === "light" ? "dark" : "light";
-}
+const compactLabel = computed(() =>
+  activeTheme.value === "light" ? "Switch to dark mode" : "Switch to light mode"
+);
 </script>
 <template>
   <button
+    v-if="compact"
+    class="flex items-center text-menu transition-colors hover:text-button-toggle-active"
+    :aria-label="compactLabel"
+    @click="toggleTheme"
+  >
+    <BaseIcon :name="activeTheme === 'light' ? 'moon' : 'Sun'" :width="24" />
+  </button>
+  <button
+    v-else
     class="relative group w-[72px] border rounded flex items-center cursor-pointer transition-colors"
     @click="toggleTheme"
     aria-label="Toggle theme"

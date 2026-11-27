@@ -28,8 +28,7 @@ export async function useLayoutMenu(
   schema: Ref<string>,
   session: Ref<ISession | null>
 ) {
-  const isAdmin = computed(() => session.value?.admin);
-  const menu = await useMenu();
+  const { menu, mobileMenu } = await useMenu();
 
   const defaultSchemaMenu = computed<MenuItem[]>(() => [
     { label: "Tables", location: `/${schema.value}` },
@@ -107,40 +106,55 @@ export async function useLayoutMenu(
     });
   });
 
-  const userMenuItems = computed(() => {
-    if (isAdmin.value === true) {
-      return menuItems.value;
-    }
+  const userMenuItems = computed(() =>
+    filterMenuForUser(menuItems.value, session.value)
+  );
 
-    const isVisibleToUser = (item: MenuItem): boolean => {
-      if (item.role) {
-        if (session.value?.roles && Array.isArray(session.value.roles)) {
-          return session.value.roles.includes(item.role);
-        } else {
-          return item.role === "Admin" && isAdmin.value === true;
-        }
-      }
-      return true;
-    };
-
-    const removeInvisibleSubmenus = (items: MenuItem[]): MenuItem[] => {
-      return items
-        .filter(isVisibleToUser)
-        .map((item) => {
-          if (item.submenu && item.submenu.length > 0) {
-            return { ...item, submenu: removeInvisibleSubmenus(item.submenu) };
-          }
-          return item;
-        })
-        .filter((item) => !item.submenu || item.submenu.length > 0);
-    };
-
-    const visibleMenuItems = menuItems.value.filter(isVisibleToUser);
-    return removeInvisibleSubmenus(visibleMenuItems);
-  });
+  const mobileMenuItems = computed(() =>
+    filterMenuForUser(
+      mobileMenu.value.map((item) => ({
+        ...item,
+        linkType: resolveLinkType(item),
+      })),
+      session.value
+    )
+  );
 
   return {
     menuItems,
     userMenuItems,
+    mobileMenuItems,
   };
+}
+
+export function filterMenuForUser(
+  items: MenuItem[],
+  session: ISession | null
+): MenuItem[] {
+  const isAdmin = session?.admin === true;
+  if (isAdmin) {
+    return items;
+  }
+
+  const isVisibleToUser = (item: MenuItem): boolean => {
+    if (!item.role) {
+      return true;
+    }
+    if (session?.roles && Array.isArray(session.roles)) {
+      return session.roles.includes(item.role);
+    }
+    return false;
+  };
+
+  const removeInvisibleItems = (menu: MenuItem[]): MenuItem[] =>
+    menu
+      .filter(isVisibleToUser)
+      .map((item) =>
+        item.submenu && item.submenu.length > 0
+          ? { ...item, submenu: removeInvisibleItems(item.submenu) }
+          : item
+      )
+      .filter((item) => !item.submenu || item.submenu.length > 0);
+
+  return removeInvisibleItems(items);
 }

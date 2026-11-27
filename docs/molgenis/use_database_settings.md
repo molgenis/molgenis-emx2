@@ -133,3 +133,26 @@ Example:
   }
 ]
 ```
+
+### Mobile menu (tw-mobile-menu)
+
+On small screens (narrower than 768px) the header shows the whole menu in a hamburger menu. You can add a second row with up to three shortcut links using the schema setting ```tw-mobile-menu```. Without this setting there is no second row.
+
+**Important**:
+ - The settings key used is ```tw-mobile-menu```
+ - The value uses the same JSON format as ```tw-menu```
+ - The menu can have at most 3 items, and items cannot have a ```submenu```. If the value has more items, uses a submenu or is not valid JSON, the second row is not shown.
+ - Items with a ```role``` are only shown to users with that role, as in ```tw-menu```
+
+Example:
+```json
+[
+  { "label": "Tables", "location": "/pet%20store" },
+  { "label": "My Pets", "location": "/pet%20store/Pet" },
+  {
+    "label": "Help",
+    "location": "pet%20store/docs",
+    "linkType": "internalPageLink"
+  }
+]
+```

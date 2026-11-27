@@ -24,12 +24,16 @@ export async function useLayoutState() {
   const isSignedIn = computed(
     () => !!session.value?.email && session.value?.email !== "anonymous"
   );
-  const { menuItems, userMenuItems } = await useLayoutMenu(schema, session);
+  const { menuItems, userMenuItems, mobileMenuItems } = await useLayoutMenu(
+    schema,
+    session
+  );
 
   return {
     isSignedIn,
     logoUrl,
     menuItems,
+    mobileMenuItems,
     session,
     signOut,
     userMenuItems,
