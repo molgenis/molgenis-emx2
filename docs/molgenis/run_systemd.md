@@ -2,7 +2,7 @@
 EMX2 supports Redhat and Ubuntu based installations.
 
 ## Requirements
-- Java ≥ 21
+- Java ≥ 25
 - Postgresql 15
 
 ### Java
@@ -12,13 +12,13 @@ Installing Java for Redhat or Ubuntu can be done with the instructions below:
 
 #### **Ubuntu (apt)**
 ```console
-sudo apt -y install openjdk-21-jre-headless
+sudo apt -y install openjdk-25-jre-headless
 ```
 
 #### **Redhat (yum)**
 
 ```console
-sudo yum install java-21-openjdk-headless
+sudo yum install java-25-openjdk-headless
 ```
 <!-- tabs:end -->
 

@@ -1,9 +1,9 @@
 # docker file for the ci
 # to build and publish (n.b. on apple silicon you need to set --platform)
-# docker buildx build -t molgenis/ci-build:1.6.4 --platform linux/amd64 .
-# docker push molgenis/ci-build:1.6.4
+# docker buildx build -t molgenis/ci-build:dev --platform linux/amd64 .
+# docker push molgenis/ci-build:dev
 
-FROM gradle:jdk21-noble
+FROM gradle:jdk25-noble
 RUN useradd -m molgenis
 
 RUN apt-get update && apt-get install vim python3 python3-venv python3-pip python3-setuptools python3-setuptools-whl -y

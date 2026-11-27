@@ -77,7 +77,7 @@ For a link to a heading, write the file name with the heading id, for example `[
 ## Software we use
 
 * postresql
-* java 21
+* java 25
 * pnpm (on mac, brew install pnpm)
 * gradle (included, ./gradlew or ./gradlew.bat)
 * git (on mac, install xcode dev tools)

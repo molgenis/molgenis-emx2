@@ -28,13 +28,13 @@ definitions:
 
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:dev
     working_directory: ~/repo
     resource_class: large
     environment: *job_env
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:dev
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -45,7 +45,7 @@ definitions:
     environment: *job_env
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.6.4
+      - image: molgenis/ci-build:dev
     working_directory: ~/repo
     resource_class: large
     environment: *job_env
@@ -266,7 +266,7 @@ jobs:
 
   test-e2e:
     docker:
-    - image: cimg/openjdk:21.0.12-browsers
+    - image: cimg/openjdk:25.0.5-browsers
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -493,7 +493,7 @@ jobs:
   # Only local links and anchors: external sites fail too often for reasons outside this repo.
   test-docs:
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:dev
     working_directory: ~/repo
     resource_class: small
 
