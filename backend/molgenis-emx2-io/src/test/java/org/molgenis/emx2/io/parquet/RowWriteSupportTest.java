@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -111,10 +112,10 @@ class RowWriteSupportTest {
   }
 
   static Stream<Arguments> writtenValuesAndStoredValues() {
-    LocalDate date = LocalDate.of(2026, 11, 30);
+    LocalDate date = LocalDate.of(2026, Month.NOVEMBER, 30);
     int epochDay = Math.toIntExact(date.toEpochDay());
 
-    LocalDateTime dateTime = LocalDateTime.of(2026, 11, 23, 6, 30, 15, 123_456_000);
+    LocalDateTime dateTime = LocalDateTime.of(2026, Month.NOVEMBER, 23, 6, 30, 15, 123_456_000);
     long millis = 1_795_415_415_123L;
 
     return Stream.of(
