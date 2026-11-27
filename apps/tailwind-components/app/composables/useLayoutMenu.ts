@@ -41,7 +41,7 @@ export async function useLayoutMenu(
     },
     {
       label: "SHACL",
-      location: `shacl`,
+      location: `${schema.value}/shacl`,
       role: "Viewer",
     },
     {
@@ -75,7 +75,7 @@ export async function useLayoutMenu(
     },
     {
       label: "Analytics",
-      location: `analytics`,
+      location: `${schema.value}/analytics`,
       role: "Manager",
     },
     {
