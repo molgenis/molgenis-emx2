@@ -9,10 +9,15 @@ export interface ITableDataResponse {
   count: number;
 }
 
+export type FetchTableDataProperties = Omit<IQueryMetaData, "orderby"> & {
+  /** a single orderby object, or a list of them, applied in list order */
+  orderby?: Record<string, string> | Record<string, string>[];
+};
+
 export default async (
   schemaId: string,
   tableId: string,
-  properties?: IQueryMetaData
+  properties?: FetchTableDataProperties
 ): Promise<ITableDataResponse> => {
   const limit = properties?.limit ? properties?.limit : 20;
   const offset = properties?.offset ? properties?.offset : 0;
@@ -46,7 +51,7 @@ export default async (
         }`;
 
   const filter = properties?.filter ? properties?.filter : {};
-  const orderby = properties?.orderby ? [properties?.orderby] : [];
+  const orderby = properties?.orderby ? [properties.orderby].flat() : [];
 
   const response = await $fetch
     .raw(`/${schemaId}/graphql`, {

@@ -150,6 +150,7 @@
     --background-color-input-focused: var(--color-blue-800);
     --background-color-table: var(--color-white);
     --background-color-hover: var(--color-blue-50);
+    --background-color-table-highlight: var(--color-yellow-200);
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);

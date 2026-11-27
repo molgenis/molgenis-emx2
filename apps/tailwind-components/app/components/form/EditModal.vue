@@ -49,6 +49,7 @@ const emit = defineEmits([
   "update:updated",
   "update:cancelled",
   "update:addedFormValues",
+  "update:updatedFormValues",
 ]);
 
 const visible = defineModel<boolean>("visible", {
@@ -182,6 +183,7 @@ async function update(draft: boolean) {
   formMessage.value = `saved ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
   emit("update:updated", resp);
+  emit("update:updatedFormValues", formValues.value);
 }
 
 function reAuthenticate() {

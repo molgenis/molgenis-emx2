@@ -222,6 +222,7 @@ module.exports = {
         "listbox-selected": "var(--background-color-listbox-selected)",
         table: "var(--background-color-table)",
         hover: "var(--background-color-hover)",
+        "table-highlight": "var(--background-color-table-highlight)",
         notification: "var(--background-color-notification)",
         valid: "var(--color-valid-background)",
         invalid: "var(--color-invalid-background)",

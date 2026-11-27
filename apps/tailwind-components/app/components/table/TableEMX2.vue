@@ -23,6 +23,7 @@
     :selectedRows="selectedRows"
     :sortedVisibleColumns="sortedVisibleColumns"
     :tableMetadata="tableMetadata"
+    :highlightedRowId="highlightedRowId"
     @update:settings="handleUpdateSettings"
     @rowAction="handleRowAction"
     @toggleRowSelection="handleToggleRowSelection"
@@ -164,6 +165,8 @@
     :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
+    @update:addedFormValues="onRowAdded"
+    @update:updatedFormValues="onRowUpdated"
   >
     <template #header-controls="{ formValues }">
       <EditModalHeader
@@ -185,6 +188,8 @@
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
+    @update:addedFormValues="onRowAdded"
+    @update:updatedFormValues="onRowUpdated"
   >
     <template #header-controls="{ formValues }">
       <EditModalHeader
@@ -199,7 +204,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import type {
   IColumn,
   IRow,
@@ -213,6 +218,8 @@ import fetchTableData, {
   type ITableDataResponse,
 } from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { fetchRowIndex } from "../../composables/fetchRowIndex";
+import { buildTableOrderBy } from "../../utils/buildTableOrderBy";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { rowMatchesUserRole } from "../../utils/rowMatchesUserRole";
 
@@ -273,6 +280,13 @@ const showModal = ref(false);
 const isCopy = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
+const HIGHLIGHT_DURATION_MS = 5000;
+// row id (_rowIdString) of the last row saved in the add or edit modal, while the modal is open
+const lastSavedRowId = ref<string | null>(null);
+// set when the saved row cannot be located, see onRowAdded
+let savedRowUnknown = false;
+const highlightedRowId = ref<string | null>(null);
+let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 const selectedRows = ref<Map<string, IRow>>(new Map());
 
 const tableMetadata = computed<ITableMetaData | null>(
@@ -304,11 +318,7 @@ const { data, refresh } = useAsyncData(
       {
         limit: settings.value.pageSize,
         offset: (settings.value.page - 1) * settings.value.pageSize,
-        orderby: settings.value.orderby.column
-          ? {
-              [settings.value.orderby.column]: settings.value.orderby.direction,
-            }
-          : {},
+        orderby: buildTableOrderBy(tableMetadata, settings.value.orderby),
         searchTerms: settings.value.search,
         filter: effectiveFilter.value,
       }
@@ -553,16 +563,125 @@ function onShowEditModal(row: TableRow, isCopyMode = false) {
   }
   rowDataForModal.value = clone;
   isCopy.value = isCopyMode;
+  resetSavedRow();
   showEditModal.value = true;
 }
 
 function onAddRowClicked() {
+  resetSavedRow();
   showAddModal.value = true;
 }
 
-async function afterClose() {
-  await refresh();
+function resetSavedRow() {
+  lastSavedRowId.value = null;
+  savedRowUnknown = false;
 }
+
+async function onRowAdded(formValues: IRow) {
+  // The insert mutation does not return the generated AUTO_ID value, and the form values
+  // do not hold it reliably after an insert. Don't guess, so no wrong row is highlighted.
+  const hasAutoIdKey = tableMetadata.value?.columns.some(
+    (column) => column.key === 1 && column.columnType === "AUTO_ID"
+  );
+  if (hasAutoIdKey) {
+    lastSavedRowId.value = null;
+    savedRowUnknown = true;
+    return;
+  }
+  await rememberSavedRow(formValues);
+}
+
+async function onRowUpdated(formValues: IRow) {
+  if (!savedRowUnknown) {
+    await rememberSavedRow(formValues);
+  }
+}
+
+async function rememberSavedRow(formValues: IRow) {
+  const primaryKey = await getPrimaryKey(
+    formValues,
+    props.tableId,
+    props.schemaId
+  );
+  lastSavedRowId.value = JSON.stringify(primaryKey);
+}
+
+async function afterClose() {
+  const savedRowId = lastSavedRowId.value;
+  resetSavedRow();
+  if (savedRowId) {
+    await showRow(savedRowId);
+  } else {
+    await refresh();
+  }
+}
+
+/**
+ * Go to the page that contains the row, using the current sort, filters and search, and
+ * highlight the row. If the row is not in the current result (e.g. hidden by a filter), the
+ * table is only refreshed.
+ */
+async function showRow(rowIdString: string) {
+  const viewBefore = currentView();
+  let index = -1;
+  if (tableMetadata.value) {
+    try {
+      index = await fetchRowIndex(
+        props.schemaId,
+        tableMetadata.value,
+        rowIdString,
+        {
+          orderby: buildTableOrderBy(
+            tableMetadata.value,
+            settings.value.orderby
+          ),
+          filter: effectiveFilter.value,
+          search: settings.value.search,
+        }
+      );
+    } catch (error) {
+      console.error("Could not find the position of the saved row", error);
+    }
+  }
+
+  if (currentView() !== viewBefore) {
+    // the user changed the view while the row was looked up, that change already refreshes
+    return;
+  }
+
+  if (index >= 0) {
+    const page = Math.floor(index / settings.value.pageSize) + 1;
+    if (page !== settings.value.page) {
+      settings.value = { ...settings.value, page };
+      // wait for the parent to pass back the updated settings before fetching
+      await nextTick();
+    }
+  }
+  await refresh();
+  if (index >= 0) {
+    highlightRow(rowIdString);
+  }
+}
+
+// the settings that decide which rows are on which page
+function currentView() {
+  return JSON.stringify([
+    settings.value.orderby,
+    settings.value.pageSize,
+    settings.value.search,
+    effectiveFilter.value,
+  ]);
+}
+
+function highlightRow(rowIdString: string) {
+  clearTimeout(highlightTimer);
+  highlightedRowId.value = rowIdString;
+  highlightTimer = setTimeout(() => {
+    highlightedRowId.value = null;
+  }, HIGHLIGHT_DURATION_MS);
+}
+
+onUnmounted(() => clearTimeout(highlightTimer));
 
 async function afterRowDeleted() {
   // maybe notify user, and do more stuff

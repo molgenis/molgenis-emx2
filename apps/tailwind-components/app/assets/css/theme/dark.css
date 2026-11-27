@@ -61,6 +61,7 @@
   --background-color-search-filter-group-toggle: var(--color-gray-900);
   --background-color-input: var(--color-gray-600);
   --background-color-table: var(--color-gray-700);
+  --background-color-table-highlight: var(--color-green-900);
   --background-color-ref-dropdown-toolbar: var(--color-gray-900);
   --background-color-code-output: var(--color-gray-600);
   --background-color-dropdown: var(--color-gray-900);
