@@ -1,37 +1,66 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
+import { computedAsync } from "@vueuse/core";
+import { useLazyFetch } from "#app";
 import DynamicComponentWidth from "../DynamicComponentWidth.vue";
+import { buildAggregationQuery } from "../../../utils/cms/buildAggregationQuery.ts";
 import type { IDataHighlights } from "../../../../types/cms";
 import type { ICmsComponentWidths } from "../../../../types/CmsComponents";
 
-const props = defineProps<IDataHighlights>();
+const props = withDefaults(defineProps<IDataHighlights>(), {
+  highlightValue: 0,
+});
 
-const value = ref<number>(0);
-  
-const query = computed<string|undefined>(() => {
+const url = computed<string>(() => {
+  return props.highlightValueSchema
+    ? `/${props.highlightValueSchema}/graphql`
+    : "/graphql";
+});
+
+const internalHighlightValue = computedAsync(async () => {
   if (props.retrieveValueFromTable) {
-    const table = props.highlightValueTable;
-    let body = ""
-    
-    if (props.highlightValueColumn) {
-      body += props.highlightValueColumn;
-      body += "\n" 
-    }
-    
-    body += props.highlightValueAggregationType?.name;
-    
-    return `query getAggregation($filter: ${table}Filter) {
-      ${table}_agg(filter: $filter) {
-        ${body}
-      }
-    }`
-  };
-})
+    const aggMethod = props.highlightValueAggregationType?.name as string;
 
+    const queryInfo = buildAggregationQuery({
+      table: props.highlightValueTable as string,
+      column: props.highlightValueColumn,
+      method: aggMethod,
+    });
+
+    let filter = {};
+    try {
+      if (props.highlightValueFilter) {
+        console.log(props.highlightValueFilter);
+        filter = JSON.parse(props.highlightValueFilter);
+      }
+
+      const { data } = useLazyFetch(url.value, {
+        method: "POST",
+        body: {
+          query: queryInfo.query,
+          variables: { filter: filter },
+        },
+      });
+
+      if (data.value) {
+        const result = data.value as Record<string, any>;
+        const tableData = result.data[queryInfo.gqlTableName];
+        if (queryInfo.gqlBodyIsNested) {
+          return tableData[aggMethod][props.highlightValueColumn as string];
+        } else {
+          return tableData[aggMethod];
+        }
+      }
+    } catch (error) {
+      return "N/A";
+    }
+  } else {
+    return props.highlightValue;
+  }
+});
 </script>
 
 <template>
-  {{ query }}
   <DynamicComponentWidth
     :id="id"
     :width="(highlightWidth?.name as ICmsComponentWidths)"
@@ -44,7 +73,7 @@ const query = computed<string|undefined>(() => {
       <span
         class="block text-heading-6xl text-center leading-none py-1 truncate"
       >
-        {{ highlightValue }}
+        {{ internalHighlightValue }}
       </span>
     </data>
   </DynamicComponentWidth>
