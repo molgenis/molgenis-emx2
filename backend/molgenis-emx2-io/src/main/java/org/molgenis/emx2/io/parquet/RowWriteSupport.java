@@ -79,7 +79,7 @@ public class RowWriteSupport extends WriteSupport<Row> {
   }
 
   private static List<Object> valuesToWrite(Row row, String columnName, ColumnType columnType) {
-    if (!row.containsName(columnName)) {
+    if (!row.containsName(columnName) || row.isNull(columnName, columnType)) {
       return List.of();
     }
 

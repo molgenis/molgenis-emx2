@@ -25,6 +25,7 @@ public final class Constants {
   public static final String ACCEPT_EXCEL =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   public static final String ACCEPT_FORM_URL_ENC = "application/x-www-form-urlencoded";
+  public static final String ACCEPT_PARQUET = "application/vnd.apache.parquet";
 
   public static final String DETAIL = "detail";
 

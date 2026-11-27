@@ -2,8 +2,8 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.io.FileUtils.getTempFile;
 import static org.molgenis.emx2.web.CsvApi.getDownloadColumns;
-import static org.molgenis.emx2.web.CsvApi.getDownloadQuery;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.DownloadApiUtils.requestedTableQuery;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.generateReportsToStore;
 
@@ -106,7 +106,7 @@ public final class ExcelApi {
     TableStore excelStore = new TableStoreForXlsxFile(excelFile);
     List<Column> columns = table.getMetadata().getColumns();
     Database database = table.getSchema().getDatabase();
-    Query query = getDownloadQuery(ctx, table);
+    Query query = requestedTableQuery(ctx, table);
     excelStore.writeTableStreaming(
         table.getName(),
         getDownloadColumns(ctx, table),
