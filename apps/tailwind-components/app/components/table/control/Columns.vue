@@ -2,11 +2,11 @@
   <Button
     type="outline"
     icon="columns"
+    label="Columns"
+    :responsive-label="true"
     @click="showModal = true"
     class="h-50px"
-  >
-    Columns
-  </Button>
+  />
   <Modal
     v-model:visible="showModal"
     type="right"
@@ -110,6 +110,12 @@ const emits = defineEmits<{
 }>();
 
 const showModal = ref(false);
+
+defineExpose({
+  open: () => {
+    showModal.value = true;
+  },
+});
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 const sortMethods = ref<string[]>(SORTING_METHODS);
 const selectedSortMethod = ref<string>("Default");

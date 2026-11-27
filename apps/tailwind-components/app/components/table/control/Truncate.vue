@@ -10,9 +10,14 @@ import ModalContentContainer from "../../ModalContentContainer.vue";
 import BaseIcon from "../../BaseIcon.vue";
 import { useTable } from "../../../composables/useTable";
 
-const props = defineProps<{
-  metadata: ITableMetaData;
-}>();
+const props = withDefaults(
+  defineProps<{
+    metadata: ITableMetaData;
+    /** render the trigger slot; false when opened via the exposed showConfirmationModal */
+    showButton?: boolean;
+  }>(),
+  { showButton: true }
+);
 
 const emit = defineEmits<{
   (e: "update:truncated", truncated: boolean): void;
@@ -39,6 +44,8 @@ function showConfirmationModal() {
   isModalOpen.value = true;
 }
 
+defineExpose({ showConfirmationModal });
+
 watch(isModalOpen, (newStatus) => {
   if (!newStatus) {
     resetModal();
@@ -57,7 +64,7 @@ function resetModal() {
 </script>
 
 <template>
-  <slot :showConfirmationModal="showConfirmationModal">
+  <slot v-if="showButton" :showConfirmationModal="showConfirmationModal">
     <Button type="outline" size="medium" @click="isModalOpen = true">
       Truncate
     </Button>

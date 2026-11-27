@@ -20,6 +20,9 @@ test.use({ storageState: "playwright/.auth/user.json" });
 let api: APIRequestContext;
 const SCHEMA = `tableEMX2 test ${RUN_ID}`;
 const SCHEMA_PATH = encodeURIComponent(SCHEMA);
+// the toolbar switches layout on its own width (the @5xl/toolbar container query)
+const COMPACT_VIEWPORT = { width: 1280, height: 900 };
+const WIDE_VIEWPORT = { width: 1920, height: 1080 };
 
 test.beforeAll(async () => {
   api = await apiRequest.newContext({
@@ -34,10 +37,11 @@ test.afterAll(async () => {
   await api.dispose();
 });
 
-test("the row should be removed from the table after deletion", async ({
+test("the row should be removed from the table after deletion (compact toolbar)", async ({
   page,
   goto,
 }) => {
+  await page.setViewportSize(COMPACT_VIEWPORT);
   await goto(`${route}table/EMX2.story?schema=${SCHEMA_PATH}&table=Category`, {
     waitUntil: "hydration",
   });
@@ -58,25 +62,34 @@ test("the row should be removed from the table after deletion", async ({
 
   // delete row
   await page.getByRole("checkbox", { name: "Can delete:" }).check();
-  await page.getByRole("searchbox", { name: "Search Category" }).click();
+  await expect(
+    page.getByRole("searchbox", { name: "Search Category" })
+  ).toBeHidden();
+  await page.getByRole("button", { name: "Search", exact: true }).click();
   await page
     .getByRole("searchbox", { name: "Search Category" })
     .fill("deltest");
+  await expect(
+    page.getByRole("cell", { name: "deltest", exact: true })
+  ).toBeVisible();
   await page
     .locator(".w-5.h-5.hover\\:cursor-pointer.accent-theme.block")
     .first()
     .click();
+  await page.getByRole("button", { name: "Close search" }).click();
+  await page.getByRole("button", { name: "More actions" }).click();
   await page.getByRole("button", { name: "Delete selection" }).click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(
-    page.getByRole("cell", { name: "view row details deltest" })
+    page.getByRole("cell", { name: "deltest", exact: true })
   ).toBeHidden();
 });
 
-test("the row should be copied and added to the table after copying", async ({
+test("the row should be copied and added to the table after copying (wide toolbar)", async ({
   page,
   goto,
 }) => {
+  await page.setViewportSize(WIDE_VIEWPORT);
   await goto(`${route}table/EMX2.story?schema=${SCHEMA_PATH}&table=Pet`, {
     waitUntil: "hydration",
   });
@@ -94,6 +107,7 @@ test("the row should be copied and added to the table after copying", async ({
   await page.getByRole("textbox", { name: "name Required" }).fill("copy cat");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("button", { name: "More actions" })).toBeHidden();
   await page.getByRole("searchbox", { name: "Search Pet" }).fill("copy cat");
   await expect(
     page

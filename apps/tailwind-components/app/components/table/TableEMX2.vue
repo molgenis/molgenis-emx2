@@ -7,6 +7,7 @@
       showStickyHeader: !!useStickyHeader,
       showDraftColumn: showDraftColumn,
       showRolesColumn: showRolesColumn,
+      hasMoreActions: canDelete,
     }"
     :filters="filters"
     :permissions="{
@@ -29,23 +30,26 @@
     @cellClicked="handleCellClicked"
   >
     <template #buttons>
-      <div class="flex gap-[10px]">
-        <Button
-          v-if="canInsert"
-          type="primary"
-          size="medium"
-          icon="add-circle"
-          @click="onAddRowClicked"
-        >
-          Add {{ tableId }}
-        </Button>
+      <Button
+        v-if="canInsert"
+        type="primary"
+        size="medium"
+        icon="add-circle"
+        :label="`Add ${tableId}`"
+        :responsive-label="true"
+        @click="onAddRowClicked"
+      />
 
+      <!-- on compact toolbars these move into the "more" menu -->
+      <div class="hidden @5xl/toolbar:flex gap-[10px]">
         <TableControlColumns
+          ref="columnsControl"
           :columns="sortedColumns"
           @update:columns="handleColumnsUpdate"
         />
 
         <Download
+          ref="downloadControl"
           :schemaId="schemaId"
           :tableId="tableId"
           :filters="filters"
@@ -53,23 +57,46 @@
           :visibleColumns="sortedVisibleColumns"
           :selectedRowKeys="[...selectedRows.values()]"
         />
-
-        <Truncate
-          v-if="canDelete"
-          v-slot="{ showConfirmationModal }"
-          :metadata="tableMetadata"
-          @update:truncated="afterRowDeleted"
-        >
-          <Button
-            type="outline"
-            size="medium"
-            @click="showConfirmationModal"
-            :disabled="!rows.length"
-          >
-            Truncate
-          </Button>
-        </Truncate>
       </div>
+
+      <Truncate
+        v-if="canDelete"
+        ref="truncateControl"
+        :metadata="tableMetadata"
+        :showButton="false"
+        @update:truncated="afterRowDeleted"
+      />
+    </template>
+
+    <template #more-actions="{ hide, isCompact }">
+      <template v-if="isCompact">
+        <ActionMenuItem
+          icon="columns"
+          label="Columns"
+          @click="
+            hide();
+            columnsControl?.open();
+          "
+        />
+        <ActionMenuItem
+          icon="download"
+          label="Download"
+          @click="
+            hide();
+            downloadControl?.open();
+          "
+        />
+      </template>
+      <ActionMenuItem
+        v-if="canDelete"
+        icon="delete-sweep"
+        label="Truncate"
+        :disabled="!rows.length"
+        @click="
+          hide();
+          truncateControl?.showConfirmationModal();
+        "
+      />
     </template>
 
     <template #row-action="{ row }">
@@ -199,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 import type {
   IColumn,
   IRow,
@@ -228,10 +255,18 @@ import constants from "../../utils/constants";
 import Button from "../Button.vue";
 import EditModalHeader from "../form/EditModalHeader.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
+import ActionMenuItem from "./control/ActionMenuItem.vue";
 import TableControlColumns from "./control/Columns.vue";
 import DeleteRows from "./control/DeleteRows.vue";
 import Download from "./control/Download.vue";
 import Truncate from "./control/Truncate.vue";
+
+const columnsControl =
+  useTemplateRef<InstanceType<typeof TableControlColumns>>("columnsControl");
+const downloadControl =
+  useTemplateRef<InstanceType<typeof Download>>("downloadControl");
+const truncateControl =
+  useTemplateRef<InstanceType<typeof Truncate>>("truncateControl");
 
 const props = withDefaults(
   defineProps<{

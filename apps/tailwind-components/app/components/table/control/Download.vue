@@ -27,12 +27,22 @@ const props = withDefaults(
 
 const showDownloadModal = ref(false);
 const downloadHref = ref(`/${props.schemaId}/api/csv/${props.tableId}`);
+
+defineExpose({
+  open: () => {
+    showDownloadModal.value = true;
+  },
+});
 </script>
 
 <template>
-  <Button type="outline" icon="download" @click="showDownloadModal = true">
-    Download
-  </Button>
+  <Button
+    type="outline"
+    icon="download"
+    label="Download"
+    :responsive-label="true"
+    @click="showDownloadModal = true"
+  />
 
   <Modal
     id="download-modal"
