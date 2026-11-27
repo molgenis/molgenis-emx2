@@ -14,15 +14,20 @@ import BaseIcon from "./BaseIcon.vue";
             <a
               class="flex items-center hover:underline"
               href="http://molgenis.org"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>About Molgenis</span>
+              <BaseIcon name="ExternalLink" :width="16" />
             </a>
           </li>
           <li>
             <a
               class="flex items-center hover:underline"
               href="http://molgenis.org"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>MOLGENIS.org</span>
@@ -47,6 +52,8 @@ import BaseIcon from "./BaseIcon.vue";
             <a
               class="flex items-center hover:underline"
               href="https://github.com/molgenis/molgenis-emx2"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>MOLGENIS on GitHub</span>
@@ -57,6 +64,8 @@ import BaseIcon from "./BaseIcon.vue";
             <a
               class="flex items-center hover:underline"
               href="https://molgenis.org/LICENSE-LGPLv3.html"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Open Source LGPLv3 License</span>
@@ -67,6 +76,8 @@ import BaseIcon from "./BaseIcon.vue";
             <a
               class="flex items-center hover:underline"
               href="https://molgenis.org/MOLGENIS_Privacy_Policy.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Privacy Policy</span>
@@ -82,6 +93,8 @@ import BaseIcon from "./BaseIcon.vue";
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/36463884"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Swertz & Gini (2022)</span>
@@ -92,6 +105,8 @@ import BaseIcon from "./BaseIcon.vue";
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/30165396"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Van der Velde et al (2018)</span>
@@ -102,6 +117,8 @@ import BaseIcon from "./BaseIcon.vue";
             <a
               class="hover:underline flex items-center"
               href="https://www.ncbi.nlm.nih.gov/pubmed/21210979"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>Swertz et al (2010)</span>
