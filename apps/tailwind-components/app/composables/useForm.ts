@@ -20,6 +20,7 @@ import type {
 } from "../../../metadata-utils/src/types";
 import { getColumnError } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
+import { getMutationKeys } from "../utils/getMutationKeys";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 import { useSession } from "./useSession";
 
@@ -472,13 +473,14 @@ export default function useForm(
 
   const insertInto = async () => {
     const formData = toFormData(getValuesWithComputed());
-    const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
+    const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message keys{table keys}}}`;
     formData.append("query", query);
     try {
       const res = await $fetch(`/${metadata.value.schemaId}/graphql`, {
         method: "POST",
         body: formData,
       });
+      applyInsertedKey(res);
       // after inserting, we want to set the row key, now we know there is one
       await resetRowKey();
       return res;
@@ -486,6 +488,24 @@ export default function useForm(
       await handleFetchError(error, "Error on inserting");
     }
   };
+
+  /**
+   * Copy key values that the database generated (e.g. AUTO_ID) into the form, so later saves
+   * update this row. Values the user entered are kept: they are the same key, and reference
+   * values in the form also hold display fields that the returned key does not have.
+   */
+  function applyInsertedKey(response: unknown) {
+    const [key] = getMutationKeys(response, "insert", metadata.value.id);
+    if (!key) {
+      return;
+    }
+    for (const [columnId, value] of Object.entries(key)) {
+      const current = formValues.value[columnId];
+      if (current === undefined || current === null || current === "") {
+        formValues.value[columnId] = value;
+      }
+    }
+  }
 
   const updateInto = async () => {
     const formData = toFormData(getValuesWithComputed());
