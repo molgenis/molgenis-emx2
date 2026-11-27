@@ -883,7 +883,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.1.0")
             .getBody()
             .asString();
 
@@ -907,7 +907,7 @@ class WebApiSmokeTests extends ApiTestBase {
                       version: 3.0.0
                       sources:
                       - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
-                    - id: hri-v2.0.2""")),
+                    - id: hri-v2.1.0""")),
         () ->
             assertTrue(
                 resultShaclNonTurtleSucceed.contains(

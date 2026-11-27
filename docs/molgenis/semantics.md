@@ -44,6 +44,7 @@ By default, the following prefixed names are available:
 | foaf          | http://xmlns.com/foaf/0.1/                     |
 | healthdcatap  | http://healthdataportal.eu/ns/health#          |
 | hl7           | http://purl.bioontology.org/ontology/HL7/      |
+| hri           | https://w3id.org/health-ri/metadata-vocabulary# |
 | ldp           | http://www.w3.org/ns/ldp#                      |
 | lnc           | http://purl.bioontology.org/ontology/LNC/      |
 | mesh          | http://purl.bioontology.org/ontology/MESH/     |
@@ -57,7 +58,7 @@ By default, the following prefixed names are available:
 | qb            | http://purl.org/linked-data/cube#              |
 | rdf           | http://www.w3.org/1999/02/22-rdf-syntax-ns#    |
 | rdfs          | http://www.w3.org/2000/01/rdf-schema#          |
-| schema        | http://schema.org/                             |
+| schema        | https://schema.org/                            |
 | sio           | http://semanticscience.org/resource/           |
 | skos          | http://www.w3.org/2004/02/skos/core#           |
 | snomedct      | http://purl.bioontology.org/ontology/SNOMEDCT/ |
