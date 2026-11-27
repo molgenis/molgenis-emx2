@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDebounceFn } from "@vueuse/core";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -36,6 +36,8 @@ const props = withDefaults(
     selectedRows?: Map<string, Record<string, columnValue>>;
     sortedVisibleColumns?: IColumn[];
     tableMetadata: ITableMetaData;
+    /** _rowIdString of a row to highlight and scroll into view, e.g. a row that was just saved */
+    highlightedRowId?: string | null;
   }>(),
   {
     searchPlaceholder: "Search",
@@ -91,6 +93,28 @@ onMounted(async () => {
     window.addEventListener("scroll", handleStickyHeaderScroll);
   }
 });
+
+watch(
+  () => props.highlightedRowId,
+  async (rowId) => {
+    if (!rowId) {
+      return;
+    }
+    await nextTick();
+    const rowElement = tableContainer.value?.querySelector(
+      "tr[data-highlighted]"
+    );
+    if (!rowElement) {
+      return;
+    }
+    // only scroll when needed, and instantly: a smooth scroll keeps moving the row and the
+    // sticky header while the user (or a test) may already be pointing at it
+    const { top, bottom } = rowElement.getBoundingClientRect();
+    if (top < 0 || bottom > window.innerHeight) {
+      rowElement.scrollIntoView({ block: "center", behavior: "instant" });
+    }
+  }
+);
 
 onUnmounted(async () => {
   window.removeEventListener("scroll", handleStickyHeaderScroll);
@@ -293,8 +317,12 @@ interface Permissions {
               <tr
                 v-if="rows"
                 v-for="row in rows"
-                class="group h-13"
+                class="group h-13 transition-colors duration-default"
+                :data-highlighted="
+                  row._rowIdString === highlightedRowId ? true : undefined
+                "
                 :class="{
+                  'bg-table-highlight': row._rowIdString === highlightedRowId,
                   'hover:cursor-pointer':
                     permissions.canInsert ||
                     permissions.canUpdate ||
@@ -302,7 +330,12 @@ interface Permissions {
                 }"
               >
                 <td
-                  class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                  class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none shadow-[inset_-1px_0_0_var(--border-color-theme)] group-hover:bg-hover transition-colors duration-default"
+                  :class="
+                    row._rowIdString === highlightedRowId
+                      ? 'bg-table-highlight'
+                      : 'bg-table'
+                  "
                   :style="selectColumnStyle"
                 >
                   <Checkbox
