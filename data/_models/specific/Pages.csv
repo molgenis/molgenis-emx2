@@ -80,7 +80,7 @@ Data highlights,,highlight value aggregation type,ontology,,retrieveValueFromTab
 Data highlights,,highlight value schema,string,,retrieveValueFromTable,,,,,retrieveValueFromTable,,,,,Name of the schema,pages
 Data highlights,,highlight value table,string,,retrieveValueFromTable,,,,,retrieveValueFromTable,,,,,Name of the table that contains the data,pages
 Data highlights,,highlight value column,string,,"retrieveValueFromTable && highlightValueAggregationType?.name !== ""count""",,,,,retrieveValueFromTable,,,,,"Name of the column that contains the data. Applies to sum, avg, min, max",pages
-Data highlights,,highlight value filter,string,,,,,,,retrieveValueFromTable,,,,,"An optional filter used to limit results. Must be in graphql format: {""category"":{""name"": {""equals"":[""cat""]}}}""",pages
+Data highlights,,highlight value filter,string,,,,,,,retrieveValueFromTable,,,,,"An optional filter used to limit results. Must be in graphql format: {""category"":{""name"": {""equals"":[""cat""]}}}",pages
 Data highlights,,highlight width,ontology,,,,Cms component widths,,,,,,"={name:""full""}",,"Change the width of the component. By default, it will fill the space (width: 100%). Using a smaller width is useful if you have added one instance of the data highlight component to a page.",pages
 Charts,Components,,,,,,,,,,,,sio:SIO_000904,,Visualisations and configurations to be displayed on a page,pages
 Charts,,chart type,ontology,,TRUE,,Data viz chart types,,,,,,,sio:SIO_000904,"The visualisation to be displayed e.g., column chart, map, etc.",pages
