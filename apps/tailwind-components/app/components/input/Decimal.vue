@@ -45,7 +45,7 @@ function handleInputChanged(value?: string | number | null) {
     const noCommaValue = value?.toString().replace(",", ".");
     const numericValue =
       typeof noCommaValue === "string"
-        ? Number.parseInt(noCommaValue)
+        ? Number.parseFloat(noCommaValue)
         : noCommaValue;
     emit("update:modelValue", numericValue);
   }
@@ -56,7 +56,7 @@ function handleKeyValidity(event: any) {
   if (keyCode === CODE_MINUS) {
     const flipped = flipMinusSign(event.target?.value);
     if (flipped && flipped !== "-") {
-      emit("update:modelValue", Number.parseInt(flipped));
+      emit("update:modelValue", Number.parseFloat(flipped));
     } else {
       emit("update:modelValue", flipped);
     }

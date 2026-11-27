@@ -53,12 +53,12 @@ public class SqlRawQueryForSchema {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           jooq.execute("SET search_path TO {0}", name(schema.getName()));
           try {
-            logger.info(schema.getDatabase().getActiveUser() + " tries to execute" + finalSql);
+            logger.info(schema.getDatabase().getActiveUsername() + " tries to execute" + finalSql);
             Result<Record> fetch = jooq.fetch(finalSql, bindings.toArray());
             for (Record r : fetch) {
               result.add(new SqlRow(r));
             }
-            logger.info(schema.getDatabase().getActiveUser() + " completed" + finalSql);
+            logger.info(schema.getDatabase().getActiveUsername() + " completed" + finalSql);
           } catch (SQLException sqle) {
             throw new SqlMolgenisException("query failed", sqle);
           }

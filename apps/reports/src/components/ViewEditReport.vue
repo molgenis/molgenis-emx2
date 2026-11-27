@@ -85,6 +85,7 @@ import {
   FormInput,
 } from "molgenis-components";
 import { request } from "graphql-request";
+import { reportsApiUrl } from "../reportsApi.js";
 
 export default {
   name: "EditQuery",
@@ -168,13 +169,13 @@ export default {
         .join("");
     },
     downloadZip() {
-      return "../api/reports/zip?id=" + this.id + this.parametersQuery;
+      return reportsApiUrl("zip", "id=" + this.id + this.parametersQuery);
     },
     downloadExcel() {
-      return "../api/reports/excel?id=" + this.id + this.parametersQuery;
+      return reportsApiUrl("excel", "id=" + this.id + this.parametersQuery);
     },
     downloadJson() {
-      return "../api/reports/json?id=" + this.id + this.parametersQuery;
+      return reportsApiUrl("json", "id=" + this.id + this.parametersQuery);
     },
   },
   methods: {

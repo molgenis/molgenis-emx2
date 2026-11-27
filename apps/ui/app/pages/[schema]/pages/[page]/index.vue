@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 
@@ -16,20 +17,24 @@ import type {
 } from "../../../../../../tailwind-components/types/cms";
 
 const route = useRoute();
-const schema = Array.isArray(route.params.schema)
-  ? route.params.schema[0]
-  : route.params.schema ?? "";
-const page = route.params.page as string;
+const schema = computed<string>(() => {
+  const currentSchema = Array.isArray(route.params.schema)
+    ? route.params.schema[0]
+    : route.params.schema ?? "";
+  return currentSchema as string;
+});
 
-useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
+const page = computed<string>(() => route.params.page as string);
 
-const pageData = await getPage(schema as string, page);
+useHead({ title: `${page.value} - Pages - ${schema.value} - Molgenis` });
+
+const pageData = await getPage(schema.value, page.value);
 const pageContent = pageData.page;
 
 const crumbs: Crumb[] = [
-  { label: schema as string, url: `/${schema}` },
-  { label: "Pages", url: `/${schema}/pages` },
-  { label: page as string, url: "" },
+  { label: schema.value, url: `/${schema.value}` },
+  { label: "Pages", url: `/${schema.value}/pages` },
+  { label: page.value, url: "" },
 ];
 </script>
 
@@ -45,7 +50,8 @@ const crumbs: Crumb[] = [
     v-else
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"
-    :is-editable="false"
+    :isEditable="false"
     :schema="schema || ''"
+    :route="route"
   />
 </template>

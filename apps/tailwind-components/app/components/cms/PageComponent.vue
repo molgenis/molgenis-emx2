@@ -4,7 +4,6 @@ import { hideAllPoppers } from "floating-vue";
 import { useDebounceFn } from "@vueuse/core";
 
 import Paragraph from "./paragraph/Paragraph.vue";
-import Heading from "./heading/Heading.vue";
 
 import EditableHeader from "./header/EditableHeader.vue";
 import EditableSection from "./section/EditableSection.vue";
@@ -52,7 +51,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["updatePage", "dragging"]);
+const emit = defineEmits(["updatePage", "dragging", "savingStatus"]);
 
 const componentDisplayName = computed<string>(() => {
   return asSingularName(componentMetadata.value?.name as string) as string;
@@ -64,6 +63,7 @@ const sourceItems =
   props.component?.orderedItems || props.component?.unorderedItems || [];
 const cachedListItems = ref<string[]>([...sourceItems]);
 
+const currentlySaving = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });
@@ -203,9 +203,9 @@ function asSingularName(value: string | undefined): string | undefined {
 }
 
 const debouncedUpdateText = useDebounceFn(
-  (text: string | string[], field: string) => {
+  async (text: string | string[], field: string) => {
     // regular expression used to capitalize first letter of each word and remove the spaces
-    updateCMSfield(
+    await updateCMSfield(
       componentMetadata.value?.schemaId || "",
       schemaTableName.value?.replace(/\s+(.)/g, (_, char) =>
         char.toUpperCase()
@@ -214,15 +214,19 @@ const debouncedUpdateText = useDebounceFn(
       text,
       field
     );
+    emit("updatePage");
+    emit("savingStatus", { state: false, component: props.component.id });
   },
   1000
 );
 
 function updateText(text: string | string[], field: string = "text") {
+  emit("savingStatus", { state: true, component: props.component.id });
   debouncedUpdateText(text, field);
 }
 
 function updateListItems(item: { key: number; text: string }, field: string) {
+  emit("savingStatus", { state: true, component: props.component.id });
   cachedListItems.value[item.key] = item.text;
   updateText(cachedListItems.value, field);
 }
@@ -361,18 +365,10 @@ function inlineSave() {
     :metadata="componentMetadata"
     :formValues="(formComponentData as Record<string,any>)"
     :isInsert="false"
+    :title="`Edit ${componentDisplayName}`"
     @update:updated="onEdited"
     v-model:visible="showEditModal"
-  >
-    <template #header>
-      <Heading
-        id="component-form-edit-heading"
-        :level="2"
-        class="font-display mb-5"
-        :text="`Edit ${componentDisplayName}`"
-      />
-    </template>
-  </EditModal>
+  />
   <Modal
     v-model:visible="showDeleteModal"
     :title="`Delete ${componentDisplayName}?`"
