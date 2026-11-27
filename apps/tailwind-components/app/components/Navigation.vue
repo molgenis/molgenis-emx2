@@ -4,10 +4,10 @@ import BaseIcon from "./BaseIcon.vue";
 import NavigationMenuItems from "./NavigationMenuItems.vue";
 import NavigationMenuLink from "./NavigationMenuLink.vue";
 import type { MenuItem } from "../../types/types";
-import { useAppConfig } from "#app";
-
-const appConfig = useAppConfig();
-const basePath = String(appConfig.basePath ?? "/");
+import {
+  NAVIGATION_MENU_DELAY,
+  NAVIGATION_MENU_TRIGGERS,
+} from "../utils/constants";
 
 const props = withDefaults(
   defineProps<{
@@ -41,17 +41,21 @@ const moreButtonClass =
   <nav class="flex items-center justify-between gap-6 xl:justify-center">
     <template
       v-for="mainNavItem in mainNavItems"
-      :key="`${mainNavItem.label}-${mainNavItem.link}`"
+      :key="`${mainNavItem.label}-${mainNavItem.location}`"
     >
       <template v-if="!mainNavItem.submenu || mainNavItem.submenu.length === 0">
         <NavigationMenuLink
           :item="mainNavItem"
-          :base-path="basePath"
           :link-class="`${linkClass} ${invert ? 'text-sub-menu' : 'text-menu'}`"
         />
       </template>
       <template v-else>
-        <VMenu placement="bottom-end" :distance="-1">
+        <VMenu
+          placement="bottom-end"
+          :distance="-1"
+          :triggers="NAVIGATION_MENU_TRIGGERS"
+          :delay="NAVIGATION_MENU_DELAY"
+        >
           <button
             :class="[linkClass, invert ? 'text-sub-menu' : 'text-menu']"
             :data-test="`main-submenu-${mainNavItem.label}`"
@@ -63,7 +67,6 @@ const moreButtonClass =
           <template #popper>
             <NavigationMenuItems
               :items="mainNavItem.submenu"
-              :base-path="basePath"
               :invert="invert"
             />
           </template>
@@ -74,6 +77,8 @@ const moreButtonClass =
     <VMenu
       placement="bottom-end"
       :distance="-1"
+      :triggers="NAVIGATION_MENU_TRIGGERS"
+      :delay="NAVIGATION_MENU_DELAY"
       v-if="overflowItems.length > 0 && showMoreButton"
     >
       <button
@@ -85,11 +90,7 @@ const moreButtonClass =
       </button>
 
       <template #popper>
-        <NavigationMenuItems
-          :items="overflowItems"
-          :base-path="basePath"
-          :invert="invert"
-        />
+        <NavigationMenuItems :items="overflowItems" :invert="invert" />
       </template>
     </VMenu>
   </nav>

@@ -11,9 +11,11 @@ import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
+import org.molgenis.emx2.Username;
 
 public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
-  private String activeUser;
+
+  private Username activeUsername;
   private boolean isAdmin = false;
 
   public SqlUserAwareConnectionProvider(DataSource source) {
@@ -25,14 +27,15 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     Connection connection = null;
     try {
       connection = super.acquire();
-      if (ADMIN_USER.equals(getActiveUser()) || this.isAdmin) {
+      if (ADMIN_USER.equals(getActiveUsername()) || this.isAdmin) {
         // as admin you are actually session user
         DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE; SET jit='off';");
       } else {
         // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
             .execute(
-                "RESET ROLE; SET jit='off'; SET ROLE {0}", name(MG_USER_PREFIX + getActiveUser()));
+                "RESET ROLE; SET jit='off'; SET ROLE {0}",
+                name(MG_USER_PREFIX + getActiveUsername().value()));
       }
       return connection;
     } catch (DataAccessException dae) {
@@ -54,13 +57,13 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     super.release(connection);
   }
 
-  public String getActiveUser() {
+  public Username getActiveUsername() {
     // default user is ANONYMOUS, not admin! (never null)
-    return activeUser == null ? ANONYMOUS : activeUser;
+    return activeUsername == null ? ANONYMOUS : activeUsername;
   }
 
-  public void setActiveUser(String activeUser) {
-    this.activeUser = activeUser;
+  public void setActiveUsername(Username activeUsername) {
+    this.activeUsername = activeUsername;
   }
 
   public boolean isAdmin() {
@@ -72,7 +75,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   }
 
   public void clearActiveUser() {
-    this.activeUser = null;
+    this.activeUsername = null;
     this.isAdmin = false;
   }
 }

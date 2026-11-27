@@ -8,6 +8,7 @@
     - [Tables](use_tables.md)
     - [Reports](use_reports.md)
     - [Forms](use_forms.md)
+    - [Custom pages](use_cms.md)
     - [Up/download](use_updownload.md)
     - [Permissions](use_permissions.md)
     - [Settings](use_database_settings.md)

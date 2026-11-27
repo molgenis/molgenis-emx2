@@ -2,6 +2,10 @@
 import BaseIcon from "./BaseIcon.vue";
 import NavigationMenuLink from "./NavigationMenuLink.vue";
 import type { MenuItem } from "../../types/types";
+import {
+  NAVIGATION_MENU_DELAY,
+  NAVIGATION_MENU_TRIGGERS,
+} from "../utils/constants";
 
 defineOptions({
   name: "NavigationMenuItems",
@@ -9,7 +13,6 @@ defineOptions({
 
 defineProps<{
   items: MenuItem[];
-  basePath: string;
   invert: boolean;
 }>();
 
@@ -23,16 +26,17 @@ const submenuButtonClass =
 
 <template>
   <ol :class="submenuListClass">
-    <li v-for="item in items" :key="`${item.label}-${item.link}`">
+    <li v-for="item in items" :key="`${item.label}-${item.location}`">
       <template v-if="!item.submenu || item.submenu.length === 0">
-        <NavigationMenuLink
-          :item="item"
-          :base-path="basePath"
-          :link-class="submenuLinkClass"
-        />
+        <NavigationMenuLink :item="item" :link-class="submenuLinkClass" />
       </template>
       <template v-else>
-        <VMenu placement="right-start" :distance="-1">
+        <VMenu
+          placement="right-start"
+          :distance="-1"
+          :triggers="NAVIGATION_MENU_TRIGGERS"
+          :delay="NAVIGATION_MENU_DELAY"
+        >
           <button
             :class="[
               submenuButtonClass,
@@ -45,11 +49,7 @@ const submenuButtonClass =
           </button>
 
           <template #popper>
-            <NavigationMenuItems
-              :items="item.submenu"
-              :base-path="basePath"
-              :invert="invert"
-            />
+            <NavigationMenuItems :items="item.submenu" :invert="invert" />
           </template>
         </VMenu>
       </template>

@@ -22,21 +22,28 @@ Set the landing page with the optional SYSTEM_LANDING_PAGE setting
 
 ```ts
 interface Link {
-    link: string;
-    isSpaLink?: boolean;
+    location: string;
+    linkType?: "spaLink" | "internalPageLink" | "externalLink"; // optional, default: "spaLink"
 }
 ```
 
-example with external link ( i.e. all links outside of the 'ui' app)
+Link types (```linkType```):
+ - ```spaLink``` (default): a page inside the 'ui' app, for example ```/pet%20store/Pet```.
+ - ```internalPageLink```: a page on this server outside the 'ui' app, for example ```directory-demo/directory#/catalogue```.
+ - ```externalLink```: a full URL to another site, for example ```https://www.google.com```.
+
+The older ```isSpaLink``` property is no longer read. Settings that use ```"isSpaLink": false``` must change it to ```"linkType": "internalPageLink"``` (or ```"externalLink"``` for a full URL to another site); otherwise the link is treated as a ```spaLink```. The ```link``` property has been renamed to ```location```; settings that still use ```"link"``` must be updated.
+
+example with a page outside of the 'ui' app
 
 ```json
-{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
+{"location": "/directory-demo/directory#/catalogue", "linkType": "internalPageLink"}
 ```
 
-example with internal link ( i.e. all within of the 'ui' app)
+example with a page inside the 'ui' app
 
 ```json
-{"link": "pet%20store/Pet", "isSpaLink": true}
+{"location": "/pet%20store/Pet", "linkType": "spaLink"}
 ```
 #### Banner
 Set the application banner with the optional SYSTEM_BANNER_HTML setting:
@@ -73,6 +80,21 @@ or just hook into the tailwind system:
     <p class="text-center">This is a tailwind styled banner</p>
 </div>
 ```
+
+#### Theme
+Set the theme of the ui app with the optional UI_THEME setting:
+
+- key: ```UI_THEME```
+- value: the name of the theme, for example ```molgenis```, ```umcg```, ```aumc```, ```hdsu```, ```uncan-connect```, ```light``` or ```dark```
+
+If not set or an empty string, the default theme is used and users can switch between light and dark mode.
+
+If set to ```light``` or ```dark```, that mode is used as the default and users can still switch between light and dark mode.
+
+If set to any other theme, that theme is always used and the light/dark theme switch is hidden.
+
+The theme can be overridden per database with the ```SCHEMA_UI_THEME``` database setting.
+The theme is fetched once when the app is loaded, so changes take effect after reloading the page.
 
 
 ## User management

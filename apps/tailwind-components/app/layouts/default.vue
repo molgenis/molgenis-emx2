@@ -34,7 +34,7 @@
         </template>
       </Header>
 
-      <main>
+      <main class="grow">
         <Banner v-if="banner" v-html="banner" />
         <slot />
       </main>

@@ -42,14 +42,14 @@ class FileTest extends RdfServiceTestRunner {
 
     Set<Value> files =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(fileTest) + "MyFiles/id=1"))
             .get(Values.iri(getApi(fileTest) + "MyFiles/column/file"));
 
     IRI fileIRI = (IRI) files.stream().findFirst().get();
 
-    Set<Value> fileNames = handler.resources.get(fileIRI).get(DCTERMS.TITLE);
-    Set<Value> fileFormats = handler.resources.get(fileIRI).get(DCTERMS.FORMAT);
+    Set<Value> fileNames = handler.getResources().get(fileIRI).get(DCTERMS.TITLE);
+    Set<Value> fileFormats = handler.getResources().get(fileIRI).get(DCTERMS.FORMAT);
 
     assertAll(
         () -> assertEquals(1, files.size()),

@@ -8,7 +8,7 @@ MOLGENIS core architecture is anchored on
 PostgreSQL, [The World's Most Advanced Open Source Relational Database](https://www.postgresql.org/),
 jOOQ, [The best way to write SQL in Java](https://github.com/jOOQ/jOOQ),
 Java™, [The world's leading programming language and platform](https://adoptopenjdk.net/),
-SparkJava, [Micro framework for creating web applications]((https://sparkjava.com/)),
+SparkJava, [Micro framework for creating web applications](https://sparkjava.com/),
 GraphQL, [The query language for your API that is the better REST](https://graphql.org/),
 VueJS, [The Progressive JavaScript Framework for building UI on the web](https://vuejs.org/), and
 Bootstrap, [The world’s most popular front-end open source toolkit](https://getbootstrap.com/).
@@ -26,6 +26,6 @@ vue-runtime-template-compiler.
 
 For development support, we thank [IntelliJ IDEA](https://www.jetbrains.com/idea/) development
 environment, [SonarCloud](https://sonarcloud.io/) Continuous Code Quality & Code Security
-scanner, [CircleCI](https://circleci.com/), [Travis](travis-ci.com), and [Jenkins](https://www.jenkins.io/) build
+scanner, [CircleCI](https://circleci.com/), [Travis](https://www.travis-ci.com/), and [Jenkins](https://www.jenkins.io/) build
 pipelines, [Rancher](https://rancher.com/) Kubernetes management, [Ansible](https://www.ansible.com/) deploy automation,
 and [OpenStack](https://www.openstack.org/), The Most Widely Deployed Open Source Cloud Software in the World.

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -12,27 +13,30 @@ public class TestTokenBasedAccess {
 
   @Test
   public void testJWTgenerator() {
-    db.addUser("tokentest1");
-    db.addUser("tokentest2");
+    Username tokentest1 = new Username("tokentest1");
+    Username tokentest2 = new Username("tokentest2");
+
+    db.addUser(tokentest1);
+    db.addUser(tokentest2);
 
     // user environment variable
 
     // temp token
-    String result = JWTgenerator.createTemporaryToken(db, "tokentest1");
+    String result = JWTgenerator.createTemporaryToken(db, tokentest1);
     System.out.println(result);
-    assertNotEquals(result, "tokentest1");
-    String user = JWTgenerator.getUserFromToken(db, result);
-    assertEquals(user, "tokentest1");
+    assertNotEquals(result, tokentest1.value());
+    Username user = JWTgenerator.getUserFromToken(db, result);
+    assertEquals(user, tokentest1);
 
     // named token
-    result = JWTgenerator.createNamedTokenForUser(db, "tokentest2", "mytoken");
+    result = JWTgenerator.createNamedTokenForUser(db, tokentest2, "mytoken");
     user = JWTgenerator.getUserFromToken(db, result);
-    assertEquals(user, "tokentest2");
+    assertEquals(user, tokentest2);
 
     // check cannot make token for user if not authorized
-    db.setActiveUser("tokentest1");
+    db.setActiveUser(tokentest1);
     try {
-      JWTgenerator.createNamedTokenForUser(db, "tokentest2", "mytoken");
+      JWTgenerator.createNamedTokenForUser(db, tokentest2, "mytoken");
       fail("should not be able to make token for other user, unless admin");
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("Cannot"));

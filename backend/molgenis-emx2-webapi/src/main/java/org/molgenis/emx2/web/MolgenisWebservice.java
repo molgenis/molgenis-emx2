@@ -138,6 +138,7 @@ public class MolgenisWebservice {
     JsonApi.create(app);
     FileApi.create(app);
     JsonYamlApi.create(app);
+    JsonRowsApi.create(app);
     TaskApi.create(app);
     GraphqlApi.createGraphqlService(app);
     RDFApi.create(app);
@@ -234,7 +235,7 @@ public class MolgenisWebservice {
       if (schema == null) {
         throw new MolgenisException("Cannot redirectSchemaToFirstMenuItem, schema is null");
       }
-      String currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
+      Username currentUser = new MolgenisSessionHandler(ctx.req()).getCurrentUser();
       String role = schema.getRoleForActiveUser();
 
       SchemaMenu schemaMenu = SchemaMenu.fromSchema(schema);
@@ -244,7 +245,7 @@ public class MolgenisWebservice {
       }
 
       SchemaMenu menuForRole;
-      if (ANONYMOUS.equals(currentUser)) {
+      if (ANONYMOUS_USER.equals(currentUser)) {
         menuForRole = schemaMenu.menuForAnonymousAndRole(role);
       } else {
         menuForRole = schemaMenu.menuForRole(role);
@@ -253,7 +254,7 @@ public class MolgenisWebservice {
       if (menuForRole.isEmpty()) {
         logger.warn("No menu available for current user");
         boolean userHasAnyRole =
-            schema.getMembers().stream().anyMatch(m -> m.getUser().equals(currentUser));
+            schema.getMembers().stream().anyMatch(m -> m.getUsername().equals(currentUser));
         if (userHasAnyRole) {
           ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
         } else {
@@ -297,16 +298,18 @@ public class MolgenisWebservice {
     return result.toString();
   }
 
-  private static String openApiYaml(Context ctx) throws IOException {
+  private static void openApiYaml(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null) {
       throw new MolgenisException("Schema is null");
     }
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     ctx.status(200);
-    return Yaml.mapper()
-        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
-        .writeValueAsString(api);
+    ctx.contentType(ACCEPT_YAML);
+    ctx.result(
+        Yaml.mapper()
+            .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+            .writeValueAsString(api));
   }
 
   /**

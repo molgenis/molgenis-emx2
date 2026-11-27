@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Username;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
@@ -151,27 +152,28 @@ class TestGraphqlDatabaseFields {
 
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
-    if (database.hasUser("pietje")) {
-      database.removeUser("pietje");
+    Username pietje = new Username("pietje");
+    if (database.hasUser(pietje)) {
+      database.removeUser(pietje);
     }
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
-    assertTrue(database.hasUser("pietje"));
-    assertTrue(database.checkUserPassword("pietje", "blaat123"));
+    assertTrue(database.hasUser(pietje));
+    assertTrue(database.checkUserPassword(pietje, "blaat123"));
 
     assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    assertEquals("pietje", sessionManager.getCurrentUser());
+    assertEquals(pietje, sessionManager.getCurrentUser());
 
-    database.setActiveUser("pietje");
+    database.setActiveUser(pietje);
     assertTrue(
-        execute("mutation{changePassword(password:\"blaat124\"){message}}")
+        execute("mutation{changePassword(oldPassword:\"blaat123\",password:\"blaat124\"){message}}")
             .at("/data/changePassword/message")
             .textValue()
             .contains("Password changed"));
-    assertTrue(database.checkUserPassword("pietje", "blaat124"));
+    assertTrue(database.checkUserPassword(pietje, "blaat124"));
 
     execute("mutation{signout{message}}", sessionManager);
     assertNull(sessionManager.getCurrentUser());
@@ -180,11 +182,139 @@ class TestGraphqlDatabaseFields {
   }
 
   @Test
+  void testChangePasswordRequiresOldPassword() throws IOException {
+    database.becomeAdmin();
+    Username user = new Username("changePasswordUser");
+    Username other = new Username("changePasswordOther");
+    Username fresh = new Username("changePasswordFresh");
+    for (Username u : new Username[] {user, other, fresh}) {
+      if (database.hasUser(u)) {
+        database.removeUser(u);
+      }
+    }
+    database.setUserPassword(user, "original1");
+    database.setUserPassword(other, "original1");
+
+    try {
+      database.setActiveUser(user);
+
+      // missing old password
+      assertTrue(
+          changePasswordMessage("mutation{changePassword(password:\"changed1\"){message}}")
+              .contains("current password is required"));
+      assertTrue(database.checkUserPassword(user, "original1"));
+
+      // wrong old password
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"wrong\",password:\"changed1\"){message}}")
+              .contains("current password is incorrect"));
+      assertTrue(database.checkUserPassword(user, "original1"));
+
+      // retrying straight away is blocked by the shared sign-in rate limit
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"original1\",password:\"changed1\"){message}}")
+              .contains("too many attempts"));
+      assertTrue(database.checkUserPassword(user, "original1"));
+
+      // non-admin cannot bypass the check by passing their own email
+      database.becomeAdmin();
+      database.removeUser(user);
+      database.setUserPassword(user, "original1");
+      database.setActiveUser(user);
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(email:\"" + user + "\",password:\"changed1\"){message}}")
+              .contains("current password is required"));
+
+      // correct old password (fresh user: `user` is still rate limited from the failure above)
+      database.becomeAdmin();
+      database.setUserPassword(fresh, "original1");
+      database.setActiveUser(fresh);
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"original1\",password:\"changed1\"){message}}")
+              .contains("Password changed"));
+      assertTrue(database.checkUserPassword(fresh, "changed1"));
+    } finally {
+      database.becomeAdmin();
+    }
+
+    // admin resetting another user's password does not need the old password
+    assertTrue(
+        changePasswordMessage(
+                "mutation{changePassword(email:\"" + other + "\",password:\"reset123\"){message}}")
+            .contains("Password changed"));
+    assertTrue(database.checkUserPassword(other, "reset123"));
+
+    database.removeUser(user);
+    database.removeUser(other);
+    database.removeUser(fresh);
+  }
+
+  @Test
+  void testAdminChangingOwnPasswordRequiresOldPassword() throws IOException {
+    // use a dedicated admin user so the built-in admin password is never touched
+    database.becomeAdmin();
+    Username adminUser = new Username("changePasswordAdmin");
+    if (database.hasUser(adminUser)) {
+      database.removeUser(adminUser);
+    }
+    database.setUserPassword(adminUser, "original1");
+    database.setAdminUser(adminUser, true);
+
+    try {
+      database.setActiveUser(adminUser);
+      assertTrue(database.isAdmin());
+
+      // admin without old password
+      assertTrue(
+          changePasswordMessage("mutation{changePassword(password:\"changed1\"){message}}")
+              .contains("current password is required"));
+      assertTrue(database.checkUserPassword(adminUser, "original1"));
+
+      // admin passing their own email is not treated as a reset of another user
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(email:\""
+                      + adminUser
+                      + "\",password:\"changed1\"){message}}")
+              .contains("current password is required"));
+      assertTrue(database.checkUserPassword(adminUser, "original1"));
+
+      // admin with correct old password (checked before any failure, so not rate limited)
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(oldPassword:\"original1\",password:\"changed1\"){message}}")
+              .contains("Password changed"));
+      assertTrue(database.checkUserPassword(adminUser, "changed1"));
+
+      // admin with wrong old password, also with their own email
+      assertTrue(
+          changePasswordMessage(
+                  "mutation{changePassword(email:\""
+                      + adminUser
+                      + "\",oldPassword:\"wrong\",password:\"changed2\"){message}}")
+              .contains("current password is incorrect"));
+      assertTrue(database.checkUserPassword(adminUser, "changed1"));
+    } finally {
+      database.becomeAdmin();
+      database.removeUser(adminUser);
+    }
+  }
+
+  private String changePasswordMessage(String query) throws IOException {
+    return execute(query).at("/data/changePassword/message").textValue();
+  }
+
+  @Test
   void testLoginWithWrongPassword() throws IOException {
     GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
 
-    if (database.hasUser("jantje")) {
-      database.removeUser("jantje");
+    Username jantje = new Username("jantje");
+    if (database.hasUser(jantje)) {
+      database.removeUser(jantje);
     }
     execute("mutation{signup(email:\"jantje\",password:\"blaat123\"){message}}");
 
@@ -205,10 +335,10 @@ class TestGraphqlDatabaseFields {
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
     GraphqlSessionHandlerInterface sessionManager =
         new GraphqlSessionHandlerInterface() {
-          private String user;
+          private Username user;
 
           @Override
-          public void createSession(String username) {
+          public void createSession(Username username) {
             this.user = username;
           }
 
@@ -218,13 +348,13 @@ class TestGraphqlDatabaseFields {
           }
 
           @Override
-          public String getCurrentUser() {
+          public Username getCurrentUser() {
             return user;
           }
         };
     execute(
         "mutation { signin(email: \""
-            + database.getAdminUserName()
+            + database.getAdminUserName().value()
             + "\",password:\""
             + adminPass
             + "\") {message}}",
@@ -247,7 +377,7 @@ class TestGraphqlDatabaseFields {
               .textValue());
 
       // test that we can this only for 'ourselves'
-      database.setActiveUser("pietje");
+      database.setActiveUser(new Username("pietje"));
       execute(
           "mutation{change(users:{email:\"pietje\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
       assertEquals(
@@ -267,6 +397,142 @@ class TestGraphqlDatabaseFields {
     } finally {
       database.becomeAdmin();
     }
+  }
+
+  @Test
+  void testDropUsersWithMissingEmailDropsNone() {
+    Username username = new Username("drop-users-missing-email");
+    database.addUser(username);
+    String mutation =
+        """
+        mutation {
+          drop(users: [{email: "%s"}, {}]) {
+            message
+          }
+        }
+        """
+            .formatted(username);
+
+    assertThrows(MolgenisException.class, () -> execute(mutation));
+
+    assertTrue(database.hasUser(username));
+    database.removeUser(username);
+  }
+
+  @Test
+  void testSignupWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              signup(password: "blaat123") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/signup/status").asText());
+    assertEquals("No email provided", missing.at("/data/signup/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              signup(email: " ", password: "blaat123") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/signup/status").asText());
+    assertEquals("No email provided", blank.at("/data/signup/message").asText());
+  }
+
+  @Test
+  void testCreateTokenWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              createToken(tokenName: "test") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/createToken/status").asText());
+    assertEquals("No email provided", missing.at("/data/createToken/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              createToken(email: " ", tokenName: "test") {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/createToken/status").asText());
+    assertEquals("No email provided", blank.at("/data/createToken/message").asText());
+  }
+
+  @Test
+  void testSetEnabledUserWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              setEnabledUser(enabled: true) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/setEnabledUser/status").asText());
+    assertEquals("No email provided", missing.at("/data/setEnabledUser/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              setEnabledUser(email: " ", enabled: true) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/setEnabledUser/status").asText());
+    assertEquals("No email provided", blank.at("/data/setEnabledUser/message").asText());
+  }
+
+  @Test
+  void testUpdateUserWithoutEmailFails() throws IOException {
+    JsonNode missing =
+        execute(
+            """
+            mutation {
+              updateUser(updateUser: {enabled: true}) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", missing.at("/data/updateUser/status").asText());
+    assertEquals("No user provided", missing.at("/data/updateUser/message").asText());
+
+    JsonNode blank =
+        execute(
+            """
+            mutation {
+              updateUser(updateUser: {email: " ", enabled: true}) {
+                status
+                message
+              }
+            }
+            """);
+    assertEquals("FAILED", blank.at("/data/updateUser/status").asText());
+    assertEquals("No user provided", blank.at("/data/updateUser/message").asText());
   }
 
   @Test

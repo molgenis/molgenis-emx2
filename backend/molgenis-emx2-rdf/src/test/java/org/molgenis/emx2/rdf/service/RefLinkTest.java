@@ -74,7 +74,7 @@ class RefLinkTest extends RdfServiceTestRunner {
     InMemoryRDFHandler handler = parseRowRdf(refLinkTest, "table3", "p1=t1First&p2=t2First");
     Set<Value> actualSubjects =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(refLinkTest) + "Table3/p1=t1First&p2=t2First"))
             .get(Values.iri(getApi(refLinkTest) + "Table3/column/ref"));
 
@@ -96,7 +96,7 @@ class RefLinkTest extends RdfServiceTestRunner {
     InMemoryRDFHandler handler = parseRowRdf(refLinkTest, "table3", "p1=t1First&p2=t2First");
     Set<Value> actualSubjects =
         handler
-            .resources
+            .getResources()
             .get(Values.iri(getApi(refLinkTest) + "Table3/p1=t1First&p2=t2First"))
             .get(Values.iri(getApi(refLinkTest) + "Table3/column/ref_array"));
 
