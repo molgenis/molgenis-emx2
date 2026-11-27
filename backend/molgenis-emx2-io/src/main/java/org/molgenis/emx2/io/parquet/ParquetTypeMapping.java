@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.SequencedMap;
 import java.util.Set;
 import org.apache.parquet.schema.LogicalTypeAnnotation;
-import org.apache.parquet.schema.LogicalTypeAnnotation.TimeUnit;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 import org.apache.parquet.schema.Type;
@@ -63,7 +62,7 @@ final class ParquetTypeMapping {
         case DATETIME, DATETIME_ARRAY ->
             schema
                 .primitive(PrimitiveTypeName.INT64, repetition)
-                .as(LogicalTypeAnnotation.timestampType(false, TimeUnit.MILLIS))
+                .as(ParquetTimestamp.logicalType())
                 .named(columnName);
         default ->
             schema
