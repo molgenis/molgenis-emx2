@@ -30,7 +30,6 @@ const internalHighlightValue = computedAsync(async () => {
     let filter = {};
     try {
       if (props.highlightValueFilter) {
-        console.log(props.highlightValueFilter);
         filter = JSON.parse(props.highlightValueFilter);
       }
 
@@ -45,11 +44,12 @@ const internalHighlightValue = computedAsync(async () => {
       if (data.value) {
         const result = data.value as Record<string, any>;
         const tableData = result.data[queryInfo.gqlTableName];
+        let value = tableData[aggMethod];
         if (queryInfo.gqlBodyIsNested) {
-          return tableData[aggMethod][props.highlightValueColumn as string];
-        } else {
-          return tableData[aggMethod];
+          value = parseFloat(value[props.highlightValueColumn as string]);
+          value = Math.ceil(value / 0.01) * 0.01;
         }
+        return value;
       }
     } catch (error) {
       return "N/A";
