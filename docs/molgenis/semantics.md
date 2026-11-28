@@ -35,7 +35,6 @@ By default, the following prefixed names are available:
 | dcat          | http://www.w3.org/ns/dcat#                     |
 | dcatap        | http://data.europa.eu/r5r/                     |
 | dcterms       | http://purl.org/dc/terms/                      |
-| dpv-tech      | https://www.w3id.org/dpv/dpv-tech#             |
 | edam          | http://edamontology.org/                       |
 | efo           | http://www.ebi.ac.uk/efo/                      |
 | ejp           | https://w3id.org/ejp-rd/vocabulary#            |
