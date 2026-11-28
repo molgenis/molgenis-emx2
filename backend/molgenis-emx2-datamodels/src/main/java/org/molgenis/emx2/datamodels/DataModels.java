@@ -19,6 +19,7 @@ public final class DataModels {
     DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortsStaging.yaml"),
     DATA_CATALOGUE_NETWORK_STAGING("_profiles/NetworksStaging.yaml"),
     DATA_CATALOGUE_BIOBANK_STAGING("_profiles/BiobanksStaging.yaml"),
+    CATALOGUE_TOOLS_STAGING("_profiles/ToolsStaging.yaml"),
     DATA_CATALOGUE_RWE_STAGING("_profiles/RWEStaging.yaml"),
     DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
     UMCG_COHORT_STAGING("_profiles/UMCGCohortsStaging.yaml"),
