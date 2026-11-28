@@ -586,6 +586,7 @@ public class GraphqlSchemaFieldFactory {
                 Schema s = db.getSchema(schema.getName());
                 dropTables(s, dataFetchingEnvironment, message);
                 dropMembers(s, dataFetchingEnvironment, message);
+                dropMemberRoles(s, dataFetchingEnvironment, message);
                 dropRoles(s, dataFetchingEnvironment, message);
                 dropColumns(s, dataFetchingEnvironment, message);
                 dropSettings(s, dataFetchingEnvironment, message);
@@ -716,6 +717,28 @@ public class GraphqlSchemaFieldFactory {
     for (String roleName : roles) {
       schema.deleteRole(roleName);
       message.append("Dropped role '").append(roleName).append("'\n");
+    }
+  }
+
+  private static void dropMemberRoles(
+      Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
+    List<Map<String, String>> memberRoles = dataFetchingEnvironment.getArgument(MEMBER_ROLES);
+    if (memberRoles == null) {
+      return;
+    }
+    for (Map<String, String> memberRole : memberRoles) {
+      String email = memberRole.get(EMAIL);
+      String role = memberRole.get(ROLE);
+      if (email == null || role == null) {
+        throw new GraphqlException("Drop member role failed: both email and role are required");
+      }
+      schema.removeMembers(new Member(new Username(email), role));
+      message
+          .append("Dropped member '")
+          .append(email)
+          .append("' from role '")
+          .append(role)
+          .append("'\n");
     }
   }
 
@@ -987,6 +1010,10 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(MEMBERS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(MEMBER_ROLES)
+                .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument().name(COLUMNS).type(GraphQLList.list(inputDropColumnType)))
         .argument(

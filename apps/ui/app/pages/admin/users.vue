@@ -1,104 +1,3 @@
-<template>
-  <ContentBlock
-    class="w-full"
-    title="User management"
-    :description="`${matchingUsers.length} users found`"
-  >
-    <TableInteractive
-      :features="tableFeatures"
-      :permissions="tablePermissions"
-      :rows="usersShown"
-      :rowCount="matchingUsers.length"
-      :selectedRows="selectedRows"
-      :settings="tableSettings"
-      :tableMetadata="tableMetadata"
-      searchPlaceholder="Search users"
-      @update:settings="handleUpdateSettings"
-      @cellClicked="handleCellClicked"
-      @rowAction="handleRowAction"
-      @toggleRowSelection="handleToggleRowSelection"
-    >
-      <template #row-action="{ row }">
-        <Button
-          :id="`edit-user-${row.email}`"
-          iconOnly
-          type="inline"
-          icon="edit"
-          :label="`Edit user: ${row.email}`"
-          @click="openEditUserModal(rowToUser(row))"
-        />
-        <Button
-          v-if="!SYSTEM_USERS.includes(rowToUser(row).email)"
-          :id="`delete-user-${row.email}`"
-          iconOnly
-          type="inline"
-          icon="trash"
-          :label="`Delete user: ${row.email}`"
-          @click="showDeleteUserConfirmation(rowToUser(row))"
-        />
-        <Button
-          v-if="Array.isArray(row.tokens) && row.tokens.length"
-          :id="`manage-tokens-${row.email}`"
-          type="inline"
-          size="tiny"
-          @click="openManageTokensModal(rowToUser(row))"
-        >
-          {{ row.tokens?.length }} tokens
-        </Button>
-      </template>
-
-      <template #buttons>
-        <Button
-          type="primary"
-          size="medium"
-          icon="add-circle"
-          @click="showNewUserModal = true"
-        >
-          Create user
-        </Button>
-      </template>
-    </TableInteractive>
-
-    <CellDetailModal
-      v-if="cellDetailPayload"
-      :payload="cellDetailPayload"
-      :schemaId="USER_SCHEMA_ID"
-      v-model:showModal="showCellDetailSideModal"
-    />
-
-    <NewUserModal
-      v-if="showNewUserModal"
-      v-model:visible="showNewUserModal"
-      :usernames="userNames"
-      @addUser="adminSettings.addUser"
-    />
-
-    <EditUserModal
-      v-if="selectedUser && showEditUserModal"
-      v-model:visible="showEditUserModal"
-      :schemas="adminSettings.schemas"
-      :roles="adminSettings.roles"
-      :user="selectedUser"
-      @userUpdated="adminSettings.reloadAdminData"
-    />
-
-    <DeleteUserConfirmation
-      v-if="showDeleteUserModal"
-      v-model:visible="showDeleteUserModal"
-      :users="usersForDeletion"
-      :systemUsers="skippedSystemUsers"
-      @deleteUser="adminSettings.removeUsers(usersForDeletion)"
-    />
-
-    <TokenManagement
-      v-if="selectedUser && showTokenModal"
-      v-model:visible="showTokenModal"
-      :user="selectedUser"
-      @userUpdated="adminSettings.reloadAdminData"
-    />
-  </ContentBlock>
-</template>
-
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
@@ -120,6 +19,7 @@ import NewUserModal from "../../components/NewUserModal.vue";
 import TokenManagement from "../../components/TokenManagement.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { User } from "../../interfaces/interfaces.ts";
+import { paginateRows, sortRows } from "../../util/adminUtils";
 
 /**
  * Todo:
@@ -211,7 +111,7 @@ const userNames = computed<string[]>(() => {
 const matchingUsers = computed<User[]>(() => {
   const search = tableSettings.value.search?.toLowerCase() || "";
   const filteredUsers = filterUsers(search, adminSettings.users);
-  return sortUsers(
+  return sortRows(
     filteredUsers,
     tableSettings.value.orderby?.column || "email",
     tableSettings.value.orderby?.direction || "ASC"
@@ -219,7 +119,7 @@ const matchingUsers = computed<User[]>(() => {
 });
 
 const usersShown = computed<User[]>(() =>
-  paginateUsers(
+  paginateRows(
     matchingUsers.value,
     tableSettings.value.page,
     tableSettings.value.pageSize
@@ -313,33 +213,102 @@ function filterUsers(search: string, users: User[]): User[] {
   }
 }
 
-function sortUsers(
-  users: User[],
-  column: string,
-  direction: "ASC" | "DESC"
-): User[] {
-  return [...users].sort((a, b) => {
-    const aValue = JSON.stringify(a[column as keyof User]);
-    const bValue = JSON.stringify(b[column as keyof User]);
-    if (aValue === undefined || bValue === undefined) {
-      return 0;
-    }
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return direction === "ASC"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
-    return 0;
-  });
-}
-
-function paginateUsers(users: User[], page: number, pageSize: number): User[] {
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  return users.slice(startIndex, endIndex);
-}
-
 function rowToUser(row: TableRow): User {
   return row as User;
 }
 </script>
+
+<template>
+  <TableInteractive
+    :features="tableFeatures"
+    :permissions="tablePermissions"
+    :rows="usersShown"
+    :rowCount="matchingUsers.length"
+    :selectedRows="selectedRows"
+    :settings="tableSettings"
+    :tableMetadata="tableMetadata"
+    searchPlaceholder="Search users"
+    @update:settings="handleUpdateSettings"
+    @cellClicked="handleCellClicked"
+    @rowAction="handleRowAction"
+    @toggleRowSelection="handleToggleRowSelection"
+  >
+    <template #row-action="{ row }">
+      <Button
+        :id="`edit-user-${row.email}`"
+        iconOnly
+        type="inline"
+        icon="edit"
+        :label="`Edit user: ${row.email}`"
+        @click="openEditUserModal(rowToUser(row))"
+      />
+      <Button
+        v-if="!SYSTEM_USERS.includes(rowToUser(row).email)"
+        :id="`delete-user-${row.email}`"
+        iconOnly
+        type="inline"
+        icon="trash"
+        :label="`Delete user: ${row.email}`"
+        @click="showDeleteUserConfirmation(rowToUser(row))"
+      />
+      <Button
+        v-if="Array.isArray(row.tokens) && row.tokens.length"
+        :id="`manage-tokens-${row.email}`"
+        type="inline"
+        size="tiny"
+        @click="openManageTokensModal(rowToUser(row))"
+      >
+        {{ row.tokens?.length }} tokens
+      </Button>
+    </template>
+
+    <template #buttons>
+      <Button
+        type="primary"
+        size="medium"
+        icon="add-circle"
+        @click="showNewUserModal = true"
+      >
+        Create user
+      </Button>
+    </template>
+  </TableInteractive>
+
+  <CellDetailModal
+    v-if="cellDetailPayload"
+    :payload="cellDetailPayload"
+    :schemaId="USER_SCHEMA_ID"
+    v-model:showModal="showCellDetailSideModal"
+  />
+
+  <NewUserModal
+    v-if="showNewUserModal"
+    v-model:visible="showNewUserModal"
+    :usernames="userNames"
+    @addUser="adminSettings.addUser"
+  />
+
+  <EditUserModal
+    v-if="selectedUser && showEditUserModal"
+    v-model:visible="showEditUserModal"
+    :schemas="adminSettings.schemas"
+    :roles="adminSettings.roles"
+    :user="selectedUser"
+    @userUpdated="adminSettings.reloadAdminData"
+  />
+
+  <DeleteUserConfirmation
+    v-if="showDeleteUserModal"
+    v-model:visible="showDeleteUserModal"
+    :users="usersForDeletion"
+    :systemUsers="skippedSystemUsers"
+    @deleteUser="adminSettings.removeUsers(usersForDeletion)"
+  />
+
+  <TokenManagement
+    v-if="selectedUser && showTokenModal"
+    v-model:visible="showTokenModal"
+    :user="selectedUser"
+    @userUpdated="adminSettings.reloadAdminData"
+  />
+</template>

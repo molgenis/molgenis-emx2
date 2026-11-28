@@ -11,7 +11,8 @@
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
     "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "test": "vitest"
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "11.0.3",

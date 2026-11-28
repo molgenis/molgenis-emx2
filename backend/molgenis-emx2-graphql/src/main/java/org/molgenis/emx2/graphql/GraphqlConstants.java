@@ -38,6 +38,7 @@ public final class GraphqlConstants {
   public static final String FILTER_IS_NULL = "_is_null";
   public static final String TABLES = "tables";
   public static final String MEMBERS = "members";
+  public static final String MEMBER_ROLES = "memberRoles";
   public static final String TYPE = "type";
   public static final String VALUE = "value";
   public static final String FILTER_EQUALS = "equals";

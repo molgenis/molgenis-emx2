@@ -1,11 +1,23 @@
 import { reactive, ref } from "vue";
-import type { Role, SchemaInfo, User } from "~/interfaces/interfaces.ts";
+import type { TablePermission } from "../../../tailwind-components/types/types.ts";
+import type {
+  CustomRole,
+  CustomRoleUpdate,
+  NewCustomRole,
+  Role,
+  SchemaInfo,
+  User,
+} from "../interfaces/interfaces.ts";
 import {
+  createCustomRole,
   createUser,
+  deleteCustomRoles,
   deleteUser,
   getRoles,
   getSchemas,
   getUsers,
+  loadCustomRoles,
+  updateCustomRole,
 } from "../util/adminUtils";
 
 const roles = ref<string[]>([]);
@@ -14,6 +26,8 @@ const schemas = ref<SchemaInfo[]>([]);
 const totalUserPages = ref(0);
 const users = ref<User[]>([]);
 const loaded = ref(false);
+const customRoles = ref<CustomRole[]>();
+const customRolePermissions = ref<Record<string, TablePermission[]>>({});
 
 export default async function useAdminSettings() {
   await loadAdminData();
@@ -52,13 +66,54 @@ export default async function useAdminSettings() {
     return rolesByUser.value[email] || [];
   }
 
+  async function getCustomRoles() {
+    if (!customRoles.value) {
+      const { customRoles: newRoles, permissions: newPermissions } =
+        await loadCustomRoles();
+      customRoles.value = newRoles;
+      customRolePermissions.value = newPermissions;
+    }
+    return customRoles.value;
+  }
+
+  function reloadCustomRoles() {
+    customRoles.value = undefined;
+    return getCustomRoles();
+  }
+
+  async function addCustomRole(newRole: NewCustomRole) {
+    await createCustomRole(newRole);
+    await Promise.all([reloadCustomRoles(), reloadAdminData()]);
+  }
+
+  async function editCustomRole(roleUpdate: CustomRoleUpdate) {
+    await updateCustomRole(roleUpdate);
+    await Promise.all([reloadCustomRoles(), reloadAdminData()]);
+  }
+
+  async function removeCustomRoles(rolesToRemove: CustomRole[]) {
+    await deleteCustomRoles(rolesToRemove);
+    await Promise.all([reloadCustomRoles(), reloadAdminData()]);
+  }
+
+  function getPermissionsForCustomRole(role: CustomRole): TablePermission[] {
+    return customRolePermissions.value[role._rowIdString] || [];
+  }
+
   return reactive({
     roles,
     rolesByUser,
     schemas,
     users,
+    customRoles,
     totalUserPages,
     addUser,
+    getCustomRoles,
+    reloadCustomRoles,
+    addCustomRole,
+    editCustomRole,
+    removeCustomRoles,
+    getPermissionsForCustomRole,
     getRolesForUser,
     reloadAdminData,
     removeUsers,

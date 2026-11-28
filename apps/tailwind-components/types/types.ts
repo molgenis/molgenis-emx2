@@ -255,4 +255,5 @@ export interface TablePermission {
   insert: boolean;
   update: boolean;
   delete: boolean;
+  select: boolean;
 }
